@@ -1,0 +1,42 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# IntelliJ files
+*.iml
+.idea/
+**/.idea/
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files
+*.war
+*.nar
+*.ear
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs. See: http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Folders
+build/
+lib/
+out/
+run/
+test/
+
+# Mac specific metafile
+.DS_Store
+
+# Other
+.vscode/
+arch/docker/
+arch/scripts/
+arch/.dockerignore

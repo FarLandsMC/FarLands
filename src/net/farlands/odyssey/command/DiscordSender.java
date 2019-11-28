@@ -1,0 +1,188 @@
+package net.farlands.odyssey.command;
+
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.mechanic.Chat;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.minecraft.server.v1_14_R1.CommandListenerWrapper;
+import net.minecraft.server.v1_14_R1.IChatBaseComponent;
+import net.minecraft.server.v1_14_R1.ICommandListener;
+import org.bukkit.Bukkit;
+import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.plugin.Plugin;
+
+import java.util.Set;
+import java.util.stream.Stream;
+
+/**
+ * Bukkit command sender implementation fit to the discord API.
+ */
+public class DiscordSender implements CommandSender, ICommandListener {
+    private final DiscordSpigot spigot;
+    private final User user;
+    private final MessageChannel channel;
+    private final FLPlayer flp;
+
+    public DiscordSender(User user, MessageChannel channel) {
+        this.spigot = new DiscordSpigot();
+        this.user = user;
+        this.channel = channel;
+        this.flp = FarLands.getPDH().getFLPlayer(getUserID());
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Member getMember() {
+        return FarLands.getDiscordHandler().getGuild().getMember(user);
+    }
+
+    public long getUserID() {
+        return user.getIdLong();
+    }
+
+    public boolean isVerified() {
+        return flp != null;
+    }
+
+    public FLPlayer getFlp() {
+        return flp;
+    }
+
+    public void sendMessageRaw(String s) {
+        FarLands.getDiscordHandler().sendMessage(channel, s);
+    }
+
+    public MessageChannel getChannel() {
+        return channel;
+    }
+
+    @Override
+    public void sendMessage(String s) {
+        FarLands.getDiscordHandler().sendMessage(channel, Chat.applyDiscordFilters(s));
+    }
+
+    @Override
+    public void sendMessage(String[] strings) {
+        sendMessage(String.join("\n", strings));
+    }
+
+    @Override
+    public Server getServer() {
+        return Bukkit.getServer();
+    }
+
+    @Override
+    public String getName() {
+        return getMember().getEffectiveName();
+    }
+
+    @Override
+    public Spigot spigot() {
+        return spigot;
+    }
+
+    @Override
+    public boolean isPermissionSet(String s) {
+        return false;
+    }
+
+    @Override
+    public boolean isPermissionSet(Permission permission) {
+        return false;
+    }
+
+    @Override
+    public boolean hasPermission(String s) {
+        return flp.getRank().hasOP();
+    }
+
+    @Override
+    public boolean hasPermission(Permission permission) {
+        return flp.getRank().hasOP();
+    }
+
+    @Override
+    public PermissionAttachment addAttachment(Plugin plugin, String s, boolean b) {
+        return null;
+    }
+
+    @Override
+    public PermissionAttachment addAttachment(Plugin plugin) {
+        return null;
+    }
+
+    @Override
+    public PermissionAttachment addAttachment(Plugin plugin, String s, boolean b, int i) {
+        return null;
+    }
+
+    @Override
+    public PermissionAttachment addAttachment(Plugin plugin, int i) {
+        return null;
+    }
+
+    @Override
+    public void removeAttachment(PermissionAttachment permissionAttachment) { }
+
+    @Override
+    public void recalculatePermissions() { }
+
+    @Override
+    public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+        return null;
+    }
+
+    @Override
+    public boolean isOp() {
+        return flp.getRank().hasOP();
+    }
+
+    @Override
+    public void setOp(boolean b) { }
+
+    @Override
+    public void sendMessage(IChatBaseComponent component) {
+        sendMessage(component.getString());
+    }
+
+    @Override
+    public boolean shouldSendSuccess() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldSendFailure() {
+        return true;
+    }
+
+    @Override
+    public boolean shouldBroadcastCommands() {
+        return false;
+    }
+
+    @Override
+    public CommandSender getBukkitSender(CommandListenerWrapper commandListenerWrapper) {
+        return this;
+    }
+
+    private class DiscordSpigot extends CommandSender.Spigot {
+        @Override
+        public void sendMessage(BaseComponent component) {
+            DiscordSender.this.sendMessage(component.toPlainText());
+        }
+
+        @Override
+        public void sendMessage(BaseComponent... components) {
+            DiscordSender.this.sendMessage(Stream.of(components).map(c -> c.toPlainText()).reduce("", String::concat));
+        }
+    }
+}

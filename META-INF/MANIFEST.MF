@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Class-Path: ./lib/JDA-3.7.0_382-withDependencies-no-opus.jar

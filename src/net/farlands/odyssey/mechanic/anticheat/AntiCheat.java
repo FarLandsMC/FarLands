@@ -1,0 +1,96 @@
+package net.farlands.odyssey.mechanic.anticheat;
+
+import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.mechanic.Mechanic;
+import net.farlands.odyssey.util.TextUtils;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerRegisterChannelEvent;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class AntiCheat extends Mechanic {
+    private final Map<UUID, XRayStore> xray;
+    private final Map<UUID, FlightStore> flight;
+
+    public AntiCheat() {
+        this.xray = new ConcurrentHashMap<>();
+        this.flight = new ConcurrentHashMap<>();
+    }
+
+    public void muteFlightDetector(Player player, long ticks) {
+        if(flight.containsKey(player.getUniqueId()))
+            flight.get(player.getUniqueId()).mute(ticks);
+    }
+
+    public void put(Player player) {
+        xray.put(player.getUniqueId(), new XRayStore(player));
+        flight.put(player.getUniqueId(), new FlightStore(player));
+    }
+    public void remove(Player player) {
+        xray.remove(player.getUniqueId());
+        flight.remove(player.getUniqueId());
+    }
+    
+    @Override
+    public void onPlayerJoin(Player player, boolean isNew) {
+        if (Rank.getRank(player).specialCompareTo(Rank.MEDIA) >= 0 && !FarLands.getPDH().getFLPlayer(player).isDebugging())
+            return;
+        put(player);
+    }
+
+    @Override
+    public void onPlayerQuit(Player player) {
+        remove(player);
+    }
+
+    @EventHandler
+    public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
+        if(event.getDamager().getType() == EntityType.ENDER_DRAGON && event.getEntityType() == EntityType.PLAYER)
+            muteFlightDetector((Player)event.getEntity(), 10);
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if(GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && xray.containsKey(event.getPlayer().getUniqueId()))
+            xray.get(event.getPlayer().getUniqueId()).onBlockBreak(event.getBlock());
+    }
+
+    @EventHandler
+    public void onChannelRegister(PlayerRegisterChannelEvent event) {
+        if(!event.getChannel().equalsIgnoreCase("WDL|INIT"))
+            return;
+        broadcast(event.getPlayer().getName() + " was kicked for using World Downloader.", true);
+        event.getPlayer().kickPlayer(ChatColor.RED + "Please disable World Downloader.");
+    }
+
+    @EventHandler(ignoreCancelled=true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if(GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && flight.containsKey(event.getPlayer().getUniqueId())) {
+            if(event.getPlayer().getNearbyEntities(15, 15, 15).stream().anyMatch(ent -> ent.getType() == EntityType.ENDER_DRAGON))
+                muteFlightDetector(event.getPlayer(), 20);
+            flight.get(event.getPlayer().getUniqueId()).onUpdate();
+        }
+    }
+
+    // Formats a message for Anti Cheat
+    public static void broadcast(String message, boolean sendToAlerts) {
+        FarLands.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
+        if(sendToAlerts)
+            FarLands.getDiscordHandler().sendMessage("alerts", message);
+    }
+
+    public static void broadcast(String playerName, String message) {
+        broadcast(playerName + " " + message, true);
+        FarLands.broadcastStaff(TextUtils.format("&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])", playerName));
+    }
+}

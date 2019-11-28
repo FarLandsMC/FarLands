@@ -1,0 +1,9 @@
+&7Changes:
+ - Commands:
+   - Media rank no longer bypasses AFK
+   - /ping [player] can be used from discord
+
+ - General:
+   -
+ - Server:
+   - General backend and cosmetic changes
