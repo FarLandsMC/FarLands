@@ -1,7 +1,6 @@
 package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -27,8 +26,8 @@ public class CommandIgnore extends Command {
         }
         if(args.length == 1)
             return false;
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-        OfflineFLPlayer ignored = getOnlineOrOfflinePlayer(args[1]);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        OfflineFLPlayer ignored = FarLands.getDataHandler().getOfflineFLPlayer(args[1]);
         if(ignored == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -54,8 +53,6 @@ public class CommandIgnore extends Command {
             }
             sender.sendMessage(ChatColor.GREEN + "You are no longer ignoring " + ChatColor.AQUA + args[1]);
         }
-        if(sender instanceof DiscordSender)
-            FarLands.getPDH().saveFLPlayer(flp);
         return true;
     }
 

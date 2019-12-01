@@ -8,6 +8,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.TeleportRequest;
 import net.farlands.odyssey.mechanic.Toggles;
+import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
@@ -35,7 +36,9 @@ public class FLPlayerSession {
 
     // Cooldowns
     public Cooldown afkCheckCooldown, mailCooldown, spamCooldown;
-    private Map<Class<? extends Command>, Integer> commandCooldowns;
+    private final Map<Class<? extends Command>, Integer> commandCooldowns;
+
+    private final Map<Class<?>, Pair<Object, Integer>> tempData;
 
     public FLPlayerSession(Player player, OfflineFLPlayer handle) {
         this.player = player;
@@ -52,6 +55,7 @@ public class FLPlayerSession {
         this.mailCooldown = new Cooldown(60L * 20L);
         this.spamCooldown = new Cooldown(160L);
         this.commandCooldowns = new HashMap<>();
+        this.tempData = new HashMap<>();
     }
 
     public void update(boolean sendMessages) {
@@ -129,7 +133,7 @@ public class FLPlayerSession {
     public void setCommandCooldown(Command command, long delay) {
         Integer taskUid = commandCooldowns.get(command.getClass());
         if(taskUid == null)
-            commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(Utils.ACTION_NULL, delay));
+            commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(Utils.NO_ACTION, delay));
         else
             FarLands.getScheduler().getTask(taskUid).reset();
     }
@@ -142,5 +146,50 @@ public class FLPlayerSession {
     public long commandCooldownTimeRemaining(Command command) {
         Integer taskUid = commandCooldowns.get(command.getClass());
         return taskUid == null ? 0L : FarLands.getScheduler().taskTimeRemaining(taskUid);
+    }
+
+    public synchronized void putTempData(Object assigner, Object data, long expirationTime, Runnable onExpire) {
+        int expirationTaskUid = FarLands.getScheduler().scheduleAsyncDelayedTask(() -> {
+            onExpire.run();
+
+            synchronized (FLPlayerSession.this) {
+                tempData.remove(assigner.getClass());
+            }
+        }, expirationTime);
+
+        tempData.put(assigner.getClass(), new Pair<>(data, expirationTaskUid));
+    }
+
+    public void putTempData(Object assigner, Object data, long expirationTime) {
+        putTempData(assigner, data, expirationTime, Utils.NO_ACTION);
+    }
+
+    public synchronized boolean hasTempData(Class<?> assignerClass) {
+        return tempData.containsKey(assignerClass);
+    }
+
+    public boolean hasTempData(Object assigner) {
+        return hasTempData(assigner.getClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized <T> T getTempData(Class<?> assignerClass) {
+        return (T)tempData.get(assignerClass).getFirst();
+    }
+
+    public <T> T getTempData(Object assigner) {
+        return getTempData(assigner.getClass());
+    }
+
+    public synchronized void discardTempData(Class<?> assignerClass) {
+        Pair<Object, Integer> data = getTempData(assignerClass);
+        if(data != null) {
+            FarLands.getScheduler().cancelTask(data.getSecond());
+            tempData.remove(assignerClass);
+        }
+    }
+
+    public void discardTempData(Object assigner) {
+        discardTempData(assigner.getClass());
     }
 }

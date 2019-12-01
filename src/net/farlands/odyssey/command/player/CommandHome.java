@@ -23,7 +23,8 @@ public class CommandHome extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         boolean flag = Rank.getRank(sender).isStaff() && args.length > 1; // Is the sender a staff member and are they going to someone else's home
-        OfflineFLPlayer flp = flag ? getFLPlayer(args[1]) : FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = flag ? FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1])
+                : FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return false;
@@ -32,9 +33,10 @@ public class CommandHome extends PlayerCommand {
         if (args.length <= 0)
             name = "home";
         else {
-            if (args[0].equals("home"))
+            if (args[0].equals("home")) {
                 sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/home home} by typing " +
                         "$(hovercmd,/home,{&(gray)Click to Run},&(dark_aqua)/home)!");
+            }
             name = args[0];
         }
         Location loc = flp.getHome(name);
@@ -49,7 +51,7 @@ public class CommandHome extends PlayerCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
-                ? FarLands.getPDH().getFLPlayer(sender).getHomes().stream().map(Home::getName)
+                ? FarLands.getDataHandler().getOfflineFLPlayer(sender).getHomes().stream().map(Home::getName)
                     .filter(home -> home.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList())
                 : (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args[1]) : Collections.emptyList()); // For staff

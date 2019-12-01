@@ -160,7 +160,7 @@ public class CommandHandler extends Mechanic {
     public boolean handleDiscordCommand(DiscordSender sender, Message message) {
         String fullCommand = message.getContentDisplay();
         // Notify staff
-        FarLands.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
+        Chat.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
         String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, Utils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         final String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
         Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
@@ -242,7 +242,7 @@ public class CommandHandler extends Mechanic {
         Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
         // Notify staff of usage
         if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))))
-            FarLands.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
+            Chat.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
         if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c))
             FarLands.getDiscordHandler().sendMessage("commandlog", event.getPlayer().getName() + ": " + fullCommand);
         if(c == null)
@@ -274,7 +274,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if(!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))) ||
                 sender instanceof BlockCommandSender))
-            FarLands.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
+            Chat.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
         if(c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {

@@ -26,7 +26,7 @@ public class Cooldown {
     }
 
     public void reset() {
-        reset(Utils.ACTION_NULL);
+        reset(Utils.NO_ACTION);
     }
 
     public void resetCurrentTask() {

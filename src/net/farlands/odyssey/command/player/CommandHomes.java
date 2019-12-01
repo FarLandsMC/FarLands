@@ -28,7 +28,7 @@ public class CommandHomes extends Command {
         }
         StringBuilder sb = new StringBuilder("&(gold)");
         if(Rank.getRank(sender).isStaff() && args.length > 0) { // Someone else's home (staff)
-            OfflineFLPlayer flp = getFLPlayer(args[0]);
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
             if (flp == null) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
                 return false;
@@ -48,7 +48,7 @@ public class CommandHomes extends Command {
                         .append(location.getBlockZ()).append("),\n ");
             });
         } else {
-            List<Home> homes = FarLands.getPDH().getFLPlayer(sender).getHomes();
+            List<Home> homes = FarLands.getDataHandler().getOfflineFLPlayer(sender).getHomes();
             if (homes.isEmpty()) {
                 sender.sendMessage(ChatColor.GREEN + "You don\'t have any homes! Set one with " + ChatColor.AQUA + "/sethome");
                 return true;

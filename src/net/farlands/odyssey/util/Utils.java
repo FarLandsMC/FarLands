@@ -39,7 +39,7 @@ import static java.lang.Math.min;
 public final class Utils {
     public static final LocationWrapper LOC_ZERO = new LocationWrapper("world", 0.0, 0.0, 0.0, 0.0F, 0.0F);
     public static final Random RNG = new Random();
-    public static final Runnable ACTION_NULL = () -> {};
+    public static final Runnable NO_ACTION = () -> {};
     private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED, ChatColor.DARK_RED};
 
     private Utils() { }

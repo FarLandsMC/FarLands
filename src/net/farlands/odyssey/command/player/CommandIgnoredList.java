@@ -15,7 +15,7 @@ public class CommandIgnoredList extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        List<String> ignoreList = FarLands.getPDH().getFLPlayer(sender).getIgnoreList();
+        List<String> ignoreList = FarLands.getDataHandler().getOfflineFLPlayer(sender).getIgnoreList();
         sender.sendMessage(ChatColor.GREEN + (
             ignoreList.isEmpty()
             ? "You are not ignoring any players."

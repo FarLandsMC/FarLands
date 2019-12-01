@@ -82,7 +82,7 @@ public abstract class Gui {
 
     protected void addActionItem(int slot, Material material, String name, Runnable action, boolean rightClickOnly, String... lore) {
         setItem(slot, material, name, lore);
-        clickActions.put(slot, new Pair<>(action == null ? Utils.ACTION_NULL : action, rightClickOnly));
+        clickActions.put(slot, new Pair<>(action == null ? Utils.NO_ACTION : action, rightClickOnly));
     }
 
     protected void addActionItem(int slot, Material material, String name, Runnable action, String... lore) {
@@ -90,12 +90,12 @@ public abstract class Gui {
     }
 
     protected void addLabel(int slot, Material material, String name, String... lore) {
-        addActionItem(slot, material, name, Utils.ACTION_NULL, lore);
+        addActionItem(slot, material, name, Utils.NO_ACTION, lore);
     }
 
     protected void addActionItem(int slot, ItemStack stack, Runnable action, boolean rightClickOnly) {
         inv.setItem(slot, stack);
-        clickActions.put(slot, new Pair<>(action == null ? Utils.ACTION_NULL : action, rightClickOnly));
+        clickActions.put(slot, new Pair<>(action == null ? Utils.NO_ACTION : action, rightClickOnly));
     }
 
     protected void addActionItem(int slot, ItemStack stack, Runnable action) {
