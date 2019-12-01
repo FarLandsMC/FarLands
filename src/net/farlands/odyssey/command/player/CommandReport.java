@@ -51,7 +51,7 @@ public class CommandReport extends Command {
         if(args.length <= 1)
             return REPORT_TYPES;
         else if("player".equals(args[0]) && args.length == 2)
-            return getOnlinePlayers(args[1]);
+            return (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args[1]) : getOnlinePlayers(args[1]));
         else
             return Collections.emptyList();
     }

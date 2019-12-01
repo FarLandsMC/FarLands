@@ -2,7 +2,7 @@ package net.farlands.odyssey.mechanic;
 
 import com.vexsoftware.votifier.model.VotifierEvent;
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.struct.ItemReward;
 import net.farlands.odyssey.util.Utils;
@@ -30,7 +30,7 @@ public class Voting extends Mechanic {
 
     @EventHandler
     public void onVote(VotifierEvent event) {
-        FLPlayer flp = FarLands.getPDH().getFLPlayerMatching(event.getVote().getUsername());
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayerMatching(event.getVote().getUsername());
         if(flp == null) // They need to have logged in before
             return;
         PluginData pd = FarLands.getDataHandler().getPluginData();
@@ -68,7 +68,7 @@ public class Voting extends Mechanic {
                 FarLands.getPDH().removeFlag(voter, 2);
             FarLands.getPDH().setFlag(top, 2);
 
-            FLPlayer voterFlp = FarLands.getPDH().getCached(voter), topFlp = FarLands.getPDH().getCached(top);
+            OfflineFLPlayer voterFlp = FarLands.getPDH().getCached(voter), topFlp = FarLands.getPDH().getCached(top);
             if(voterFlp != null) {
                 voterFlp.setTopVoter(false);
                 voterFlp.tryUpdateOnline(false);

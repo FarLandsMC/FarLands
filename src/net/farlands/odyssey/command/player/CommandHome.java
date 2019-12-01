@@ -4,7 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -23,15 +23,24 @@ public class CommandHome extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         boolean flag = Rank.getRank(sender).isStaff() && args.length > 1; // Is the sender a staff member and are they going to someone else's home
-        FLPlayer flp = flag ? getFLPlayer(args[1]) : FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = flag ? getFLPlayer(args[1]) : FarLands.getPDH().getFLPlayer(sender);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
-            return true;
+            return false;
         }
-        Location loc = flp.getHome(args.length == 0 ? "home" : args[0]);
+        String name;
+        if (args.length <= 0)
+            name = "home";
+        else {
+            if (args[0].equals("home"))
+                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/home home} by typing " +
+                        "$(hovercmd,/home,{&(gray)Click to Run},&(dark_aqua)/home)!");
+            name = args[0];
+        }
+        Location loc = flp.getHome(name);
         if(loc == null) {
             sender.sendMessage(ChatColor.RED + (flag ? args[1] + " does" : "You do") + " not have that home.");
-            return true;
+            return false;
         }
         Utils.tpPlayer(sender, loc);
         return true;
@@ -43,6 +52,11 @@ public class CommandHome extends PlayerCommand {
                 ? FarLands.getPDH().getFLPlayer(sender).getHomes().stream().map(Home::getName)
                     .filter(home -> home.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList())
-                : (Rank.getRank(sender).isStaff() ? getOnlinePlayers(args[1]) : Collections.emptyList()); // For staff
+                : (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args[1]) : Collections.emptyList()); // For staff
+    }
+
+    @Override
+    protected void showUsage(CommandSender sender) {
+        sender.sendMessage("Usage: " + (Rank.getRank(sender).isStaff() ? "/home <name> [player]" : getUsage()));
     }
 }

@@ -2,5 +2,5 @@ api-version: 1.14
 main: net.farlands.odyssey.FarLands
 name: FarLands
 description: FarLands version 2 - Odyssey
-author: [xCassyx, Kishiko73, SuperAnimeBoi]
+authors: [xCassyx, Kishiko73, SuperAnimeBoi]
 version: 2

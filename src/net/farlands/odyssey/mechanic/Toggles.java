@@ -6,7 +6,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.mojang.authlib.GameProfile;
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.md_5.bungee.api.ChatMessageType;
@@ -106,7 +106,7 @@ public class Toggles extends Mechanic {
             return;
         List<String> completions = event.getCompletions();
         completions.removeIf(str -> {
-            FLPlayer flp = FarLands.getPDH().getFLPlayer(str);
+            OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(str);
             return flp != null && flp.isVanished();
         });
         event.setCompletions(completions);
@@ -134,7 +134,7 @@ public class Toggles extends Mechanic {
     }
 
     @EventHandler(ignoreCancelled=true)
-        public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
+    public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
         if(!(event.getEntity() instanceof Player))
             return;
 
@@ -143,10 +143,10 @@ public class Toggles extends Mechanic {
             Projectile p = (Projectile)event.getDamager();
             damager = p.getShooter() instanceof Player ? (Player)p.getShooter() : null;
         }
-        if(damager == null)
+        if(damager == null || damager == event.getEntity())
             return;
-
-        FLPlayer damagerFLP = FarLands.getPDH().getFLPlayer(damager),
+        
+        OfflineFLPlayer damagerFLP = FarLands.getPDH().getFLPlayer(damager),
                  attackedFLP = FarLands.getPDH().getFLPlayer((Player)event.getEntity());
         if(!(damagerFLP.isPvPing() && attackedFLP.isPvPing())) {
             if(!damagerFLP.isPvPing())
@@ -158,7 +158,7 @@ public class Toggles extends Mechanic {
 
     @SuppressWarnings("deprecation")
     public static void hidePlayers(Player player) {
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(player);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(player);
         if(flp.isVanished())
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
         else

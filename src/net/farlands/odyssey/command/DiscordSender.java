@@ -4,7 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.server.v1_14_R1.CommandListenerWrapper;
@@ -28,13 +28,13 @@ public class DiscordSender implements CommandSender, ICommandListener {
     private final DiscordSpigot spigot;
     private final User user;
     private final MessageChannel channel;
-    private final FLPlayer flp;
+    private final OfflineFLPlayer flp;
 
     public DiscordSender(User user, MessageChannel channel) {
         this.spigot = new DiscordSpigot();
         this.user = user;
         this.channel = channel;
-        this.flp = FarLands.getPDH().getFLPlayer(getUserID());
+        this.flp = FarLands.getDataHandler().getOfflineFLPlayer(getUserID());
     }
 
     public User getUser() {
@@ -53,7 +53,7 @@ public class DiscordSender implements CommandSender, ICommandListener {
         return flp != null;
     }
 
-    public FLPlayer getFlp() {
+    public OfflineFLPlayer getFlp() {
         return flp;
     }
 

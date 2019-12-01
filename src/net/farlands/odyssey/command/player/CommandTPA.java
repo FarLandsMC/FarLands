@@ -21,7 +21,7 @@ public class CommandTPA extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         if(args.length == 1)
             return false;
-        Player player = getPlayer(args[1]);
+        Player player = Rank.getRank(sender).isStaff() ? getVanishedPlayer(args[1]) : getPlayer(args[1]);
         if(player == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -35,12 +35,16 @@ public class CommandTPA extends PlayerCommand {
         if(FarLands.getPDH().getFLPlayer(player).isIgnoring(sender.getUniqueId()))
             return true;
         // Everything else is handled here
-        TeleportRequest.newRequest("tpahere".equals(args[0]), sender, player); // false: tpa, true: tpahere
+        TeleportRequest.newRequest("tpa".equals(args[0])
+                ? TeleportRequest.TeleportType.SENDER_TO_RECIPIENT
+                : TeleportRequest.TeleportType.RECIPIENT_TO_SENDER,
+                sender, player);
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
+                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
     }
 }

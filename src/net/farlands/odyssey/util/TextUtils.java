@@ -53,7 +53,7 @@ public class TextUtils {
         return parseExpression(new Pair<>(ChatColor.WHITE, new ArrayList<>()), input);
     }
 
-    // Insert values into the raw inpuit
+    // Insert values into the raw input
     public static String insertValues(String raw, Object... values) {
         if (values.length == 0)
             return raw;
@@ -90,7 +90,7 @@ public class TextUtils {
                                                    Object... values) {
         // Current component text
         StringBuilder component = new StringBuilder();
-        // Parsed exoression
+        // Parsed expression
         List<BaseComponent> expr = new ArrayList<>();
         char[] chars = input.toCharArray();
         char cur, next;
@@ -161,7 +161,7 @@ public class TextUtils {
                     // Move the character index to the end of the expression
                     i = section.getSecond() - 1;
 
-                    // Transfer the current formatting the the next epression in a scope-like manner
+                    // Transfer the current formatting the the next expression in a scope-like manner
                     BaseComponent[] expression = parseExpression(
                             new Pair<>(format.getFirst(), new ArrayList<>(format.getSecond())),
                             section.getFirst(),
@@ -185,7 +185,7 @@ public class TextUtils {
                     char[] cs = rawArgs.getFirst().toCharArray();
                     int depthCurly = 0, depthRound = 0;
                     for (char c : cs) {
-                        // We're in the outtermost scope and the delimiter was reached
+                        // We're in the outermost scope and the delimiter was reached
                         if (depthCurly == 0 && depthRound == 0 && c == ',') {
                             args.add(currentArg.toString());
                             currentArg.setLength(0);
@@ -220,7 +220,7 @@ public class TextUtils {
                     // Move the cursor to the end of the function text
                     i = rawArgs.getSecond() - 1;
 
-                    // Finish off the current component if it was started and we're not influecting a word
+                    // Finish off the current component if it was started and we're not inflecting a word
                     if (!"inflect".equalsIgnoreCase(args.get(0)) && component.length() > 0) {
                         expr.add(parseComponent(format, component.toString()));
                         component.setLength(0);

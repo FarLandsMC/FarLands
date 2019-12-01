@@ -32,13 +32,13 @@ public class CommandArchive extends DiscordCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
-        if(args[0].charAt(0) == '#') // Delete the # from the start of the channel name
+        if (args[0].charAt(0) == '#') // Delete the # from the start of the channel name
             args[0] = args[0].substring(1);
         // Allow this potentially long process to run separately
         int action = args.length > 1 ? ACTIONS.indexOf(args[1].toLowerCase()) : 0;
-        if(action < 0) {
+        if (action < 0) {
             sender.sendMessage(ChatColor.RED + "Invalid action: " + args[1] + ". Valid actions: " + String.join(", ", ACTIONS) + ".");
             return true;
         }
@@ -61,7 +61,7 @@ public class CommandArchive extends DiscordCommand {
         public void run() {
             try {
                 run0();
-            }catch(Throwable t) {
+            } catch (Throwable t) {
                 sender.sendMessage(ChatColor.RED + "Failed to archive channel due to an unexpected error.");
                 t.printStackTrace(System.out);
             }
@@ -70,12 +70,12 @@ public class CommandArchive extends DiscordCommand {
         void run0() throws IOException {
             TextChannel channel = FarLands.getDiscordHandler().getGuild().getTextChannels().stream()
                     .filter(ch -> ch.getName().equals(channelName)).findAny().orElse(null);
-            if(channel == null) {
+            if (channel == null) {
                 sender.sendMessage(ChatColor.RED + "Channel not found.");
                 return;
             }
             MessageHistory history = channel.getHistory();
-            while(!history.retrievePast(100).complete().isEmpty()); // Load all the messages
+            while (!history.retrievePast(100).complete().isEmpty()) ; // Load all the messages
 
             // Create the file and print the formatted messages to it
             File file = FarLands.getDataHandler().getTempFile(channelName + ".txt");
@@ -83,12 +83,12 @@ public class CommandArchive extends DiscordCommand {
             try {
                 PrintStream ofstream = new PrintStream(new FileOutputStream(file), false, "UTF-8");
                 ofstream.println("## Archive of #" + channelName + " taken at " + DATE_FORMAT.format(new Date()) + " UTC. All times are in UTC.");
-                for(int i = messages.size() - 1;i >= 0;-- i) {
+                for (int i = messages.size() - 1; i >= 0; --i) {
                     Message m = messages.get(i);
-                    if((m.getContentDisplay().trim().isEmpty() && m.getAttachments().isEmpty()) || m.getAuthor() == null)
+                    if ((m.getContentDisplay().trim().isEmpty() && m.getAttachments().isEmpty()) || m.getAuthor() == null)
                         continue;
                     ofstream.print(m.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).format(DATE_FORMATTER) + ' ');
-                    if(m.getContentDisplay().trim().isEmpty())
+                    if (m.getContentDisplay().trim().isEmpty())
                         ofstream.println("Attachment(s) from: " + m.getAuthor().getName());
                     else
                         ofstream.println(m.getAuthor().getName() + ": " + m.getContentDisplay());
@@ -96,19 +96,19 @@ public class CommandArchive extends DiscordCommand {
                 }
                 ofstream.flush();
                 ofstream.close();
-            }catch(IOException ex) {
+            } catch (IOException ex) {
                 file.delete();
                 throw ex;
             }
 
             // Tell the user if the process finished successfully or not
-            if(FarLands.getDiscordHandler().getChannel("archives").sendFile(file).complete() != null) {
-                if(action == 1)
+            if (FarLands.getDiscordHandler().getChannel("archives").sendFile(file).complete() != null) {
+                if (action == 1)
                     messages.stream().map(Message::delete).forEach(AuditableRestAction::queue);
-                else if(action == 2)
+                else if (action == 2)
                     channel.delete().complete();
                 sender.sendMessage(ChatColor.GREEN + "Archive complete.");
-            }else
+            } else
                 sender.sendMessage(ChatColor.RED + "Failed to send archive to discord.");
             file.delete();
         }

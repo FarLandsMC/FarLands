@@ -13,6 +13,8 @@ import net.minecraft.server.v1_14_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -346,7 +348,7 @@ public final class Utils {
             return false;
         Location f = region.getFirst(), s = region.getSecond();
         double x = loc.getX(), y = loc.getY(), z = loc.getZ();
-        return x > f.getX() && x < s.getX() && y > f.getY() && y < s.getY() && z > f.getZ() && z < s.getZ();
+        return f.getX() < x && x < s.getX() && f.getY() < y && y < s.getY() && f.getZ() < z && z < s.getZ();
     }
 
     public static int getMonthInYear() {
@@ -380,20 +382,26 @@ public final class Utils {
     public static double constrain(double d, double min, double max) {
         return d < min ? min : (d > max ? max : d);
     }
-    private static boolean doesDamage(Block b) {
-        return b.getType().isSolid() || b.isLiquid() || Arrays.asList(Material.FIRE, Material.CACTUS).contains(b.getType());
+    public static boolean isSafe(Location location) {
+        Block b = location.add(0, 1, 0).getBlock();
+        boolean foot = b.getType().name().endsWith("SIGN") || b.getType().name().endsWith("_FENCE_GATE") || !(b.getType().isSolid() ||
+                Arrays.asList(Material.LAVA, Material.FIRE, Material.CACTUS, Material.SWEET_BERRY_BUSH).contains(b.getType()));
+        b = location.add(0, 1, 0).getBlock();
+        boolean head = b.getType().name().endsWith("SIGN") || b.getType().name().endsWith("_FENCE_GATE") || !(b.getType().isSolid() ||
+                b.isLiquid() || Arrays.asList(Material.FIRE, Material.CACTUS, Material.SWEET_BERRY_BUSH).contains(b.getType()));
+        return foot && head;
     }
     public static boolean canStand(Block b) { // if a player can safely stand here
-        return !(b.isPassable() || Arrays.asList(Material.MAGMA_BLOCK, Material.CACTUS).contains(b.getType()));
-    }
-    public static boolean isSafe(Location l) { // if block below is solid and 2 blocks in player collision do not do damage
-        return !(doesDamage(l.add(0, 1, 0).getBlock()) || doesDamage(l.add(0, 1, 0).getBlock()));
+        return b.getType().name().endsWith("_SLAB") || !(b.isPassable() ||
+                b.getType().name().endsWith("_TRAPDOOR") && ((Openable)b.getBlockData()).isOpen() ||
+                Arrays.asList(Material.MAGMA_BLOCK, Material.CACTUS).contains(b.getType()));
     }
 
     public static Location findSafe(final Location l) {
         l.setX(l.getBlockX() + .5);
         l.setZ(l.getBlockZ() + .5);
-        return findSafe(l, max(1, l.getBlockY() - 8), min(l.getBlockY() + 7, l.getWorld().getName().equals("world_nether") ? 126 : 254));
+        return findSafe(l, max(1, l.getBlockY() - 8), min(l.getBlockY() + 7,
+                l.getWorld().getName().equals("world_nether") ? 126 : 254));
     }
     private static Location findSafe(final Location origin, int s, int e) {
         Location safe = origin.clone();
@@ -403,15 +411,17 @@ public final class Utils {
         if (canStand(safe.getBlock()) && isSafe(safe.clone()))
             return safe.add(0, .5, 0);
         do {
-            safe.setY((s + e) / 2);
+            safe.setY((s + e) >> 1);
             if (canStand(safe.getBlock())) {
                 if (isSafe(safe.clone()))
-                    return safe.add(0, 1, 0);
-                s = safe.getBlockY();
+                    return safe.add(0, 1.5, 0);
+                s = safe.getBlockY() + 1;
             } else
-                e = safe.getBlockY();
-        } while (e - s > 1);
-        FarLands.getDebugger().echo("unsafe tp @ " + safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
+                e = safe.getBlockY() - 1;
+        } while (s <= e);
+        if (!FarLands.getWorld().equals(origin.getWorld()))
+            FarLands.getDebugger().echo("unsafe tp @ " +
+                    safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
         return null;
     }
 

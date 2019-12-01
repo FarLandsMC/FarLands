@@ -3,7 +3,7 @@ package net.farlands.odyssey.command.discord;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -16,24 +16,25 @@ public class CommandAlts extends DiscordCommand {
     }
 
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
 
-        FLPlayer flp = getFLPlayer(args[0]);
-        if(flp == null) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+        if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
 
-        List<FLPlayer> alts = FarLands.getPDH().getAlts(flp.getUuid());
-        if(alts.isEmpty())
+        List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP)).collect(Collectors.toList());
+        if (alts.isEmpty())
             sender.sendMessage(ChatColor.GOLD + "This player has no alts.");
-        else{
-            List<String> banned = alts.stream().filter(FLPlayer::isBanned).map(FLPlayer::getUsername).collect(Collectors.toList()),
-                    normal = alts.stream().filter(p -> !p.isBanned()).map(FLPlayer::getUsername).collect(Collectors.toList());
-            if(!banned.isEmpty())
+        else {
+            List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(OfflineFLPlayer::getUsername).collect(Collectors.toList()),
+                    normal = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
+            if (!banned.isEmpty())
                 sender.sendMessage(ChatColor.GOLD + "Banned alts: " + String.join(", ", banned));
-            if(!normal.isEmpty())
+            if (!normal.isEmpty())
                 sender.sendMessage(ChatColor.GOLD + "Alts: " + String.join(", ", normal));
         }
 

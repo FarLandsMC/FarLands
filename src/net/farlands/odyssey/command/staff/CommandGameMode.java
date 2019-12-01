@@ -23,6 +23,7 @@ public class CommandGameMode extends PlayerCommand {
             player.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
             return true;
         }
+        boolean isFlying = player.isFlying();
         switch (args[0]) {
             case "gmc":
                 player.setGameMode(GameMode.CREATIVE);
@@ -30,31 +31,34 @@ public class CommandGameMode extends PlayerCommand {
             case "gms":
                 player.setFallDistance(0);
                 player.setGameMode(GameMode.SURVIVAL);
+                FarLands.getPDH().getFLPlayer(player).updateOnline(player, false);
                 break;
             case "gm3":
                 player.setGameMode(GameMode.SPECTATOR);
                 break;
             default:
                 if (args.length > 1) {
-                    Player p = getPlayer(args[1]);
-                    if(p == null) {
+                    Player targetPlayer = getVanishedPlayer(args[1]);
+                    if (targetPlayer == null) {
                         player.sendMessage(ChatColor.RED + "Player not found.");
                         return true;
                     }
                     player.setGameMode(GameMode.SPECTATOR);
                     FarLands.getPDH().getFLPlayer(player).updateOnline(player, false);
-                    player.teleport(p.getLocation());
+                    player.teleport(targetPlayer.getLocation());
+                    FarLands.getScheduler().scheduleSyncDelayedTask(() -> player.setSpectatorTarget(targetPlayer),20);
                     return true;
                 }
                 player.setFallDistance(0);
                 player.setGameMode(GameMode.SPECTATOR.equals(player.getGameMode()) ? GameMode.SURVIVAL : GameMode.SPECTATOR);
                 FarLands.getPDH().getFLPlayer(player).updateOnline(player, false);
         }
+        player.setFlying(isFlying && player.getAllowFlight());
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
     }
 }

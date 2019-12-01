@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 import net.minecraft.server.v1_14_R1.AdvancementDisplay;
@@ -18,7 +18,7 @@ public class CommandRankup extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
         Rank nextRank = flp.getRank().getNextRank();
         if (sender instanceof Player) { flp.updateOnline((Player)sender, false); }
         if(!flp.getRank().equals(nextRank)) {

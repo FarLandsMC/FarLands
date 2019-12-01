@@ -1,7 +1,7 @@
 package net.farlands.odyssey.gui;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.util.Utils;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
@@ -16,7 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class GuiEvidenceLocker extends Gui {
-    private final FLPlayer flp;
+    private final OfflineFLPlayer flp;
     private final List<List<ItemStack>> inventories;
     private final List<String> punishments;
     private int currentPunishment;
@@ -31,7 +31,7 @@ public class GuiEvidenceLocker extends Gui {
         }
     }
 
-    public GuiEvidenceLocker(FLPlayer flp) {
+    public GuiEvidenceLocker(OfflineFLPlayer flp) {
         super("Evidence Locker", flp.getPunishments().get(0).toString(), 54);
         this.flp = flp;
         this.inventories = new ArrayList<>();
@@ -87,6 +87,6 @@ public class GuiEvidenceLocker extends Gui {
             ++ i;
         }
         FarLands.getDataHandler().saveEvidenceLocker(flp, locker);
-        ((List<FLPlayer>)FarLands.getDataHandler().getRADH().retrieveAndStoreIfAbsent(new CopyOnWriteArrayList<>(), "evidencelocker", "editing")).remove(flp);
+        ((List<OfflineFLPlayer>)FarLands.getDataHandler().getRADH().retrieveAndStoreIfAbsent(new CopyOnWriteArrayList<>(), "evidencelocker", "editing")).remove(flp);
     }
 }

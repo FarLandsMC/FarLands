@@ -23,7 +23,7 @@ public class CommandRestoreDeath extends Command {
     
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        Player player = args.length < 1 ? null : getPlayer(args[0]);
+        Player player = args.length < 1 ? null : getVanishedPlayer(args[0]);
         if (player == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -49,7 +49,7 @@ public class CommandRestoreDeath extends Command {
     
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) :
+        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
                 args.length <= 2 ? Arrays.asList("1", "2", "3") : Collections.emptyList();
     }
 }

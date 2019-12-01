@@ -14,7 +14,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.ChannelManager;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.struct.Proposal;
 import net.farlands.odyssey.data.Rank;
@@ -220,7 +220,7 @@ public class DiscordHandler extends ListenerAdapter {
         if(channelHandler.getChannel("staffcommands").getIdLong() == event.getChannel().getIdLong())
             FarLands.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + fmessage);
         else if(channelHandler.getChannel("ingame").getIdLong() == event.getChannel().getIdLong()) {
-            FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+            OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
             if(flp != null) {
                 if(flp.isMuted() || flp.isBanned()) {
                     sender.getUser().openPrivateChannel().queue(channel ->

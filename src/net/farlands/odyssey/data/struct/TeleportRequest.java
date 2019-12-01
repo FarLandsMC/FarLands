@@ -1,7 +1,7 @@
 package net.farlands.odyssey.data.struct;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.RandomAccessDataHandler;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
@@ -9,126 +9,141 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class TeleportRequest implements Runnable {
-    private final boolean type; // false: Sender -> Recipient; true: Recipient -> Sender
-    private final Player sender;
-    private final Player recipient;
-    private final Player teleporter; // Alias for the person actually teleporting
-    private final Player anchor;
-    private final String cooldownUid;
-    private final RandomAccessDataHandler radh; // Alias to the random access data handler
+    private final TeleportType type;
+    private final Player sender, recipient, teleporter, anchor;
+    private int expirationTaskUid;
     private int delay;
-    private int taskUid;
+    private int delayTaskUid;
     private Location startLocationTeleporter; // This is to keep track of whether the teleporter has moved
     private Location toLocation; // Where we're going
 
-    public static final String COOLDOWN_CATEGORY = "tpa";
-    public static final String REQUEST_CATEGORY = "tpareq";
-
-    private TeleportRequest(boolean type, Player sender, Player recipient) {
+    public TeleportRequest(TeleportType type, Player sender, Player recipient) {
         this.type = type;
         this.sender = sender;
         this.recipient = recipient;
-        this.teleporter = type ? recipient : sender;
-        this.anchor = type ? sender : recipient;
-        this.cooldownUid = Utils.combineUUIDs(sender.getUniqueId(), recipient.getUniqueId()).toString();
-        this.radh = FarLands.getDataHandler().getRADH();
-        this.delay = FarLands.getPDH().getFLPlayer(teleporter).getRank().getTpDelay() * 20;
+        this.teleporter = TeleportType.SENDER_TO_RECIPIENT.equals(type) ? sender : recipient;
+        this.anchor = TeleportType.SENDER_TO_RECIPIENT.equals(type) ? recipient : sender;
+        this.delay = FarLands.getDataHandler().getOfflineFLPlayer(teleporter).getRank().getTpDelay() * 20;
     }
 
-    @SuppressWarnings("unchecked")
-    public static void newRequest(boolean type, Player sender, Player recipient) {
-        final TeleportRequest req = new TeleportRequest(type, sender, recipient);
-        if(!req.radh.isCooldownComplete(COOLDOWN_CATEGORY, req.cooldownUid)) {
+    public boolean open() {
+        // Make sure no duplicate requests are sent
+        FLPlayerSession recipientSession = FarLands.getDataHandler().getSession(recipient);
+        if (recipientSession.teleportRequests.stream().anyMatch(request -> request.sender.equals(sender))) {
             sender.sendMessage(ChatColor.RED + "You already have a pending teleport request with this player.");
-            return;
+            return false;
         }
 
-        ((List<TeleportRequest>)req.radh.retrieveAndStoreIfAbsent(
-            new ArrayList<TeleportRequest>(), REQUEST_CATEGORY, recipient.getUniqueId().toString()
-        )).add(req); // Add this request to the recipient's request list
-        TextUtils.sendFormatted(recipient, "&(gold){&(aqua)%0} has requested %1 Type $(command,/tpaccept,{&(aqua)/tpaccept}) " +
-                "to accept the request, or $(command,/tpdecline,{&(aqua)/tpdecline}) to decline it, or click on the commands to run them.%2",
-                sender.getName(), type ? "you to teleport to them." : "to teleport to you.", type ? " Move to cancel the teleport." : "");
-        recipient.playSound(recipient.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
-
-        req.radh.setCooldown(2L * 60L * 20L, COOLDOWN_CATEGORY, req.cooldownUid, () -> {
-            if(sender.isOnline())
-                req.decline();
+        // Register the task with the session and setup expiration
+        expirationTaskUid = FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
+            if (sender.isOnline())
+                decline();
             else
-                req.removeData();
-        }); // After five minutes the request expires
-        sender.sendMessage(ChatColor.GOLD + "Request sent." + (type ? "" : " Move to cancel the teleport."));
+                removeData();
+        }, 2L * 60L * 20L);
+
+        // Send messages
+        boolean isSenderToRecipient = TeleportType.SENDER_TO_RECIPIENT.equals(type);
+        TextUtils.sendFormatted(recipient, "&(gold){&(aqua)%0} has requested %1 Type $(command,/tpaccept,{&(aqua)/tpaccept}) " +
+                        "to accept the request, or $(command,/tpdecline,{&(aqua)/tpdecline}) to decline it, or click on the commands to run them.%2",
+                sender.getName(), isSenderToRecipient ? "you to teleport to them." : "to teleport to you.",
+                isSenderToRecipient ? " Move to cancel the teleport." : "");
+        recipient.playSound(recipient.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
+        sender.sendMessage(ChatColor.GOLD + "Request sent." + (isSenderToRecipient ? "" : " Move to cancel the teleport."));
+
+        return true;
     }
 
     @Override
     public void run() {
-        if(!teleporter.isOnline()) {
+        // If the teleporter logs off, no point in continuing
+        if (!teleporter.isOnline()) {
             endTask();
             return;
         }
-        if(delay > 0) {
-            if(startLocationTeleporter.getWorld().equals(teleporter.getWorld()) &&
-                    startLocationTeleporter.distance(teleporter.getLocation()) > 1.5D) { // If the teleporter moves, cancel
+
+        // Decrement the delay
+        if (delay > 0) {
+            // If the teleporter moves too much,
+            if (startLocationTeleporter.getWorld().equals(teleporter.getWorld()) &&
+                    startLocationTeleporter.distance(teleporter.getLocation()) > 1.5D) {
+                endTask();
+
+                // Send messages
                 teleporter.sendMessage(ChatColor.RED + "Teleport canceled.");
                 teleporter.playSound(teleporter.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 3.0F, 1.0F);
-                endTask();
                 return;
             }
-            if(delay % 20 == 0)
+
+            // Send a notification each second
+            if (delay % 20 == 0)
                 teleporter.sendMessage(ChatColor.GOLD + "Teleporting in " + (delay / 20) + " second" + (delay > 20 ? "s..." : "..."));
-            -- delay;
+
+            --delay;
             return;
         }
+
+        // Execute the teleport and wrap up
         Utils.tpPlayer(teleporter, toLocation);
         endTask();
     }
 
     public void accept() { // Called by recipient
-        if(!sender.isOnline()) {
+        // Make sure the sender didn't log off
+        if (!sender.isOnline()) {
             recipient.sendMessage(ChatColor.RED + "This player is no longer online. Teleport canceled.");
             return;
         }
-        startLocationTeleporter = teleporter.getLocation();
-        toLocation = Utils.findSafe(anchor.getLocation());
-        if(toLocation == null) {
+
+        // Keep track of locations for movement cancellation and the end teleportation
+        startLocationTeleporter = teleporter.getLocation().clone();
+        toLocation = Utils.findSafe(anchor.getLocation().clone());
+
+        // Check location safety
+        if (toLocation == null) {
             anchor.sendMessage(ChatColor.RED + "Teleport canceled. Please move to a safe location and try again.");
             teleporter.sendMessage(ChatColor.RED + "Teleport canceled. Could not find a safe location to teleport to.");
             removeData();
             return;
         }
-        recipient.sendMessage(ChatColor.GOLD + "Request accepted." + (type ? " Teleporting..." : ""));
-        sender.sendMessage(ChatColor.AQUA + recipient.getName() + ChatColor.GOLD + " has accepted your teleport request." + (type ? "" : " Teleporting..."));
-        sender.playSound(sender.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
+
+        // Setup the teleport delay
         removeData();
-        taskUid = FarLands.getScheduler().scheduleSyncRepeatingTask(this, 0L, 1L);
+        delayTaskUid = FarLands.getScheduler().scheduleSyncRepeatingTask(this, 20L, 1L);
+
+        // Send messages
+        boolean isSenderToRecipient = TeleportType.SENDER_TO_RECIPIENT.equals(type);
+        recipient.sendMessage(ChatColor.GOLD + "Request accepted." + (isSenderToRecipient ? " Teleporting..." : ""));
+        sender.sendMessage(ChatColor.AQUA + recipient.getName() + ChatColor.GOLD + " has accepted your teleport request." +
+                (isSenderToRecipient ? "" : " Teleporting..."));
+        sender.playSound(sender.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
     }
 
     public void decline() { // Called by recipient
-        sender.sendMessage(ChatColor.GOLD + "Request declined.");
-        if(sender.isOnline())
-            sender.sendMessage(ChatColor.AQUA + recipient.getName() + ChatColor.RED + " did not accept your teleport request.");
         removeData();
+
+        // Send messages
+        sender.sendMessage(ChatColor.GOLD + "Request declined.");
+        if (sender.isOnline())
+            sender.sendMessage(ChatColor.AQUA + recipient.getName() + ChatColor.RED + " did not accept your teleport request.");
     }
 
     public Player getSender() {
         return sender;
     }
 
-    @SuppressWarnings("unchecked")
     private void removeData() {
-        radh.removeCooldown(COOLDOWN_CATEGORY, cooldownUid);
-        List<TeleportRequest> tpreqList = (List<TeleportRequest>)radh.retrieve(REQUEST_CATEGORY, recipient.getUniqueId().toString());
-        tpreqList.remove(this);
-        if(tpreqList.isEmpty())
-            radh.delete(REQUEST_CATEGORY, recipient.getUniqueId().toString());
+        FarLands.getDataHandler().getSession(recipient).teleportRequests.remove(this);
+        FarLands.getScheduler().cancelTask(expirationTaskUid);
     }
 
     private void endTask() {
         delay = Integer.MAX_VALUE;
-        FarLands.getScheduler().cancelTask(taskUid);
+        FarLands.getScheduler().cancelTask(delayTaskUid);
+    }
+
+    public enum TeleportType {
+        SENDER_TO_RECIPIENT, RECIPIENT_TO_SENDER
     }
 }

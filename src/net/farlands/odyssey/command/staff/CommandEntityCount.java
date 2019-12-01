@@ -28,7 +28,7 @@ public class CommandEntityCount extends Command {
     private static final double[] CLUSTER_DENSITY_COLORING = {0.4, 0.7, 1.3, 3.4};
 
     public CommandEntityCount() {
-        super(Rank.JR_BUILDER, "Enable or disable flight.", "/entitycount [player] [type] [radius]", "entitycount", "ec");
+        super(Rank.JR_BUILDER, "Count the number of entities in a radius and show clusters.", "/entitycount [player] [type] [radius]", "entitycount", "ec");
     }
 
     @Override
@@ -86,7 +86,7 @@ public class CommandEntityCount extends Command {
         if(bundle.type == null)
             completions.addAll(ENTITY_TYPES);
         if(bundle.player == null)
-            completions.addAll(getOnlinePlayers(args[args.length - 1]));
+            completions.addAll(getOnlineVanishedPlayers(args[args.length - 1]));
         if(bundle.radius == -1)
             completions.addAll(RADIUS_SUGGESTIONS);
         return completions.stream().filter(completion -> completion.startsWith(args[args.length - 1])).collect(Collectors.toList());
@@ -160,7 +160,7 @@ public class CommandEntityCount extends Command {
             return Utils.safeValueOf(EntityType::valueOf, arg.replaceAll("-", "_").toUpperCase());
         else if(arg.matches("\\d+"))
             return Integer.parseInt(arg);
-        return strict ? Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().equals(arg)).findAny().orElse(null) : getPlayer(arg);
+        return strict ? Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().equals(arg)).findAny().orElse(null) : getVanishedPlayer(arg);
     }
 
     static ArgumentBundle bundleArguments(String[] args, CommandSender sender, boolean strict) {

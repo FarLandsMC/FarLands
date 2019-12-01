@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import org.bukkit.ChatColor;
@@ -22,7 +22,7 @@ public class CommandDebug extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         if(args.length == 0) {
-            FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+            OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
             boolean debugging = !flp.isDebugging();
             flp.setDebugging(debugging);
             sender.sendMessage(ChatColor.AQUA + "Debugging: " + debugging);

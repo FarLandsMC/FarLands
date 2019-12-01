@@ -2,7 +2,7 @@ package net.farlands.odyssey.command;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -64,7 +64,7 @@ public abstract class Command extends org.bukkit.command.Command {
                 error.append("    ").append(ste.toString()).append('\n');
             String errorString = error.toString();
             if(showErrorsOnDiscord()) {
-                FarLands.error("Error executing command " + getName() + " from " + sender.getName());
+                Chat.error("Error executing command " + getName() + " from " + sender.getName());
                 FarLands.getDebugger().echo(errorString.length() > 1994 ? errorString.substring(0, 1991) + "..." : errorString);
             }
             ex.printStackTrace(System.out);
@@ -138,21 +138,26 @@ public abstract class Command extends org.bukkit.command.Command {
         }
     }
 
+    // Excludes vanished players
     public static Player getPlayer(String name) {
+        Player player = Bukkit.getServer().getPlayer(name);
+        return player == null ? null : (FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished() ? null : player);
+    }
+    // Includes vanished players
+    public static Player getVanishedPlayer(String name) {
         return Bukkit.getServer().getPlayer(name);
     }
 
-    public static FLPlayer getOnlineOrOfflinePlayer(String name) {
-        return getFLPlayer(name);
-    }
-
-    public static FLPlayer getFLPlayer(String name) {
-        return FarLands.getPDH().getFLPlayerMatching(name);
-    }
-
+    // Excludes vanished players
     public static List<String> getOnlinePlayers(String partialName) {
-        return Bukkit.getOnlinePlayers().stream().filter(player -> !FarLands.getPDH().getFLPlayer(player).isVanished())
+        return Bukkit.getOnlinePlayers().stream().filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished())
                 .map(Player::getName).filter(name -> name.toLowerCase().startsWith(partialName.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+    // Includes vanished players
+    public static List<String> getOnlineVanishedPlayers(String partialName) {
+        return Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                .filter(name -> name.toLowerCase().startsWith(partialName.toLowerCase()))
                 .collect(Collectors.toList());
     }
 

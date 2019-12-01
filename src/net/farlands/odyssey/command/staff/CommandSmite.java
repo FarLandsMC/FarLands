@@ -22,7 +22,7 @@ public class CommandSmite extends Command {
             sender.sendMessage(ChatColor.RED + "Please specify the peasant you wish to smite.");
             return true;
         }
-        Player player = getPlayer(args[0]);
+        Player player = getVanishedPlayer(args[0]);
         if(player == null) {
             sender.sendMessage(ChatColor.RED + "This peasant does not exist.");
             return true;
@@ -33,6 +33,6 @@ public class CommandSmite extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
     }
 }

@@ -21,8 +21,7 @@ public class CommandTPAccept extends PlayerCommand {
     @Override
     @SuppressWarnings("unchecked")
     public boolean execute(Player sender, String[] args) {
-        List<TeleportRequest> requests = (List<TeleportRequest>)FarLands.getDataHandler().getRADH()
-                .retrieve(TeleportRequest.REQUEST_CATEGORY, sender.getUniqueId().toString());
+        List<TeleportRequest> requests = FarLands.getDataHandler().getSession(sender).teleportRequests;
         if(requests == null || requests.isEmpty()) {
             sender.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
             return true;
@@ -44,8 +43,7 @@ public class CommandTPAccept extends PlayerCommand {
     @Override
     @SuppressWarnings("unchecked")
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        List<TeleportRequest> requests = (List<TeleportRequest>)FarLands.getDataHandler().getRADH()
-                .retrieve(TeleportRequest.REQUEST_CATEGORY, ((Player)sender).getUniqueId().toString());
+        List<TeleportRequest> requests = FarLands.getDataHandler().getSession((Player)sender).teleportRequests;
         return args.length == 1 && !(requests == null || requests.isEmpty())
                 ? requests.stream().map(req -> req.getSender().getName()).collect(Collectors.toList())
                 : Collections.emptyList();

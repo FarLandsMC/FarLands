@@ -3,8 +3,7 @@ package net.farlands.odyssey.command.staff;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
-import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +20,7 @@ public class CommandStaffChat extends Command {
             return true;
         }
 
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
 
         if("ctoggle".equals(args[0]) && flp != null) {
             boolean toggle = FarLands.getDataHandler().getRADH().flipBoolean(true, "staffChatToggle",

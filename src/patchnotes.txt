@@ -1,9 +1,15 @@
-&7Changes:
+Changes:
  - Commands:
-   - Media rank no longer bypasses AFK
-   - /ping [player] can be used from discord
-
+   - /stack stops dropping items when inventory is full
+   - /tableflip and /unflip have now been added
+   - /suggest and /bugreport can now be used in-game
+   - /sethome requires access trust to be used on another claim
+   - Further improved staff commands
  - General:
-   -
+   - Flooding is now sent to chat with limited chars instead of canceling the message
+   - Fixed leash dupe bug when teleporting
+   - Mail updates wont spam the player
+   - Enabled Chest Shop Integration
  - Server:
-   - General backend and cosmetic changes
+   - Overhauled command system
+   - Improved alerts system

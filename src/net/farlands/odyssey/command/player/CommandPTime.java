@@ -41,8 +41,8 @@ public class CommandPTime extends PlayerCommand {
             time = t.getTicks();
         }
         sender.setPlayerTime(time % 24000L, false);
-        sender.sendMessage(ChatColor.GREEN + "Personal time set. Use " + ChatColor.AQUA + "/ptime reset" +
-                ChatColor.GREEN + " to synchronize your time to the world time.");
+        sendFormatted(sender, "&(green)Personal time set. Use $(hovercmd,/ptime reset,{&(gray)Click to Run},&(aqua)/ptime reset) " +
+                "to synchronize your time to the world time.");
         return true;
     }
 

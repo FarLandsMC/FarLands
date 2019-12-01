@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Bukkit;
@@ -26,7 +26,7 @@ public class CommandPurchase extends Command {
         FarLands.getDebugger().echo("Donation command execution: /purchase " + String.join(" ", args));
         if(args.length < 2)
             return false;
-        FLPlayer flp = getFLPlayer(args[0]);
+        OfflineFLPlayer flp = getFLPlayer(args[0]);
         if(flp == null) {
             if(args.length < 3) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
@@ -58,12 +58,11 @@ public class CommandPurchase extends Command {
             if(rank == Rank.DONOR)
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " 15000");
             else if(rank == Rank.PATRON) {
-                if(flp.isOnline())
+                if (flp.isOnline()) {
                     Utils.giveItem(flp.getOnlinePlayer(), FarLands.getDataHandler().getPatronCollectable(), false);
-                else {
+                } else
                     FarLands.getDataHandler().addPackage(flp.getUuid(), "FarLands Staff",
-                            FarLands.getDataHandler().getPatronCollectable());
-                }
+                            FarLands.getDataHandler().getPatronCollectable(), "");
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " " +
                         (flp.getRank() == Rank.DONOR ? "45000" : "60000"));
             }
@@ -83,7 +82,7 @@ public class CommandPurchase extends Command {
         switch(args.length) {
             case 0:
             case 1:
-                return getOnlinePlayers(args.length == 0 ? "" : args[0]);
+                return getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]);
             case 2:
                 return Rank.PURCHASED_RANKS.stream().map(Rank::toString).collect(Collectors.toList());
             default:

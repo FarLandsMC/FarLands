@@ -12,16 +12,31 @@ import org.bukkit.entity.Player;
 
 public class CommandShrug extends PlayerCommand {
     private static final String SHRUG = "\u00AF\\_(\u30C4)_/\u00AF";
+    private static final String TABLEFLIP = "(╯°□°）╯︵ ┻━┻";
+    private static final String UNFLIP = "┬─┬ ノ( ゜-゜ノ)";
 
     public CommandShrug() {
-        super(Rank.INITIATE, "Append " + SHRUG + " to the end of your message.", "/shrug [action]", "shrug");
+        super(Rank.INITIATE, "Append [" + SHRUG + "|" + TABLEFLIP + "|" + UNFLIP + "] to the end of your message.",
+                "/shrug|tableflip|unflip [action]", true,"shrug", "tableflip", "unflip");
     }
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        Chat.chat(FarLands.getPDH().getFLPlayer(sender), sender,
-                args.length == 0 ? SHRUG : String.join(" ", args).trim() + " " + SHRUG);
-        return true;
+        switch (args[0]) {
+            case "shrug":
+                Chat.chat(FarLands.getPDH().getFLPlayer(sender), sender,
+                        args.length == 1 ? SHRUG : joinArgsBeyond(0, " ", args).trim() + " " + SHRUG);
+                return true;
+            case "tableflip":
+                Chat.chat(FarLands.getPDH().getFLPlayer(sender), sender,
+                        args.length == 1 ? TABLEFLIP : joinArgsBeyond(0, " ", args).trim() + " " + TABLEFLIP);
+                return true;
+            case "unflip":
+                Chat.chat(FarLands.getPDH().getFLPlayer(sender), sender,
+                        args.length == 1 ? UNFLIP : joinArgsBeyond(0, " ", args).trim() + " " + UNFLIP);
+                return true;
+        }
+        return false;
     }
 
     @Override

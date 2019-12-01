@@ -2,33 +2,41 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
-import net.farlands.odyssey.data.struct.FLPlayer;
-import net.farlands.odyssey.data.RandomAccessDataHandler;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class CommandCensor extends PlayerCommand {
+    private final Map<UUID, Integer> ranCommandOnce;
+
     public CommandCensor() {
         super(Rank.INITIATE, "Toggle on or off chat censor.", "/censor", "censor");
+        this.ranCommandOnce = new HashMap<>();
     }
 
     @Override
     public boolean execute(Player player, String[] args) {
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(player);
-        if(!flp.isCensoring()) {
-            flp.setCensoring(true);
-            player.sendMessage(ChatColor.GOLD + "Chat censor enabled.");
-        }else{
-            RandomAccessDataHandler radh = FarLands.getDataHandler().getRADH();
-            if(!radh.isCooldownComplete("censor", player.getUniqueId().toString())) {
-                radh.removeCooldown("censor", player.getUniqueId().toString());
-                flp.setCensoring(false);
-                player.sendMessage(ChatColor.GOLD + "Censor disabled. You can re-enable it with /censor.");
-            }else{ // Tell them to run the command again to confirm
-                radh.setCooldown(30L * 20L, "censor", player.getUniqueId().toString());
-                player.sendMessage(ChatColor.RED + "Are you sure you want to disable the chat censor? Confirm with /censor.");
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+        if (flp.censoring) {
+            if (ranCommandOnce.containsKey(player.getUniqueId())) {
+                flp.censoring = false;
+                FarLands.getScheduler().completeTask(ranCommandOnce.get(player.getUniqueId()));
+                sendFormatted(player, "&(gold)Censor disabled. You can re-enable it with " +
+                        "$(hovercmd,/censor,{&(gray)Click to Run},&(aqua)/censor).");
+            } else {
+                ranCommandOnce.put(player.getUniqueId(), FarLands.getScheduler()
+                        .scheduleSyncDelayedTask(() -> ranCommandOnce.remove(player.getUniqueId()), 30L * 20L));
+                sendFormatted(player, "&(red)Are you sure you want to disable the chat censor? Confirm with " +
+                        "$(hovercmd,/censor,{&(gray)Click to Run},&(dark_red)/censor).");
             }
+        } else {
+            flp.censoring = true;
+            player.sendMessage(ChatColor.GOLD + "Chat censor enabled.");
         }
         return true;
     }

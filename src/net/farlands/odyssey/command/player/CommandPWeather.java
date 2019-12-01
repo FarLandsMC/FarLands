@@ -24,7 +24,7 @@ public class CommandPWeather extends PlayerCommand {
             return false;
         if("reset".equalsIgnoreCase(args[0])) {
             sender.resetPlayerWeather();
-            sender.sendMessage(ChatColor.GREEN + "Reset weather to world weather.");
+            sender.sendMessage(ChatColor.GREEN + "Weather synchronized to world weather.");
             return true;
         }
         WeatherType wt = "clear".equalsIgnoreCase(args[0])
@@ -35,8 +35,8 @@ public class CommandPWeather extends PlayerCommand {
             return false;
         }
         sender.setPlayerWeather(wt);
-        sender.sendMessage(ChatColor.GREEN + "Personal weather set. Use " + ChatColor.AQUA + "/pweather reset" +
-                ChatColor.GREEN + " to reset your weather to the world weather.");
+        sendFormatted(sender, "&(green)Personal weather set. Use $(hovercmd,/pweather reset,{&(gray)Click to Run},&(aqua)/pweather reset) " +
+                "to synchronize your weather to the world weather.");
         return true;
     }
 

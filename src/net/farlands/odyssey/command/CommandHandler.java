@@ -21,7 +21,6 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -68,6 +67,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandDonate());           // Initiate
         registerCommand(new CommandEchest());           // Donor
         registerCommand(new CommandExtinguish());       // Patron
+        registerCommand(new CommandGivePet());          // Initiate
         registerCommand(new CommandGuideBook());        // Initiate
         registerCommand(new CommandHat());              // Donor
         registerCommand(new CommandHome());             // Initiate

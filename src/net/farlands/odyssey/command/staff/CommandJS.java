@@ -1,7 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import org.bukkit.ChatColor;
@@ -106,7 +106,7 @@ public class CommandJS extends Command {
             return true;
         else if(sender instanceof BlockCommandSender) // Prevent people circumventing permissions by using a command block
             return false;
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
         if(flp == null || !FarLands.getFLConfig().getJsUsers().contains(flp.getUuid().toString())) {
             sender.sendMessage(ChatColor.RED + "You cannot use this command.");
             return false;

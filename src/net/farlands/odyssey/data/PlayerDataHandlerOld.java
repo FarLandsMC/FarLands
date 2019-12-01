@@ -23,18 +23,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PlayerDataHandler {
+public class PlayerDataHandlerOld {
     private final Map<String, String> queries;
-    private final Map<UUID, FLPlayer> cache;
+    private final Map<UUID, OfflineFLPlayer> cache;
     private Connection connection;
     private boolean active;
 
     private void initQueries() {
         List<String> flpFields = new ArrayList<>();
-        Stream.of(FLPlayer.class.getDeclaredFields()).filter(f -> !Modifier.isStatic(f.getModifiers())).forEach(field -> {
-            if(FLPlayer.SQL_SER_INFO.get("ignored").contains(field.getName()) || FLPlayer.SQL_SER_INFO.get("constants").contains(field.getName()))
+        Stream.of(OfflineFLPlayer.class.getDeclaredFields()).filter(f -> !Modifier.isStatic(f.getModifiers())).forEach(field -> {
+            if(OfflineFLPlayer.SQL_SER_INFO.get("ignored").contains(field.getName()) || OfflineFLPlayer.SQL_SER_INFO.get("constants").contains(field.getName()))
                 return;
-            if(FLPlayer.SQL_SER_INFO.get("objects").contains(field.getName()))
+            if(OfflineFLPlayer.SQL_SER_INFO.get("objects").contains(field.getName()))
                 Stream.of(field.getType().getDeclaredFields()).map(Field::getName).forEach(f -> flpFields.add(field.getName() + "_" + f));
             else if(boolean.class.equals(field.getType())) {
                 if(!flpFields.contains("flags"))
@@ -108,7 +108,7 @@ public class PlayerDataHandler {
         }
     }
 
-    public PlayerDataHandler(File dbFile, DataHandler dh) {
+    public PlayerDataHandlerOld(File dbFile, DataHandler dh) {
         this.queries = new HashMap<>();
         this.cache = new ConcurrentHashMap<>();
         initQueries();
@@ -139,9 +139,9 @@ public class PlayerDataHandler {
     }
 
     public synchronized void updateOnline(UUID uuid) {
-        FLPlayer flp = cache.get(uuid);
+        OfflineFLPlayer flp = cache.get(uuid);
         if(flp != null && flp.isOnline())
-            flp.updateOnline(flp.getOnlinePlayer());
+            flp.updateSessionIfOnline(true);
     }
 
     public synchronized void setFlag(UUID uuid, int index) {
@@ -172,18 +172,18 @@ public class PlayerDataHandler {
         }
     }
 
-    public synchronized FLPlayer getCached(UUID uuid) {
+    public synchronized OfflineFLPlayer getCached(UUID uuid) {
         return uuid == null ? null : cache.get(uuid);
     }
 
-    public synchronized List<FLPlayer> getCached() {
+    public synchronized List<OfflineFLPlayer> getCached() {
         return new ArrayList<>(cache.values());
     }
 
     public synchronized void saveCache(boolean update) {
         if(!cache.isEmpty()) {
             if(update)
-                cache.values().forEach(flp -> flp.updateOnline(flp.getOnlinePlayer(), false));
+                cache.values().forEach(flp -> flp.updateSessionIfOnline(false));
             try {
                 PreparedStatement ps = connection.prepareStatement(queries.get("saveFlp"));
                 cache.values().forEach(flp -> saveFLPlayer(flp, ps, true));
@@ -205,15 +205,15 @@ public class PlayerDataHandler {
         return getFLPlayer(player).getSecondsPlayed() < 30;
     }
 
-    public synchronized FLPlayer getFLPlayer(Player player) {
+    public synchronized OfflineFLPlayer getFLPlayer(Player player) {
         if(cache.containsKey(player.getUniqueId()))
             return cache.get(player.getUniqueId());
-        FLPlayer flp = getFLPlayer(player.getUniqueId(), player.getName());
+        OfflineFLPlayer flp = getFLPlayer(player.getUniqueId(), player.getName());
         cache.put(player.getUniqueId(), flp);
         return flp;
     }
 
-    public synchronized FLPlayer getFLPlayerMatching(String name) {
+    public synchronized OfflineFLPlayer getFLPlayerMatching(String name) {
         Pair<UUID, String> ids = getPlayerIds(name);
         if(ids == null)
             return null;
@@ -222,19 +222,19 @@ public class PlayerDataHandler {
         return loadFLPlayer(ids.getFirst(), null);
     }
 
-    public synchronized FLPlayer getFLPlayer(UUID uuid) {
+    public synchronized OfflineFLPlayer getFLPlayer(UUID uuid) {
         if(cache.containsKey(uuid))
             return cache.get(uuid);
         return loadFLPlayer(uuid, null);
     }
 
-    public synchronized FLPlayer getFLPlayer(UUID uuid, String username) { // Creates new player data (if needed)
+    public synchronized OfflineFLPlayer getFLPlayer(UUID uuid, String username) { // Creates new player data (if needed)
         if(cache.containsKey(uuid))
             return cache.get(uuid);
         return loadFLPlayer(uuid, username);
     }
 
-    public synchronized FLPlayer getFLPlayer(String name) { // Not used often, so a search is okay. Note: does not create new player data
+    public synchronized OfflineFLPlayer getFLPlayer(String name) { // Not used often, so a search is okay. Note: does not create new player data
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getUuid"));
             ps.setString(1, name);
@@ -251,7 +251,7 @@ public class PlayerDataHandler {
         }
     }
 
-    public synchronized FLPlayer getFLPlayer(CommandSender sender) {
+    public synchronized OfflineFLPlayer getFLPlayer(CommandSender sender) {
         if(sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender)
             return null;
         return sender instanceof DiscordSender
@@ -259,10 +259,10 @@ public class PlayerDataHandler {
                 : getFLPlayer((Player)sender);
     }
 
-    public synchronized FLPlayer getFLPlayer(long discordID) { // Note: does not create new player data
+    public synchronized OfflineFLPlayer getFLPlayer(long discordID) { // Note: does not create new player data
         if(discordID == 0)
             return null;
-        FLPlayer flp = cache.values().stream().filter(flp0 -> flp0.getDiscordID() == discordID).findAny().orElse(null);
+        OfflineFLPlayer flp = cache.values().stream().filter(flp0 -> flp0.getDiscordID() == discordID).findAny().orElse(null);
         if(flp != null)
             return flp;
         try {
@@ -281,15 +281,15 @@ public class PlayerDataHandler {
         }
     }
 
-    public synchronized List<FLPlayer> getAlts(UUID player) {
-        List<FLPlayer> alts = new ArrayList<>();
+    public synchronized List<OfflineFLPlayer> getAlts(UUID player) {
+        List<OfflineFLPlayer> alts = new ArrayList<>();
         try {
-            ResultSet rs = FarLands.getPDH().query("SELECT uuid FROM playerdata WHERE lastIP=\"" +
+            ResultSet rs = query("SELECT uuid FROM playerdata WHERE lastIP=\"" +
                     getFLPlayer(player).getLastIP() + "\" AND rank<" + Rank.JR_BUILDER.ordinal());
             while(rs.next()) {
                 UUID uuid = Utils.getUuid(rs.getBytes("uuid"), 0);
                 if(!player.equals(uuid))
-                    alts.add(FarLands.getPDH().getFLPlayer(uuid));
+                    alts.add(getFLPlayer(uuid));
             }
             rs.close();
         }catch(SQLException ex) {
@@ -396,7 +396,7 @@ public class PlayerDataHandler {
         return null;
     }
 
-    public synchronized void saveLegacy(FLPlayer flp) {
+    public synchronized void saveLegacy(OfflineFLPlayer flp) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("newFlp"));
             ps.setBytes(1, Utils.serializeUuid(flp.getUuid()));
@@ -410,7 +410,7 @@ public class PlayerDataHandler {
         saveFLPlayerComplete(flp);
     }
 
-    public synchronized void saveFLPlayerComplete(FLPlayer flp) {
+    public synchronized void saveFLPlayerComplete(OfflineFLPlayer flp) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("saveFlp"));
             saveFLPlayer(flp, ps, false);
@@ -437,7 +437,7 @@ public class PlayerDataHandler {
         }
     }
 
-    public synchronized void saveFLPlayer(FLPlayer flp) {
+    public synchronized void saveFLPlayer(OfflineFLPlayer flp) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("saveFlp"));
             saveFLPlayer(flp, ps, false);
@@ -449,7 +449,7 @@ public class PlayerDataHandler {
         }
     }
 
-    public synchronized void saveFLPlayer(FLPlayer flp, PreparedStatement saveFlp, boolean batch) {
+    public synchronized void saveFLPlayer(OfflineFLPlayer flp, PreparedStatement saveFlp, boolean batch) {
         try {
             saveFlp.setString(1, flp.getUsername());
             saveFlp.setLong(2, flp.getDiscordID());
@@ -462,7 +462,7 @@ public class PlayerDataHandler {
             saveFlp.setInt(9, flp.getVoteRewards());
             saveFlp.setInt(10, flp.getAmountDonated());
             saveFlp.setInt(11, flp.getShops());
-            int flags = (flp.isFlying() ? 1 : 0) << 7 | (flp.isGod() ? 1 : 0) << 6 | (flp.isVanished() ? 1 : 0) << 5 |
+            int flags = (flp.getFlightPreference() ? 1 : 0) << 7 | (flp.isGod() ? 1 : 0) << 6 | (flp.isVanished() ? 1 : 0) << 5 |
                     (flp.isCensoring() ? 1 : 0) << 4 | (flp.isPvPing() ? 1 : 0) << 3 | (flp.isTopVoter() ? 1 : 0) << 2 |
                     (flp.viewedPatchnotes() ? 1 : 0) << 1 | (flp.isDebugging() ? 1 : 0);
             saveFlp.setInt(12, (byte)flags);
@@ -507,7 +507,7 @@ public class PlayerDataHandler {
         }
     }
 
-    private FLPlayer loadFLPlayer(UUID uuid, String username) {
+    private OfflineFLPlayer loadFLPlayer(UUID uuid, String username) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getFlpByUuid"));
             byte[] serUuid = Utils.serializeUuid(uuid);
@@ -515,7 +515,7 @@ public class PlayerDataHandler {
             ps.setBytes(1, serUuid);
             ResultSet rs = ps.executeQuery();
 
-            FLPlayer flp = new FLPlayer(uuid, username);
+            OfflineFLPlayer flp = new OfflineFLPlayer(uuid, username);
             if(!rs.next()) {
                 if(username == null)
                     return null;
@@ -542,7 +542,7 @@ public class PlayerDataHandler {
             flp.setAmountDonated(rs.getInt("amountDonated"));
             flp.setShops(rs.getInt("shops"));
             int flags = rs.getInt("flags");
-            flp.setFlyingSilent((flags & 0x80) != 0);
+            flp.setFlightPreferenceSilent((flags & 0x80) != 0);
             flp.setGod((flags & 0x40) != 0);
             flp.setVanishedSilent((flags & 0x20) != 0);
             flp.setCensoring((flags & 0x10) != 0);

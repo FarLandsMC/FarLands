@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
@@ -26,7 +26,7 @@ public class CommandPunish extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length < ("punish".equals(args[0]) ? 3 : 2))
             return false;
-        FLPlayer flp = getFLPlayer(args[1]);
+        OfflineFLPlayer flp = getFLPlayer(args[1]);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -79,7 +79,7 @@ public class CommandPunish extends Command {
             if(flp.pardon(pt))
                 sender.sendMessage(ChatColor.GOLD + "Pardoned " + ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD + " from " + pt.getFormattedName());
             else
-                sender.sendMessage(ChatColor.RED + "This play does not have that punishment on record.");
+                sender.sendMessage(ChatColor.RED + "This player does not have that punishment on record.");
         }
         return true;
     }
@@ -89,7 +89,7 @@ public class CommandPunish extends Command {
         switch(args.length) {
             case 0:
             case 1:
-                return getOnlinePlayers(args.length == 0 ? "" : args[0]);
+                return getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]);
             case 2:
                 return Arrays.stream(Punishment.PunishmentType.VALUES).map(Punishment.PunishmentType::getAlias)
                         .filter(a -> a.startsWith(args[1])).collect(Collectors.toList());

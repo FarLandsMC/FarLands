@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.staff.CommandEntityCount;
 import net.farlands.odyssey.data.Rank;
@@ -34,7 +35,8 @@ public class CommandWhyLag extends Command {
                 sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
                 return true;
             }
-            CraftPlayer craftPlayer = args.length <= 1 ? (CraftPlayer)sender : (CraftPlayer)getPlayer(args[1]);
+            CraftPlayer craftPlayer = args.length <= 1 ? (CraftPlayer)sender :
+                    (CraftPlayer)(Rank.getRank(sender).isStaff() ? getVanishedPlayer(args[1]) : getPlayer(args[1]));
             if (craftPlayer == null) {
                 sender.sendMessage(ChatColor.RED + "Could not find player " + ChatColor.GRAY + args[1] + ChatColor.RED + " in game");
                 return true;
@@ -65,6 +67,7 @@ public class CommandWhyLag extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 && "ping".equals(alias) ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 && "ping".equals(alias) ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
+                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
     }
 }

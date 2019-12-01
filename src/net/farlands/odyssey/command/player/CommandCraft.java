@@ -10,7 +10,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftShapelessRecipe;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
 
@@ -27,18 +26,18 @@ public class CommandCraft extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             sender.openWorkbench(null, true);
-        else{
+        else {
             Material item = Utils.valueOfFormattedName(args[0], Material.class);
 
-            if(item == null) {
+            if (item == null) {
                 sender.sendMessage(ChatColor.RED + "Invalid item name: " + args[0]);
                 return true;
             }
 
             int amount = 0;
-            if(args.length > 1) {
+            if (args.length > 1) {
                 try {
                     amount = Integer.parseInt(args[1]);
                 } catch (NumberFormatException ex) {
@@ -46,7 +45,7 @@ public class CommandCraft extends PlayerCommand {
                     return true;
                 }
 
-                if(amount < 1) {
+                if (amount < 1) {
                     sender.sendMessage(ChatColor.RED + "The amount must be greater than or equal to one.");
                     return true;
                 }
@@ -54,7 +53,7 @@ public class CommandCraft extends PlayerCommand {
 
             List<Recipe> recipes = Bukkit.getRecipesFor(new ItemStack(item, 1));
             Recipe recipe = null;
-            if(recipes.isEmpty()) {
+            if (recipes.isEmpty()) {
                 sender.sendMessage(ChatColor.RED + "This item does not have a recipe.");
                 return true;
             }
@@ -62,19 +61,19 @@ public class CommandCraft extends PlayerCommand {
             Map<Material, Integer> requirements = new HashMap<>();
             Map<Material, Integer> available = new HashMap<>();
             int craftable = 0;
-            for(Recipe r : recipes) {
-                if(!(r instanceof ShapedRecipe || r instanceof ShapelessRecipe))
+            for (Recipe r : recipes) {
+                if (!(r instanceof ShapedRecipe || r instanceof ShapelessRecipe))
                     continue;
 
                 recipe = r;
                 amount = amount == 0 ? 1 : amount / r.getResult().getAmount();
 
                 (r instanceof ShapedRecipe ? ((ShapedRecipe) r).getChoiceMap().values()
-                        : ((ShapelessRecipe)r).getChoiceList()).stream().filter(Objects::nonNull).forEach(choice -> {
+                        : ((ShapelessRecipe) r).getChoiceList()).stream().filter(Objects::nonNull).forEach(choice -> {
                     Material mat = null;
-                    for(Material material : ((RecipeChoice.MaterialChoice)choice).getChoices()) {
+                    for (Material material : ((RecipeChoice.MaterialChoice) choice).getChoices()) {
                         mat = material;
-                        if(sender.getInventory().first(mat) > -1)
+                        if (sender.getInventory().first(mat) > -1)
                             break;
                     }
                     requirements.put(mat, requirements.getOrDefault(mat, 0) + 1);
@@ -89,42 +88,42 @@ public class CommandCraft extends PlayerCommand {
                 craftable = available.entrySet().stream().map(entry -> entry.getValue() /
                         requirements.get(entry.getKey())).min(Integer::compare).orElse(0);
 
-                if(craftable > 0)
+                if (craftable > 0)
                     break;
             }
 
-            if(amount == 0)
+            if (amount == 0)
                 return true;
 
-            if(craftable == 0) {
+            if (craftable == 0) {
                 sender.sendMessage(ChatColor.RED + "You are missing the following materials: " + available.entrySet()
                         .stream().filter(entry -> entry.getValue() < requirements.get(entry.getKey()))
                         .map(entry -> Utils.formattedName(entry.getKey()) + " (" + (requirements.get(entry.getKey()) -
                                 entry.getValue()) + ")").collect(Collectors.joining(", ")));
                 return true;
-            }else if(craftable < amount) {
+            } else if (craftable < amount) {
                 sender.sendMessage(ChatColor.RED + "You only had enough resources in your inventory to craft " +
                         craftable + " of this item.");
-            }else
+            } else
                 craftable = amount;
 
             int finalCraftable = craftable;
             requirements.forEach((mat, amt) -> {
                 int total = 0, required = amt * finalCraftable;
                 int first;
-                while((first = sender.getInventory().first(mat)) > -1) {
+                while ((first = sender.getInventory().first(mat)) > -1) {
                     ItemStack stack = sender.getInventory().getItem(first);
-                    if(stack.getAmount() < required - total) {
+                    if (stack.getAmount() < required - total) {
                         total += stack.getAmount();
                         sender.getInventory().setItem(first, null);
-                    }else{
+                    } else {
                         stack.setAmount(stack.getAmount() - (required - total));
                         break;
                     }
                 }
             });
 
-            net.farlands.odyssey.util.Utils.giveItem(sender, new ItemStack(item , craftable * recipe.getResult().getAmount()), true);
+            net.farlands.odyssey.util.Utils.giveItem(sender, new ItemStack(item, craftable * recipe.getResult().getAmount()), true);
         }
 
         return true;

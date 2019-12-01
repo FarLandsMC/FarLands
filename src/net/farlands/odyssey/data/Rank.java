@@ -2,7 +2,7 @@ package net.farlands.odyssey.data;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -98,7 +98,7 @@ public enum Rank {
         return playTimeRequired >= 0;
     }
 
-    public boolean hasPlaytime(FLPlayer flp) {
+    public boolean hasPlaytime(OfflineFLPlayer flp) {
         return playTimeRequired >= 0 && flp.getSecondsPlayed() >= playTimeRequired * 3600;
     }
 
@@ -139,7 +139,7 @@ public enum Rank {
         return adv == null || player.getAdvancementProgress(adv).isDone();
     }
 
-    public boolean hasRequirements(Player player, FLPlayer flp) {
+    public boolean hasRequirements(Player player, OfflineFLPlayer flp) {
         return hasPlaytime(flp) && completedAdvancement(player);
     }
 
@@ -181,10 +181,10 @@ public enum Rank {
         else if(sender instanceof BlockCommandSender)
             return MOD;
         else if(sender instanceof DiscordSender) {
-            FLPlayer flp = ((DiscordSender)sender).getFlp();
+            OfflineFLPlayer flp = ((DiscordSender)sender).getFlp();
             return flp == null ? Rank.INITIATE : flp.getRank();
         } else
-            return FarLands.getPDH().getRank(((Player)sender).getUniqueId());
+            return FarLands.getDataHandler().getOfflineFLPlayer((Player)sender).rank;
     }
 
     public static void createTeams() {

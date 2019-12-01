@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
@@ -92,8 +92,8 @@ public class CommandEdit extends Command {
         }catch(InvalidFieldException ex) {
             sender.sendMessage(ChatColor.RED + "Invalid field, field not found: " + ex.getField());
         }
-        if(target instanceof FLPlayer)
-            FarLands.getPDH().saveFLPlayerComplete((FLPlayer)target);
+        if(target instanceof OfflineFLPlayer)
+            FarLands.getPDH().saveFLPlayerComplete((OfflineFLPlayer)target);
         return true;
     }
 
@@ -106,7 +106,7 @@ public class CommandEdit extends Command {
                 return Stream.of("player", "config").filter(s -> s.startsWith(args[0])).collect(Collectors.toList());
             case 2: // Send the list of available targets
                 return "player".equals(args[0])
-                        ? getOnlinePlayers(args[1])
+                        ? getOnlineVanishedPlayers(args[1])
                         : CONFIGS.keySet().stream().filter(config -> config.startsWith(args[1])).collect(Collectors.toList());
             case 3: // Send the list of available fields (with restricted ones redacted)
             {

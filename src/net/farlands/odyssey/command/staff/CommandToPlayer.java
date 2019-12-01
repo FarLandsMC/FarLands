@@ -19,7 +19,7 @@ public class CommandToPlayer extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         if(args.length == 0)
             return false;
-        Player player = getPlayer(args[0]);
+        Player player = getVanishedPlayer(args[0]);
         if(player == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -30,6 +30,6 @@ public class CommandToPlayer extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
     }
 }

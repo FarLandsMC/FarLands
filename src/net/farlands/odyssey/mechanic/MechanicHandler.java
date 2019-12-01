@@ -2,7 +2,7 @@ package net.farlands.odyssey.mechanic;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
-import net.farlands.odyssey.mechanic.region.Spawn;
+import net.farlands.odyssey.mechanic.region.*;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,13 +27,13 @@ public class MechanicHandler implements Listener {
 
         // Handlers
         registerMechanic(FarLands.getCommandHandler());
+        registerMechanic(FarLands.getDataHandler());
 
         // Feature mechanics
         registerMechanic(new AFK());
         registerMechanic(new AntiCheat());
         registerMechanic(new Chat());
         registerMechanic(new CompassMechanic());
-        registerMechanic(new FLSystem());
         registerMechanic(new GeneralMechanics());
         registerMechanic(new Restrictions());
         registerMechanic(new Spawn());
@@ -41,7 +41,7 @@ public class MechanicHandler implements Listener {
         registerMechanic(new Voting());
         registerMechanic(new Items());
 
-        FarLands.log("Finished registering mechanics.");
+        Chat.log("Finished registering mechanics.");
     }
 
     private void registerMechanic(Mechanic mechanic) {
@@ -68,7 +68,8 @@ public class MechanicHandler implements Listener {
 
     @EventHandler(priority=EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        mechanics.forEach(mechanic -> mechanic.onPlayerJoin(event.getPlayer(), FarLands.getPDH().isNew(event.getPlayer())));
+        mechanics.forEach(mechanic -> mechanic.onPlayerJoin(event.getPlayer(),
+                FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).secondsPlayed < 30));
     }
 
     @EventHandler

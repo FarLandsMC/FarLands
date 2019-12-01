@@ -79,7 +79,7 @@ public class Scheduler extends Thread {
         if(task == null)
             return false;
         task.complete();
-        return true;
+        return tasks.remove(task);
     }
 
     public synchronized long taskTimeRemaining(int uid) {

@@ -21,29 +21,30 @@ public class CommandGetLog extends DiscordCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length == 0)
-            return false;
-
         int start, end;
-        try {
-            start = parseDate(args[0]);
-            end = args.length == 1 ? start : parseDate(args[1]);
-        } catch (IllegalArgumentException ex) {
-            sender.sendMessage("Invalid date \"" + ex.getMessage() + "\". Expected format: yyyy-mm-dd.");
-            return true;
+        if (args.length == 0 || args[0].equalsIgnoreCase("latest"))
+            start = end = parseDate(Utils.dateToString(System.currentTimeMillis() - 21600000L, "yyyy-MM-dd"));
+        else {
+            try {
+                start = parseDate(args[0]);
+                end = args.length == 1 ? start : parseDate(args[1]);
+            } catch (IllegalArgumentException ex) {
+                sender.sendMessage("Invalid date \"" + ex.getMessage() + "\". Expected format: yyyy-mm-dd.");
+                return true;
+            }
         }
 
-        (new LogBuilder((DiscordSender)sender, start, end)).start();
+        (new LogBuilder((DiscordSender) sender, start, end)).start();
         return true;
     }
 
     private static int parseDate(String date) throws IllegalArgumentException {
         String[] data = date.substring(0, Utils.indexOfDefault(date.indexOf('.'), date.length())).split("-");
-        if(data.length < 3)
+        if (data.length < 3)
             throw new IllegalArgumentException(date);
         try {
             return Integer.parseInt(data[0]) * 10000 + Integer.parseInt(data[1]) * 100 + Integer.parseInt(data[2]);
-        }catch (NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
             throw new IllegalArgumentException(date);
         }
     }
@@ -81,10 +82,10 @@ public class CommandGetLog extends DiscordCommand {
                     copy(f, true, out, buffer);
                 });
 
-                if(end == parseDate(Utils.dateToString(System.currentTimeMillis() - 21600000L, "yyyy-MM-dd"))) {
+                if (end == parseDate(Utils.dateToString(System.currentTimeMillis() - 21600000L, "yyyy-MM-dd"))) {
                     File latest = new File(String.join(File.separator, System.getProperty("user.dir"),
                             "logs", "latest.log"));
-                    if(latest.exists())
+                    if (latest.exists())
                         copy(latest, false, out, buffer);
                 }
 
@@ -103,7 +104,7 @@ public class CommandGetLog extends DiscordCommand {
                 InputStream in = compressed ? new GZIPInputStream(new FileInputStream(input))
                         : new FileInputStream(input);
                 int len;
-                while((len = in.read(buffer)) > 0)
+                while ((len = in.read(buffer)) > 0)
                     out.write(buffer, 0, len);
                 in.close();
             } catch (IOException ex) {

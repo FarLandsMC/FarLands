@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.discord;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import org.bukkit.command.CommandSender;
 
@@ -13,9 +13,9 @@ public class CommandPropose extends DiscordCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         FarLands.getDataHandler().getPluginData().addProposal(flp.getUsername(), String.join(" ", args));
         return true;
     }

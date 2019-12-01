@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -14,9 +14,10 @@ public class CommandVanish extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
         boolean online = flp.isOnline();
         flp.setVanished(!flp.isVanished());
+        flp.updateSessionIfOnline(false);
         if(flp.isVanished()) {
             sender.sendMessage(ChatColor.GOLD + "You are now vanished.");
             if(online) {

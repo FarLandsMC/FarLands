@@ -2,9 +2,9 @@ package net.farlands.odyssey.command.discord;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
-import net.farlands.odyssey.data.PlayerDataHandler;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -21,41 +21,39 @@ public class CommandNotes extends DiscordCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length < 2)
+        if (args.length < 2)
             return false;
-        PlayerDataHandler pdh = FarLands.getPDH();
-        FLPlayer flp = pdh.getFLPlayerMatching(args[1]);
-        if(flp == null) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
+        if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
-        if("view".equals(args[0])) {
-            List<String> notes = pdh.getNotes(flp.getUuid());
-            if(notes.isEmpty())
+        if ("view".equals(args[0])) {
+            if (flp.notes.isEmpty())
                 sender.sendMessage(ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD + " does not have any notes.");
-            else{
+            else {
                 sender.sendMessage(ChatColor.GOLD + "Showing notes for " + ChatColor.AQUA + flp.getUsername() + ":");
-                notes.forEach(note -> sender.sendMessage(ChatColor.GRAY + note));
+                flp.notes.forEach(note -> sender.sendMessage(ChatColor.GRAY + note));
             }
-        }else if("add".equals(args[0])) {
-            FLPlayer senderFlp = pdh.getFLPlayer(sender);
-            pdh.addNote(flp.getUuid(), System.currentTimeMillis(), senderFlp.getUsername(), joinArgsBeyond(1, " ", args));
+        } else if ("add".equals(args[0])) {
+            flp.notes.add(Utils.dateToString(System.currentTimeMillis(), "MM/dd/yyyy") + " " +
+                    sender.getName() + ": " + joinArgsBeyond(1, " ", args));
             sender.sendMessage(ChatColor.GOLD + "Note added.");
-        }else if("clear".equals(args[0])) {
-            pdh.clearNotes(flp.getUuid());
+        } else if ("clear".equals(args[0])) {
+            flp.notes.clear();
             sender.sendMessage(ChatColor.GOLD + "Cleared notes of " + ChatColor.AQUA + flp.getUsername());
-        }else
+        } else
             return false;
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        if(args.length <= 1) {
+        if (args.length <= 1) {
             return Stream.of("view", "add", "clear").filter(action -> action.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList());
-        }else if(args.length == 2)
-            return getOnlinePlayers(args[1]);
+        } else if (args.length == 2)
+            return getOnlineVanishedPlayers(args[1]);
         else
             return Collections.emptyList();
     }

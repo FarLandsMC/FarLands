@@ -3,7 +3,7 @@ package net.farlands.odyssey.command.staff;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.AFK;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.Utils;
@@ -27,7 +27,7 @@ public class CommandSetRank extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length < 2)
             return false;
-        FLPlayer flp = getOnlineOrOfflinePlayer(args[0]);
+        OfflineFLPlayer flp = getOnlineOrOfflinePlayer(args[0]);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Could not find player: " + args[0]);
             return true;
@@ -67,7 +67,7 @@ public class CommandSetRank extends Command {
         switch(args.length) {
             case 0:
             case 1:
-                return getOnlinePlayers(args.length == 0 ? "" : args[0]);
+                return getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]);
             case 2:
                 return Arrays.stream(Rank.VALUES).map(Rank::toString)
                         .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))

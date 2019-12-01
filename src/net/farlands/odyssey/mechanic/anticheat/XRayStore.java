@@ -4,21 +4,23 @@ import static java.lang.Math.abs;
 
 import net.farlands.odyssey.FarLands;
 
+import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 
 public class XRayStore {
     private final String playerName;
+    private final boolean sendAlerts;
     private int strikes;
     private Location last;
     private int mined;
 
-    public XRayStore(Player player) {
-        this.playerName = player.getName();
+    public XRayStore(String playerName, boolean sendAlerts) {
+        this.playerName = playerName;
+        this.sendAlerts = sendAlerts;
         this.strikes = 0;
         this.last = null;
         this.mined = 0;
@@ -32,12 +34,15 @@ public class XRayStore {
             ++mined;
             return;
         }
+        final String oreType = (Material.DIAMOND_ORE.equals(block.getType())
+                ? ChatColor.AQUA + "diamond" : ChatColor.GREEN + "emerald");
         if (last == null) {
             last = block.getLocation();
-            FarLands.getDebugger().echo(playerName + " : XRay : First Node");
-            AntiCheat.broadcast(playerName + " has found a vein of " + (Material.DIAMOND_ORE.equals(block.getType())
-                    ? ChatColor.AQUA + "diamond ore" : ChatColor.GREEN + "emerald ore") +
-                    " @ " + last.getBlockX() + " " + last.getBlockY() + " " + last.getBlockZ(), false);
+            FarLands.getDebugger().echo(playerName + " : " + Chat.removeColorCodes(oreType) + " : " +
+                    last.getBlockX() + " " + last.getBlockY() + " " + last.getBlockZ() + " @ First Node");
+            if (sendAlerts)
+                AntiCheat.broadcast(playerName + " has found a vein of " + oreType + " ore @ " +
+                        last.getBlockX() + " " + last.getBlockY() + " " + last.getBlockZ(), false);
             return;
         }
     
@@ -48,11 +53,12 @@ public class XRayStore {
             return;
         
         last = block.getLocation();
-        FarLands.getDebugger().echo(playerName + " : XRay : " + last.getBlockX() + " " + last.getBlockY() + " " + last.getBlockZ()
+        FarLands.getDebugger().echo(playerName + " : " + Chat.removeColorCodes(oreType) + " : " +
+                last.getBlockX() + " " + last.getBlockY() + " " + last.getBlockZ()
                 + " @ " + dx + " " + dy + " " + dz);
-        AntiCheat.broadcast(playerName + " has found a vein of " + (Material.DIAMOND_ORE.equals(block.getType())
-                ? ChatColor.AQUA + "diamond ore" : ChatColor.GREEN + "emerald ore") +
-                " @ " + last.getBlockX() + " " + last.getBlockY() + " " + last.getBlockZ(), false);
+        if (sendAlerts)
+            AntiCheat.broadcast(playerName + " has found a vein of " + oreType + " ore @ " +
+                    last.getBlockX() + " " + last.getBlockY() + " " + last.getBlockZ(), false);
         // minimal path is |dy| + 2(|dx|+|dz|) but we +4 to account for an imperfect path
         // we also ignore anything below half the minimal path to account for caving
         int a = abs(dx) + abs(dy) + abs(dz), b = abs(dy) + 2 * (4 + abs(dx) + abs(dz));
@@ -63,6 +69,7 @@ public class XRayStore {
         }
         mined = 0;
         FarLands.getDebugger().echo(playerName + " : XRay : Strikes : " + ++strikes);
-        AntiCheat.broadcast(playerName, "might be using X-Ray");
+        if (sendAlerts)
+            AntiCheat.broadcast(playerName, "might be using X-Ray");
     }
 }

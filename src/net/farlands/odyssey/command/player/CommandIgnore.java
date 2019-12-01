@@ -4,7 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
@@ -27,8 +27,8 @@ public class CommandIgnore extends Command {
         }
         if(args.length == 1)
             return false;
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-        FLPlayer ignored = getOnlineOrOfflinePlayer(args[1]);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer ignored = getOnlineOrOfflinePlayer(args[1]);
         if(ignored == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -61,6 +61,7 @@ public class CommandIgnore extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
+                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
     }
 }

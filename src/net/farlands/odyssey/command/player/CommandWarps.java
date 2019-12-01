@@ -17,8 +17,8 @@ public class CommandWarps extends PlayerCommand {
         sb.append("&(gold)Warps: ");
         FarLands.getDataHandler().getPluginData().getWarpNames().stream()
                 .filter(name -> name.startsWith(args.length == 0 ? "" : args[0]))
-                .forEach(warp -> sb.append("$(hovercmd,/warp ").append(warp).append(",{&(white)Warp to ")
-                .append(warp).append("},").append(warp).append(" )"));
+                .forEach(warp -> sb.append("$(hovercmd,/warp ").append(warp).append(",{&(gray)Warp to {&(white)")
+                .append(warp).append("}},").append(warp).append(" )"));
         sender.spigot().sendMessage(TextUtils.format(sb.toString()));
         return true;
     }

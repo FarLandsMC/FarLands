@@ -2,13 +2,8 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
-import net.farlands.odyssey.data.RandomAccessDataHandler;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
-import static net.farlands.odyssey.util.Utils.tpPlayer;
-import static net.farlands.odyssey.util.Utils.isSafe;
-import static net.farlands.odyssey.util.Utils.canStand;
-import static net.farlands.odyssey.util.Utils.RNG;
 
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.ChatMessageType;
@@ -17,6 +12,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+
+import static net.farlands.odyssey.util.Utils.*;
 
 public class CommandWild extends PlayerCommand {
     public CommandWild() {
@@ -76,8 +73,8 @@ public class CommandWild extends PlayerCommand {
         }
         tpPlayer(player, temp);
         if (FarLands.getPDH().getFLPlayer(player).getHomes().isEmpty())
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.GRAY +
-                    "You have no homes, use /sethome [name] so you can safely return to this location"));
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.AQUA +
+                    "You have no homes, use /sethome [name] so you can safely return to your location!"));
     }
 
     private static Location rtpFindSafe(final Location origin) {
@@ -85,18 +82,21 @@ public class CommandWild extends PlayerCommand {
         safe.setX(safe.getBlockX() + .5);
         safe.setZ(safe.getBlockZ() + .5);
         safe.getChunk().load();
+        if (canStand(safe.getBlock()) && isSafe(safe.clone()))
+            return safe.add(0, .5, 0);
         int s = 62, e = 254;
         do {
-            safe.setY((1 + s + e) / 2);
+            safe.setY((s + e + 1) >> 1);
             if (safe.getBlock().getLightFromSky() <= 8)
                 s = safe.getBlockY();
             else
                 e = safe.getBlockY();
         } while (e - s > 1);
-        safe.setY((s + e - 1) / 2);
+        safe.setY((s + e - 1) >> 1);
         if (canStand(safe.getBlock()) && isSafe(safe.clone()))
             return safe.add(0, 1.5, 0);
-        FarLands.getDebugger().echo("unsafe rtp @ " + safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
+        FarLands.getDebugger().echo("unsafe rtp @ " +
+                safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
         return null;
     }
 }

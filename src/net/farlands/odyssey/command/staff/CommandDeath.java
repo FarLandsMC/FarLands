@@ -32,7 +32,16 @@ public class CommandDeath extends PlayerCommand {
             sender.sendMessage(ChatColor.RED + "This player has no deaths on record.");
             return true;
         }
-        int death = args.length < 2 ? deaths.size() - 1 : deaths.size() - Integer.parseInt(args[1]);
+
+        int death;
+        try {
+            death = args.length < 2 ? deaths.size() - 1 : deaths.size() - Integer.parseInt(args[1]);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage(ChatColor.RED + "Invalid death number. If you wish to rollback a death, use " +
+                    "/restoredeath.");
+            return true;
+        }
+
         if(deaths.size() - 1 < death || death < 0) {
             sender.sendMessage("Death number must be between 1 and " + deaths.size());
             return true;
@@ -43,6 +52,6 @@ public class CommandDeath extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
     }
 }

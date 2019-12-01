@@ -9,6 +9,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class FlightStore {
     private final Player player;
+    private final boolean sendAlerts;
     private double lastVy;
     private int strikes;
 
@@ -16,8 +17,9 @@ public class FlightStore {
     private static final double VELOCITY_DELTA_TOLERANCE = (100 - FarLands.getFLConfig().getFDS()) / 400.0;
     private static final int MAX_STRIKES = 100 - FarLands.getFLConfig().getFDS();
 
-    public FlightStore(Player player) {
+    public FlightStore(Player player, boolean sendAlerts) {
         this.player = player;
+        this.sendAlerts = sendAlerts;
         this.lastVy = player.getVelocity().getY();
         this.strikes = 0;
     }
@@ -43,7 +45,8 @@ public class FlightStore {
             // Calculates what the player's jump velocity should be, with some buffer to prevent false alarms (the +0.025)
             double vyMax = 0.41999998688697815 + 0.1 * (jumpBoost == null ? 0 : jumpBoost.getAmplifier() + 1) + JUMP_TOLERANCE;
             if (vy > vyMax && !Utils.checkNearby(player.getLocation(), Material.SLIME_BLOCK, Material.BUBBLE_COLUMN)) {
-                AntiCheat.broadcast(player.getName(), "jumped too high.");
+                if (sendAlerts)
+                    AntiCheat.broadcast(player.getName(), "jumped too high.");
                 FarLands.getDebugger().echo("vy", vy);
                 FarLands.getDebugger().echo("vyMax", vyMax);
             }
@@ -73,7 +76,8 @@ public class FlightStore {
             ++ strikes;
             if(strikes > MAX_STRIKES && FarLands.getDataHandler().getRADH().isCooldownComplete("flyAlert",
                     player.getUniqueId().toString())) {
-                AntiCheat.broadcast(player.getName(), "might be flying.");
+                if (sendAlerts)
+                    AntiCheat.broadcast(player.getName(), "might be flying.");
                 FarLands.getDebugger().echo("pdiff", pdiff);
                 FarLands.getDebugger().echo("loc", (int)player.getLocation().getX() + ", " + (int)player.getLocation().getY() +
                         ", " + (int)player.getLocation().getZ() + ", " + player.getLocation().getWorld().getName());
@@ -88,6 +92,7 @@ public class FlightStore {
                 player.hasPotionEffect(PotionEffectType.LEVITATION) || player.hasPotionEffect(PotionEffectType.SLOW_FALLING) ||
                 !Material.AIR.equals(player.getWorld().getBlockAt(player.getLocation()).getType()) ||
                 Utils.checkNearby(player.getLocation(), Material.WATER, Material.LADDER, Material.VINE, Material.LAVA) ||
-                !FarLands.getDataHandler().getRADH().isCooldownComplete("flightDetectMute", player.getUniqueId().toString());
+                !FarLands.getDataHandler().getRADH().isCooldownComplete("flightDetectMute", player.getUniqueId().toString()) ||
+                FarLands.getPDH().getFLPlayer(player).isFlying();
     }
 }

@@ -33,8 +33,9 @@ public class AntiCheat extends Mechanic {
     }
 
     public void put(Player player) {
-        xray.put(player.getUniqueId(), new XRayStore(player));
-        flight.put(player.getUniqueId(), new FlightStore(player));
+        final boolean sendAlerts = !Rank.getRank(player).isStaff();
+        xray.put(player.getUniqueId(), new XRayStore(player.getName(), sendAlerts));
+        flight.put(player.getUniqueId(), new FlightStore(player, sendAlerts));
     }
     public void remove(Player player) {
         xray.remove(player.getUniqueId());
@@ -75,11 +76,8 @@ public class AntiCheat extends Mechanic {
 
     @EventHandler(ignoreCancelled=true)
     public void onPlayerMove(PlayerMoveEvent event) {
-        if(GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && flight.containsKey(event.getPlayer().getUniqueId())) {
-            if(event.getPlayer().getNearbyEntities(15, 15, 15).stream().anyMatch(ent -> ent.getType() == EntityType.ENDER_DRAGON))
-                muteFlightDetector(event.getPlayer(), 20);
+        if(GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && flight.containsKey(event.getPlayer().getUniqueId()))
             flight.get(event.getPlayer().getUniqueId()).onUpdate();
-        }
     }
 
     // Formats a message for Anti Cheat

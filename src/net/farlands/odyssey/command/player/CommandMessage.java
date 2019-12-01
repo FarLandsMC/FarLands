@@ -1,13 +1,13 @@
 package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.command.Command;
+import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.command.DiscordSender;
-import net.farlands.odyssey.data.struct.FLPlayer;
-import net.farlands.odyssey.data.RandomAccessDataHandler;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TextUtils;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -19,14 +19,15 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 
-public class CommandMessage extends Command {
+public class CommandMessage extends PlayerCommand {
     public CommandMessage() {
-        super(Rank.INITIATE, "Send a private message to another player.", "/msg <player> <message>", true, "msg", "w", "m", "r", "tell", "whisper");
+        super(Rank.INITIATE, "Send a private message to another player.", "/msg <player> <message>", true, "msg",
+                "w", "m", "r", "tell", "whisper");
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(Player sender, String[] args) {
         if("r".equals(args[0])) { // Reply to the last message sent
             if (args.length < 2)
                 return true;
@@ -45,10 +46,11 @@ public class CommandMessage extends Command {
                 if(toggled == null) {
                     if(recipient == null)
                         sender.sendMessage(ChatColor.RED + "You do not have an active reply toggle currently.");
-                    else{
+                    else {
                         radh.store(recipient, "replytoggle", sender.getName());
-                        sender.sendMessage(ChatColor.GOLD + "You are now messaging " + ChatColor.AQUA + recipient.getName() +
-                                ChatColor.GOLD +". Type /m to toggle off, or start your message with ! to send it to public chat.");
+                        sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}. Type " +
+                                "$(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
+                                "or start your message with {&(aqua)!} to send it to public chat.", recipient.getName());
                     }
                 }else{
                     radh.delete("replytoggle", sender.getName());
@@ -56,7 +58,7 @@ public class CommandMessage extends Command {
                 }
                 return true;
             }else if(args.length == 2) {
-                Player newToggled = getPlayer(args[1]);
+                Player newToggled = Rank.getRank(sender).isStaff() ? getVanishedPlayer(args[1]) : getPlayer(args[1]);
                 if (newToggled == null) {
                     sender.sendMessage(ChatColor.RED + "Player not found");
                     return true;
@@ -67,13 +69,14 @@ public class CommandMessage extends Command {
                     sender.sendMessage(ChatColor.GOLD + "You are no longer messaging " + toggled.getName() + ".");
                 }else{
                     radh.store(newToggled, "replytoggle", sender.getName());
-                    sender.sendMessage(ChatColor.GOLD + "You are now messaging " + ChatColor.AQUA + newToggled.getName() +
-                            ChatColor.GOLD + (toggled == null ? "" : " and no longer messaging " + ChatColor.AQUA + toggled.getName()) +
-                            ChatColor.GOLD + ". Type /m to toggle off, or start your message with ! to send it to public chat.");
+                    sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}" +
+                            (toggled == null ? "" : " and no longer messaging {&(aqua)" + toggled.getName() + "}") +
+                            ". Type $(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
+                            "or start your message with {&(aqua)!} to send it to public chat.", newToggled.getName());
                 }
                 return true;
             }
-            Player recipient = getPlayer(args[1]);
+            Player recipient = Rank.getRank(sender).isStaff() ? getVanishedPlayer(args[1]) : getPlayer(args[1]);
             if(recipient == null) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
                 return true;
@@ -96,12 +99,13 @@ public class CommandMessage extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 && !"r".equals(alias) ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 && !"r".equals(alias) ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
+                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
     }
 
     // Send the formatted message
     public static void sendMessage(CommandSender recipient, CommandSender sender, String message) {
-        FLPlayer recipientFlp = FarLands.getPDH().getFLPlayer(recipient),
+        OfflineFLPlayer recipientFlp = FarLands.getPDH().getFLPlayer(recipient),
                  senderFlp = FarLands.getPDH().getFLPlayer(sender);
         // Make sure everyone exists, and that the recipient isn't ignoring the sender
         if(recipientFlp != null && senderFlp != null && recipientFlp.isIgnoring(senderFlp.getUuid()))

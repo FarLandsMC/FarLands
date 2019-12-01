@@ -1,7 +1,7 @@
 package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
@@ -28,18 +28,25 @@ public class CommandHomes extends Command {
         }
         StringBuilder sb = new StringBuilder("&(gold)");
         if(Rank.getRank(sender).isStaff() && args.length > 0) { // Someone else's home (staff)
-            FLPlayer flp = getFLPlayer(args[0]);
+            OfflineFLPlayer flp = getFLPlayer(args[0]);
             if (flp == null) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
-                return true;
+                return false;
             }
             List<Home> homes = flp.getHomes();
             if (homes.isEmpty()) {
                 sender.sendMessage(ChatColor.GREEN + "This player does not have any homes.");
                 return true;
             }
-            homes.forEach(home -> sb.append("$(hovercmd,/home ").append(home.getName()).append(" ").append(args[0])
-                    .append(",{&(white)Go to home ").append(home.getName()).append("},").append(home.getName()).append("), "));
+            homes.forEach(home -> {
+                Location location = home.getLocation();
+                sb.append("$(hovercmd,/home ").append(home.getName()).append(" ").append(args[0])
+                        .append(",{&(white)Go to home ").append(home.getName()).append("},&(gold)")
+                        .append(home.getName()).append(": &(aqua)")
+                        .append(location.getBlockX()).append(" ")
+                        .append(location.getBlockY()).append(" ")
+                        .append(location.getBlockZ()).append("),\n ");
+            });
         } else {
             List<Home> homes = FarLands.getPDH().getFLPlayer(sender).getHomes();
             if (homes.isEmpty()) {
@@ -56,13 +63,11 @@ public class CommandHomes extends Command {
 
     @Override
     protected void showUsage(CommandSender sender) {
-        if(Rank.getRank(sender).isStaff())
-            sender.sendMessage("Usage: /homes [player]");
-        else
-            sender.sendMessage("Usage: /homes");
+        sender.sendMessage("Usage: " + (Rank.getRank(sender).isStaff() ? "/homes [player]" : getUsage()));
     }
+
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 && Rank.getRank(sender).isStaff() ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 && Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
     }
 }

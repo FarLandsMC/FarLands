@@ -2,7 +2,6 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,10 +21,10 @@ public class CommandMined extends PlayerCommand {
             return false;
         if(args.length == 1 || "preview".equals(args[1])) {
             sender.chat("/co rollback u:" + args[0] +
-                    " r:50 b:glowing_redstone_ore,redstone_ore,diamond_ore,iron_ore,emerald_ore,gold_ore,lapis_ore,coal_ore t:1d #preview");
-            sender.sendMessage(ChatColor.GREEN + "Type " + ChatColor.AQUA + "/co cancel" + ChatColor.GREEN + " when done.");
+                    " r:50 b:glowing_redstone_ore,redstone_ore,diamond_ore,iron_ore,emerald_ore,gold_ore,lapis_ore,coal_ore t:14d #preview");
+            sendFormatted(sender, "&(green)Type $(hovercmd,/co cancel,{&(gray)Cancel Preview},&(aqua)/co cancel) when done.");
         }else if("rollback".equals(args[1]))
-            sender.chat("/co rollback u:" + args[0] + " r:50 t:1d");
+            sender.chat("/co rollback u:" + args[0] + " r:50 t:14d");
         else
             return false;
         return true;
@@ -33,7 +32,7 @@ public class CommandMined extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : (args.length == 2 ?
+        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : (args.length == 2 ?
                 Arrays.asList("rollback", "preview") : Collections.emptyList());
     }
 }

@@ -1,15 +1,19 @@
 package net.farlands.odyssey.mechanic;
 
+import com.snowgears.shop.event.PlayerCreateShopEvent;
+import com.snowgears.shop.event.PlayerDestroyShopEvent;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.DataHandler;
-import net.farlands.odyssey.data.RandomAccessDataHandler;
 import net.farlands.odyssey.data.struct.ItemDistributor;
 import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
+
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,8 +23,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.potion.PotionEffect;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,7 +45,7 @@ public class Restrictions extends Mechanic {
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
         final DataHandler dh = FarLands.getDataHandler();
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(player);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(player);
         if(!flp.getRank().isStaff()) {
             player.setGameMode(GameMode.SURVIVAL);
             List<String> notes = FarLands.getPDH().getNotes(player.getUniqueId());
@@ -50,9 +53,9 @@ public class Restrictions extends Mechanic {
                 FarLands.broadcastStaff(TextUtils.format("&(red)%0 has notes. Click $(command,/notes view %0," +
                         "{&(aqua,underline)here}) to view them.", player.getName()));
             }
-            List<FLPlayer> alts = FarLands.getPDH().getAlts(flp.getUuid());
-            List<String> banned = alts.stream().filter(FLPlayer::isBanned).map(FLPlayer::getUsername).collect(Collectors.toList()),
-                    normal = alts.stream().filter(p -> !p.isBanned()).map(FLPlayer::getUsername).collect(Collectors.toList());
+            List<OfflineFLPlayer> alts = FarLands.getPDH().getAlts(flp.getUuid());
+            List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(OfflineFLPlayer::getUsername).collect(Collectors.toList()),
+                    normal = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
             if(!banned.isEmpty()) {
                 FarLands.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + banned.size() + " banned player" +
                         (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? "alerts" : null);
@@ -65,9 +68,9 @@ public class Restrictions extends Mechanic {
                 flp.setLastLocation(dh.getPluginData().getSpawn());
                 if(!banned.isEmpty()) {
                     flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
-                    alts.forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
+                    alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
                     FarLands.broadcastStaff("Punishing " + flp.getUsername() + " for ban evasion, along with the following alts: " +
-                            alts.stream().map(FLPlayer::getUsername).collect(Collectors.joining(", ")), "output");
+                            alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.joining(", ")), "output");
                     return;
                 }
             }
@@ -82,7 +85,7 @@ public class Restrictions extends Mechanic {
 
     @EventHandler
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) { // Handles bans
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(event.getUniqueId());
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(event.getUniqueId());
         if(flp != null && flp.isBanned())
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
     }
@@ -101,14 +104,14 @@ public class Restrictions extends Mechanic {
 
     @Override // Removes all infinite potion effects.
     public void onPlayerQuit(Player player) {
-        player.getActivePotionEffects().stream().filter(pe -> pe.getDuration() >= 30 * 60 * 20)
+        player.getActivePotionEffects().stream().filter(pe -> pe.getDuration() >= 100 * 60 * 20)
                 .map(PotionEffect::getType).forEach(player::removePotionEffect);
     }
 
-    /*@EventHandler(ignoreCancelled=true)
-    public void onShopCreation(ShopCreateEvent event) {
+    @EventHandler(ignoreCancelled=true)
+    public void onShopCreation(PlayerCreateShopEvent event) {
         Player player = event.getPlayer();
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(player);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(player);
         if(!flp.canAddShop()) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You have reached the maximum number of shops you can build. Rank up to gain more shops.");
@@ -118,9 +121,9 @@ public class Restrictions extends Mechanic {
     }
 
     @EventHandler(ignoreCancelled=true)
-    public void onShopDestroyed(ShopDeleteEvent event) {
-        FarLands.getPDH().getFLPlayer(event.getShop().getOwner()).removeShop();
-    }*/
+    public void onShopDestroyed(PlayerDestroyShopEvent event) {
+        FarLands.getPDH().getFLPlayer(event.getShop().getOwnerUUID()).removeShop();
+    }
 
     @EventHandler(ignoreCancelled=true) // Prevent players from teleporting using spectator mode
     public void onTeleport(PlayerTeleportEvent event) {
@@ -241,9 +244,14 @@ public class Restrictions extends Mechanic {
             event.setCancelled(true);
         } else if (event.getBlockAgainst().getType() == Material.SLIME_BLOCK &&
                 (event.getBlockPlaced().getType().name().endsWith("FAN") ||
-                    event.getBlockPlaced().getType().name().endsWith("CORAL")))
-            FarLands.broadcastStaff(event.getPlayer().getName() + " may be attempting to build a tnt duper",
-                    "alerts");
+                    event.getBlockPlaced().getType().name().endsWith("CORAL"))) {
+            final Location loc = event.getBlock().getLocation();
+            AntiCheat.broadcast(event.getPlayer().getName(), "may be attempting to build a duper @ " +
+                    loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ());
+            TextUtils.sendFormatted(event.getPlayer(),"&(red)It appears you are building a duping device, " +
+                    "this is against the $(hovercmd,/rules,{&(white)view the rules},&(dark_red)/rules) (#1) as duping is a form of exploit. " +
+                    "If you ignore this warning and do not remove the machine immediately you will be subject to a punishment.");
+        }
     }
 
     @EventHandler(ignoreCancelled = true)

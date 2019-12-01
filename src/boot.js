@@ -32,6 +32,10 @@ var getEntityById = function(uuid) {
     return null;
 };
 
+var getRegionFile = function() {
+  return "r." + Math.floor(self.getLocation().getBlockX()/512) + "." + Math.floor(self.getLocation().getBlockZ()/512) + ".mca"
+};
+
 var sendFormatted = function(recipient, input, values) {
     recipient.spigot().sendMessage(fl.util.TextUtils.format(input, values));
 };
@@ -50,6 +54,15 @@ var player = function(name) {
 
 var getField = function(name, target) {
     return RH.getFieldValue(name, target.class, target);
+};
+
+var listFields = function(o) {
+    var fields = o.class.getFields();
+    for(var i=0; i < fields.length; ++i) {
+        try {
+            print(fields[i].getName() + ": " + RH.getFieldValue(fields[i],o));
+        } catch(e) {}
+    }
 };
 
 var print = function(x) {

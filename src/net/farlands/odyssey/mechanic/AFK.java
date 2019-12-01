@@ -3,7 +3,6 @@ package net.farlands.odyssey.mechanic;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.FLCommandEvent;
 import net.farlands.odyssey.command.player.CommandMessage;
-import net.farlands.odyssey.data.RandomAccessDataHandler;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.Utils;
@@ -59,7 +58,7 @@ public class AFK extends Mechanic {
     public void onPlayerQuit(Player player) {
         afkCheckList.remove(player.getUniqueId());
         radh.removeCooldown("afk", player.getUniqueId().toString());
-        radh.removeCooldown("afkKick", player.getUniqueId().toString());
+        radh.removeCooldown("afkCheckCooldown", player.getUniqueId().toString());
     }
 
     @EventHandler
@@ -97,7 +96,7 @@ public class AFK extends Mechanic {
                 setAFKCooldown(event.getPlayer());
                 event.getPlayer().sendMessage(ChatColor.GREEN + "Correct.");
             }
-            radh.removeCooldown("afkKick", event.getPlayer().getUniqueId().toString());
+            radh.removeCooldown("afkCheckCooldown", event.getPlayer().getUniqueId().toString());
             afkCheckList.remove(event.getPlayer().getUniqueId());
             return;
         }
@@ -105,14 +104,16 @@ public class AFK extends Mechanic {
             setNotAFK(event.getPlayer());
         if(!Rank.getRank(event.getPlayer()).isStaff() && event.getMessage().length() >= 5)
             radh.resetCooldown("afk", event.getPlayer().getUniqueId().toString());
-        /*if(!event.isCancelled())
-            FarLands.getMechanicHandler().getMechanic(Chat.class).onChat(event);*/
     }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        if(radh.retrieveBoolean("afkCmd", event.getPlayer().getUniqueId().toString()))
-            setNotAFK(event.getPlayer());
+        if (event.getFrom().getYaw() != event.getTo().getYaw() || event.getFrom().getPitch() != event.getTo().getPitch()) {
+            if (radh.retrieveBoolean("afkCmd", event.getPlayer().getUniqueId().toString()))
+                setNotAFK(event.getPlayer());
+            if (!Rank.getRank(event.getPlayer()).isStaff())
+                radh.resetCooldown("afk", event.getPlayer().getUniqueId().toString());
+        }
     }
 
     public static void setNotAFK(Player player) {
@@ -143,7 +144,7 @@ public class AFK extends Mechanic {
                 player.sendTitle(check, "", 20, 120, 60);
                 FarLands.getDebugger().echo("Sent AFK check to " + player.getName());
                 instance.afkCheckList.put(player.getUniqueId(), new Pair<>(check, op ? a + b : a - b));
-                radh.setCooldown(30L * 20L, "afkKick", player.getUniqueId().toString(), () -> kickAFK(player));
+                radh.setCooldown(30L * 20L, "afkCheckCooldown", player.getUniqueId().toString(), () -> kickAFK(player));
             }
         });
     }

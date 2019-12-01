@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
@@ -17,7 +17,7 @@ public class CommandNick extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         if("nick".equals(args[0]) && args.length == 1)
             return false;
-        FLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
         if("nick".equals(args[0])) {
             if(args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(Chat.removeColorCodes(args[1]))) {
                 sender.sendMessage(ChatColor.RED + "You cannot set your nickname to this.");
@@ -66,6 +66,7 @@ public class CommandNick extends PlayerCommand {
             }
             sender.sendMessage(ChatColor.GREEN + "Removed nickname.");
         }
+        flp.updateSessionIfOnline(false);
         return true;
     }
 }

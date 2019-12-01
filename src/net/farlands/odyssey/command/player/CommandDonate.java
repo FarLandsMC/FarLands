@@ -21,7 +21,7 @@ public class CommandDonate extends Command {
     @SuppressWarnings("unchecked")
     public boolean execute(CommandSender sender, String[] args) {
         StringBuilder sb = new StringBuilder();
-        List<Command> cmds = ((List<Command>)ReflectionHelper.getFieldValue("commands", CommandHandler.class, FarLands.getCommandHandler()));
+        List<Command> cmds = ((List<Command>) ReflectionHelper.getFieldValue("commands", CommandHandler.class, FarLands.getCommandHandler()));
         sb.append(ChatColor.GOLD).append("Donations are processed through PayPal. Donations are not required but truly appreciated! ")
                 .append("All donations go towards paying for server related bills. All donations are final, no refunds will be issued.\n");
         sb.append(Rank.DONOR.getColor()).append(Rank.DONOR.getSymbol()).append(ChatColor.BLUE).append(" - ").append(Rank.DONOR_COST_STR)
@@ -30,11 +30,12 @@ public class CommandDonate extends Command {
                 .map(cmd -> "/" + cmd.getName().toLowerCase()).collect(Collectors.toList()))).append('\n');
         sb.append(Rank.PATRON.getColor()).append(Rank.PATRON.getSymbol()).append(ChatColor.BLUE).append(" - ").append(Rank.PATRON_COST_STR)
                 .append(" - ").append(Rank.PATRON.getHomes()).append(" homes")
-                .append(" - ").append(String.join(", ", cmds.stream().filter(cmd -> Rank.DONOR.equals(cmd.getMinRankRequirement()))
+                .append(" - 30m afk cooldown")
+                .append(" - ").append(String.join(", ", cmds.stream().filter(cmd -> Rank.PATRON.equals(cmd.getMinRankRequirement()))
                 .map(cmd -> "/" + cmd.getName().toLowerCase()).collect(Collectors.toList())));
         sender.sendMessage(sb.toString());
-        if(sender instanceof Player)
-            sendFormatted(sender, "&(gold)Donate here: $(link,%0,{&(aqua,underline)%0})", FarLands.getFLConfig().getDonationLink());
+        if (sender instanceof Player)
+            sendFormatted(sender, "&(gold)Donate here: $(hoverlink,%0,{&(gray)Click to Follow},&(aqua,underline)%0)", FarLands.getFLConfig().getDonationLink());
         else
             sender.sendMessage(ChatColor.GOLD + "Donate here: " + ChatColor.AQUA + FarLands.getFLConfig().getDonationLink());
         return true;

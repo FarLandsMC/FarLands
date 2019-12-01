@@ -3,7 +3,7 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -30,7 +30,7 @@ public class CommandSpawn extends Command {
             return true;
         }
         if(args.length > 0 && Rank.getRank(sender).specialCompareTo(Rank.BUILDER) >= 0) { // Force another player to spawn
-            FLPlayer flp = getOnlineOrOfflinePlayer(args[0]);
+            OfflineFLPlayer flp = getOnlineOrOfflinePlayer(args[0]);
             if(flp == null) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
                 return true;
@@ -53,6 +53,6 @@ public class CommandSpawn extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 && Rank.getRank(sender).isStaff() ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 && Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
     }
 }

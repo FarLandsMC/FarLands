@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
 
 public class CommandVoteParty extends Command {
     public CommandVoteParty() {
-        super(Rank.INITIATE, "Get the link to vote for FarLands.", "/voteparty", "voteparty", "vp");
+        super(Rank.INITIATE, "Get the number of votes left till the next vote party.", "/voteparty", "voteparty", "vp");
     }
 
     @Override

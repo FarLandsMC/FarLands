@@ -3,7 +3,7 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 import org.bukkit.ChatColor;
@@ -22,7 +22,7 @@ public class CommandSeen extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        FLPlayer flp = args.length <= 0 ? FarLands.getPDH().getFLPlayer(sender) : getFLPlayer(args[0]);
+        OfflineFLPlayer flp = args.length <= 0 ? FarLands.getPDH().getFLPlayer(sender) : getFLPlayer(args[0]);
         if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -48,6 +48,7 @@ public class CommandSeen extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
+                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
     }
 }

@@ -1,9 +1,14 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.RegionProtection;
+import com.kicas.rp.data.FlagContainer;
+import com.kicas.rp.data.RegionFlag;
+import com.kicas.rp.data.TrustLevel;
+import com.kicas.rp.data.flagdata.TrustMeta;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -16,23 +21,38 @@ public class CommandSetHome extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        FLPlayer flp = FarLands.getDataHandler().getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getPDH().getFLPlayer(sender);
         if(flp.numHomes() >= flp.getRank().getHomes()) {
             sender.sendMessage(ChatColor.RED + "You do not have enough homes to set another.");
-            return true;
-        }
-        String name = args.length == 0 ? "home" : args[0];
-        if(flp.hasHome(name)) {
-            sender.sendMessage(ChatColor.RED + "You have already set a home with this name. Use /delhome to remove it so you may reset it.");
-            return true;
-        }
-        if(args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]))) {
-            sender.sendMessage(ChatColor.RED + "You cannot set a home with that name.");
             return true;
         }
         Location loc = sender.getLocation();
         if(!"world".equals(loc.getWorld().getName())) {
             sender.sendMessage(ChatColor.RED + "You can only set homes in the overworld.");
+            return true;
+        }
+        FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(loc);
+        if (!(flp.getRank().isStaff() || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to set a home in this claim.");
+            return true;
+        }
+        String name;
+        if (args.length <= 0)
+            name = "home";
+        else {
+            if (args[0].equals("home"))
+                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/sethome home} by typing " +
+                        "$(hovercmd,/sethome,{&(gray)Click to Run},&(dark_aqua)/sethome)!");
+            name = args[0];
+        }
+        if(flp.hasHome(name)) {
+            sendFormatted(sender, "&(red)You have already set a home with this name. " +
+                    "Use $(hovercmd,/delhome %0,{&(gray)Delete home {&(white)%0}},&(dark_red)/delhome %0) to remove it or " +
+                    "$(hovercmd,/movhome %0,{&(gray)Move home {&(white)%0} to current location},&(dark_red)/movhome %0) to move it.", name);
+            return true;
+        }
+        if(args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]))) {
+            sender.sendMessage(ChatColor.RED + "You cannot set a home with that name.");
             return true;
         }
         if(name.length() > 32) {
@@ -42,8 +62,8 @@ public class CommandSetHome extends PlayerCommand {
         flp.addHome(name, loc);
         sender.sendMessage(ChatColor.GREEN + "Set a home with name " + ChatColor.AQUA + name + ChatColor.GREEN + " at your location.");
         if (name.equals(FarLands.getDataHandler().getRADH().retrieveString("delhome", sender.getName())))
-            sender.sendMessage(ChatColor.GREEN + "Looks like you just tried to move a home," +
-                    "did you know you can do this using /movhome <" + ChatColor.AQUA + name + ChatColor.GREEN + "> ?");
+            sendFormatted(sender, "&(aqua)Looks like you just tried to move a home, did you know you can do this using " +
+                    "$(hovercmd,/movhome %0,{&(gray)Move home {&(white)%0} to current location},&(dark_aqua)/movhome %0) ?", name);
         FarLands.getDataHandler().getRADH().delete("delhome", sender.getName());
         return true;
     }

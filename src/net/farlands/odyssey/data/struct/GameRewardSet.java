@@ -52,7 +52,7 @@ public class GameRewardSet {
 
     public ItemStack getReward(Player player) {
         if(rewards.size() < 5)
-            return rewards.get(Utils.RNG.nextInt(5)).getStack();
+            return rewards.get(Utils.RNG.nextInt(rewards.size())).getStack();
         int selection = Utils.biasedRandom(rewards.size(), bias);
         if(finalReward != null) {
             int received = Utils.getAndPutIfAbsent(recipients, player.getUniqueId(), 0) | (1 << selection);

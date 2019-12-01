@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.MailMessage;
 import net.farlands.odyssey.mechanic.Chat;
@@ -32,7 +32,7 @@ public class CommandMail extends Command {
             return true;
         }
         if("send".equals(args[0])) {
-            FLPlayer flp = getFLPlayer(args[1]);
+            OfflineFLPlayer flp = getFLPlayer(args[1]);
             if(flp == null) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
                 return true;
@@ -47,8 +47,8 @@ public class CommandMail extends Command {
             if(!flp.isIgnoring(FarLands.getPDH().getFLPlayer(sender).getUuid())) { // Check for ignoring
                 flp.addMail(sender.getName(), message);
                 Player player = flp.getOnlinePlayer();
-                if (player != null) // Notify the play if online
-                    player.sendMessage(ChatColor.GOLD + "You have mail. Read it with " + ChatColor.RED + "/mail read");
+                if (player != null) // Notify the player if online
+                    sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read,{&(gray)Click to Run},&(yellow)/mail read)");
             }
         }else if("read".equals(args[0])) { // Send them their mail
             List<MailMessage> mail = FarLands.getPDH().getMail(FarLands.getPDH().getUuid(sender));
@@ -71,7 +71,7 @@ public class CommandMail extends Command {
             }
             for(int i = index;i < Math.min(index + 5, mail.size());++ i)
                 sender.sendMessage(format("From", ChatColor.GOLD, mail.get(i).getSender(), mail.get(i).getMessage()));
-            sender.sendMessage(ChatColor.GOLD + "Clear your mail with " + ChatColor.RED + "/mail clear");
+            sendFormatted(sender, "&(gold)Clear your mail with $(hovercmd,/mail clear,{&(gray)Click to Run},&(yellow)/mail clear)");
         }else if("clear".equals(args[0])) { // Remove their mail
             FarLands.getPDH().getFLPlayer(sender).clearMail();
             sender.sendMessage(ChatColor.GOLD + "Mail cleared.");
@@ -86,7 +86,7 @@ public class CommandMail extends Command {
             return Stream.of("send", "read", "clear").filter(action -> action.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList());
         }else if("send".equals(args[0]) && args.length == 2)
-            return getOnlinePlayers(args[1]);
+            return (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args[1]) : getOnlinePlayers(args[1]));
         else
             return Collections.emptyList();
     }

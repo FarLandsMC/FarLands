@@ -1,8 +1,7 @@
 package net.farlands.odyssey.mechanic;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.RandomAccessDataHandler;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.gui.GuiVillagerEditor;
 import net.farlands.odyssey.util.ReflectionHelper;
@@ -59,7 +58,7 @@ public class GeneralMechanics extends Mechanic {
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
             Bukkit.getOnlinePlayers().forEach(player -> {
-                FLPlayer flp = FarLands.getPDH().getFLPlayer(player);
+                OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(player);
                 if(flp.hasParticles() && !flp.isVanished() && !GameMode.SPECTATOR.equals(player.getGameMode()))
                     flp.getParticles().spawn(player);
             }), 0L, 60L);
@@ -84,7 +83,7 @@ public class GeneralMechanics extends Mechanic {
                 player.playSound(player.getLocation(), Sound.ENTITY_HORSE_ARMOR, 0.85F, 1.480315F), 95L);
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.5F);
-            FLPlayer flp = FarLands.getPDH().getFLPlayer(player);
+            OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(player);
             if(!flp.viewedPatchnotes())
                 player.sendMessage(ChatColor.GOLD + "Patch " + ChatColor.AQUA + "#" + FarLands.getDataHandler().getCurrentPatch() +
                         ChatColor.GOLD + " has been released! View changes with " + ChatColor.AQUA + "/patchnotes");
@@ -244,15 +243,14 @@ public class GeneralMechanics extends Mechanic {
         if(event.getFrom().getWorld().equals(event.getTo().getWorld())) {
             event.getPlayer().getNearbyEntities(10.0, 10.0, 10.0).stream().filter(e -> e instanceof LivingEntity)
                     .map(e -> (LivingEntity)e).filter(e -> e.isLeashed() && event.getPlayer().equals(e.getLeashHolder())).forEach(e -> {
-                Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
-                    e.teleport(event.getTo());
-                    Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> e.setLeashHolder(event.getPlayer()));
-                });
-                if(event.getFrom().distanceSquared(event.getTo()) > 4) {
-                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> event.getFrom().getWorld()
-                            .getNearbyEntities(event.getFrom(), 10.0, 10.0, 10.0).stream().filter(e0 -> EntityType.DROPPED_ITEM.equals(e0.getType()))
-                            .map(e0 -> (Item) e0).filter(e0 -> Material.LEAD.equals(e0.getItemStack().getType())).forEach(Item::remove), 20L);
-                }
+                e.setLeashHolder(null);
+                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                    e.getLocation().getChunk().load();
+                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                        e.teleport(event.getTo());
+                        e.setLeashHolder(event.getPlayer());
+                    }, 1);
+                }, 1);
             });
         }else
             updateNightSkip(false, 1, 0);

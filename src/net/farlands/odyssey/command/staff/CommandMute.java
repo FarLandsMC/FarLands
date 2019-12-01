@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.FLPlayer;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Mute;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
@@ -24,7 +24,7 @@ public class CommandMute extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length < ("mute".equals(args[0]) ? 3 : 2))
             return false;
-        FLPlayer flp = getOnlineOrOfflinePlayer(args[1]);
+        OfflineFLPlayer flp = getOnlineOrOfflinePlayer(args[1]);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -80,6 +80,6 @@ public class CommandMute extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
     }
 }
