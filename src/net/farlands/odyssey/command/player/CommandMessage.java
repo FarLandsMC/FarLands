@@ -3,6 +3,7 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.command.DiscordSender;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
@@ -26,12 +27,12 @@ public class CommandMessage extends PlayerCommand {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean execute(Player sender, String[] args) {
+        FLPlayerSession senderSession = FarLands.getDataHandler().getSession(sender);
         if("r".equals(args[0])) { // Reply to the last message sent
             if (args.length < 2)
                 return true;
-            CommandSender recipient = (CommandSender)FarLands.getDataHandler().getRADH().retrieve("msg", sender.getName());
+            Player recipient = senderSession.replyToggleRecipient;
             if(recipient == null) {
                 sender.sendMessage(ChatColor.RED + "You have no recent messages to reply to.");
                 return true;
@@ -39,9 +40,8 @@ public class CommandMessage extends PlayerCommand {
             // Keep the name stored
             sendMessage(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
         }else{
-            RandomAccessDataHandler radh = FarLands.getDataHandler().getRADH();
             if(args.length == 1) {
-                Player toggled = (Player)radh.retrieve("replytoggle", sender.getName());
+                Player toggled = senderSession.replyToggleRecipient;
                 CommandSender recipient = (CommandSender)FarLands.getDataHandler().getRADH().retrieve("msg", sender.getName());
                 if(toggled == null) {
                     if(recipient == null)
