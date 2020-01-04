@@ -4,17 +4,23 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import com.mojang.authlib.GameProfile;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.ReflectionHelper;
+
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+
 import net.minecraft.server.v1_14_R1.EnumGamemode;
 import net.minecraft.server.v1_14_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_14_R1.PacketStatusOutServerInfo;
 import net.minecraft.server.v1_14_R1.ServerPing;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -39,17 +45,14 @@ public class Toggles extends Mechanic {
     public void onStartup() {
         FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
             Bukkit.getOnlinePlayers().forEach(player -> {
-                String message = null;
-                Player recipient = (Player)FarLands.getDataHandler().getRADH().retrieve("replytoggle", player.getName());
-                if(FarLands.getDataHandler().getRADH().retrieveBoolean("staffchat", player.getUniqueId().toString()))
-                    message = ChatColor.GRAY + "Staff chat is toggled on.";
-                else if(FarLands.getPDH().getFLPlayer(player).isVanished())
-                    message = ChatColor.GRAY + "You are vanished.";
-                else if (recipient != null) {
-                    message = ChatColor.GRAY + "You are messaging " + recipient.getName() + ".";
-                }
-                if(message != null)
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(message));
+                Player recipient = (Player) FarLands.getDataHandler().getSession(player.getUniqueId()).replyToggleRecipient;
+                if (FarLands.getDataHandler().getSession(player.getUniqueId()).staffChatToggledOn)
+                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)Staff chat is toggled on.");
+                else if (FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
+                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are vanished.");
+                else if (recipient != null)
+                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are messaging %0.",
+                            recipient.getName());
             });
         }, 0L, 40L);
 
@@ -57,15 +60,15 @@ public class Toggles extends Mechanic {
             @Override
             @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
-                PacketPlayOutPlayerInfo packet = (PacketPlayOutPlayerInfo)event.getPacket().getHandle();
-                PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction)ReflectionHelper
+                PacketPlayOutPlayerInfo packet = (PacketPlayOutPlayerInfo) event.getPacket().getHandle();
+                PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper
                         .getFieldValue("a", packet.getClass(), packet);
-                if((PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_GAME_MODE.equals(action) ||
+                if ((PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_GAME_MODE.equals(action) ||
                         PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER.equals(action)) &&
                         !Rank.getRank(event.getPlayer()).isStaff()) {
-                    List infoList = (List)ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
-                    for(Object infoData : infoList) {
-                        if(EnumGamemode.SPECTATOR.equals(ReflectionHelper.invoke("c", infoData.getClass(), infoData))) {
+                    List infoList = (List) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
+                    for (Object infoData : infoList) {
+                        if (EnumGamemode.SPECTATOR.equals(ReflectionHelper.invoke("c", infoData.getClass(), infoData))) {
                             ReflectionHelper.setFieldValue("c", infoData.getClass(), infoData, EnumGamemode.SURVIVAL);
                         }
                     }
@@ -77,13 +80,13 @@ public class Toggles extends Mechanic {
             @Override
             @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
-                PacketStatusOutServerInfo packet = (PacketStatusOutServerInfo)event.getPacket().getHandle();
-                ServerPing ping = (ServerPing)ReflectionHelper.getFieldValue("b", PacketStatusOutServerInfo.class, packet);
+                PacketStatusOutServerInfo packet = (PacketStatusOutServerInfo) event.getPacket().getHandle();
+                ServerPing ping = (ServerPing) ReflectionHelper.getFieldValue("b", PacketStatusOutServerInfo.class, packet);
                 ServerPing.ServerPingPlayerSample playerSample = (ServerPing.ServerPingPlayerSample)
                         ReflectionHelper.getFieldValue("b", ServerPing.class, ping);
                 ReflectionHelper.setFieldValue("b", ServerPing.ServerPingPlayerSample.class, playerSample,
-                        (int) Bukkit.getOnlinePlayers().stream().map(FarLands.getPDH()::getFLPlayer)
-                                .filter(flp -> !flp.isVanished()).count());
+                        (int) Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getOfflineFLPlayer)
+                                .filter(flp -> !flp.vanished).count());
                 ReflectionHelper.setFieldValue("c", ServerPing.ServerPingPlayerSample.class, playerSample, new GameProfile[0]);
             }
         });
@@ -100,57 +103,59 @@ public class Toggles extends Mechanic {
         showSpectators(event.getPlayer());
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onSendTabCompletes(TabCompleteEvent event) {
-        if(Rank.getRank(event.getSender()).isStaff())
+        if (Rank.getRank(event.getSender()).isStaff())
             return;
         List<String> completions = event.getCompletions();
         completions.removeIf(str -> {
-            OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(str);
-            return flp != null && flp.isVanished();
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(str);
+            return flp != null && flp.vanished;
         });
         event.setCompletions(completions);
     }
 
-    @EventHandler(priority=EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent event) {
-        if(FarLands.getPDH().getFLPlayer(event.getPlayer()).isVanished() &&
-                !FarLands.getDataHandler().getRADH().retrieveBoolean("staffchat", event.getPlayer().getUniqueId().toString())) {
+        if (FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished &&
+                !FarLands.getDataHandler().getSession(event.getPlayer().getUniqueId()).staffChatToggledOn) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You are vanished, you cannot chat in-game.");
         }
     }
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
-        if(event.getEntity() instanceof Player && FarLands.getPDH().getFLPlayer((Player)event.getEntity()).isGod())
-            event.setCancelled(true);
+        event.setCancelled(event.getEntity() instanceof Player &&
+                FarLands.getDataHandler().getOfflineFLPlayer((Player) event.getEntity()).god);
     }
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler(ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
-        if(event.getTarget() instanceof Player && FarLands.getPDH().getFLPlayer((Player)event.getTarget()).isGod())
-            event.setCancelled(true);
+        event.setCancelled(event.getTarget() instanceof Player &&
+                FarLands.getDataHandler().getOfflineFLPlayer((Player) event.getTarget()).god);
     }
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
-        if(!(event.getEntity() instanceof Player))
+        if (!(event.getEntity() instanceof Player))
             return;
 
-        Player damager = event.getDamager() instanceof Player ? (Player)event.getDamager() : null;
-        if(damager == null && event.getDamager() instanceof Projectile) {
-            Projectile p = (Projectile)event.getDamager();
-            damager = p.getShooter() instanceof Player ? (Player)p.getShooter() : null;
+        Player damager = event.getDamager() instanceof Player ? (Player) event.getDamager() : null;
+        if (damager == null && event.getDamager() instanceof Projectile) {
+            Projectile p = (Projectile) event.getDamager();
+            damager = p.getShooter() instanceof Player ? (Player) p.getShooter() : null;
         }
-        if(damager == null || damager == event.getEntity())
+        if (damager == null || damager == event.getEntity())
             return;
-        
-        OfflineFLPlayer damagerFLP = FarLands.getPDH().getFLPlayer(damager),
-                 attackedFLP = FarLands.getPDH().getFLPlayer((Player)event.getEntity());
-        if(!(damagerFLP.isPvPing() && attackedFLP.isPvPing())) {
-            if(!damagerFLP.isPvPing())
-                damager.sendMessage(ChatColor.RED + "You have PvP toggled off, activate it with /pvp.");
+
+        OfflineFLPlayer damagerFLP = FarLands.getDataHandler().getOfflineFLPlayer(damager),
+                attackedFLP = FarLands.getDataHandler().getOfflineFLPlayer((Player) event.getEntity());
+        if (!damagerFLP.pvp) {
+            damager.sendMessage(ChatColor.RED + "You have PvP toggled off, activate it with /pvp.");
+            event.setCancelled(true);
+            event.getEntity().setFireTicks(-1); // Blocks fire damage
+        } else if (!attackedFLP.pvp) {
             event.setCancelled(true);
             event.getEntity().setFireTicks(-1); // Blocks fire damage
         }
@@ -158,14 +163,14 @@ public class Toggles extends Mechanic {
 
     @SuppressWarnings("deprecation")
     public static void hidePlayers(Player player) {
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(player);
-        if(flp.isVanished())
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+        if (flp.vanished)
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
         else
             player.removePotionEffect(PotionEffectType.INVISIBILITY);
 
         Bukkit.getOnlinePlayers().stream().filter(pl -> pl != player).forEach(pl -> {
-            if(!flp.isVanished())
+            if (!flp.vanished)
                 pl.showPlayer(player);
             else
                 pl.hidePlayer(player);
@@ -174,7 +179,7 @@ public class Toggles extends Mechanic {
 
     private static void showSpectators(Player player) {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
-            if(GameMode.SPECTATOR.equals(player.getGameMode())) {
+            if (GameMode.SPECTATOR.equals(player.getGameMode())) {
                 Bukkit.getOnlinePlayers().stream().filter(p -> Rank.getRank(p).isStaff()).forEach(p ->
                     ((CraftPlayer)p).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(
                         PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_GAME_MODE, ((CraftPlayer)player).getHandle()
