@@ -3,8 +3,10 @@ package net.farlands.odyssey.command.player;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Materials;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

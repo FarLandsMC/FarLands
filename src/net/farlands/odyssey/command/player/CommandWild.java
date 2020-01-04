@@ -8,6 +8,7 @@ import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -72,7 +73,7 @@ public class CommandWild extends PlayerCommand {
             temp = rtpFindSafe(rtp);
         }
         tpPlayer(player, temp);
-        if (FarLands.getPDH().getFLPlayer(player).getHomes().isEmpty())
+        if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty())
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.AQUA +
                     "You have no homes, use /sethome [name] so you can safely return to your location!"));
     }

@@ -6,6 +6,7 @@ import net.farlands.odyssey.command.CommandHandler;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.TimeInterval;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

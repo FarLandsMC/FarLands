@@ -3,6 +3,7 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

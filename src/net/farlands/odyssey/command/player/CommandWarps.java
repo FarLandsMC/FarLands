@@ -1,9 +1,11 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.util.TextUtils;
+
 import org.bukkit.entity.Player;
 
 public class CommandWarps extends PlayerCommand {
@@ -19,7 +21,7 @@ public class CommandWarps extends PlayerCommand {
                 .filter(name -> name.startsWith(args.length == 0 ? "" : args[0]))
                 .forEach(warp -> sb.append("$(hovercmd,/warp ").append(warp).append(",{&(gray)Warp to {&(white)")
                 .append(warp).append("}},").append(warp).append(" )"));
-        sender.spigot().sendMessage(TextUtils.format(sb.toString()));
+        sendFormatted(sender, sb.toString());
         return true;
     }
 }

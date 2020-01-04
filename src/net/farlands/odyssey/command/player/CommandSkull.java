@@ -6,6 +6,7 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.Utils;
 import net.minecraft.server.v1_14_R1.NBTTagCompound;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;

@@ -121,24 +121,6 @@ public abstract class Command extends org.bukkit.command.Command {
         }
     }
 
-    public static void sendFormatted(CommandSender sender, String format, Object... values) {
-        BaseComponent[] text = TextUtils.format(format, values);
-        if(text == null) {
-            sender.sendMessage(format);
-            return;
-        }
-        if(!(sender instanceof DiscordSender))
-            sender.spigot().sendMessage(text);
-        else{
-            StringBuilder sb = new StringBuilder();
-            for(BaseComponent bc : text) {
-                if(bc instanceof TextComponent)
-                    sb.append(((TextComponent)bc).getText());
-            }
-            sender.sendMessage(sb.toString());
-        }
-    }
-
     // Excludes vanished players
     public static Player getPlayer(String name, CommandSender sender) {
         Player player = Bukkit.getServer().getPlayer(name);
@@ -157,7 +139,7 @@ public abstract class Command extends org.bukkit.command.Command {
     }
 
     public static String joinArgsBeyond(int index, String delim, String[] args) {
-        ++ index;
+        ++index;
         String[] data = new String[args.length - index];
         System.arraycopy(args, index, data, 0, data.length);
         return String.join(delim, data);

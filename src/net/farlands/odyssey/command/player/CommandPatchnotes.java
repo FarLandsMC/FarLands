@@ -4,6 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 

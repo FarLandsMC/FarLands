@@ -1,7 +1,10 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
+
 import net.farlands.odyssey.data.Rank;
 import org.bukkit.entity.Player;
 

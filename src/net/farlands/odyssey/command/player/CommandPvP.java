@@ -4,6 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 

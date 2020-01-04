@@ -4,9 +4,9 @@ import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.Pair;
 
+import static org.bukkit.Material.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import static org.bukkit.Material.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

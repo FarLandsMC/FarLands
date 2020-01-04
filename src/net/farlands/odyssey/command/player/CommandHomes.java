@@ -1,11 +1,13 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.util.TextUtils;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
@@ -56,7 +58,7 @@ public class CommandHomes extends Command {
                     .append(home.getName()).append("},").append(home.getName()).append("), "));
         }
         String msg = sb.toString();
-        sender.spigot().sendMessage(TextUtils.format(msg.substring(0, msg.length() - 2)));
+        sendFormatted(sender, msg.substring(0, msg.length() - 2));
         return true;
     }
 

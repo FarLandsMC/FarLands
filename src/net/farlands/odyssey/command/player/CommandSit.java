@@ -3,8 +3,8 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
-
 import net.farlands.odyssey.util.ReflectionHelper;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPig;

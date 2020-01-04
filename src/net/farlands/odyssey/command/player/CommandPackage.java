@@ -1,14 +1,16 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
-import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.Utils;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -52,9 +54,9 @@ public class CommandPackage extends PlayerCommand {
         final String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args));
         if (recipientFlp.isOnline()) {
             Player player = recipientFlp.getOnlinePlayer();
-            player.spigot().sendMessage(TextUtils.format("&(gold){%0} has sent you &(aqua)%1" +
+            sendFormatted(player, "&(gold){%0} has sent you &(aqua)%1" +
                             (message.equals("") ? "" : "&(gold) with the following message &(aqua)" + message),
-                    senderSession.handle.getDisplayName(), Utils.itemName(item)));
+                    senderSession.handle.getDisplayName(), Utils.itemName(item));
             Utils.giveItem(player, item, true);
             sender.sendMessage(ChatColor.GOLD + "Package sent.");
             senderSession.setCommandCooldown(this, 10L * 60L * 20L);

@@ -1,11 +1,14 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.util.Utils;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -25,7 +28,7 @@ public class CommandHome extends PlayerCommand {
         boolean flag = Rank.getRank(sender).isStaff() && args.length > 1; // Is the sender a staff member and are they going to someone else's home
         OfflineFLPlayer flp = flag ? FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1])
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        if(flp == null) {
+        if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return false;
         }
@@ -33,7 +36,7 @@ public class CommandHome extends PlayerCommand {
         if (args.length <= 0)
             name = "home";
         else {
-            if (args[0].equals("home")) {
+            if (!flag && args[0].equals("home")) {
                 sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/home home} by typing " +
                         "$(hovercmd,/home,{&(gray)Click to Run},&(dark_aqua)/home)!");
             }

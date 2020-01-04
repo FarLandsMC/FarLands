@@ -2,6 +2,7 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
+
 import org.bukkit.entity.Player;
 
 public class CommandEchest extends PlayerCommand {

@@ -1,7 +1,10 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.WeatherType;
@@ -35,8 +38,8 @@ public class CommandPWeather extends PlayerCommand {
             return false;
         }
         sender.setPlayerWeather(wt);
-        sendFormatted(sender, "&(green)Personal weather set. Use $(hovercmd,/pweather reset,{&(gray)Click to Run},&(aqua)/pweather reset) " +
-                "to synchronize your weather to the world weather.");
+        sendFormatted(sender, "&(green)Personal weather set. Use $(hovercmd,/pweather reset,{&(gray)Click to Run}" +
+                ",&(aqua)/pweather reset) to synchronize your weather to the world weather.");
         return true;
     }
 

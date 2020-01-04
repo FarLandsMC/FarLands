@@ -1,12 +1,12 @@
 package net.farlands.odyssey.command.player;
 
+import static net.farlands.odyssey.util.Utils.giveItem;
+import static net.farlands.odyssey.mechanic.Chat.error;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TimeInterval;
-import net.farlands.odyssey.util.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -36,7 +36,7 @@ public class CommandGuideBook extends PlayerCommand {
         try {
             return Arrays.asList(FarLands.getDataHandler().getDataTextFile("guidebook.txt").split("\n"));
         }catch(IOException ex) {
-            Chat.error("Failed to load guidebook file.");
+            error("Failed to load guidebook file.");
             ex.printStackTrace(System.out);
         }
         return Collections.emptyList();
@@ -54,12 +54,12 @@ public class CommandGuideBook extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         long cooldownTime = session.commandCooldownTimeRemaining(this);
-        if(cooldownTime > 0L) {
+        if (cooldownTime > 0L) {
             sender.sendMessage(ChatColor.RED + "You can use this command again in " + TimeInterval.formatTime(cooldownTime * 50L, false) + ".");
             return true;
         }
         session.setCommandCooldown(this, 60L * 20L);
-        Utils.giveItem(sender, book.clone(), true);
+        giveItem(sender, book.clone(), true);
         return true;
     }
 }

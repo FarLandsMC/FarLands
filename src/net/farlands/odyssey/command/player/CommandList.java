@@ -5,6 +5,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

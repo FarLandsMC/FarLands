@@ -4,6 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.Utils;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -20,10 +21,10 @@ public class CommandWarp extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
         Location warp = FarLands.getDataHandler().getPluginData().getWarp(args[0]);
-        if(warp == null) {
+        if (warp == null) {
             sender.sendMessage(ChatColor.RED + "Warp not found. Did you spell it correctly?");
             return true;
         }

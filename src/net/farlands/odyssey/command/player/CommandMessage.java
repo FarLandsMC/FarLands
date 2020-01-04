@@ -1,5 +1,8 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.command.DiscordSender;
@@ -7,7 +10,6 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
-import net.farlands.odyssey.util.TextUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
