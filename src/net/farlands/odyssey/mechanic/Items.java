@@ -82,6 +82,17 @@ public class Items extends Mechanic {
         }
     }
 
+    private static void entityExplosion(Location location, List<EntityType> selectionPool) {
+        List<Entity> entities = new ArrayList<>();
+        for (int i = 0; i < 15; ++i) {
+            Entity entity = location.getWorld().spawnEntity(location, Utils.selectRandom(selectionPool));
+            entity.setVelocity(new Vector(Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1)));
+            entities.add(entity);
+        }
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> entities.stream().filter(Entity::isValid).forEach(Entity::remove), 60 * 20L);
+
+    }
+
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         if(tntArrows.containsKey(event.getEntity().getUniqueId())) {
@@ -109,26 +120,12 @@ public class Items extends Mechanic {
                 }
                 case 3:
                 {
-                    List<Entity> ents = new ArrayList<>();
-                    Location loc = event.getEntity().getLocation().add(0, 1, 0);
-                    for(int i = 0;i < 15;++ i) {
-                        Entity entity = loc.getWorld().spawnEntity(loc, Utils.selectRandom(PASSIVES));
-                        entity.setVelocity(new Vector(Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1)));
-                        ents.add(entity);
-                    }
-                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> ents.stream().filter(Entity::isValid).forEach(Entity::remove), 60 * 20L);
+                    entityExplosion(event.getEntity().getLocation().add(0, 1, 0), PASSIVES);
                     break;
                 }
                 case 4:
                 {
-                    List<Entity> ents = new ArrayList<>();
-                    Location loc = event.getEntity().getLocation().add(0, 1, 0);
-                    for(int i = 0;i < 15;++ i) {
-                        Entity entity = loc.getWorld().spawnEntity(loc, Utils.selectRandom(HOSTILES));
-                        entity.setVelocity(new Vector(Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1)));
-                        ents.add(entity);
-                    }
-                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> ents.stream().filter(Entity::isValid).forEach(Entity::remove), 60 * 20L);
+                    entityExplosion(event.getEntity().getLocation().add(0, 1, 0), HOSTILES);
                     break;
                 }
                 case 5:
