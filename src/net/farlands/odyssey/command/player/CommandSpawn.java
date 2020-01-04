@@ -21,29 +21,29 @@ public class CommandSpawn extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length == 0 && !(sender instanceof Player)) {
+        if (args.length == 0 && !(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
             return true;
         }
         Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
-        if(Utils.deltaEquals(spawn, Utils.LOC_ZERO.asLocation(), 1e-8D)) { // The spawn defaults to 0,0,0 (not set)
+        if (Utils.deltaEquals(spawn, Utils.LOC_ZERO.asLocation(), 1e-8D)) { // The spawn defaults to 0,0,0 (not set)
             sender.sendMessage(ChatColor.RED + "Server spawn not set! Please contact an owner, administrator, or developer and notify them of this problem.");
             return true;
         }
-        if(args.length > 0 && Rank.getRank(sender).specialCompareTo(Rank.BUILDER) >= 0) { // Force another player to spawn
-            OfflineFLPlayer flp = getOnlineOrOfflinePlayer(args[0]);
-            if(flp == null) {
+        if (args.length > 0 && Rank.getRank(sender).specialCompareTo(Rank.BUILDER) >= 0) { // Force another player to spawn
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+            if (flp == null) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
                 return true;
             }
             Player player = flp.getOnlinePlayer();
-            if(player == null)
+            if (player == null)
                 flp.setLastLocation(spawn);
             else
                 player.teleport(spawn);
             sender.sendMessage(ChatColor.GREEN + "Moved player to spawn.");
-        }else
-            ((Player)sender).teleport(spawn);
+        } else
+            ((Player) sender).teleport(spawn);
         return true;
     }
 
@@ -54,6 +54,8 @@ public class CommandSpawn extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 && Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 && Rank.getRank(sender).isStaff()
+                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender)
+                : Collections.emptyList();
     }
 }

@@ -21,7 +21,7 @@ public class CommandKick extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length == 0)
             return false;
-        Player player = getVanishedPlayer(args[0]);
+        Player player = getPlayer(args[0], sender);
         if(player == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -36,6 +36,6 @@ public class CommandKick extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

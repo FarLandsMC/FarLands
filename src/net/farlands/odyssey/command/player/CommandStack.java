@@ -15,18 +15,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CommandStack extends PlayerCommand {
-    
+
     private final static List<Material> UNSTACKABLES = Arrays.asList(MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP,
             WATER_BUCKET, PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET, LAVA_BUCKET);
     private final static List<Material> ENCHANTABLES = new ArrayList<>();
 
     private static final List<Material[]> SIMILAR = Arrays.asList(
-            new Material[] {DRIED_KELP_BLOCK, DRIED_KELP}, new Material[] {HAY_BLOCK, WHEAT},
-            new Material[] {MELON, MELON_SLICE}, new Material[] {SLIME_BLOCK, SLIME_BALL},
-            new Material[] {BONE_BLOCK, BONE_MEAL}, new Material[] {COAL_BLOCK, COAL},
-            new Material[] {DIAMOND_BLOCK, DIAMOND}, new Material[] {EMERALD_BLOCK, EMERALD},
-            new Material[] {IRON_BLOCK, IRON_INGOT, IRON_NUGGET}, new Material[] {GOLD_BLOCK, GOLD_INGOT, GOLD_NUGGET},
-            new Material[] {REDSTONE_BLOCK, REDSTONE}, new Material[] {LAPIS_BLOCK, LAPIS_LAZULI}
+            new Material[]{DRIED_KELP_BLOCK, DRIED_KELP}, new Material[]{HAY_BLOCK, WHEAT},
+            new Material[]{MELON, MELON_SLICE}, new Material[]{SLIME_BLOCK, SLIME_BALL},
+            new Material[]{BONE_BLOCK, BONE_MEAL}, new Material[]{COAL_BLOCK, COAL},
+            new Material[]{DIAMOND_BLOCK, DIAMOND}, new Material[]{EMERALD_BLOCK, EMERALD},
+            new Material[]{IRON_BLOCK, IRON_INGOT, IRON_NUGGET}, new Material[]{GOLD_BLOCK, GOLD_INGOT, GOLD_NUGGET},
+            new Material[]{REDSTONE_BLOCK, REDSTONE}, new Material[]{LAPIS_BLOCK, LAPIS_LAZULI}
     );
 
     static {
@@ -138,6 +138,7 @@ public class CommandStack extends PlayerCommand {
         }
         return new Pair<>(item, amount);
     }
+
     private static List<ItemStack> stack(Pair<ItemStack, Integer> item) {
         List<ItemStack> items = new ArrayList<>();
         for (Material[] materials : SIMILAR) {

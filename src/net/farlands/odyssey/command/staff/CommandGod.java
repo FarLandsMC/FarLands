@@ -14,9 +14,8 @@ public class CommandGod extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-        flp.setGod(!flp.isGod());
-        sender.sendMessage(ChatColor.GOLD + "God mode " + (flp.isGod() ? "enabled." : "disabled."));
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        sender.sendMessage(ChatColor.GOLD + "God mode " + ((flp.god = !flp.god) ? "enabled." : "disabled."));
         return true;
     }
 }

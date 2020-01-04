@@ -14,10 +14,10 @@ public class CommandFly extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-        flp.setFlightPreference(!flp.getFlightPreference());
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        flp.flightPreference = !flp.flightPreference;
         flp.updateSessionIfOnline(false);
-        sender.sendMessage(ChatColor.GOLD + "Flying " + (flp.getFlightPreference() ? "enabled." : "disabled."));
+        sender.sendMessage(ChatColor.GOLD + "Flying " + (flp.flightPreference ? "enabled." : "disabled."));
         return true;
     }
 }

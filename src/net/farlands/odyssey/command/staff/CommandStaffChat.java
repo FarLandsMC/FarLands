@@ -1,9 +1,11 @@
 package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,31 +17,26 @@ public class CommandStaffChat extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!Rank.getRank(sender).isStaff()) { // Try to make it look like an invalid command
+        if (!Rank.getRank(sender).isStaff()) { // Try to make it look like an invalid command
             sender.sendMessage("Unknown command. Type \"/help\" for help.");
             return true;
         }
 
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-
-        if("ctoggle".equals(args[0]) && flp != null) {
-            boolean toggle = FarLands.getDataHandler().getRADH().flipBoolean(true, "staffChatToggle",
-                    flp.getUuid().toString());
-            sender.sendMessage(ChatColor.GOLD + "Staff chat toggled " + (toggle ? "on." : "off."));
-        }else {
-            if (args.length == 1) {
-                if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "You must be online to toggle staff chat.");
-                    return true;
-                }
-                String msg = FarLands.getDataHandler().getRADH().flipBoolean("staffchat", ((Player) sender).getUniqueId().toString())
-                        ? "Staff chat toggled on." : "Staff chat toggled off.";
-                sender.sendMessage(ChatColor.GREEN + msg);
+        // Toggling
+        if ("ctoggle".equals(args[0]) || args.length == 1) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "You must be online to toggle staff chat.");
                 return true;
             }
 
+            FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
+            sender.sendMessage(ChatColor.GREEN + "Staff chat toggled " +
+                    ((session.staffChatToggledOn = !session.staffChatToggledOn) ? "on." : "off."));
+        }
+        // Sending a message
+        else {
             String message = joinArgsBeyond(0, " ", args);
-            FarLands.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + message);
+            Chat.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + message);
             FarLands.getDiscordHandler().sendMessage("staffcommands", sender.getName() + ": " + message);
         }
 

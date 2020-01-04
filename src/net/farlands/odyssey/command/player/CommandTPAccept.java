@@ -20,7 +20,6 @@ public class CommandTPAccept extends PlayerCommand {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean execute(Player sender, String[] args) {
         List<TeleportRequest> requests = FarLands.getDataHandler().getSession(sender).teleportRequests;
         if(requests == null || requests.isEmpty()) {
@@ -42,7 +41,6 @@ public class CommandTPAccept extends PlayerCommand {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         List<TeleportRequest> requests = FarLands.getDataHandler().getSession((Player)sender).teleportRequests;
         return args.length == 1 && !(requests == null || requests.isEmpty())

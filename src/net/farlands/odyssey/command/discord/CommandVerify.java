@@ -16,7 +16,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class CommandVerify extends DiscordCommand {
-    private final Map<UUID, Pair<DiscordSender, Integer>> verificationMap;
+    private final Map<UUID, Pair<DiscordSender, Long>> verificationMap;
+    private static final long VERIFICATION_EXPIRATION_TIME = 60L * 1000L;
 
     public CommandVerify() {
         super(Rank.INITIATE, "Verify and link your discord account to your Minecraft account.", "/verify <inGameName>",
@@ -42,32 +43,32 @@ public class CommandVerify extends DiscordCommand {
                 return false;
             Player player = getPlayer(args[0], sender);
             if (player == null) {
-                sender.sendMessage("Player not found in-game.");
+                sender.sendMessage("Please log on to our server then run the command again.");
                 return true;
             }
-            if (verificationMap.containsKey(player.getUniqueId())) { // Check if they have a verification pending
+            // Check if they have a verification pending
+            if (verificationMap.containsKey(player.getUniqueId()) && System.currentTimeMillis() -
+                    verificationMap.get(player.getUniqueId()).getSecond() < VERIFICATION_EXPIRATION_TIME) {
                 sender.sendMessage("This player already has a verification pending.");
                 return true;
             }
             // Mark that they have a verification pending; set the command cooldown; tell them what to do
             verificationMap.put(
                     player.getUniqueId(),
-                    new Pair<>((DiscordSender) sender, FarLands.getScheduler().scheduleSyncDelayedTask(() ->
-                            verificationMap.remove(player.getUniqueId()), 60L * 20L))
+                    new Pair<>((DiscordSender) sender, System.currentTimeMillis())
             );
             player.sendMessage(ChatColor.GOLD + "Type " + ChatColor.GREEN + "/verify" + ChatColor.GOLD + " in-game to verify your account.");
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 5.0F, 1.0F);
         } else if (sender instanceof Player) { // From in-game
             Player player = (Player) sender;
 
-            Pair<DiscordSender, Integer> data = verificationMap.get(player.getUniqueId());
-            if (data == null) { // Check if they have a verification pending
+            Pair<DiscordSender, Long> data = verificationMap.remove(player.getUniqueId());
+            // Check if they have a verification pending
+            if (data == null || System.currentTimeMillis() - data.getSecond() > VERIFICATION_EXPIRATION_TIME) {
                 sender.sendMessage(ChatColor.RED + "You have no verification pending. Did you type " + ChatColor.GOLD +
                         "/verify " + sender.getName() + ChatColor.RED + " in discord yet?");
                 return true;
             }
-
-            verificationMap.remove(player.getUniqueId());
 
             // Actually do the verification
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);

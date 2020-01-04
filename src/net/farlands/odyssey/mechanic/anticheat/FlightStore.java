@@ -1,6 +1,7 @@
 package net.farlands.odyssey.mechanic.anticheat;
 
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,7 +9,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class FlightStore {
-    private final Player player;
+    private final FLPlayerSession session;
     private final boolean sendAlerts;
     private double lastVy;
     private int strikes;
@@ -18,7 +19,7 @@ public class FlightStore {
     private static final int MAX_STRIKES = 100 - FarLands.getFLConfig().getFDS();
 
     public FlightStore(Player player, boolean sendAlerts) {
-        this.player = player;
+        this.session = FarLands.getDataHandler().getSession(player);
         this.sendAlerts = sendAlerts;
         this.lastVy = player.getVelocity().getY();
         this.strikes = 0;
@@ -30,23 +31,23 @@ public class FlightStore {
     }
 
     public void mute(long ticks) {
-        FarLands.getDataHandler().getRADH().resetOrSetCooldown(ticks, "flightDetectMute", player.getUniqueId().toString(), null);
+
     }
 
     public void onUpdate() {
-        if (isImmune(player)) {
-            if (player.isOnGround())
+        if (isImmune()) {
+            if (session.player.isOnGround())
                 lastVy = Double.MAX_VALUE;
             return;
         }
-        double vy = player.getVelocity().getY();
+        double vy = session.player.getVelocity().getY();
         if (Utils.deltaEquals(lastVy, Double.MAX_VALUE, 10.0)) { // We're jumping
-            PotionEffect jumpBoost = player.getPotionEffect(PotionEffectType.JUMP);
+            PotionEffect jumpBoost = session.player.getPotionEffect(PotionEffectType.JUMP);
             // Calculates what the player's jump velocity should be, with some buffer to prevent false alarms (the +0.025)
             double vyMax = 0.41999998688697815 + 0.1 * (jumpBoost == null ? 0 : jumpBoost.getAmplifier() + 1) + JUMP_TOLERANCE;
-            if (vy > vyMax && !Utils.checkNearby(player.getLocation(), Material.SLIME_BLOCK, Material.BUBBLE_COLUMN)) {
+            if (vy > vyMax && !Utils.checkNearby(session.player.getLocation(), Material.SLIME_BLOCK, Material.BUBBLE_COLUMN)) {
                 if (sendAlerts)
-                    AntiCheat.broadcast(player.getName(), "jumped too high.");
+                    AntiCheat.broadcast(session.player.getName(), "jumped too high.");
                 FarLands.getDebugger().echo("vy", vy);
                 FarLands.getDebugger().echo("vyMax", vyMax);
             }
@@ -72,27 +73,31 @@ public class FlightStore {
 
     private void flightCheck(double lastDelta, double vy) {
         double pdiff = lastDelta / Math.abs(vy);
-        if(pdiff > VELOCITY_DELTA_TOLERANCE) {
-            ++ strikes;
-            if(strikes > MAX_STRIKES && FarLands.getDataHandler().getRADH().isCooldownComplete("flyAlert",
-                    player.getUniqueId().toString())) {
+        if (pdiff > VELOCITY_DELTA_TOLERANCE) {
+            ++strikes;
+            if (strikes > MAX_STRIKES && session.flyAlertCooldown.isComplete()) {
                 if (sendAlerts)
-                    AntiCheat.broadcast(player.getName(), "might be flying.");
+                    AntiCheat.broadcast(session.handle.username, "might be flying.");
                 FarLands.getDebugger().echo("pdiff", pdiff);
-                FarLands.getDebugger().echo("loc", (int)player.getLocation().getX() + ", " + (int)player.getLocation().getY() +
-                        ", " + (int)player.getLocation().getZ() + ", " + player.getLocation().getWorld().getName());
-                FarLands.getDataHandler().getRADH().setCooldown(10L, "flyAlert", player.getUniqueId().toString());
+                FarLands.getDebugger().echo("loc", (int) session.player.getLocation().getX() + ", " + (int) session.player.getLocation().getY() +
+                        ", " + (int) session.player.getLocation().getZ() + ", " + session.player.getLocation().getWorld().getName());
+                session.flyAlertCooldown.reset();
             }
         } else
             strikes = 0;
     }
 
-    private static boolean isImmune(Player player) {
-        return player.isOnGround() || player.isSwimming() || player.isGliding() || player.getVehicle() != null || player.isRiptiding() ||
-                player.hasPotionEffect(PotionEffectType.LEVITATION) || player.hasPotionEffect(PotionEffectType.SLOW_FALLING) ||
-                !Material.AIR.equals(player.getWorld().getBlockAt(player.getLocation()).getType()) ||
-                Utils.checkNearby(player.getLocation(), Material.WATER, Material.LADDER, Material.VINE, Material.LAVA) ||
-                !FarLands.getDataHandler().getRADH().isCooldownComplete("flightDetectMute", player.getUniqueId().toString()) ||
-                FarLands.getPDH().getFLPlayer(player).isFlying();
+    private boolean isImmune() {
+        return session.player.isOnGround() ||
+                session.player.isSwimming() ||
+                session.player.isGliding() ||
+                session.player.getVehicle() != null ||
+                session.player.isRiptiding() ||
+                session.player.hasPotionEffect(PotionEffectType.LEVITATION) ||
+                session.player.hasPotionEffect(PotionEffectType.SLOW_FALLING) ||
+                !Material.AIR.equals(session.player.getWorld().getBlockAt(session.player.getLocation()).getType()) ||
+                Utils.checkNearby(session.player.getLocation(), Material.WATER, Material.LADDER, Material.VINE, Material.LAVA) ||
+                !session.flightDetectorMute.isComplete() ||
+                session.flying;
     }
 }

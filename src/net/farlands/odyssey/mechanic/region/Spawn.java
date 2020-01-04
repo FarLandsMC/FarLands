@@ -16,7 +16,8 @@ public class Spawn extends Mechanic {
 
     private static final Pair<Location, Location> END_PORTAL = region(-116, 130, -76, -109, 137, -67);
 
-    public Spawn() {}
+    public Spawn() {
+    }
 
     @EventHandler
     public void onFLCommand(FLCommandEvent event) {

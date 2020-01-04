@@ -1,13 +1,14 @@
 package net.farlands.odyssey.mechanic;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.FLCommandEvent;
 import net.farlands.odyssey.command.player.CommandMessage;
-import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.data.Cooldown;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -24,13 +25,11 @@ import java.util.UUID;
 
 public class AFK extends Mechanic {
     private final Map<UUID, Pair<String, Integer>> afkCheckList;
-    private final RandomAccessDataHandler radh;
 
     private static AFK instance;
 
     public AFK() {
         this.afkCheckList = new HashMap<>();
-        this.radh = FarLands.getDataHandler().getRADH();
     }
 
     @Override
@@ -39,10 +38,9 @@ public class AFK extends Mechanic {
 
         Bukkit.getScheduler().runTaskTimerAsynchronously(FarLands.getInstance(), () -> {
             Bukkit.getOnlinePlayers().forEach(player -> {
-                if(afkCheckList.containsKey(player.getUniqueId())) {
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED +
-                            ChatColor.BOLD.toString() + ChatColor.MAGIC + "MM " + ChatColor.RESET +
-                            afkCheckList.get(player.getUniqueId()).getFirst() + ChatColor.MAGIC + " MM"));
+                if (afkCheckList.containsKey(player.getUniqueId())) {
+                    TextUtils.sendFormatted(player, ChatMessageType.ACTION_BAR, "&(red,bold,magic)MM {&(reset)%0} MM",
+                            afkCheckList.get(player.getUniqueId()).getFirst());
                 }
             });
         }, 0L, 40L);
@@ -50,93 +48,99 @@ public class AFK extends Mechanic {
 
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
-        radh.store(false, "afkCmd", player.getUniqueId().toString()); // This allows /afk to function properly
         setAFKCooldown(player);
     }
 
     @Override
     public void onPlayerQuit(Player player) {
         afkCheckList.remove(player.getUniqueId());
-        radh.removeCooldown("afk", player.getUniqueId().toString());
-        radh.removeCooldown("afkCheckCooldown", player.getUniqueId().toString());
+        FLPlayerSession session = FarLands.getDataHandler().getSession(player);
+        if (session.afkCheckInitializerCooldown != null)
+            session.afkCheckInitializerCooldown.cancel();
+        session.afkCheckCooldown.cancel();
+        session.afk = false;
     }
 
     @EventHandler
     public void onBlockBroken(BlockBreakEvent event) {
-        if(!Rank.getRank(event.getPlayer()).isStaff())
-            radh.resetCooldown("afk", event.getPlayer().getUniqueId().toString());
+        resetInitializerCooldown(event.getPlayer());
     }
+
     @EventHandler
     public void onBlockPlaced(BlockPlaceEvent event) {
-        if(!Rank.getRank(event.getPlayer()).isStaff())
-            radh.resetCooldown("afk", event.getPlayer().getUniqueId().toString());
+        resetInitializerCooldown(event.getPlayer());
     }
 
     @EventHandler
     public void onFLCommand(FLCommandEvent event) {
-        if(CommandMessage.class.equals(event.getCommand()) && event.getSender() instanceof Player)
-            radh.resetCooldown("afk", ((Player)event.getSender()).getUniqueId().toString());
+        if (CommandMessage.class.equals(event.getCommand()) && event.getSender() instanceof Player)
+            resetInitializerCooldown((Player) event.getSender());
     }
 
-    @EventHandler(priority=EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent event) {
-        if(afkCheckList.containsKey(event.getPlayer().getUniqueId())) {
+        FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
+        if (afkCheckList.containsKey(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
             int answer;
             try {
                 answer = Integer.parseInt(event.getMessage());
-            }catch(NumberFormatException ex) {
+            } catch (NumberFormatException ex) {
                 answer = Integer.MAX_VALUE;
             }
             int actualAnswer = afkCheckList.get(event.getPlayer().getUniqueId()).getSecond();
-            if(answer != actualAnswer) {
+            if (answer != actualAnswer) {
                 Bukkit.getScheduler().runTask(FarLands.getInstance(),
                         () -> event.getPlayer().kickPlayer(ChatColor.RED + "The correct answer was: " + actualAnswer));
-            }else{
+            } else {
                 setAFKCooldown(event.getPlayer());
                 event.getPlayer().sendMessage(ChatColor.GREEN + "Correct.");
             }
-            radh.removeCooldown("afkCheckCooldown", event.getPlayer().getUniqueId().toString());
+            session.afkCheckCooldown.cancel();
             afkCheckList.remove(event.getPlayer().getUniqueId());
             return;
         }
-        if(radh.retrieveBoolean("afkCmd", event.getPlayer().getUniqueId().toString()))
-            setNotAFK(event.getPlayer());
-        if(!Rank.getRank(event.getPlayer()).isStaff() && event.getMessage().length() >= 5)
-            radh.resetCooldown("afk", event.getPlayer().getUniqueId().toString());
+        if (session.afk)
+            setNotAFK(session);
+        resetInitializerCooldown(session);
     }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         if (event.getFrom().getYaw() != event.getTo().getYaw() || event.getFrom().getPitch() != event.getTo().getPitch()) {
-            if (radh.retrieveBoolean("afkCmd", event.getPlayer().getUniqueId().toString()))
-                setNotAFK(event.getPlayer());
-            if (!Rank.getRank(event.getPlayer()).isStaff())
-                radh.resetCooldown("afk", event.getPlayer().getUniqueId().toString());
+            FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
+            if (session.afk)
+                setNotAFK(session);
+            if (session.handle.rank.hasAfkChecks() && session.afkCheckCooldown.isComplete())
+                session.afkCheckInitializerCooldown.resetCurrentTask();
         }
     }
 
-    public static void setNotAFK(Player player) {
-        FarLands.getDataHandler().getRADH().store(false, "afkCmd", player.getUniqueId().toString());
-        FarLands.broadcast(flp -> !flp.isIgnoring(player.getUniqueId()), " * " + player.getName() + " is no longer AFK.", false);
+    public static void setNotAFK(FLPlayerSession session) {
+        session.afk = false;
+        Chat.broadcast(flp -> !flp.handle.isIgnoring(session.player), " * " + session.handle.username + " is no longer AFK.", false);
     }
 
     public static void setAFKCooldown(Player player) {
-        Rank rank = Rank.getRank(player);
-        if(!rank.hasAfkChecks())
+        FLPlayerSession session = FarLands.getDataHandler().getSession(player);
+        if (!session.handle.rank.hasAfkChecks())
             return;
-        RandomAccessDataHandler radh = FarLands.getDataHandler().getRADH();
-        radh.setCooldown(rank.getAfkCheckInterval() * 60L * 20L, "afk", player.getUniqueId().toString(), () -> {
-            if(player.isOnline() && player.isValid()) {
-                if("farlands".equals(player.getWorld().getName()) || player.isGliding() ||
-                        radh.retrieveBoolean("ingame", player.getUniqueId().toString())) {
+
+        if (session.afkCheckInitializerCooldown == null)
+            session.afkCheckInitializerCooldown = new Cooldown(session.handle.rank.getAfkCheckInterval() * 60L * 20L);
+
+        session.afkCheckInitializerCooldown.reset(() -> {
+            if (player.isOnline() && player.isValid()) {
+                if ("farlands".equals(player.getWorld().getName()) || player.isGliding() || session.isInEvent) {
                     setAFKCooldown(player);
                     return;
                 }
-                if(radh.retrieveBoolean("afkCmd", player.getUniqueId().toString())) {
+
+                if (session.afk) {
                     kickAFK(player);
                     return;
                 }
+
                 int a = Utils.RNG.nextInt(17), b = Utils.RNG.nextInt(17);
                 boolean op = Utils.RNG.nextBoolean(); // true: +, false: -
                 String check = ChatColor.RED.toString() + ChatColor.BOLD + "AFK Check: " + a + (op ? " + " : " - ") + b;
@@ -144,16 +148,25 @@ public class AFK extends Mechanic {
                 player.sendTitle(check, "", 20, 120, 60);
                 FarLands.getDebugger().echo("Sent AFK check to " + player.getName());
                 instance.afkCheckList.put(player.getUniqueId(), new Pair<>(check, op ? a + b : a - b));
-                radh.setCooldown(30L * 20L, "afkCheckCooldown", player.getUniqueId().toString(), () -> kickAFK(player));
+                session.afkCheckCooldown.reset(() -> kickAFK(player));
             }
         });
     }
 
+    private static void resetInitializerCooldown(Player player) {
+        resetInitializerCooldown(FarLands.getDataHandler().getSession(player));
+    }
+
+    private static void resetInitializerCooldown(FLPlayerSession session) {
+        if (session.handle.rank.hasAfkChecks() && session.afkCheckCooldown.isComplete())
+            session.afkCheckInitializerCooldown.resetCurrentTask();
+    }
+
     private static void kickAFK(Player player) {
-        if(player.isOnline()) {
+        if (player.isOnline()) {
             FarLands.getDebugger().echo("Kicking " + player.getName() + " for being AFK or answering the question incorrectly.");
             player.kickPlayer(ChatColor.RED + "Kicked for being AFK.");
-            FarLands.broadcastStaff(ChatColor.RED + player.getName() + " was kicked for being AFK.");
+            Chat.broadcastStaff(ChatColor.RED + player.getName() + " was kicked for being AFK.");
         }
     }
 }

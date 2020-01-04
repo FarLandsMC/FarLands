@@ -1,9 +1,9 @@
 package net.farlands.odyssey.command.staff;
 
-import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 
+import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.command.CommandSender;
 
 public class CommandBroadcast extends Command {
@@ -15,7 +15,7 @@ public class CommandBroadcast extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length == 0)
             return false;
-        FarLands.broadcastFormatted(String.join(" ", args), true);
+        Chat.broadcastFormatted(String.join(" ", args), true);
         return true;
     }
 }

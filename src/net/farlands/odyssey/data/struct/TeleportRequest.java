@@ -90,6 +90,8 @@ public final class TeleportRequest implements Runnable {
     }
 
     public void accept() { // Called by recipient
+        removeData();
+
         // Make sure the sender didn't log off
         if (!sender.isOnline()) {
             recipient.sendMessage(ChatColor.RED + "This player is no longer online. Teleport canceled.");
@@ -104,12 +106,10 @@ public final class TeleportRequest implements Runnable {
         if (toLocation == null) {
             anchor.sendMessage(ChatColor.RED + "Teleport canceled. Please move to a safe location and try again.");
             teleporter.sendMessage(ChatColor.RED + "Teleport canceled. Could not find a safe location to teleport to.");
-            removeData();
             return;
         }
 
         // Setup the teleport delay
-        removeData();
         delayTaskUid = FarLands.getScheduler().scheduleSyncRepeatingTask(this, 20L, 1L);
 
         // Send messages
@@ -124,7 +124,7 @@ public final class TeleportRequest implements Runnable {
         removeData();
 
         // Send messages
-        sender.sendMessage(ChatColor.GOLD + "Request declined.");
+        recipient.sendMessage(ChatColor.GOLD + "Request declined.");
         if (sender.isOnline())
             sender.sendMessage(ChatColor.AQUA + recipient.getName() + ChatColor.RED + " did not accept your teleport request.");
     }

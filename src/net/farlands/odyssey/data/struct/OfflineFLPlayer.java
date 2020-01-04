@@ -12,6 +12,7 @@ import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.LocationWrapper;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.*;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -131,7 +132,8 @@ public class OfflineFLPlayer {
     }
 
     public FLPlayerSession getSession() {
-        return FarLands.getDataHandler().getSession(getOnlinePlayer());
+        Player player = getOnlinePlayer();
+        return player == null ? null : FarLands.getDataHandler().getSession(player);
     }
 
     public boolean isOnline() {
@@ -418,8 +420,13 @@ public class OfflineFLPlayer {
         return ignoredPlayers;
     }
 
-    public boolean isIgnoring(UUID player) {
-        return ignoredPlayers.contains(player);
+    public boolean isIgnoring(CommandSender sender) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        return flp != null && ignoredPlayers.contains(flp.uuid);
+    }
+
+    public boolean isIgnoring(OfflineFLPlayer flp) {
+        return ignoredPlayers.contains(flp.uuid);
     }
 
     public boolean setIgnoring(UUID player, boolean value) {

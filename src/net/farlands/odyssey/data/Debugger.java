@@ -20,7 +20,7 @@ public class Debugger {
 
     public void echo(String key, Supplier<String> data) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if(FarLands.getPDH().getFLPlayer(player).isDebugging())
+            if(FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + key + ": " + ChatColor.GREEN + data.get());
         });
         FarLands.getDiscordHandler().sendMessageRaw("debug", "```" + key + ": " + data.get() + "```");
@@ -32,7 +32,7 @@ public class Debugger {
 
     public void echo(String msg) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if(FarLands.getPDH().getFLPlayer(player).isDebugging())
+            if(FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + msg);
         });
         FarLands.getDiscordHandler().sendMessageRaw("debug", "```" + msg + "```");

@@ -27,9 +27,10 @@ public class FLPlayerSession {
     public final OfflineFLPlayer handle;
     public long lastTimeRecorded;
     public double spamAccumulation;
+    public boolean afk;
     public boolean flying;
     public boolean staffChatToggledOn;
-    public boolean afk;
+    public boolean isInEvent;
     public CommandSender replyToggleRecipient;
     public Location seatExit;
     public List<Location> backLocations;
@@ -41,16 +42,22 @@ public class FLPlayerSession {
     public TransientField<String> lastDeletedHomeName;
 
     // Cooldowns
-    public Cooldown afkCheckCooldown, mailCooldown, spamCooldown;
+    public Cooldown afkCheckInitializerCooldown, afkCheckCooldown, mailCooldown, spamCooldown, flyAlertCooldown,
+            flightDetectorMute;
     private final Map<Class<? extends Command>, Integer> commandCooldowns;
+
+    // Internally managed fields
+    private boolean backIgnoreTP;
 
     public FLPlayerSession(Player player, OfflineFLPlayer handle) {
         this.player = player;
         this.handle = handle;
         this.lastTimeRecorded = System.currentTimeMillis();
         this.spamAccumulation = 0.0;
+        this.afk = false;
         this.flying = handle.flightPreference;
-        this.staffChatToggledOn = true;
+        this.staffChatToggledOn = false;
+        this.isInEvent = false;
         this.replyToggleRecipient = null;
         this.seatExit = null;
         this.backLocations = new ArrayList<>();
@@ -60,10 +67,15 @@ public class FLPlayerSession {
         this.lastMessageSender = new TransientField<>();
         this.lastDeletedHomeName = new TransientField<>();
 
-        this.afkCheckCooldown = handle.rank.hasAfkChecks() ? new Cooldown(handle.rank.getAfkCheckInterval()) : null;
+        this.afkCheckInitializerCooldown = null;
+        this.afkCheckCooldown = new Cooldown(30L * 20L);
         this.mailCooldown = new Cooldown(60L * 20L);
         this.spamCooldown = new Cooldown(160L);
+        this.flyAlertCooldown = new Cooldown(10L);
+        this.flightDetectorMute = new Cooldown(0L);
         this.commandCooldowns = new HashMap<>();
+
+        this.backIgnoreTP = false;
     }
 
     public void update(boolean sendMessages) {
@@ -132,8 +144,8 @@ public class FLPlayerSession {
         player.giveExpLevels(FarLands.getFLConfig().getVoteConfig().getVoteXPBoost() * amount);
     }
 
-    public void sendTeleportRequest(TeleportRequest.TeleportType type, Player recipient) {
-        TeleportRequest request = new TeleportRequest(type, player, recipient);
+    public void sendTeleportRequest(Player sender, TeleportRequest.TeleportType type) {
+        TeleportRequest request = new TeleportRequest(type, sender, player);
         if (request.open())
             teleportRequests.add(request);
     }
@@ -154,5 +166,15 @@ public class FLPlayerSession {
     public long commandCooldownTimeRemaining(Command command) {
         Integer taskUid = commandCooldowns.get(command.getClass());
         return taskUid == null ? 0L : FarLands.getScheduler().taskTimeRemaining(taskUid);
+    }
+
+    public synchronized boolean ignoreTeleportForBackLocations() {
+        boolean old = backIgnoreTP;
+        backIgnoreTP = false;
+        return old;
+    }
+
+    public synchronized void setIgnoreTeleportForBackLocations() {
+        backIgnoreTP = true;
     }
 }

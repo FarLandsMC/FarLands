@@ -2,6 +2,7 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -18,47 +19,48 @@ public class CommandGameMode extends PlayerCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
-        if(!("spec".equals(args[0]) || "gm3".equals(args[0])) && Rank.BUILDER.specialCompareTo(Rank.getRank(player)) > 0) {
-            player.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+    public boolean execute(Player sender, String[] args) {
+        if (!("spec".equals(args[0]) || "gm3".equals(args[0])) && Rank.BUILDER.specialCompareTo(Rank.getRank(sender)) > 0) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
             return true;
         }
-        boolean isFlying = player.isFlying();
+        boolean isFlying = sender.isFlying();
+        FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         switch (args[0]) {
             case "gmc":
-                player.setGameMode(GameMode.CREATIVE);
+                sender.setGameMode(GameMode.CREATIVE);
                 break;
             case "gms":
-                player.setFallDistance(0);
-                player.setGameMode(GameMode.SURVIVAL);
-                FarLands.getPDH().getFLPlayer(player).updateOnline(player, false);
+                sender.setFallDistance(0);
+                sender.setGameMode(GameMode.SURVIVAL);
+                session.update(false);
                 break;
             case "gm3":
-                player.setGameMode(GameMode.SPECTATOR);
+                sender.setGameMode(GameMode.SPECTATOR);
                 break;
             default:
                 if (args.length > 1) {
-                    Player targetPlayer = getVanishedPlayer(args[1]);
+                    Player targetPlayer = getPlayer(args[1], sender);
                     if (targetPlayer == null) {
-                        player.sendMessage(ChatColor.RED + "Player not found.");
+                        sender.sendMessage(ChatColor.RED + "Player not found.");
                         return true;
                     }
-                    player.setGameMode(GameMode.SPECTATOR);
-                    FarLands.getPDH().getFLPlayer(player).updateOnline(player, false);
-                    player.teleport(targetPlayer.getLocation());
-                    FarLands.getScheduler().scheduleSyncDelayedTask(() -> player.setSpectatorTarget(targetPlayer),20);
+                    sender.setGameMode(GameMode.SPECTATOR);
+                    session.update(false);
+                    sender.teleport(targetPlayer.getLocation());
+                    FarLands.getScheduler().scheduleSyncDelayedTask(() -> sender.setSpectatorTarget(targetPlayer), 20);
                     return true;
                 }
-                player.setFallDistance(0);
-                player.setGameMode(GameMode.SPECTATOR.equals(player.getGameMode()) ? GameMode.SURVIVAL : GameMode.SPECTATOR);
-                FarLands.getPDH().getFLPlayer(player).updateOnline(player, false);
+                sender.setFallDistance(0);
+                sender.setGameMode(GameMode.SPECTATOR.equals(sender.getGameMode()) ? GameMode.SURVIVAL : GameMode.SPECTATOR);
+                session.update(false);
         }
-        player.setFlying(isFlying && player.getAllowFlight());
+        sender.setFlying(isFlying && sender.getAllowFlight());
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

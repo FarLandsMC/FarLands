@@ -2,6 +2,7 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.Utils;
@@ -25,18 +26,19 @@ public class CommandSkull extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
 
-        long cooldownTime = FarLands.getDataHandler().getRADH().cooldownTimeRemaining("skullCooldown", sender.getUniqueId().toString());
-        if(cooldownTime > 0L) {
+        FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
+        long cooldownTime = session.commandCooldownTimeRemaining(this);
+        if (cooldownTime > 0L) {
             sender.sendMessage(ChatColor.RED + "You can use this command again in " + TimeInterval.formatTime(cooldownTime * 50L, false) + ".");
             return true;
         }
-        FarLands.getDataHandler().getRADH().setCooldown(400L, "skullCooldown", sender.getUniqueId().toString());
+        session.setCommandCooldown(this, 400L);
 
         int amount = 1;
-        if(args.length > 1) {
+        if (args.length > 1) {
             try {
                 amount = Integer.parseInt(args[1]);
             } catch (NumberFormatException ex) {
@@ -44,7 +46,7 @@ public class CommandSkull extends PlayerCommand {
                 return true;
             }
 
-            if(amount < 1)
+            if (amount < 1)
                 amount = 1;
         }
 
@@ -56,9 +58,9 @@ public class CommandSkull extends PlayerCommand {
         Utils.giveItem(sender, CraftItemStack.asBukkitCopy(skull), true);
         return true;
     }
+
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
-                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

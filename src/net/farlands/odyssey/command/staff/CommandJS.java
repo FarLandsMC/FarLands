@@ -4,6 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
+import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
@@ -19,7 +20,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -53,48 +53,27 @@ public class CommandJS extends Command {
     }
 
     public CommandJS() {
-        super(Rank.ADMIN, "Evaluate a JavaScript expression", "/js|sql sql?<update|query> <expression>", true, "js", "sql");
+        super(Rank.ADMIN, "Evaluate a JavaScript expression", "/js <expression>", "js");
         this.suggestionGenerator = new SuggestionGenerator(CLASSPATH);
         initJS();
     }
 
     @Override
     protected boolean execute(CommandSender sender, String[] args) {
-        if(!canUse(sender)) // Extra security
+        if (!canUse(sender)) // Extra security
             return true;
 
-        if("js".equals(args[0])) {
+        if ("js".equals(args[0])) {
             SELF_ALIAS.forEach(alias -> engine.put(alias, sender));
-            engine.put("rs", FarLands.getDataHandler().getRADH().retrieve("js", sender.getName()));
-            FarLands.getDataHandler().getRADH().delete("js", sender.getName());
 
             try {
                 Object result = engine.eval(joinArgsBeyond(0, " ", args));
                 if (result != null)
                     sender.sendMessage(result.toString());
-                engine.eval("if(rs!=null){rs.close();}");
             } catch (ScriptException e) {
                 sender.sendMessage(e.getMessage());
             }
-        }else if("sql".equals(args[0])) {
-            if(args.length <= 1)
-                return false;
-            if("update".equals(args[1])) {
-                if(FarLands.getPDH().update(joinArgsBeyond(1, " ", args)))
-                    sender.sendMessage(ChatColor.GREEN + "Successfully executed update.");
-                else
-                    sender.sendMessage(ChatColor.RED + "An error occured while trying to execute the update.");
-            }else if("query".equals(args[1])) {
-                ResultSet rs = FarLands.getPDH().query(joinArgsBeyond(1, " ", args));
-                if(rs == null)
-                    sender.sendMessage(ChatColor.RED + "An error occurred while trying to execute the query.");
-                else{
-                    FarLands.getDataHandler().getRADH().store(rs, "js", sender.getName());
-                    sender.sendMessage(ChatColor.GREEN + "Query executed successfully. You may access the result set in /js through the variable rs.");
-                }
-            }else
-                return false;
-        }else
+        } else
             return false;
 
         return true;
@@ -102,12 +81,12 @@ public class CommandJS extends Command {
 
     @Override
     public boolean canUse(CommandSender sender) {
-        if(sender instanceof ConsoleCommandSender)
+        if (sender instanceof ConsoleCommandSender)
             return true;
-        else if(sender instanceof BlockCommandSender) // Prevent people circumventing permissions by using a command block
+        else if (sender instanceof BlockCommandSender) // Prevent people circumventing permissions by using a command block
             return false;
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-        if(flp == null || !FarLands.getFLConfig().getJsUsers().contains(flp.getUuid().toString())) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        if (flp == null || !FarLands.getFLConfig().getJsUsers().contains(flp.getUuid().toString())) {
             sender.sendMessage(ChatColor.RED + "You cannot use this command.");
             return false;
         }
@@ -128,14 +107,13 @@ public class CommandJS extends Command {
 
     private static final class SuggestionGenerator {
         private final List<JarFile> jars;
-        private final URLClassLoader classLoader;
         private final boolean operational;
 
         public SuggestionGenerator(List<String> classpath) {
             this.jars = classpath.stream().map(file -> { // Load the jar files
                 try {
                     return new JarFile(file);
-                }catch(IOException ex) {
+                } catch (IOException ex) {
                     ex.printStackTrace(System.out);
                     return null;
                 }
@@ -143,27 +121,27 @@ public class CommandJS extends Command {
             List<URL> urls = classpath.stream().map(entry -> { // Construct the class loader
                 try {
                     return (new File(entry)).toURI().toURL();
-                }catch(MalformedURLException ex) {
+                } catch (MalformedURLException ex) {
                     ex.printStackTrace(System.out);
                     return null;
                 }
             }).collect(Collectors.toList());
-            this.classLoader = urls.contains(null) ? null : new URLClassLoader(urls.toArray(new URL[0]));
+            URLClassLoader classLoader = urls.contains(null) ? null : new URLClassLoader(urls.toArray(new URL[0]));
             this.operational = !jars.contains(null) && classLoader != null;
-            if(!this.operational)
-                FarLands.error("Failed to load suggestions for /js.");
+            if (!this.operational)
+                Chat.error("Failed to load suggestions for /js.");
         }
 
         // "current" should be part of a fully qualified class name
         public List<String> getPackageSuggestions(String current) {
-            if(!operational)
+            if (!operational)
                 return Collections.emptyList();
             Set<String> suggestions = new HashSet<>(); // Removes duplicates
             jars.forEach(jar ->
-                jar.stream().map(JarEntry::getName)
-                    .filter(name -> !name.contains("$") && !name.contains("META-INF") && name.startsWith(current.replaceAll("\\.", "/")) &&
-                        (name.endsWith(".class") || !name.contains("."))) // Remove inner classes and metadata information
-                    .forEach(name -> suggestions.add(formatPackageName(name, current)))
+                    jar.stream().map(JarEntry::getName)
+                            .filter(name -> !name.contains("$") && !name.contains("META-INF") && name.startsWith(current.replaceAll("\\.", "/")) &&
+                                    (name.endsWith(".class") || !name.contains("."))) // Remove inner classes and metadata information
+                            .forEach(name -> suggestions.add(formatPackageName(name, current)))
             );
             return new ArrayList<>(suggestions);
         }
@@ -173,14 +151,14 @@ public class CommandJS extends Command {
         private static String formatPackageName(String name, String token) {
             int index = name.length();
             char[] nameChars = name.toCharArray();
-            for(int i = token.length();i < nameChars.length;++ i) {
-                if(nameChars[i] == '/') {
+            for (int i = token.length(); i < nameChars.length; ++i) {
+                if (nameChars[i] == '/') {
                     index = i;
                     break;
                 }
             }
             name = name.substring(0, index);
-            if(name.endsWith(".class"))
+            if (name.endsWith(".class"))
                 name = name.substring(0, name.lastIndexOf('.'));
             return name.replaceAll("/", ".");
         }

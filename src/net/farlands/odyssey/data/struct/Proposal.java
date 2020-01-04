@@ -3,10 +3,6 @@ package net.farlands.odyssey.data.struct;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.Rank;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class Proposal {
     private long messageID;
@@ -39,7 +35,7 @@ public class Proposal {
 
     public void update() {
         Message messageObj = FarLands.getDiscordHandler().getChannel("output").getMessageById(messageID).complete();
-        if(messageObj == null || System.currentTimeMillis() > dateEnds) {
+        if (messageObj == null || System.currentTimeMillis() > dateEnds) {
             resolve(2);
             return;
         }
@@ -49,33 +45,33 @@ public class Proposal {
         MessageReaction no = messageObj.getReactions().stream().filter(r -> VOTE_NO.equalsIgnoreCase(r.getReactionEmote().getName()))
                 .findAny().orElse(null);
         int yesVotes, noVotes;
-        if(yes == null || yes.getCount() == 0) {
+        if (yes == null || yes.getCount() == 0) {
             messageObj.addReaction(VOTE_YES).queue();
             yesVotes = 0;
-        }else{
+        } else {
             yesVotes = yes.getCount();
-            if(yes.getUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
-                -- yesVotes;
-                if(yesVotes > 0)
+            if (yes.getUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
+                --yesVotes;
+                if (yesVotes > 0)
                     yes.removeReaction().queue();
             }
         }
-        if(no == null || no.getCount() == 0) {
+        if (no == null || no.getCount() == 0) {
             messageObj.addReaction(VOTE_NO).queue();
             noVotes = 0;
-        }else{
+        } else {
             noVotes = no.getCount();
-            if(no.getUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
-                -- noVotes;
-                if(noVotes > 0)
+            if (no.getUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
+                --noVotes;
+                if (noVotes > 0)
                     no.removeReaction().queue();
             }
         }
         String contentRaw = messageObj.getContentRaw();
         messageObj.editMessage(contentRaw.substring(0, contentRaw.lastIndexOf(':') + 2) + (votesRequired - yesVotes)).queue();
-        if(yesVotes >= votesRequired)
+        if (yesVotes >= votesRequired)
             resolve(0);
-        else if(noVotes >= votesRequired)
+        else if (noVotes >= votesRequired)
             resolve(1);
     }
 
@@ -90,7 +86,7 @@ public class Proposal {
     // status 0: passed, 1: declined, 2: expired
     private void resolve(int status) {
         String result = "@everyone Vote `" + message.substring(0, Math.min(message.length(), 50)).trim() + "...` has ";
-        switch(status) {
+        switch (status) {
             case 0:
                 result += "passed. " + VOTE_YES;
                 break;
@@ -106,14 +102,6 @@ public class Proposal {
     }
 
     private static int staffCount() {
-        try {
-            ResultSet rs = FarLands.getPDH().query("SELECT Count(*) FROM playerdata WHERE rank>=" + Rank.JR_BUILDER.ordinal());
-            int count = rs.getInt(1);
-            rs.close();
-            return count;
-        }catch(SQLException ex) {
-            ex.printStackTrace();
-            return 4;
-        }
+        return (int) FarLands.getDataHandler().getOfflineFLPlayers().stream().filter(flp -> flp.rank.isStaff()).count();
     }
 }

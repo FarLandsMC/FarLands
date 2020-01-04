@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -25,36 +26,37 @@ public class CommandSetRank extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length < 2)
+        if (args.length < 2)
             return false;
-        OfflineFLPlayer flp = getOnlineOrOfflinePlayer(args[0]);
-        if(flp == null) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+        if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Could not find player: " + args[0]);
             return true;
         }
         Rank rank = Utils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
-        if(rank == null) {
+        if (rank == null) {
             sender.sendMessage(ChatColor.RED + "Invalid rank: " + args[1]);
             return true;
         }
         // You cannot modify someone of an equal rank, and you cannot set someone to a higher rank than yours
-        if((flp.getRank().specialCompareTo(Rank.getRank(sender)) >= 0 || rank.specialCompareTo(Rank.getRank(sender)) > 0) &&
+        if ((flp.rank.specialCompareTo(Rank.getRank(sender)) >= 0 || rank.specialCompareTo(Rank.getRank(sender)) > 0) &&
                 !(sender instanceof ConsoleCommandSender)) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to set " + ChatColor.WHITE + args[0] +
                     ChatColor.RED + " to rank " + ChatColor.WHITE + rank.toString());
             return true;
         }
         // Manage all the toggles and stuff that will change with rank
-        if(!flp.getRank().isStaff() && rank.isStaff())
-            FarLands.getDataHandler().getRADH().removeCooldown("afk", flp.getUuid().toString());
-        else if(flp.getRank().isStaff() && !rank.isStaff() && flp.isOnline())
+        FLPlayerSession session = flp.getSession();
+        if (!flp.rank.hasAfkChecks() && !rank.hasAfkChecks() && session != null) {
+            session.afkCheckCooldown.cancel();
+            session.afkCheckCooldown = null;
+        } else if (flp.rank.isStaff() && !rank.isStaff() && flp.isOnline())
             AFK.setAFKCooldown(flp.getOnlinePlayer());
         flp.setRank(rank);
         sender.sendMessage(ChatColor.GREEN + "Updated " + ChatColor.AQUA + args[0] + "\'s" + ChatColor.GREEN + " rank to " + rank.getColor() + rank.toString());
         Player player = flp.getOnlinePlayer();
-        if(player != null) // Notify the player if they're online
+        if (player != null) // Notify the player if they're online
             player.sendMessage(ChatColor.GREEN + "Your rank has been updated to " + rank.getColor() + rank.toString());
-        FarLands.getPDH().saveFLPlayer(flp);
         // Notify discord
         FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
                 " has updated " + Chat.applyDiscordFilters(flp.getUsername()) + "\'s rank to `" + rank.getSymbol() +
@@ -64,10 +66,10 @@ public class CommandSetRank extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        switch(args.length) {
+        switch (args.length) {
             case 0:
             case 1:
-                return getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]);
+                return getOnlinePlayers(args.length == 0 ? "" : args[0], sender);
             case 2:
                 return Arrays.stream(Rank.VALUES).map(Rank::toString)
                         .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))

@@ -4,6 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -11,40 +12,42 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandPurchase extends Command {
+    private final Map<UUID, Long> commandCooldowns;
+    private static final long PURCHASE_COMMAND_COOLDOWN = 5000L;
+
     public CommandPurchase() {
         super(Rank.MOD, "Command for Tebex (BuyCraft)", "/purchase <name> <rank> [uuid] [price]", "purchase");
+        this.commandCooldowns = new HashMap<>();
     }
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         FarLands.getDebugger().echo("Donation command execution: /purchase " + String.join(" ", args));
-        if(args.length < 2)
+        if (args.length < 2)
             return false;
-        OfflineFLPlayer flp = getFLPlayer(args[0]);
-        if(flp == null) {
-            if(args.length < 3) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+        if (flp == null) {
+            if (args.length < 3) {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
                 return true;
             }
             UUID uuid;
             try {
                 uuid = UUID.fromString(args[2]);
-            }catch(IllegalArgumentException ex) {
-                FarLands.error("Failed to execute purchase command due to an invalid UUID for player " + args[0]);
+            } catch (IllegalArgumentException ex) {
+                Chat.error("Failed to execute purchase command due to an invalid UUID for player " + args[0]);
                 return true;
             }
-            flp = FarLands.getPDH().getFLPlayer(uuid, args[0]);
+            flp = FarLands.getDataHandler().getOfflineFLPlayer(uuid, args[0]);
         }
-        if(!FarLands.getDataHandler().getRADH().isCooldownComplete("purchase", args[2]))
+        if (commandCooldowns.containsKey(flp.uuid) && System.currentTimeMillis() - commandCooldowns.get(flp.uuid) < PURCHASE_COMMAND_COOLDOWN)
             return true;
         else
-            FarLands.getDataHandler().getRADH().setCooldown(100L, "purchase", args[2]);
+            commandCooldowns.put(flp.uuid, System.currentTimeMillis());
         Rank rank = Utils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
         int price = args.length >= 4 ? Integer.parseInt(args[3]) : 0;
         flp.addDonation(price);
@@ -54,10 +57,10 @@ public class CommandPurchase extends Command {
             else if (flp.getAmountDonated() >= Rank.DONOR_COST_USD)
                 rank = Rank.DONOR;
         }
-        if(rank != null && rank.specialCompareTo(flp.getRank()) > 0) {
-            if(rank == Rank.DONOR)
+        if (rank != null && rank.specialCompareTo(flp.getRank()) > 0) {
+            if (rank == Rank.DONOR)
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " 15000");
-            else if(rank == Rank.PATRON) {
+            else if (rank == Rank.PATRON) {
                 if (flp.isOnline()) {
                     Utils.giveItem(flp.getOnlinePlayer(), FarLands.getDataHandler().getPatronCollectable(), false);
                 } else
@@ -68,9 +71,8 @@ public class CommandPurchase extends Command {
             }
             flp.setRank(rank);
             Player player = flp.getOnlinePlayer();
-            if(player != null) // Notify the player if they're online
+            if (player != null) // Notify the player if they're online
                 player.sendMessage(ChatColor.GREEN + "Your rank has been updated to " + rank.getColor() + rank.toString());
-            FarLands.getPDH().saveFLPlayer(flp);
         }
         if (price > 0)
             FarLands.getDiscordHandler().sendMessage("output", args[0] + " has donated " + price + " USD.");
@@ -79,10 +81,10 @@ public class CommandPurchase extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        switch(args.length) {
+        switch (args.length) {
             case 0:
             case 1:
-                return getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]);
+                return getOnlinePlayers(args.length == 0 ? "" : args[0], sender);
             case 2:
                 return Rank.PURCHASED_RANKS.stream().map(Rank::toString).collect(Collectors.toList());
             default:

@@ -5,15 +5,14 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.util.TimeInterval;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,70 +26,37 @@ public class CommandTop extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if (args.length == 0)
             return false;
+        List<OfflineFLPlayer> flps = FarLands.getDataHandler().getOfflineFLPlayers();
         if ("votes".equals(args[0])) {
             if (args.length == 1 || "month".equals(args[1])) {
-                ResultSet rs = FarLands.getPDH().query("SELECT username,monthVotes,totalVotes FROM playerdata ORDER BY (monthVotes*65536+totalVotes) DESC LIMIT 10");
+                flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalVotes)));
                 sendFormatted(sender, "&(gold)Showing the top voters for this month:");
-                try {
-                    int count = 0;
-                    while (rs.next()) {
-                        ++count;
-                        sendFormatted(sender, "&(gold)%0: {&(aqua)%1} - %2 $(inflect,noun,2,vote) " +
-                                        "this month, %3 total $(inflect,noun,3,vote)", count, rs.getString("username"),
-                                rs.getInt("monthVotes"), rs.getInt("totalVotes"));
-                    }
-                    rs.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "There was an error executing this command.");
+                for (int i = 0; i < Math.min(flps.size(), 10); ++i) {
+                    sendFormatted(sender, "&(gold)%0: {&(aqua)%1} - %2 $(inflect,noun,2,vote) this month, %3 total " +
+                                    "$(inflect,noun,3,vote)", i + 1, flps.get(i).username, flps.get(i).monthVotes,
+                            flps.get(i).totalVotes);
                 }
             } else if ("all".equals(args[1])) {
-                ResultSet rs = FarLands.getPDH().query("SELECT username,totalVotes FROM playerdata ORDER BY totalVotes DESC LIMIT 10");
+                flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.totalVotes)));
                 sendFormatted(sender, "&(gold)Showing the top voters of all time:");
-                try {
-                    int count = 0;
-                    while (rs.next()) {
-                        ++count;
-                        sendFormatted(sender, "&(gold)%0: {&(aqua)%1} - %2 $(inflect,noun,2,vote)",
-                                count, rs.getString("username"), rs.getInt("totalVotes"));
-                    }
-                    rs.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                    sender.sendMessage(ChatColor.RED + "There was an error executing this command.");
+                for (int i = 0; i < Math.min(flps.size(), 10); ++i) {
+                    sendFormatted(sender, "&(gold)%0: {&(aqua)%1} - %2 $(inflect,noun,2,vote)", i + 1, flps.get(i).username,
+                            flps.get(i).totalVotes);
                 }
             } else
                 return false;
         } else if ("playtime".equals(args[0])) {
-            ResultSet rs = FarLands.getPDH().query("SELECT username,secondsPlayed FROM playerdata ORDER BY secondsPlayed DESC LIMIT 10");
+            flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.secondsPlayed)));
             sendFormatted(sender, "&(gold)Showing the top players with the longest play time:");
-            try {
-                int count = 0;
-                while (rs.next()) {
-                    ++count;
-                    sendFormatted(sender, "&(gold)%0: {&(aqua)%1} - %2", count, rs.getString("username"),
-                            TimeInterval.formatTime(1000L * rs.getInt("secondsPlayed"), true));
-                }
-                rs.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                sender.sendMessage(ChatColor.RED + "There was an error executing this command.");
+            for (int i = 0; i < Math.min(flps.size(), 10); ++i) {
+                sendFormatted(sender, "&(gold)%0: {&(aqua)%1} - %2", i + 1, flps.get(i).username,
+                        TimeInterval.formatTime(1000L * flps.get(i).secondsPlayed, true));
             }
         } else if ("donors".equals(args[0])) {
-            ResultSet rs = FarLands.getPDH().query("SELECT username,amountDonated FROM playerdata WHERE amountDonated > 0 " +
-                    "ORDER BY (amountDonated*65536+totalVotes) DESC LIMIT 10");
+            flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.amountDonated)));
             sendFormatted(sender, "&(gold)Showing the top server donors:");
-            try {
-                int count = 0;
-                while (rs.next()) {
-                    ++count;
-                    sendFormatted(sender, "&(gold)%0: &(aqua)%1", count, rs.getString("username"));
-                }
-                rs.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                sender.sendMessage(ChatColor.RED + "There was an error executing this command.");
-            }
+            for (int i = 0; i < Math.min(flps.size(), 10); ++i)
+                sendFormatted(sender, "&(gold)%0: &(aqua)%1", i + 1, flps.get(i).username);
         } else
             return false;
         return true;
@@ -98,7 +64,7 @@ public class CommandTop extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? Stream.of("votes", "playtime", "donors").filter(o -> o.startsWith(args.length == 0 ? "" :args[0])).collect(Collectors.toList()) :
+        return args.length <= 1 ? Stream.of("votes", "playtime", "donors").filter(o -> o.startsWith(args.length == 0 ? "" : args[0])).collect(Collectors.toList()) :
                 ("votes".equals(args[0]) ? Stream.of("month", "all").filter(o -> o.startsWith(args[1])).collect(Collectors.toList()) : Collections.emptyList());
     }
 }

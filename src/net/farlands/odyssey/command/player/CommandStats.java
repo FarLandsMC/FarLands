@@ -23,7 +23,8 @@ public class CommandStats extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         final boolean isPersonal = args.length <= 0;
-        final OfflineFLPlayer flp = isPersonal ? FarLands.getPDH().getFLPlayer(sender) : getFLPlayer(args[0]);
+        final OfflineFLPlayer flp = isPersonal ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
+                : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -45,7 +46,6 @@ public class CommandStats extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
-                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

@@ -22,7 +22,7 @@ public class CommandDebug extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         if(args.length == 0) {
-            OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             boolean debugging = !flp.isDebugging();
             flp.setDebugging(debugging);
             sender.sendMessage(ChatColor.AQUA + "Debugging: " + debugging);

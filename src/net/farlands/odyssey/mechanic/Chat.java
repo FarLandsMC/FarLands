@@ -192,7 +192,7 @@ public class Chat extends Mechanic {
                 return;
             }
             if (session.replyToggleRecipient != null) {
-                if (session.replyToggleRecipient instanceof Player && ((Player)session.replyToggleRecipient).isOnline()) {
+                if (session.replyToggleRecipient instanceof Player && ((Player) session.replyToggleRecipient).isOnline()) {
                     CommandMessage.sendMessage(session.replyToggleRecipient, sender, message);
                     return;
                 } else {
@@ -206,7 +206,7 @@ public class Chat extends Mechanic {
                 fmessage = displayPrefix + lmessage,
                 censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
-                .filter(session -> !session.handle.isIgnoring(senderFlp.getUuid()))
+                .filter(session -> !session.handle.isIgnoring(senderFlp))
                 .forEach(session -> {
                     if (session.handle.isCensoring())
                         session.player.sendMessage(censorMessage);

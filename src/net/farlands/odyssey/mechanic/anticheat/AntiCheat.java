@@ -2,6 +2,7 @@ package net.farlands.odyssey.mechanic.anticheat;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.TextUtils;
 import org.bukkit.ChatColor;
@@ -44,7 +45,7 @@ public class AntiCheat extends Mechanic {
     
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
-        if (Rank.getRank(player).specialCompareTo(Rank.MEDIA) >= 0 && !FarLands.getPDH().getFLPlayer(player).isDebugging())
+        if (Rank.getRank(player).specialCompareTo(Rank.MEDIA) >= 0 && !FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
             return;
         put(player);
     }
@@ -82,13 +83,13 @@ public class AntiCheat extends Mechanic {
 
     // Formats a message for Anti Cheat
     public static void broadcast(String message, boolean sendToAlerts) {
-        FarLands.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
+        Chat.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
         if(sendToAlerts)
             FarLands.getDiscordHandler().sendMessage("alerts", message);
     }
 
     public static void broadcast(String playerName, String message) {
         broadcast(playerName + " " + message, true);
-        FarLands.broadcastStaff(TextUtils.format("&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])", playerName));
+        Chat.broadcastStaff(TextUtils.format("&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])", playerName));
     }
 }

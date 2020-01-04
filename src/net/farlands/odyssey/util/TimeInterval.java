@@ -52,7 +52,7 @@ public enum TimeInterval {
                     else
                         sb.append(' ');
                 }
-                sb.append(Integer.toString(time));
+                sb.append(time);
                 if(abbreviate)
                     sb.append(currentInterval.getAbbreviation());
                 else{

@@ -47,7 +47,7 @@ public class CommandMail extends Command {
             // Apply formatting
             String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args));
             sender.sendMessage(format("To", flp.getRank().getNameColor(), flp.getUsername(), message));
-            if (!flp.isIgnoring(senderFlp.uuid)) { // Check for ignoring
+            if (!flp.isIgnoring(senderFlp)) { // Check for ignoring
                 flp.addMail(sender.getName(), message);
                 Player player = flp.getOnlinePlayer();
                 if (player != null) // Notify the player if online

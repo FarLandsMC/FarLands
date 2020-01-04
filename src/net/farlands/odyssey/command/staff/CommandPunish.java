@@ -26,7 +26,7 @@ public class CommandPunish extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length < ("punish".equals(args[0]) ? 3 : 2))
             return false;
-        OfflineFLPlayer flp = getFLPlayer(args[1]);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -89,7 +89,7 @@ public class CommandPunish extends Command {
         switch(args.length) {
             case 0:
             case 1:
-                return getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]);
+                return getOnlinePlayers(args.length == 0 ? "" : args[0], sender);
             case 2:
                 return Arrays.stream(Punishment.PunishmentType.VALUES).map(Punishment.PunishmentType::getAlias)
                         .filter(a -> a.startsWith(args[1])).collect(Collectors.toList());

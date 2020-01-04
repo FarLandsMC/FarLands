@@ -8,11 +8,11 @@ import net.minecraft.server.v1_14_R1.NBTTagCompound;
 import net.minecraft.server.v1_14_R1.NBTTagList;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class GuiEvidenceLocker extends Gui {
@@ -38,6 +38,12 @@ public class GuiEvidenceLocker extends Gui {
         this.punishments = flp.getPunishments().stream().map(Punishment::toString).collect(Collectors.toList());
         this.currentPunishment = 0;
         init();
+    }
+
+    @Override
+    public void openGui(Player player) {
+        super.openGui(player);
+        FarLands.getDataHandler().openEvidenceLocker(flp.uuid);
     }
 
     private void saveInventory() {
@@ -75,7 +81,6 @@ public class GuiEvidenceLocker extends Gui {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected void onClose() {
         saveInventory();
         NBTTagCompound locker = FarLands.getDataHandler().getEvidenceLocker(flp);
@@ -87,6 +92,6 @@ public class GuiEvidenceLocker extends Gui {
             ++ i;
         }
         FarLands.getDataHandler().saveEvidenceLocker(flp, locker);
-        ((List<OfflineFLPlayer>)FarLands.getDataHandler().getRADH().retrieveAndStoreIfAbsent(new CopyOnWriteArrayList<>(), "evidencelocker", "editing")).remove(flp);
+        FarLands.getDataHandler().closeEvidenceLocker(flp.uuid);
     }
 }

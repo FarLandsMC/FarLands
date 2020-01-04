@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.TeleportRequest;
@@ -22,7 +23,7 @@ public class CommandTPA extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         if(args.length == 1)
             return false;
-        Player player = Rank.getRank(sender).isStaff() ? getVanishedPlayer(args[1]) : getPlayer(args[1]);
+        Player player = getPlayer(args[1], sender);
         if(player == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -31,21 +32,19 @@ public class CommandTPA extends PlayerCommand {
             sender.sendMessage(ChatColor.RED + "You cannot teleport to yourself.");
             return true;
         }
-        if(FarLands.getDataHandler().getRADH().retrieveBoolean("afkCmd", player.getUniqueId().toString()))
+        FLPlayerSession playerSession = FarLands.getDataHandler().getSession(player);
+        if(playerSession.afk)
             sender.sendMessage(ChatColor.RED + "This player is AFK, so they may not receive your request.");
-        if(FarLands.getPDH().getFLPlayer(player).isIgnoring(sender.getUniqueId()))
+        if(playerSession.handle.isIgnoring(sender))
             return true;
         // Everything else is handled here
-        TeleportRequest.newRequest("tpa".equals(args[0])
-                ? TeleportRequest.TeleportType.SENDER_TO_RECIPIENT
-                : TeleportRequest.TeleportType.RECIPIENT_TO_SENDER,
-                sender, player);
+        playerSession.sendTeleportRequest(sender, "tpa".equals(args[0]) ? TeleportRequest.TeleportType.SENDER_TO_RECIPIENT
+                : TeleportRequest.TeleportType.RECIPIENT_TO_SENDER);
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
-                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

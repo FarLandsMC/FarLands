@@ -29,6 +29,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -48,6 +49,7 @@ public class DataHandler extends Mechanic {
     private PluginData pluginData;
     private NBTTagCompound evidenceLockers;
     private NBTTagCompound deathDatabase;
+    private List<UUID> openEvidenceLockers;
     private List<org.bukkit.inventory.ItemStack> voteRewards;
     private List<ItemReward> votePartyRewards;
     private org.bukkit.inventory.ItemStack patronCollectable;
@@ -130,6 +132,7 @@ public class DataHandler extends Mechanic {
         this.discordMap = new HashMap<>();
         this.sessionMap = new HashMap<>();
         this.currentPatchnotesMD5 = null;
+        this.openEvidenceLockers = new ArrayList<>();
         this.voteRewards = new ArrayList<>();
         this.votePartyRewards = new ArrayList<>();
         this.patronCollectable = null;
@@ -150,7 +153,8 @@ public class DataHandler extends Mechanic {
             if(dh.arePatchnotesDifferent()) {
                 try {
                     FarLands.getDiscordHandler().sendMessageRaw("announcements", "@everyone Patch **#" + dh.getCurrentPatch() +
-                            "** has been released!\n```" + Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"), "UTF-8")) + "```");
+                            "** has been released!\n```" + Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"),
+                            StandardCharsets.UTF_8)) + "```");
                     flPlayerMap.values().forEach(flp -> flp.setViewedPatchnotes(false));
                 }catch(IOException ex) {
                     Chat.error("Failed to post patch notes to #announcements");
@@ -211,10 +215,12 @@ public class DataHandler extends Mechanic {
         session.handle.setLastLocation(player.getLocation());
         if(!session.handle.isVanished())
             session.handle.setLastLogin(System.currentTimeMillis());
+        final UUID uuid = player.getUniqueId();
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), FarLands.getDiscordHandler()::updateStats, 5L);
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-            sessionMap.remove(player.getUniqueId());
-            FarLands.getDiscordHandler().updateStats();
-        }, 5L);
+            if (Bukkit.getPlayer(uuid) == null)
+                sessionMap.remove(uuid);
+        }, 60L * 20L);
     }
 
     @EventHandler
@@ -236,7 +242,6 @@ public class DataHandler extends Mechanic {
     }
 
     @EventHandler(ignoreCancelled=true)
-    @SuppressWarnings("unchecked")
     public void onTeleport(PlayerTeleportEvent event) {
         FLPlayerSession session = getSession(event.getPlayer());
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.update(false), 1L);
@@ -247,7 +252,6 @@ public class DataHandler extends Mechanic {
     }
 
     @EventHandler(ignoreCancelled=true, priority=EventPriority.HIGH)
-    @SuppressWarnings("unchecked")
     public void onPlayerDeath(PlayerDeathEvent event) {
         FLPlayerSession session = getSession(event.getEntity());
         if(session.backLocations.size() >= 5)
@@ -363,8 +367,8 @@ public class DataHandler extends Mechanic {
         return match;
     }
 
-    public Collection<OfflineFLPlayer> getOfflineFLPlayers() {
-        return flPlayerMap.values();
+    public List<OfflineFLPlayer> getOfflineFLPlayers() {
+        return new ArrayList<>(flPlayerMap.values());
     }
 
     public void updateDiscordMap(long discordID, OfflineFLPlayer flp) {
@@ -425,6 +429,18 @@ public class DataHandler extends Mechanic {
     public void saveEvidenceLocker(OfflineFLPlayer flp, NBTTagCompound locker) {
         evidenceLockers.set(flp.getUuid().toString(), locker);
         saveEvidenceLockers();
+    }
+
+    public synchronized void openEvidenceLocker(UUID uuid) {
+        openEvidenceLockers.add(uuid);
+    }
+
+    public synchronized boolean isLockerOpen(UUID uuid) {
+        return openEvidenceLockers.contains(uuid);
+    }
+
+    public synchronized void closeEvidenceLocker(UUID uuid) {
+        openEvidenceLockers.remove(uuid);
     }
 
     private void loadEvidenceLockers() {

@@ -4,6 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -14,27 +15,25 @@ public class CommandVanish extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         boolean online = flp.isOnline();
-        flp.setVanished(!flp.isVanished());
+        flp.vanished = !flp.vanished;
         flp.updateSessionIfOnline(false);
-        if(flp.isVanished()) {
+        if (flp.vanished) {
             sender.sendMessage(ChatColor.GOLD + "You are now vanished.");
-            if(online) {
-                FarLands.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
+            if (online) {
+                Chat.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                         ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has left.", true);
             }
-        }else{
+        } else {
             sender.sendMessage(ChatColor.GOLD + "You are no longer vanished.");
-            if(online) {
-                FarLands.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
+            if (online) {
+                Chat.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                         ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has joined.", true);
             }
         }
-        if(online)
+        if (online)
             FarLands.getDiscordHandler().updateStats();
-        else
-            FarLands.getPDH().saveFLPlayer(flp);
         return true;
     }
 }

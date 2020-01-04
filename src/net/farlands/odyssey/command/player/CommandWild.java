@@ -1,13 +1,15 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
+import net.farlands.odyssey.data.Cooldown;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -17,39 +19,42 @@ import org.bukkit.entity.Player;
 import static net.farlands.odyssey.util.Utils.*;
 
 public class CommandWild extends PlayerCommand {
+    private final Cooldown globalCooldown;
+
     public CommandWild() {
         super(Rank.INITIATE, "Teleport to a random location on the map.", "/wild", "wild", "rtp");
+        this.globalCooldown = new Cooldown(200L);
     }
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        RandomAccessDataHandler radh = FarLands.getDataHandler().getRADH();
-        long timeRemaining = radh.cooldownTimeRemaining("wildCooldown", sender.getUniqueId().toString()) * 50L;
-        if(timeRemaining > 0L) {
+        FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
+        long timeRemaining = session.commandCooldownTimeRemaining(this) * 50L;
+        if (timeRemaining > 0L) {
             sender.sendMessage(ChatColor.RED + "You can use the command again in " + TimeInterval.formatTime(timeRemaining, false) + ".");
             return true;
         }
 
-        if(!"world".equals(sender.getWorld().getName())) { // rtpFindSafe is optimized for overworld and cannot be used if this changes
+        if (!"world".equals(sender.getWorld().getName())) { // rtpFindSafe is optimized for overworld and cannot be used if this changes
             sender.sendMessage(ChatColor.RED + "You can only use this command in the overworld.");
             return true;
         }
 
-        if(Utils.serverMspt() > 80) {
+        if (Utils.serverMspt() > 80) {
             sender.sendMessage(ChatColor.RED + "The server is too laggy right now to use this command.");
             return true;
         }
 
-        if(!radh.isCooldownComplete("wildCooldown", "global")) {
+        if (!globalCooldown.isComplete()) {
             sender.sendMessage(ChatColor.RED + "You cannot use this command right now. Try again in a few seconds.");
             return true;
         }
 
-        radh.setCooldown(200L, "wildCooldown", "global");
+        globalCooldown.reset();
 
         int wildCooldown = Rank.getRank(sender).getWildCooldown();
-        if(wildCooldown > 0)
-            radh.setCooldown(wildCooldown * 60L * 20L, "wildCooldown", sender.getUniqueId().toString());
+        if (wildCooldown > 0)
+            session.setCommandCooldown(this, wildCooldown * 60L * 20L);
         rtpPlayer(sender, 15000);
         return true;
     }
@@ -65,7 +70,7 @@ public class CommandWild extends PlayerCommand {
                 rtp.setZ(RNG.nextInt(2 * range) - range);
         }
         final int x = rtp.getX() > 0 ? -4 : 4,
-                  z = rtp.getZ() > 0 ? -4 : 4;
+                z = rtp.getZ() > 0 ? -4 : 4;
         Location temp = rtpFindSafe(rtp);
         while (temp == null) {
             rtp.setX(rtp.getBlockX() + x);
@@ -73,9 +78,10 @@ public class CommandWild extends PlayerCommand {
             temp = rtpFindSafe(rtp);
         }
         tpPlayer(player, temp);
-        if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty())
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.AQUA +
-                    "You have no homes, use /sethome [name] so you can safely return to your location!"));
+        if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
+            TextUtils.sendFormatted(player, ChatMessageType.ACTION_BAR, "&(aqua)You have no homes, use /sethome [name] " +
+                    "so you can safely return to your location!");
+        }
     }
 
     private static Location rtpFindSafe(final Location origin) {

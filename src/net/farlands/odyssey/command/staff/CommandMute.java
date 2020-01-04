@@ -24,7 +24,7 @@ public class CommandMute extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length < ("mute".equals(args[0]) ? 3 : 2))
             return false;
-        OfflineFLPlayer flp = getOnlineOrOfflinePlayer(args[1]);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if(flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -74,12 +74,11 @@ public class CommandMute extends Command {
                 flp.getOnlinePlayer().sendMessage(ChatColor.GREEN + "Your mute has expired.");
             sender.sendMessage(ChatColor.GREEN + "Unmuted " + flp.getUsername() + ".");
         }
-        FarLands.getPDH().saveFLPlayer(flp);
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

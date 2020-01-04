@@ -25,13 +25,16 @@ public class CommandAFK extends PlayerCommand {
             return true;
         }
 
+        if (!session.afkCheckCooldown.isComplete())
+            return true;
+
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.afk = true, 50L);
         session.setCommandCooldown(this, 10L * 60L * 20L);
 
-        if (session.afkCheckCooldown != null)
-            session.afkCheckCooldown.resetCurrentTask();
+        if (session.afkCheckInitializerCooldown != null)
+            session.afkCheckInitializerCooldown.resetCurrentTask();
 
-        Chat.broadcast(flp -> !flp.handle.isIgnoring(session.handle.uuid), " * " + sender.getName() + " is now AFK.", false);
+        Chat.broadcast(flp -> !flp.handle.isIgnoring(session.handle), " * " + sender.getName() + " is now AFK.", false);
         return true;
     }
 }
