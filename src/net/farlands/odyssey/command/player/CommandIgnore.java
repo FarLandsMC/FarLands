@@ -20,34 +20,34 @@ public class CommandIgnore extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) {
+        if (sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) {
             sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
             return true;
         }
-        if(args.length == 1)
+        if (args.length == 1)
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         OfflineFLPlayer ignored = FarLands.getDataHandler().getOfflineFLPlayer(args[1]);
-        if(ignored == null) {
+        if (ignored == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
-        if(flp.getUuid().equals(ignored.getUuid())) {
+        if (flp.uuid.equals(ignored.uuid)) {
             sender.sendMessage(ChatColor.RED + "You cannot ignore or unignore yourself.");
             return true;
         }
-        if("ignore".equals(args[0])) {
-            if(ignored.getRank().isStaff()) {
+        if ("ignore".equals(args[0])) {
+            if (ignored.rank.isStaff()) {
                 sender.sendMessage(ChatColor.RED + "You cannot ignore a staff member.");
                 return true;
             }
-            if(!flp.setIgnoring(ignored.getUuid(), true)) {
+            if (!flp.setIgnoring(ignored.uuid, true)) {
                 sender.sendMessage(ChatColor.RED + "You are already ignoring this player.");
                 return true;
             }
             sender.sendMessage(ChatColor.GREEN + "You are now ignoring " + ChatColor.AQUA + args[1]);
-        }else if("unignore".equals(args[0])) {
-            if(!flp.setIgnoring(ignored.getUuid(), false)) {
+        } else if ("unignore".equals(args[0])) {
+            if (!flp.setIgnoring(ignored.uuid, false)) {
                 sender.sendMessage(ChatColor.RED + "You were not ignoring this player.");
                 return true;
             }
@@ -58,7 +58,6 @@ public class CommandIgnore extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
-                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

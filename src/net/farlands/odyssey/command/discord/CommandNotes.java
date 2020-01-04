@@ -53,7 +53,7 @@ public class CommandNotes extends DiscordCommand {
             return Stream.of("view", "add", "clear").filter(action -> action.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList());
         } else if (args.length == 2)
-            return getOnlineVanishedPlayers(args[1]);
+            return getOnlinePlayers(args[1], sender);
         else
             return Collections.emptyList();
     }

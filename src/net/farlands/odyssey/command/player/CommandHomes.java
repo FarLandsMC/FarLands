@@ -33,12 +33,11 @@ public class CommandHomes extends Command {
                 sender.sendMessage(ChatColor.RED + "Player not found.");
                 return false;
             }
-            List<Home> homes = flp.getHomes();
-            if (homes.isEmpty()) {
+            if (flp.homes.isEmpty()) {
                 sender.sendMessage(ChatColor.GREEN + "This player does not have any homes.");
                 return true;
             }
-            homes.forEach(home -> {
+            flp.homes.forEach(home -> {
                 Location location = home.getLocation();
                 sb.append("$(hovercmd,/home ").append(home.getName()).append(" ").append(args[0])
                         .append(",{&(white)Go to home ").append(home.getName()).append("},&(gold)")
@@ -48,7 +47,7 @@ public class CommandHomes extends Command {
                         .append(location.getBlockZ()).append("),\n ");
             });
         } else {
-            List<Home> homes = FarLands.getDataHandler().getOfflineFLPlayer(sender).getHomes();
+            List<Home> homes = FarLands.getDataHandler().getOfflineFLPlayer(sender).homes;
             if (homes.isEmpty()) {
                 sender.sendMessage(ChatColor.GREEN + "You don\'t have any homes! Set one with " + ChatColor.AQUA + "/sethome");
                 return true;
@@ -68,6 +67,8 @@ public class CommandHomes extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 && Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) : Collections.emptyList();
+        return args.length <= 1 && Rank.getRank(sender).isStaff()
+                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender)
+                : Collections.emptyList();
     }
 }

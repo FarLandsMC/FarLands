@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,10 +44,12 @@ public class CommandDelHome extends Command {
             name = args[0];
         }
         if (!flp.hasHome(name)) {
-            sender.sendMessage(ChatColor.RED + (flag ? flp.getUsername() + " does" : "You do") + " not have that home.");
+            sender.sendMessage(ChatColor.RED + (flag ? flp.username + " does" : "You do") + " not have that home.");
             return false;
         }
         flp.removeHome(name);
+        if (!flag && sender instanceof Player)
+            FarLands.getDataHandler().getSession((Player)sender).lastDeletedHomeName.setValue(args[0], 300L, null);
         sender.sendMessage(ChatColor.GREEN + "Removed home " + ChatColor.AQUA + name);
         return true;
     }
@@ -57,7 +60,7 @@ public class CommandDelHome extends Command {
                 ? FarLands.getDataHandler().getOfflineFLPlayer(sender).getHomes().stream().map(Home::getName)
                     .filter(home -> home.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList())
-                : (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args[1]) : Collections.emptyList()); // For staff
+                : (Rank.getRank(sender).isStaff() ? getOnlinePlayers(args[1], sender) : Collections.emptyList()); // For staff
     }
 
     @Override

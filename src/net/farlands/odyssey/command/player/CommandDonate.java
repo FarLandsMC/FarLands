@@ -26,13 +26,13 @@ public class CommandDonate extends Command {
                 .append("All donations go towards paying for server related bills. All donations are final, no refunds will be issued.\n");
         sb.append(Rank.DONOR.getColor()).append(Rank.DONOR.getSymbol()).append(ChatColor.BLUE).append(" - ").append(Rank.DONOR_COST_STR)
                 .append(" - ").append(Rank.DONOR.getHomes()).append(" homes")
-                .append(" - ").append(String.join(", ", cmds.stream().filter(cmd -> Rank.DONOR.equals(cmd.getMinRankRequirement()))
-                .map(cmd -> "/" + cmd.getName().toLowerCase()).collect(Collectors.toList()))).append('\n');
+                .append(" - ").append(cmds.stream().filter(cmd -> Rank.DONOR.equals(cmd.getMinRankRequirement()))
+                .map(cmd -> "/" + cmd.getName().toLowerCase()).collect(Collectors.joining(", "))).append('\n');
         sb.append(Rank.PATRON.getColor()).append(Rank.PATRON.getSymbol()).append(ChatColor.BLUE).append(" - ").append(Rank.PATRON_COST_STR)
                 .append(" - ").append(Rank.PATRON.getHomes()).append(" homes")
                 .append(" - 30m afk cooldown")
-                .append(" - ").append(String.join(", ", cmds.stream().filter(cmd -> Rank.PATRON.equals(cmd.getMinRankRequirement()))
-                .map(cmd -> "/" + cmd.getName().toLowerCase()).collect(Collectors.toList())));
+                .append(" - ").append(cmds.stream().filter(cmd -> Rank.PATRON.equals(cmd.getMinRankRequirement()))
+                .map(cmd -> "/" + cmd.getName().toLowerCase()).collect(Collectors.joining(", ")));
         sender.sendMessage(sb.toString());
         if (sender instanceof Player)
             sendFormatted(sender, "&(gold)Donate here: $(hoverlink,%0,{&(gray)Click to Follow},&(aqua,underline)%0)", FarLands.getFLConfig().getDonationLink());

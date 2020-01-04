@@ -192,11 +192,12 @@ public class Chat extends Mechanic {
                 return;
             }
             if (session.replyToggleRecipient != null) {
-                if (session.replyToggleRecipient.isOnline()) {
+                if (session.replyToggleRecipient instanceof Player && ((Player)session.replyToggleRecipient).isOnline()) {
                     CommandMessage.sendMessage(session.replyToggleRecipient, sender, message);
                     return;
                 } else {
-                    sender.sendMessage(ChatColor.RED + session.replyToggleRecipient.getName() + " is no longer online, your reply toggle has been turned off.");
+                    sender.sendMessage(ChatColor.RED + session.replyToggleRecipient.getName() +
+                            " is no longer online, your reply toggle has been turned off.");
                     session.replyToggleRecipient = null;
                 }
             }

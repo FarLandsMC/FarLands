@@ -85,7 +85,7 @@ public class CommandMail extends Command {
             return Stream.of("send", "read", "clear").filter(action -> action.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList());
         } else if ("send".equals(args[0]) && args.length == 2)
-            return (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args[1]) : getOnlinePlayers(args[1]));
+            return getOnlinePlayers(args[1], sender);
         else
             return Collections.emptyList();
     }

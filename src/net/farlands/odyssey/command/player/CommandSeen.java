@@ -22,7 +22,8 @@ public class CommandSeen extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        OfflineFLPlayer flp = args.length <= 0 ? FarLands.getPDH().getFLPlayer(sender) : getFLPlayer(args[0]);
+        OfflineFLPlayer flp = args.length <= 0 ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
+                : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
@@ -32,15 +33,15 @@ public class CommandSeen extends Command {
         sb.append(ChatColor.GREEN).append("Last Seen: ").append(TimeInterval
                 .formatTime(System.currentTimeMillis() - flp.getLastLogin(), false));
 
-        if(sender instanceof DiscordSender && ((DiscordSender)sender).getChannel().getIdLong() ==
+        if (sender instanceof DiscordSender && ((DiscordSender) sender).getChannel().getIdLong() ==
                 FarLands.getFLConfig().getDiscordBotConfig().getChannels().get("staffcommands") ||
                 sender instanceof Player && rank.isStaff() || sender instanceof ConsoleCommandSender) {
             sb.append("\nMuted: ").append(flp.isMuted());
-            if (!flp.getPunishments().isEmpty()) {
+            if (!flp.punishments.isEmpty()) {
                 sb.append("\nPunishments:");
-                flp.getPunishments().forEach(p -> sb.append("\n - ").append(p));
+                flp.punishments.forEach(p -> sb.append("\n - ").append(p));
             }
-            sb.append("\nLast IP: ").append(flp.getLastIP());
+            sb.append("\nLast IP: ").append(flp.lastIP);
         }
         sender.sendMessage(sb.toString());
         return true;
@@ -48,7 +49,6 @@ public class CommandSeen extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args.length == 0 ? "" : args[0]) :
-                getOnlinePlayers(args.length == 0 ? "" : args[0])) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
 }

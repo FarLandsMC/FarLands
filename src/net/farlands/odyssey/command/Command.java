@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class Command extends org.bukkit.command.Command {
     protected static final List<String> TRUE_OR_FALSE = Arrays.asList("true", "false");
@@ -139,25 +140,19 @@ public abstract class Command extends org.bukkit.command.Command {
     }
 
     // Excludes vanished players
-    public static Player getPlayer(String name) {
+    public static Player getPlayer(String name, CommandSender sender) {
         Player player = Bukkit.getServer().getPlayer(name);
-        return player == null ? null : (FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished() ? null : player);
-    }
-    // Includes vanished players
-    public static Player getVanishedPlayer(String name) {
-        return Bukkit.getServer().getPlayer(name);
+        if (player == null || (!Rank.getRank(sender).isStaff() && FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished()))
+            return null;
+        return player;
     }
 
     // Excludes vanished players
-    public static List<String> getOnlinePlayers(String partialName) {
-        return Bukkit.getOnlinePlayers().stream().filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished())
-                .map(Player::getName).filter(name -> name.toLowerCase().startsWith(partialName.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-    // Includes vanished players
-    public static List<String> getOnlineVanishedPlayers(String partialName) {
-        return Bukkit.getOnlinePlayers().stream().map(Player::getName)
-                .filter(name -> name.toLowerCase().startsWith(partialName.toLowerCase()))
+    public static List<String> getOnlinePlayers(String partialName, CommandSender sender) {
+        Stream<? extends Player> stream = Bukkit.getOnlinePlayers().stream();
+        if (!Rank.getRank(sender).isStaff())
+            stream = stream.filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished());
+        return stream.map(Player::getName).filter(name -> name.toLowerCase().startsWith(partialName.toLowerCase()))
                 .collect(Collectors.toList());
     }
 

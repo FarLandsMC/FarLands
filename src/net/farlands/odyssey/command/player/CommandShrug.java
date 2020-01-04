@@ -3,6 +3,7 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
@@ -22,18 +23,16 @@ public class CommandShrug extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         switch (args[0]) {
             case "shrug":
-                Chat.chat(FarLands.getPDH().getFLPlayer(sender), sender,
-                        args.length == 1 ? SHRUG : joinArgsBeyond(0, " ", args).trim() + " " + SHRUG);
+                Chat.chat(flp, sender, args.length == 1 ? SHRUG : joinArgsBeyond(0, " ", args).trim() + " " + SHRUG);
                 return true;
             case "tableflip":
-                Chat.chat(FarLands.getPDH().getFLPlayer(sender), sender,
-                        args.length == 1 ? TABLEFLIP : joinArgsBeyond(0, " ", args).trim() + " " + TABLEFLIP);
+                Chat.chat(flp, sender, args.length == 1 ? TABLEFLIP : joinArgsBeyond(0, " ", args).trim() + " " + TABLEFLIP);
                 return true;
             case "unflip":
-                Chat.chat(FarLands.getPDH().getFLPlayer(sender), sender,
-                        args.length == 1 ? UNFLIP : joinArgsBeyond(0, " ", args).trim() + " " + UNFLIP);
+                Chat.chat(flp, sender, args.length == 1 ? UNFLIP : joinArgsBeyond(0, " ", args).trim() + " " + UNFLIP);
                 return true;
         }
         return false;
@@ -41,8 +40,8 @@ public class CommandShrug extends PlayerCommand {
 
     @Override
     public boolean canUse(CommandSender sender) {
-        if(!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
-                !FarLands.getPDH().getFLPlayer(sender).isMuted())) {
+        if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
+                !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
             sender.sendMessage(ChatColor.RED + "You cannot use this command while muted.");
             return false;
         }

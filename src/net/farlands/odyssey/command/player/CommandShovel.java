@@ -2,6 +2,7 @@ package net.farlands.odyssey.command.player;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.Utils;
@@ -24,13 +25,14 @@ public class CommandShovel extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        long cooldownTime = FarLands.getDataHandler().getRADH().cooldownTimeRemaining("shovelCooldown", sender.getUniqueId().toString());
-        if(cooldownTime > 0L) {
+        FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
+        long cooldownTime = session.commandCooldownTimeRemaining(this);
+        if (cooldownTime > 0L) {
             sender.sendMessage(ChatColor.RED + "You can use this command again in " + TimeInterval.formatTime(cooldownTime * 50L, false) + ".");
             return true;
         }
         // Give the shovel and update the command cooldown
-        FarLands.getDataHandler().getRADH().setCooldown(10L * 60L * 20L, "shovelCooldown", sender.getUniqueId().toString());
+        session.setCommandCooldown(this, 10L * 60L * 20L);
         Utils.giveItem(sender, shovel.clone(), true);
         return true;
     }

@@ -35,7 +35,7 @@ public class CommandPTime extends PlayerCommand {
             Time t = Utils.safeValueOf(Time::valueOf, args[0].toUpperCase());
             if(t == null) {
                 sender.sendMessage(ChatColor.RED + "Invalid time. Valid times: " +
-                        String.join(", ", Arrays.stream(Time.VALUES).map(Time::toString).collect(Collectors.toList())));
+                        Arrays.stream(Time.VALUES).map(Time::toString).collect(Collectors.joining(", ")));
                 return true;
             }
             time = t.getTicks();

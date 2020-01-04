@@ -54,7 +54,7 @@ public class CommandHome extends PlayerCommand {
                 ? FarLands.getDataHandler().getOfflineFLPlayer(sender).getHomes().stream().map(Home::getName)
                     .filter(home -> home.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList())
-                : (Rank.getRank(sender).isStaff() ? getOnlineVanishedPlayers(args[1]) : Collections.emptyList()); // For staff
+                : (Rank.getRank(sender).isStaff() ? getOnlinePlayers(args[1], sender) : Collections.emptyList()); // For staff
     }
 
     @Override

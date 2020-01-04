@@ -18,24 +18,24 @@ public class CommandRankup extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-        Rank nextRank = flp.getRank().getNextRank();
-        if (sender instanceof Player) { flp.updateOnline((Player)sender, false); }
-        if(!flp.getRank().equals(nextRank)) {
-            if(!nextRank.isPlaytimeObtainable()) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        Rank nextRank = flp.rank.getNextRank();
+        flp.updateSessionIfOnline(false);
+        if (!flp.rank.equals(nextRank)) {
+            if (!nextRank.isPlaytimeObtainable()) {
                 sender.sendMessage(ChatColor.GOLD + "You can no longer rank up from playtime.");
                 return true;
             }
 
-            if(!nextRank.hasPlaytime(flp)) {
+            if (!nextRank.hasPlaytime(flp)) {
                 sender.sendMessage(ChatColor.GOLD + "You will rank up to " + nextRank.getColor() +
                         nextRank.getSymbol() + ChatColor.GOLD + " in " + TimeInterval.formatTime(
-                                (nextRank.getPlayTimeRequired() * 3600 - flp.getSecondsPlayed()) * 1000L, false));
+                        (nextRank.getPlayTimeRequired() * 3600 - flp.secondsPlayed) * 1000L, false));
             }
 
-            if(sender instanceof Player && !nextRank.completedAdvancement((Player)sender)) {
-                AdvancementDisplay ad = ((CraftAdvancement)nextRank.getAdvancement()).getHandle().c();
-                if(ad != null) {
+            if (sender instanceof Player && !nextRank.completedAdvancement((Player) sender)) {
+                AdvancementDisplay ad = ((CraftAdvancement) nextRank.getAdvancement()).getHandle().c();
+                if (ad != null) {
                     sender.sendMessage(ChatColor.GOLD + "You must complete the advancement " + ChatColor.AQUA +
                             ad.a().getText() + ChatColor.GOLD + " to rankup.");
                 }

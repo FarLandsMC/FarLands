@@ -3,12 +3,10 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,27 +17,17 @@ public class CommandRealName extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
         args[0] = args[0].toLowerCase();
         List<String> matches = new ArrayList<>();
-        ResultSet rs = FarLands.getPDH().query("SELECT username,nickname FROM playerdata");
-        if(rs == null)
-            return true;
-        try {
-            while(rs.next()) {
-                String nick = Chat.removeColorCodes(rs.getString("nickname")).toLowerCase(), user = rs.getString("username");
-                if(nick.equalsIgnoreCase(args[0])) {
-                    sender.sendMessage(ChatColor.GREEN + "Matches: " + user);
-                    rs.close();
-                    return true;
-                }else if(nick.contains(args[0]) || user.toLowerCase().contains(args[0]))
-                    matches.add(user);
-            }
-            rs.close();
-        }catch(SQLException ex) {
-            ex.printStackTrace();
-            return true;
+        for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
+            String nickname = flp.nickname.toLowerCase();
+            if (args[0].equals(nickname)) {
+                sender.sendMessage(ChatColor.GREEN + "Matches: " + flp.username);
+                return true;
+            } else if (nickname.contains(args[0]) || flp.username.toLowerCase().contains(args[0]))
+                matches.add(flp.username);
         }
         sender.sendMessage(ChatColor.GREEN + "Matches: " + (matches.isEmpty() ? ChatColor.RED + "None" : ChatColor.GOLD + String.join(", ", matches)));
         return true;

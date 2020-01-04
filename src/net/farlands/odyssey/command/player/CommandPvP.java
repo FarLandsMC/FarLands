@@ -14,9 +14,9 @@ public class CommandPvP extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        OfflineFLPlayer flp = FarLands.getPDH().getFLPlayer(sender);
-        flp.setPvPing(!flp.isPvPing());
-        sender.sendMessage(ChatColor.GOLD + "PvP " + (flp.isPvPing() ? "enabled." : "disabled."));
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        flp.pvp = !flp.pvp;
+        sender.sendMessage(ChatColor.GOLD + "PvP " + (flp.pvp ? "enabled." : "disabled."));
         return true;
     }
 }
