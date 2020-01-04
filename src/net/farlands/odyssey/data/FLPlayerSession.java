@@ -31,6 +31,7 @@ public class FLPlayerSession {
     public boolean staffChatToggledOn;
     public boolean afk;
     public CommandSender replyToggleRecipient;
+    public Location seatExit;
     public List<Location> backLocations;
     public List<TeleportRequest> teleportRequests;
 
@@ -51,6 +52,7 @@ public class FLPlayerSession {
         this.flying = handle.flightPreference;
         this.staffChatToggledOn = true;
         this.replyToggleRecipient = null;
+        this.seatExit = null;
         this.backLocations = new ArrayList<>();
         this.teleportRequests = new ArrayList<>();
 
