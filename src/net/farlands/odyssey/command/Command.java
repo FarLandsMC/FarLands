@@ -1,9 +1,9 @@
 package net.farlands.odyssey.command;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
-import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

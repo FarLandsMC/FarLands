@@ -18,10 +18,10 @@ public class CommandVote extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if(sender instanceof Player)
-            sendFormatted(sender, "&(gold)Click $(link,%0,{&(aqua,underline)here}) to vote.", FarLands.getFLConfig().getVoteConfig().getVoteLink());
+            sendFormatted(sender, "&(gold)Click $(link,%0,{&(aqua,underline)here}) to vote.", FarLands.getFLConfig().voteConfig.voteLink);
         else{
             sender.sendMessage(ChatColor.GOLD + "Follow this link to vote for the server: " + ChatColor.AQUA + ChatColor.UNDERLINE +
-                    FarLands.getFLConfig().getVoteConfig().getVoteLink());
+                    FarLands.getFLConfig().voteConfig.voteLink);
         }
         return true;
     }

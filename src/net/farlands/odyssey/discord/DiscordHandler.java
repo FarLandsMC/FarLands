@@ -45,17 +45,17 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     public void startBot() { // Called in FarLands#onEnable
-        config = FarLands.getFLConfig().getDiscordBotConfig();
+        config = FarLands.getFLConfig().discordBotConfig;
         try {
-            if (config.getToken().isEmpty()) {
+            if (config.token.isEmpty()) {
                 Chat.log("The bot token was not set. Discord integration will not operate.");
                 return;
             }
-            if (config.getServerID() == 0L) {
+            if (config.serverID == 0L) {
                 Chat.log("The serverID was not set. Discord integration will not operate.");
                 return;
             }
-            jdaBot = (new JDABuilder(AccountType.BOT)).setToken(config.getToken()).addEventListener(this)
+            jdaBot = (new JDABuilder(AccountType.BOT)).setToken(config.token).addEventListener(this)
                     .setAutoReconnect(true).setGame(Game.of(Game.GameType.DEFAULT, "with " +
                             FarLands.getDataHandler().getOfflineFLPlayers().size() + " player records"))
                     .setStatus(OnlineStatus.ONLINE).buildAsync();
@@ -77,7 +77,7 @@ public class DiscordHandler extends ListenerAdapter {
     public Guild getGuild() {
         if (!active)
             return null;
-        return jdaBot.getGuildById(config.getServerID());
+        return jdaBot.getGuildById(config.serverID);
     }
 
     public boolean isActive() {
@@ -95,7 +95,7 @@ public class DiscordHandler extends ListenerAdapter {
                 FarLands.getDataHandler().getOfflineFLPlayers().size() + " player records"));
         int online = (int) Bukkit.getOnlinePlayers().stream()
                 .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished).count();
-        long restartTime = FarLands.getFLConfig().getRestartTime();
+        long restartTime = FarLands.getFLConfig().restartTime;
         (new ChannelManager((TextChannel) channelHandler.getChannel("ingame"))).setTopic(online + " player" + (online == 1 ? "" : "s") +
                 " online. Next restart in " + TimeInterval.formatTime(86459999L - ((System.currentTimeMillis() - restartTime) % 86400000L),
                 false, TimeInterval.MINUTE)).queue();
@@ -135,7 +135,7 @@ public class DiscordHandler extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        config.getChannels().forEach((name, id) -> channelHandler.setChannel(name, id == 0L ? null : jdaBot.getTextChannelById(id)));
+        config.channels.forEach((name, id) -> channelHandler.setChannel(name, id == 0L ? null : jdaBot.getTextChannelById(id)));
         channelHandler.startTicking();
         FarLands.getScheduler().scheduleSyncRepeatingTask(this::updateStats, 0L, 1200L);
         active = true;

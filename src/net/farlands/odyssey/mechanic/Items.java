@@ -4,7 +4,7 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.FireworkBuilder;
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;

@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.staff;
 
+import com.kicas.rp.util.Utils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -41,7 +42,7 @@ public class CommandPunish extends Command {
                 sender.sendMessage(ChatColor.RED + "You do not have permission to punish this person.");
                 return true;
             }
-            Punishment.PunishmentType pt = Punishment.PunishmentType.specialValueOf(args[2]);
+            Punishment.PunishmentType pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
             if(pt == null) {
                 sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
                 return true;
@@ -55,7 +56,7 @@ public class CommandPunish extends Command {
             long time = flp.punish(pt, punishMessage);
             // The beginning 'P' is added later
             String message = "unished " + ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD +
-                    " for " + pt.getFormattedName() + (punishMessage == null ? "" : " with message `" + punishMessage + "`") +
+                    " for " + pt.getHumanName() + (punishMessage == null ? "" : " with message `" + punishMessage + "`") +
                     ". Expires: " + (time < 0L ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE));
             sender.sendMessage(ChatColor.GOLD + "P" + message.replaceAll("`", "\""));
             FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
@@ -70,14 +71,14 @@ public class CommandPunish extends Command {
                 }
                 pt = punishment.getType();
             }else{ // Remove specific punishment
-                pt = Punishment.PunishmentType.specialValueOf(args[2]);
+                pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
                 if(pt == null) {
                     sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
                     return true;
                 }
             }
             if(flp.pardon(pt))
-                sender.sendMessage(ChatColor.GOLD + "Pardoned " + ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD + " from " + pt.getFormattedName());
+                sender.sendMessage(ChatColor.GOLD + "Pardoned " + ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD + " from " + pt.getHumanName());
             else
                 sender.sendMessage(ChatColor.RED + "This player does not have that punishment on record.");
         }
@@ -91,7 +92,7 @@ public class CommandPunish extends Command {
             case 1:
                 return getOnlinePlayers(args.length == 0 ? "" : args[0], sender);
             case 2:
-                return Arrays.stream(Punishment.PunishmentType.VALUES).map(Punishment.PunishmentType::getAlias)
+                return Arrays.stream(Punishment.PunishmentType.VALUES).map(Utils::formattedName)
                         .filter(a -> a.startsWith(args[1])).collect(Collectors.toList());
             default:
                 return Collections.emptyList();

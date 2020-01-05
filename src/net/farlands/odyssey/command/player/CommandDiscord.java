@@ -16,7 +16,7 @@ public class CommandDiscord extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         sendFormatted(sender, "&(gold)Click $(link,%0,{&(aqua,underline)here}) and follow the link to join our discord server.",
-                FarLands.getFLConfig().getDiscordInvite());
+                FarLands.getFLConfig().discordInvite);
         return true;
     }
 }

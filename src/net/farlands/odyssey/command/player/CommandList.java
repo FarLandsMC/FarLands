@@ -21,7 +21,7 @@ public class CommandList extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         final boolean showVanished = sender instanceof DiscordSender ? ((DiscordSender) sender).getChannel().getIdLong() ==
-                FarLands.getFLConfig().getDiscordBotConfig().getChannels().get("staffcommands") : Rank.getRank(sender).isStaff();
+                FarLands.getFLConfig().discordBotConfig.channels.get("staffcommands") : Rank.getRank(sender).isStaff();
 
         Map<Rank, List<String>> players = new HashMap<>(), staff = new HashMap<>(), bucket;
         int total = 0;

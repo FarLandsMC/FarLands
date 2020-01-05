@@ -6,13 +6,13 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import net.minecraft.server.v1_14_R1.NBTTagList;
-import net.minecraft.server.v1_14_R1.NBTTagString;
 
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagList;
+import net.minecraft.server.v1_15_R1.NBTTagString;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -39,11 +39,11 @@ public class CommandShovel extends PlayerCommand {
     }
 
     private static ItemStack genShovel() {
-        net.minecraft.server.v1_14_R1.ItemStack shovel = CraftItemStack.asNMSCopy(new ItemStack(Material.GOLDEN_SHOVEL));
+        net.minecraft.server.v1_15_R1.ItemStack shovel = CraftItemStack.asNMSCopy(new ItemStack(Material.GOLDEN_SHOVEL));
         NBTTagCompound nbt = new NBTTagCompound(), display = new NBTTagCompound();
         display.setString("Name", "{\"text\":\"" + ChatColor.RESET + ChatColor.AQUA + "Claim Shovel" + ChatColor.RESET + "\"}");
         NBTTagList lore = new NBTTagList();
-        lore.add(new NBTTagString("Right-click to select the corners of your claim."));
+        lore.add(NBTTagString.a("Right-click to select the corners of your claim."));
         display.set("Lore", lore);
         nbt.set("display", display);
         shovel.setTag(nbt);

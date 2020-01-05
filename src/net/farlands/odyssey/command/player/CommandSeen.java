@@ -35,7 +35,7 @@ public class CommandSeen extends Command {
                 .formatTime(System.currentTimeMillis() - flp.getLastLogin(), false));
 
         if (sender instanceof DiscordSender && ((DiscordSender) sender).getChannel().getIdLong() ==
-                FarLands.getFLConfig().getDiscordBotConfig().getChannels().get("staffcommands") ||
+                FarLands.getFLConfig().discordBotConfig.channels.get("staffcommands") ||
                 sender instanceof Player && rank.isStaff() || sender instanceof ConsoleCommandSender) {
             sb.append("\nMuted: ").append(flp.isMuted());
             if (!flp.punishments.isEmpty()) {

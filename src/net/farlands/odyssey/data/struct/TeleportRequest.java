@@ -1,8 +1,8 @@
 package net.farlands.odyssey.data.struct;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
-import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

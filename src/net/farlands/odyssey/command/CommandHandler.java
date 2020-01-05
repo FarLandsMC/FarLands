@@ -14,14 +14,14 @@ import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.*;
+import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_14_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_15_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -113,7 +113,6 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandWild());             // Initiate
 
         // Staff Commands
-        registerCommand(new CommandAddItemReward());    // Builder
         registerCommand(new CommandBack());             // Jr_Builder
         registerCommand(new CommandBright());           // Jr_Builder
         registerCommand(new CommandBroadcast());        // Builder

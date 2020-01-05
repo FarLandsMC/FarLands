@@ -16,15 +16,14 @@ import net.farlands.odyssey.util.ReflectionHelper;
 
 import net.md_5.bungee.api.ChatMessageType;
 
-import net.minecraft.server.v1_14_R1.EnumGamemode;
-import net.minecraft.server.v1_14_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_14_R1.PacketStatusOutServerInfo;
-import net.minecraft.server.v1_14_R1.ServerPing;
-
+import net.minecraft.server.v1_15_R1.EnumGamemode;
+import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_15_R1.PacketStatusOutServerInfo;
+import net.minecraft.server.v1_15_R1.ServerPing;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -58,7 +57,6 @@ public class Toggles extends Mechanic {
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Play.Server.PLAYER_INFO) {
             @Override
-            @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
                 PacketPlayOutPlayerInfo packet = (PacketPlayOutPlayerInfo) event.getPacket().getHandle();
                 PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper

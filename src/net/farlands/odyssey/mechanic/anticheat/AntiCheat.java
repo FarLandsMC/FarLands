@@ -1,10 +1,10 @@
 package net.farlands.odyssey.mechanic.anticheat;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
-import net.farlands.odyssey.util.TextUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;

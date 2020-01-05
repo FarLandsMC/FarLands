@@ -14,15 +14,17 @@ import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-import net.minecraft.server.v1_14_R1.*;
-
+import net.minecraft.server.v1_15_R1.AdvancementDisplay;
+import net.minecraft.server.v1_15_R1.EntityTypes;
+import net.minecraft.server.v1_15_R1.EntityVillager;
+import net.minecraft.server.v1_15_R1.EntityVillagerAbstract;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_14_R1.advancement.CraftAdvancement;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_15_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -62,7 +64,7 @@ public class GeneralMechanics extends Mechanic {
     @Override
     public void onStartup() {
         try {
-            joinMessage = TextUtils.format(FarLands.getDataHandler().getDataTextFile("join-message.txt"), FarLands.getFLConfig().getDiscordInvite());
+            joinMessage = TextUtils.format(FarLands.getDataHandler().getDataTextFile("join-message.txt"), FarLands.getFLConfig().discordInvite);
         } catch (IOException ex) {
             Chat.error("Failed to load join message!");
         }
@@ -116,7 +118,7 @@ public class GeneralMechanics extends Mechanic {
                     "to view the server rules.,&(aqua)our rules) before playing. To get started, you can use " +
                     "$(hovercmd,/wild,&(aqua)Click to go to a random location.,&(aqua)/wild) to teleport to a " +
                     "random location on the map. Also, feel free to join our community on discord by clicking " +
-                    "$(link,%0,&(aqua)here.)", FarLands.getFLConfig().getDiscordInvite());
+                    "$(link,%0,&(aqua)here.)", FarLands.getFLConfig().discordInvite);
         }
 
         if ("world".equals(player.getWorld().getName()))
@@ -141,7 +143,6 @@ public class GeneralMechanics extends Mechanic {
     }
 
     @EventHandler
-    @SuppressWarnings("unchecked")
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (Material.DRAGON_EGG.equals(event.getClickedBlock() == null ? null : event.getClickedBlock().getType()) && !event.isCancelled()) {

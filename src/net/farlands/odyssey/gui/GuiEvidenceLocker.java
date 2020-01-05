@@ -1,43 +1,25 @@
 package net.farlands.odyssey.gui;
 
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.struct.EvidenceLocker;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
-import net.farlands.odyssey.data.struct.Punishment;
-import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import net.minecraft.server.v1_14_R1.NBTTagList;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GuiEvidenceLocker extends Gui {
     private final OfflineFLPlayer flp;
-    private final List<List<ItemStack>> inventories;
-    private final List<String> punishments;
+    private final EvidenceLocker locker;
     private int currentPunishment;
 
-    private void init() {
-        NBTTagCompound locker = FarLands.getDataHandler().getEvidenceLocker(flp);
-        for(Punishment p : flp.getPunishments()) {
-            List<ItemStack> inv0 = new ArrayList<>(54);
-            NBTTagList serInv = locker.getList(p.toUniqueString(), 10);
-            serInv.stream().map(base -> (NBTTagCompound)base).forEach(nbt -> inv0.add(Utils.itemStackFromNBT(nbt)));
-            inventories.add(inv0);
-        }
-    }
-
     public GuiEvidenceLocker(OfflineFLPlayer flp) {
-        super("Evidence Locker", flp.getPunishments().get(0).toString(), 54);
+        super("Evidence Locker", flp.punishments.get(0).toString(), 54);
         this.flp = flp;
-        this.inventories = new ArrayList<>();
-        this.punishments = flp.getPunishments().stream().map(Punishment::toString).collect(Collectors.toList());
+        this.locker = FarLands.getDataHandler().getEvidenceLocker(flp);
         this.currentPunishment = 0;
-        init();
     }
 
     @Override
@@ -47,29 +29,29 @@ public class GuiEvidenceLocker extends Gui {
     }
 
     private void saveInventory() {
-        List<ItemStack> inv0 = inventories.get(currentPunishment);
-        inv0.clear();
+        List<ItemStack> subLocker = locker.getSubLocker(flp.punishments.get(currentPunishment));
+        subLocker.clear();
         for(int i = 0;i < 54;++ i) {
             if(clickActions.containsKey(i))
-                inv0.add(null);
+                subLocker.add(null);
             else
-                inv0.add(clone(inv.getItem(i)));
+                subLocker.add(clone(inv.getItem(i)));
         }
     }
 
     private void changeInventory(int move) {
         saveInventory();
         currentPunishment += move;
-        newInventory(54, punishments.get(currentPunishment));
+        newInventory(54, flp.punishments.get(currentPunishment).toString());
     }
 
     @Override
     protected void populateInventory() {
-        List<ItemStack> inv0 = inventories.get(currentPunishment);
-        for(int i = 0;i < inv0.size();++ i)
-            inv.setItem(i, clone(inv0.get(i)));
+        List<ItemStack> subLocker = locker.getSubLocker(flp.punishments.get(currentPunishment));
+        for(int i = 0;i < subLocker.size();++ i)
+            inv.setItem(i, clone(subLocker.get(i)));
 
-        if(currentPunishment < punishments.size() - 1)
+        if(currentPunishment < flp.punishments.size() - 1)
             addActionItem(53, Material.EMERALD_BLOCK, ChatColor.GOLD.toString() + ChatColor.BOLD + "Next", () -> changeInventory(1));
         else
             addLabel(53, Material.REDSTONE_BLOCK, ChatColor.RED.toString() + ChatColor.BOLD + "No Next Locker");
@@ -83,15 +65,7 @@ public class GuiEvidenceLocker extends Gui {
     @Override
     protected void onClose() {
         saveInventory();
-        NBTTagCompound locker = FarLands.getDataHandler().getEvidenceLocker(flp);
-        int i = 0;
-        for(Punishment p : flp.getPunishments()) {
-            NBTTagList serInv = new NBTTagList();
-            inventories.get(i).forEach(stack -> serInv.add(Utils.itemStackToNBT(stack)));
-            locker.set(p.toUniqueString(), serInv);
-            ++ i;
-        }
-        FarLands.getDataHandler().saveEvidenceLocker(flp, locker);
+        FarLands.getDataHandler().saveEvidenceLockers();
         FarLands.getDataHandler().closeEvidenceLocker(flp.uuid);
     }
 }

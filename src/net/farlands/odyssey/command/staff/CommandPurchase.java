@@ -62,10 +62,10 @@ public class CommandPurchase extends Command {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " 15000");
             else if (rank == Rank.PATRON) {
                 if (flp.isOnline()) {
-                    Utils.giveItem(flp.getOnlinePlayer(), FarLands.getDataHandler().getPatronCollectable(), false);
+                    Utils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
                 } else
                     FarLands.getDataHandler().addPackage(flp.getUuid(), "FarLands Staff",
-                            FarLands.getDataHandler().getPatronCollectable(), "");
+                            FarLands.getFLConfig().patronCollectable.getStack(), "");
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " " +
                         (flp.getRank() == Rank.DONOR ? "45000" : "60000"));
             }

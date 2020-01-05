@@ -6,9 +6,9 @@ import net.farlands.odyssey.util.Utils;
 import java.util.Map;
 
 public class DiscordBotConfig {
-    private String token;
-    private long serverID;
-    private Map<String, Long> channels;
+    public String token;
+    public long serverID;
+    public Map<String, Long> channels;
 
     @SafeVarargs
     public DiscordBotConfig(String token, long serverID, Pair<String, Long>... channels) {
@@ -19,17 +19,5 @@ public class DiscordBotConfig {
 
     public DiscordBotConfig() {
         this("", 0L);
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public long getServerID() {
-        return serverID;
-    }
-
-    public Map<String, Long> getChannels() {
-        return channels;
     }
 }

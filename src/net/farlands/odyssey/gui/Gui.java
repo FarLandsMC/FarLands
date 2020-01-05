@@ -3,13 +3,13 @@ package net.farlands.odyssey.gui;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import net.minecraft.server.v1_14_R1.NBTTagList;
-import net.minecraft.server.v1_14_R1.NBTTagString;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagList;
+import net.minecraft.server.v1_15_R1.NBTTagString;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryEvent;
@@ -53,13 +53,13 @@ public abstract class Gui {
     }
 
     protected void setItem(int slot, Material material, String name, String... lore) {
-        net.minecraft.server.v1_14_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(material));
+        net.minecraft.server.v1_15_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(material));
         NBTTagCompound nbt = new NBTTagCompound(), display = new NBTTagCompound();
         display.setString("Name", "{\"text\":\"" + ChatColor.RESET + name + ChatColor.RESET + "\"}");
         if(lore.length > 0) {
             NBTTagList l = new NBTTagList();
             for(String lr : lore)
-                l.add(new NBTTagString("\"" + lr + "\""));
+                l.add(NBTTagString.a("\"" + lr + "\""));
             display.set("Lore", l);
         }
         nbt.set("display", display);
@@ -68,12 +68,12 @@ public abstract class Gui {
     }
 
     protected void setLore(int slot, String... lore) {
-        net.minecraft.server.v1_14_R1.ItemStack stack = CraftItemStack.asNMSCopy(inv.getItem(slot));
+        net.minecraft.server.v1_15_R1.ItemStack stack = CraftItemStack.asNMSCopy(inv.getItem(slot));
         NBTTagCompound tag = stack.getTag();
         if(lore.length > 0) {
             NBTTagList l = new NBTTagList();
             for(String lr : lore)
-                l.add(new NBTTagString("\"" + lr + "\""));
+                l.add(NBTTagString.a("\"" + lr + "\""));
             tag.getCompound("display").set("Lore", l);
         }
         stack.setTag(tag);

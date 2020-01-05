@@ -30,7 +30,7 @@ public class CommandArtifact extends DiscordCommand {
             sender.sendMessage(ChatColor.RED + "This command must be used from discord.");
             return false;
         }
-        if (!FarLands.getFLConfig().isScreenSessionSet()) {
+        if (FarLands.getFLConfig().isScreenSessionNotSet()) {
             sender.sendMessage(ChatColor.RED + "The screen session for this server instance is not specified. " +
                     "This command requires that field to run.");
             return true;
@@ -49,7 +49,7 @@ public class CommandArtifact extends DiscordCommand {
         attachments.get(0).download(dest);
         Config cfg = FarLands.getFLConfig();
         if (args.length > 1 && "true".equals(args[1])) {
-            FarLands.executeScript("artifact.sh", cfg.getScreenSession(), cfg.getPaperDownload(), cfg.getDedicatedMemory(),
+            FarLands.executeScript("artifact.sh", cfg.screenSession, cfg.paperDownload, cfg.dedicatedMemory,
                     args.length > 2 ? args[2] : "false");
             FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
         }
@@ -63,7 +63,7 @@ public class CommandArtifact extends DiscordCommand {
         else if (sender instanceof BlockCommandSender) // Prevent people circumventing permissions by using a command block
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        if (flp == null || !FarLands.getFLConfig().getJsUsers().contains(flp.getUuid().toString())) {
+        if (flp == null || !FarLands.getFLConfig().jsUsers.contains(flp.getUuid().toString())) {
             sender.sendMessage(ChatColor.RED + "You cannot use this command.");
             return false;
         }

@@ -4,7 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
-import com.kicas.rp.data.TrustLevel;
+import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 
 import net.farlands.odyssey.FarLands;

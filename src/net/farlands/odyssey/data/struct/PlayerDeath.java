@@ -1,8 +1,8 @@
 package net.farlands.odyssey.data.struct;
 
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import net.minecraft.server.v1_14_R1.NBTTagList;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagList;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

@@ -86,7 +86,7 @@ public class CommandJS extends Command {
         else if (sender instanceof BlockCommandSender) // Prevent people circumventing permissions by using a command block
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        if (flp == null || !FarLands.getFLConfig().getJsUsers().contains(flp.getUuid().toString())) {
+        if (flp == null || !FarLands.getFLConfig().jsUsers.contains(flp.getUuid().toString())) {
             sender.sendMessage(ChatColor.RED + "You cannot use this command.");
             return false;
         }

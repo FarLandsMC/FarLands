@@ -1,6 +1,6 @@
 package net.farlands.odyssey.util;
 
-import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_15_R1.BlockPosition;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 

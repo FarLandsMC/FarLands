@@ -3,12 +3,12 @@ package net.farlands.odyssey.data;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.TeleportRequest;
 import net.farlands.odyssey.mechanic.Toggles;
-import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -140,8 +140,8 @@ public class FLPlayerSession {
     public void giveVoteRewards(int amount) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
         for (int i = 0; i < amount; ++i)
-            FarLands.getDataHandler().getVoteRewards().forEach(reward -> Utils.giveItem(player, reward, false));
-        player.giveExpLevels(FarLands.getFLConfig().getVoteConfig().getVoteXPBoost() * amount);
+            FarLands.getFLConfig().voteConfig.voteRewards.forEach(reward -> Utils.giveItem(player, reward.getStack(), false));
+        player.giveExpLevels(FarLands.getFLConfig().voteConfig.voteXPBoost * amount);
     }
 
     public void sendTeleportRequest(Player sender, TeleportRequest.TeleportType type) {

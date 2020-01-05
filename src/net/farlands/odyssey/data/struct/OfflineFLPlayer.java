@@ -477,7 +477,7 @@ public class OfflineFLPlayer {
 
     public Punishment getCurrentPunishment() {
         for(int i = punishments.size() - 1;i >= 0;-- i) {
-            if(!punishments.get(i).hasExpired(i))
+            if(punishments.get(i).isActive(i))
                 return punishments.get(i);
         }
         return null;
@@ -506,7 +506,7 @@ public class OfflineFLPlayer {
 
     public boolean isBanned() {
         for(int i = 0;i < punishments.size();++ i) {
-            if(!punishments.get(i).hasExpired(i))
+            if(punishments.get(i).isActive(i))
                 return true;
         }
         return false;

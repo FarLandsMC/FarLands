@@ -6,13 +6,13 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
 
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -50,7 +50,7 @@ public class CommandSkull extends PlayerCommand {
                 amount = 1;
         }
 
-        net.minecraft.server.v1_14_R1.ItemStack skull = CraftItemStack.asNMSCopy(new ItemStack(Material.PLAYER_HEAD,
+        net.minecraft.server.v1_15_R1.ItemStack skull = CraftItemStack.asNMSCopy(new ItemStack(Material.PLAYER_HEAD,
                 args.length > 1 ? Math.min(8, amount) : 1));
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("SkullOwner", args[0]);

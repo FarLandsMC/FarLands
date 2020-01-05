@@ -153,7 +153,7 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onItemTransferred(InventoryMoveItemEvent event) {
-        FarLands.getDataHandler().getPluginData().getItemDistributors().forEach(id -> id.accept(event));
+        FarLands.getDataHandler().getPluginData().itemDistributors.forEach(id -> id.accept(event));
     }
 
     @EventHandler
@@ -190,7 +190,7 @@ public class Restrictions extends Mechanic {
             }
             if (GameMode.CREATIVE.equals(player.getGameMode()) &&
                     Rank.getRank(player).isStaff() && Material.IRON_NUGGET.equals(event.getMaterial())) {
-                if (FarLands.getDataHandler().getPluginData().getItemDistributors().stream()
+                if (FarLands.getDataHandler().getPluginData().itemDistributors.stream()
                         .anyMatch(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
                     player.sendMessage(ChatColor.RED + "This chest is already a source for an item distributer.");
                     event.setCancelled(true);
@@ -230,7 +230,7 @@ public class Restrictions extends Mechanic {
                             player.sendMessage(ChatColor.GREEN + "Private chest set, item distributor registered.");
                             distributerMakers.get(player.getUniqueId()).getFirst().cancel();
                             distributerMakers.remove(player.getUniqueId());
-                            FarLands.getDataHandler().getPluginData().getItemDistributors().add(stage.getSecond());
+                            FarLands.getDataHandler().getPluginData().itemDistributors.add(stage.getSecond());
                         } else
                             player.sendMessage(ChatColor.RED + "Please click a chest to set as the private chest.");
                         break;
@@ -240,7 +240,7 @@ public class Restrictions extends Mechanic {
         } else if (Action.LEFT_CLICK_BLOCK.equals(event.getAction())) {
             if (GameMode.CREATIVE.equals(player.getGameMode()) &&
                     Rank.getRank(player).isStaff() && Material.IRON_NUGGET.equals(event.getMaterial()) &&
-                    FarLands.getDataHandler().getPluginData().getItemDistributors()
+                    FarLands.getDataHandler().getPluginData().itemDistributors
                             .removeIf(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
                 player.sendMessage(ChatColor.GREEN + "Removed item distributor.");
                 event.setCancelled(true);

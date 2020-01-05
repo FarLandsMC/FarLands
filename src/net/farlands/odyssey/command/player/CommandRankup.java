@@ -5,11 +5,11 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
-import net.minecraft.server.v1_14_R1.AdvancementDisplay;
 
+import net.minecraft.server.v1_15_R1.AdvancementDisplay;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_14_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_15_R1.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 
 public class CommandRankup extends Command {

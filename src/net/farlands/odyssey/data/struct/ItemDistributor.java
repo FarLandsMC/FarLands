@@ -3,10 +3,11 @@ package net.farlands.odyssey.data.struct;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.LocationWrapper;
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.World;
+import net.minecraft.server.v1_15_R1.World;
+import net.minecraft.server.v1_15_R1.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 
@@ -52,7 +53,7 @@ public class ItemDistributor {
                 pubInv = world.getTileEntity(pub.asBlockPosition()).getOwner().getInventory(),
                 privInv = world.getTileEntity(priv.asBlockPosition()).getOwner().getInventory();
         if(source.asLocation().equals(event.getDestination().getLocation()) && sourceInv != null && pubInv != null && privInv != null) {
-            Inventory to = count % FarLands.getFLConfig().getTotalItems() < FarLands.getFLConfig().getPublicItems() ? pubInv : privInv;
+            Inventory to = count % FarLands.getFLConfig().totalItems < FarLands.getFLConfig().publicItems ? pubInv : privInv;
             to.addItem(event.getItem().clone());
             ++ count;
             Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> sourceInv.clear());

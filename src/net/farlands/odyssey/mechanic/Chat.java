@@ -1,5 +1,6 @@
 package net.farlands.odyssey.mechanic;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.player.CommandMessage;
 import net.farlands.odyssey.command.staff.CommandStaffChat;
@@ -7,7 +8,6 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
-import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -99,7 +99,7 @@ public class Chat extends Mechanic {
 
     private void scheduleRotatingMessages() {
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-            int messageCount = rotatingMessages.size(), rotatingMessageGap = FarLands.getFLConfig().getRotatingMessageGap() * 60 * 20;
+            int messageCount = rotatingMessages.size(), rotatingMessageGap = FarLands.getFLConfig().rotatingMessageGap * 60 * 20;
             for (int i = 0; i < messageCount; ++i) {
                 BaseComponent[] message = rotatingMessages.get(i);
                 Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player ->
@@ -110,7 +110,7 @@ public class Chat extends Mechanic {
 
     @Override
     public void onStartup() {
-        FarLands.getFLConfig().getRotatingMessages().stream().map(TextUtils::format).forEach(rotatingMessages::add);
+        FarLands.getFLConfig().rotatingMessages.stream().map(TextUtils::format).forEach(rotatingMessages::add);
         // Wait for any dynamically added messages to be registered
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), this::scheduleRotatingMessages, 15L * 20L);
     }

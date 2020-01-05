@@ -7,16 +7,15 @@ import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import net.farlands.odyssey.FarLands;
-import net.minecraft.server.v1_14_R1.MerchantRecipe;
-import net.minecraft.server.v1_14_R1.MerchantRecipeList;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.MerchantRecipe;
+import net.minecraft.server.v1_15_R1.MerchantRecipeList;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Openable;
-import org.bukkit.block.data.Waterlogged;
-import org.bukkit.craftbukkit.v1_14_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -238,7 +237,7 @@ public final class Utils {
     }
 
     public static ItemStack applyTag(NBTTagCompound nbt, ItemStack stack) {
-        net.minecraft.server.v1_14_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
+        net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
         nmsStack.setTag(nbt);
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
@@ -332,7 +331,7 @@ public final class Utils {
 
     public static ItemStack itemStackFromNBT(NBTTagCompound nbt) {
         return nbt == null || nbt.isEmpty() ? null: CraftItemStack.asBukkitCopy(ReflectionHelper
-                .instantiate(net.minecraft.server.v1_14_R1.ItemStack.class, nbt));
+                .instantiate(net.minecraft.server.v1_15_R1.ItemStack.class, nbt));
     }
 
     public static NBTTagCompound itemStackToNBT(ItemStack stack) {

@@ -4,7 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.ReflectionHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_14_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftVillager;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -16,7 +16,6 @@ import static org.bukkit.entity.Villager.Profession.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: Redo this class
 public class GuiVillagerEditor extends Gui {
     private final CraftVillager villager;
     private final List<List<ItemStack>> screens;
@@ -169,6 +168,6 @@ public class GuiVillagerEditor extends Gui {
         // Now, since spigot is dumb, it ignores the rewardExp flag in the MerchantRecipe object, so we have to set it manually
         villager.getHandle().setSilent(true);
         villager.getHandle().getOffers().forEach(recipe -> ReflectionHelper.setFieldValue("rewardExp",
-                net.minecraft.server.v1_14_R1.MerchantRecipe.class, recipe, false));
+                net.minecraft.server.v1_15_R1.MerchantRecipe.class, recipe, false));
     }
 }

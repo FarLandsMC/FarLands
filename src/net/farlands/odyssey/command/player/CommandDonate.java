@@ -38,9 +38,9 @@ public class CommandDonate extends Command {
                 .map(cmd -> "/" + cmd.getName().toLowerCase()).collect(Collectors.joining(", ")));
         sender.sendMessage(sb.toString());
         if (sender instanceof Player)
-            sendFormatted(sender, "&(gold)Donate here: $(hoverlink,%0,{&(gray)Click to Follow},&(aqua,underline)%0)", FarLands.getFLConfig().getDonationLink());
+            sendFormatted(sender, "&(gold)Donate here: $(hoverlink,%0,{&(gray)Click to Follow},&(aqua,underline)%0)", FarLands.getFLConfig().donationLink);
         else
-            sender.sendMessage(ChatColor.GOLD + "Donate here: " + ChatColor.AQUA + FarLands.getFLConfig().getDonationLink());
+            sender.sendMessage(ChatColor.GOLD + "Donate here: " + ChatColor.AQUA + FarLands.getFLConfig().donationLink);
         return true;
     }
 }

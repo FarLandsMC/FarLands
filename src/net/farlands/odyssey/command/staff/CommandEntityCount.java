@@ -1,8 +1,8 @@
 package net.farlands.odyssey.command.staff;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

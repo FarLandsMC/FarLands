@@ -2,6 +2,7 @@ package net.farlands.odyssey.data;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.struct.*;
@@ -9,12 +10,11 @@ import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.FileSystem;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.TextUtils;
 import net.farlands.odyssey.util.Utils;
-import net.minecraft.server.v1_14_R1.NBTCompressedStreamTools;
-import net.minecraft.server.v1_14_R1.NBTTagCompound;
-import net.minecraft.server.v1_14_R1.NBTTagList;
 
+import net.minecraft.server.v1_15_R1.NBTCompressedStreamTools;
+import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagList;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -47,13 +47,9 @@ public class DataHandler extends Mechanic {
     private byte[] currentPatchnotesMD5;
     private Config config;
     private PluginData pluginData;
-    private NBTTagCompound evidenceLockers;
-    private NBTTagCompound deathDatabase;
+    private Map<UUID, EvidenceLocker> evidenceLockers;
+    private Map<UUID, List<PlayerDeath>> deathDatabase;
     private List<UUID> openEvidenceLockers;
-    private List<org.bukkit.inventory.ItemStack> voteRewards;
-    private List<ItemReward> votePartyRewards;
-    private org.bukkit.inventory.ItemStack patronCollectable;
-    private Map<String, GameRewardSet> gameRewards;
     private Map<UUID, Map<String, Pair<org.bukkit.inventory.ItemStack, String>>> packages;
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
@@ -68,7 +64,7 @@ public class DataHandler extends Mechanic {
     private static final String PLAYER_DATA_FILE = DIRECTORIES.get("data") + File.separator + "playerdata.json";
     private static final String EVIDENCE_LOCKERS_FILE = DIRECTORIES.get("data") + File.separator + "evidenceLockers.nbt";
     private static final String DEATH_DATABASE = DIRECTORIES.get("data") + File.separator + "deaths.nbt";
-    private static final String ITEMS_FILE = DIRECTORIES.get("data") + File.separator + "items.nbt";
+    private static final String PACKAGES_FILE = DIRECTORIES.get("data") + File.separator + "packages.nbt";
 
     private void init() {
         SCRIPTS.forEach(script -> {
@@ -96,19 +92,21 @@ public class DataHandler extends Mechanic {
         for(String dirName : DIRECTORIES.values()) {
             File dir = FileSystem.getFile(rootDirectory, dirName);
             if(!dir.exists() && !dir.mkdirs())
-                throw new RuntimeException("Failed to create directory during the initialization of the data handler. Did you give the process access to the FS?");
+                throw new RuntimeException("Failed to create directory during the initialization of the data handler. " +
+                        "Did you give the process access to the FS?");
         }
         File playerdataFile = new File(PLAYER_DATA_FILE);
         if(!playerdataFile.exists()) {
             try {
-                playerdataFile.createNewFile();
+                if (!playerdataFile.createNewFile())
+                    throw new RuntimeException("Failed to create player data file.");
             } catch (IOException ex) {
                 throw new RuntimeException("Failed to create player data file.", ex);
             }
         }
         initNbt(EVIDENCE_LOCKERS_FILE);
         initNbt(DEATH_DATABASE);
-        initNbt(ITEMS_FILE);
+        initNbt(PACKAGES_FILE);
         Chat.log("Initialized data handler.");
     }
 
@@ -132,11 +130,9 @@ public class DataHandler extends Mechanic {
         this.discordMap = new HashMap<>();
         this.sessionMap = new HashMap<>();
         this.currentPatchnotesMD5 = null;
+        this.evidenceLockers = new HashMap<>();
+        this.deathDatabase = new HashMap<>();
         this.openEvidenceLockers = new ArrayList<>();
-        this.voteRewards = new ArrayList<>();
-        this.votePartyRewards = new ArrayList<>();
-        this.patronCollectable = null;
-        this.gameRewards = new HashMap<>();
         this.packages = new HashMap<>();
         init();
         loadData();
@@ -163,7 +159,7 @@ public class DataHandler extends Mechanic {
             }
         }, 100L);
 
-        int gcCycleTime = FarLands.getFLConfig().getGcCycleTime();
+        int gcCycleTime = FarLands.getFLConfig().gcCycleTime;
         if(gcCycleTime > 0)
             Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), System::gc, 20L * 60L * 5L, 20L * 60L * gcCycleTime);
     }
@@ -172,8 +168,8 @@ public class DataHandler extends Mechanic {
     public void onShutdown() {
         update();
         if(arePatchnotesDifferent()) {
-            pluginData.setLastPatchnotesMD5(currentPatchnotesMD5);
-            pluginData.incrementPatch();
+            pluginData.lastPatchnotesMD5 = currentPatchnotesMD5;
+            ++pluginData.lastPatch;
         }
         pdh.onShutdown();
         saveData();
@@ -186,7 +182,7 @@ public class DataHandler extends Mechanic {
 
         // Give packages and update
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
-            Map<String, Pair<ItemStack, String>> packages = FarLands.getDataHandler().getAndRemovePackages(player.getUniqueId());
+            Map<String, Pair<ItemStack, String>> packages = getAndRemovePackages(player.getUniqueId());
             if(!packages.isEmpty()) {
                 // Notify the player how many packages they're getting
                 player.spigot().sendMessage(TextUtils.format("&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}",
@@ -225,19 +221,19 @@ public class DataHandler extends Mechanic {
 
     @EventHandler
     public void onVillagerAcquireTrades(VillagerAcquireTradeEvent event) {
-        if(FarLands.getDataHandler().getPluginData().isSpawnTrader(event.getEntity().getUniqueId()))
+        if(pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onVillagerChangeCareer(VillagerCareerChangeEvent event) {
-        if(FarLands.getDataHandler().getPluginData().isSpawnTrader(event.getEntity().getUniqueId()))
+        if(pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onVillagerReplenishTrades(VillagerReplenishTradeEvent event) {
-        if(FarLands.getDataHandler().getPluginData().isSpawnTrader(event.getEntity().getUniqueId()))
+        if(pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
             event.setCancelled(true);
     }
 
@@ -286,11 +282,11 @@ public class DataHandler extends Mechanic {
                 ex.printStackTrace(System.out);
             }
         }
-        return currentPatchnotesMD5 != null && !Arrays.equals(currentPatchnotesMD5, pluginData.getLastPatchnotesMD5());
+        return currentPatchnotesMD5 != null && !Arrays.equals(currentPatchnotesMD5, pluginData.lastPatchnotesMD5);
     }
 
     public int getCurrentPatch() {
-        return arePatchnotesDifferent() ? pluginData.getLastPatch() + 1 : pluginData.getLastPatch();
+        return arePatchnotesDifferent() ? pluginData.lastPatch + 1 : pluginData.lastPatch;
     }
 
     public byte[] getResource(String filename) throws IOException { // Loads a resource in the default package
@@ -390,45 +386,8 @@ public class DataHandler extends Mechanic {
         return FileSystem.getFile(rootDirectory, DIRECTORIES.get("tmp"), name);
     }
 
-    public List<OfflineFLPlayer> getLegacyFLPlayers() {
-        return new ArrayList<>(flPlayerMap.values());
-    }
-
-    public NBTTagCompound getEvidenceLocker(OfflineFLPlayer flp) {
-        NBTTagCompound locker;
-        String uuid = flp.getUuid().toString();
-
-        // The evidence locker does not exist yet, so make it
-        if(!evidenceLockers.hasKey(uuid)) {
-            locker = new NBTTagCompound();
-            for(Punishment p : flp.getPunishments())
-                locker.set(p.toUniqueString(), new NBTTagList()); // List of items
-            evidenceLockers.set(uuid, locker);
-        }
-        // The locker already exists so retrieve it
-        else {
-            locker = evidenceLockers.getCompound(uuid);
-
-            // Make sure it's up to date with the latest punishments
-            boolean newLockerAdded = false;
-            for(Punishment p : flp.getPunishments()) {
-                String ps = p.toUniqueString();
-                if(!locker.hasKey(ps)) {
-                    locker.set(ps, new NBTTagList());
-                    newLockerAdded = true;
-                }
-            }
-
-            if(newLockerAdded)
-                evidenceLockers.set(uuid, locker);
-        }
-
-        return locker;
-    }
-
-    public void saveEvidenceLocker(OfflineFLPlayer flp, NBTTagCompound locker) {
-        evidenceLockers.set(flp.getUuid().toString(), locker);
-        saveEvidenceLockers();
+    public EvidenceLocker getEvidenceLocker(OfflineFLPlayer flp) {
+        return Utils.getAndPutIfAbsent(evidenceLockers, flp.uuid, new EvidenceLocker(flp)).update(flp);
     }
 
     public synchronized void openEvidenceLocker(UUID uuid) {
@@ -444,17 +403,24 @@ public class DataHandler extends Mechanic {
     }
 
     private void loadEvidenceLockers() {
+        NBTTagCompound nbt;
         try {
-            evidenceLockers = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
+            nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         }catch(IOException ex) {
             Chat.error("Failed to load evidence locker data.");
             ex.printStackTrace(System.out);
+            return;
         }
+
+        nbt.getKeys().forEach(key -> evidenceLockers.put(UUID.fromString(key), new EvidenceLocker(nbt.getCompound(key))));
     }
 
     public void saveEvidenceLockers() {
+        NBTTagCompound nbt = new NBTTagCompound();
+        evidenceLockers.forEach((key, locker) -> nbt.set(key.toString(), locker.serialize()));
+
         try {
-            NBTCompressedStreamTools.a(evidenceLockers, new FileOutputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
+            NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         }catch(IOException ex) {
             Chat.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
@@ -462,27 +428,42 @@ public class DataHandler extends Mechanic {
     }
 
     private void loadDeathDatabase() {
+        NBTTagCompound nbt;
         try {
-            deathDatabase = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
+            nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         }catch(IOException ex) {
             Chat.error("Failed to load death database.");
             ex.printStackTrace(System.out);
+            return;
         }
+
+        nbt.getKeys().forEach(uuid -> {
+            List<PlayerDeath> deaths = new ArrayList<>();
+            nbt.getList(uuid, 10).stream().map(base -> new PlayerDeath((NBTTagCompound)base)).forEach(deaths::add);
+            deathDatabase.put(UUID.fromString(uuid), deaths);
+        });
     }
 
     public void saveDeathDatabase() {
+        NBTTagCompound nbt = new NBTTagCompound();
+        deathDatabase.forEach((uuid, deathList) -> {
+            NBTTagList serDeathList = new NBTTagList();
+            deathList.stream().map(PlayerDeath::serialize).forEach(serDeathList::add);
+            nbt.set(uuid.toString(), serDeathList);
+        });
+
         try {
-            NBTCompressedStreamTools.a(deathDatabase, new FileOutputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
+            NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         }catch(IOException ex) {
             Chat.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
         }
     }
 
-    public void loadItems() {
+    public void loadPackages() {
         NBTTagCompound nbt;
         try {
-            nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, ITEMS_FILE)));
+            nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         }catch(IOException ex) {
             Chat.error("Failed to load items file.");
             ex.printStackTrace(System.out);
@@ -491,92 +472,37 @@ public class DataHandler extends Mechanic {
         if(nbt.isEmpty())
             return;
 
-        patronCollectable = Utils.itemStackFromNBT(nbt.getCompound("patronCollectable"));
-        nbt.getList("voteRewards", 10).forEach(base -> voteRewards.add(Utils.itemStackFromNBT((NBTTagCompound)base)));
-        nbt.getList("votePartyRewards", 10).forEach(base -> votePartyRewards.add(new ItemReward((NBTTagCompound)base)));
-        NBTTagCompound serGameRewards = nbt.getCompound("gameRewards");
-        serGameRewards.getKeys().forEach(key -> gameRewards.put(key, new GameRewardSet(serGameRewards.getCompound(key))));
-
-        NBTTagCompound serPackages = nbt.getCompound("packages");
-        serPackages.getKeys().forEach(key -> {
-            NBTTagCompound serPkgs = serPackages.getCompound(key);
-            Map<String, Pair<ItemStack, String>> pkgs = new HashMap<>();
-            serPkgs.getKeys().forEach(key0 -> pkgs.put(key0, new Pair<>(Utils.itemStackFromNBT(serPkgs.getCompound(key0)), "")));
-            packages.put(UUID.fromString(key), pkgs);
-        });
-
-        NBTTagCompound mesPackages = nbt.getCompound("packagesMes");
-        mesPackages.getKeys().forEach(key -> {
-            NBTTagCompound mesPkgs = mesPackages.getCompound(key);
-            Map<String, Pair<ItemStack, String>> item = packages.get(UUID.fromString(key));
-            mesPkgs.getKeys().forEach(key0 -> item.get(key0).setSecond(mesPkgs.getString(key0)));
-            packages.put(UUID.fromString(key), item);
+        nbt.getKeys().forEach(key -> {
+            NBTTagCompound serIndividualPackages = nbt.getCompound(key);
+            Map<String, Pair<ItemStack, String>> individualPackages = new HashMap<>();
+            serIndividualPackages.getKeys().forEach(packageSender -> {
+                NBTTagCompound serPackage = serIndividualPackages.getCompound(packageSender);
+                individualPackages.put(packageSender, new Pair<>(Utils.itemStackFromNBT(serPackage.getCompound("item")),
+                        serPackage.getString("message")));
+            });
+            packages.put(UUID.fromString(key), individualPackages);
         });
     }
 
-    public void saveItems() {
+    public void savePackages() {
         NBTTagCompound nbt = new NBTTagCompound();
-
-        nbt.set("patronCollectable", Utils.itemStackToNBT(patronCollectable));
-
-        NBTTagList voteRewards = new NBTTagList();
-        this.voteRewards.stream().map(Utils::itemStackToNBT).forEach(voteRewards::add);
-        nbt.set("voteRewards", voteRewards);
-
-        NBTTagList votePartyRewards = new NBTTagList();
-        this.votePartyRewards.stream().map(ItemReward::asTagCompound).forEach(votePartyRewards::add);
-        nbt.set("votePartyRewards", votePartyRewards);
-
-        NBTTagCompound gameRewards = new NBTTagCompound();
-        this.gameRewards.forEach((key, value) -> gameRewards.set(key, value.asTagCompound()));
-        nbt.set("gameRewards", gameRewards);
-
-        NBTTagCompound serPackages = new NBTTagCompound();
-        packages.forEach((key, pkgs) -> {
-            NBTTagCompound serPkgs = new NBTTagCompound();
-            pkgs.forEach((sender, item) -> serPkgs.set(sender, Utils.itemStackToNBT(item.getFirst())));
-            serPackages.set(key.toString(), serPkgs);
+        packages.forEach((uuid, individualPackages) -> {
+            NBTTagCompound serIndividualPackages = new NBTTagCompound();
+            individualPackages.forEach((packageSender, pkg) -> {
+                NBTTagCompound serPackage = new NBTTagCompound();
+                serPackage.set("item", Utils.itemStackToNBT(pkg.getFirst()));
+                serPackage.setString("message", pkg.getSecond());
+                serIndividualPackages.set(packageSender, serPackage);
+            });
+            nbt.set(uuid.toString(), serIndividualPackages);
         });
-        nbt.set("packages", serPackages);
-
-        NBTTagCompound mesPackages = new NBTTagCompound();
-        packages.forEach((key, pkgs) -> {
-            NBTTagCompound mesPkgs = new NBTTagCompound();
-            pkgs.forEach((sender, item) -> mesPkgs.setString(sender, item.getSecond()));
-           mesPackages.set(key.toString(), mesPkgs);
-        });
-        nbt.set("packagesMes", mesPackages);
 
         try {
-            NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, ITEMS_FILE)));
+            NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         }catch(IOException ex) {
             Chat.error("Failed to save items file.");
             ex.printStackTrace(System.out);
         }
-    }
-
-    public List<ItemStack> getVoteRewards() {
-        return voteRewards;
-    }
-
-    public List<ItemReward> getVotePartyRewards() {
-        return votePartyRewards;
-    }
-
-    public ItemStack getPatronCollectable() {
-        return patronCollectable.clone();
-    }
-
-    public void setPatronCollectable(ItemStack patronCollectable) {
-        this.patronCollectable = patronCollectable;
-    }
-
-    public Set<String> getGames() {
-        return gameRewards.keySet();
-    }
-
-    public GameRewardSet getGameRewardSet(String game) {
-        return gameRewards.get(game);
     }
 
     public boolean addPackage(UUID recipient, String sender, ItemStack stack, String message) {
@@ -597,25 +523,14 @@ public class DataHandler extends Mechanic {
     }
 
     public void addDeath(Player player) {
-        if(!deathDatabase.hasKey(player.getUniqueId().toString()))
-            deathDatabase.set(player.getUniqueId().toString(), new NBTTagList());
-        NBTTagList deaths = deathDatabase.getList(player.getUniqueId().toString(), 10);
+        List<PlayerDeath> deaths = Utils.getAndPutIfAbsent(deathDatabase, player.getUniqueId(), new ArrayList<>());
         if(deaths.size() >= 3)
             deaths.remove(0);
-        deaths.add((new PlayerDeath(player)).serialize());
+        deaths.add(new PlayerDeath(player));
     }
 
     public List<PlayerDeath> getDeaths(UUID uuid) {
-        return deathDatabase.hasKey(uuid.toString())
-                ? deathDatabase.getList(uuid.toString(), 10).stream().map(base -> new PlayerDeath((NBTTagCompound)base))
-                        .collect(Collectors.toList())
-                : Collections.emptyList();
-    }
-
-    public void setDeaths(UUID uuid, List<PlayerDeath> deaths) {
-        NBTTagList newDeaths = new NBTTagList();
-        deaths.stream().map(PlayerDeath::serialize).forEach(newDeaths::add);
-        deathDatabase.set(uuid.toString(), newDeaths);
+        return Utils.getAndPutIfAbsent(deathDatabase, uuid, new ArrayList<>());
     }
 
     public void loadData() {
@@ -653,7 +568,7 @@ public class DataHandler extends Mechanic {
         pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
         loadEvidenceLockers();
         loadDeathDatabase();
-        loadItems();
+        loadPackages();
     }
 
     public void saveData() {
@@ -662,6 +577,6 @@ public class DataHandler extends Mechanic {
         FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
         saveEvidenceLockers();
         saveDeathDatabase();
-        saveItems();
+        savePackages();
     }
 }

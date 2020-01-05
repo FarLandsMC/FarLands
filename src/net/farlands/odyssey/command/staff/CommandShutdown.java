@@ -43,7 +43,7 @@ public class CommandShutdown extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(!FarLands.getFLConfig().isScreenSessionSet()) {
+        if(FarLands.getFLConfig().isScreenSessionNotSet()) {
             sender.sendMessage(ChatColor.RED + "The screen session for this server instance is not specified. " +
                     "This command requires that field to run.");
             return true;
@@ -78,10 +78,10 @@ public class CommandShutdown extends Command {
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
             Config cfg = FarLands.getFLConfig();
             if("backup".equals(mode)) {
-                FarLands.executeScript("backup.sh", cfg.getScreenSession(), System.getProperty("user.home"),
-                        System.getProperty("user.dir"), System.getProperty("user.dir") + "-bu", cfg.getDedicatedMemory());
+                FarLands.executeScript("backup.sh", cfg.screenSession, System.getProperty("user.home"),
+                        System.getProperty("user.dir"), System.getProperty("user.dir") + "-bu", cfg.dedicatedMemory);
             }else if("restart".equals(mode)) { // Regular restart
-                FarLands.executeScript("restart.sh", cfg.getScreenSession(), cfg.getDedicatedMemory());
+                FarLands.executeScript("restart.sh", cfg.screenSession, cfg.dedicatedMemory);
             }
             FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
         }, 20L * seconds);
