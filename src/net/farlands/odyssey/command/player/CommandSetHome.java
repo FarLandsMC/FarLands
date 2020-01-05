@@ -36,7 +36,8 @@ public class CommandSetHome extends PlayerCommand {
             return true;
         }
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(loc);
-        if (!(flp.rank.isStaff() || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
+        if (!(flp.rank.isStaff() || flags == null ||
+                flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to set a home in this claim.");
             return true;
         }
