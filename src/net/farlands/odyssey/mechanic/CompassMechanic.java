@@ -61,7 +61,6 @@ public class CompassMechanic extends Mechanic {
     
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        FarLands.getDataHandler().addDeath(event.getEntity());
         Location location = event.getEntity().getLocation();
         event.getEntity().sendMessage(ChatColor.GRAY + "You died at " +
                 location.getBlockX() + ", " +

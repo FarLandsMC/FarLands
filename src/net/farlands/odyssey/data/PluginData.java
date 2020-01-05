@@ -1,10 +1,9 @@
 package net.farlands.odyssey.data;
 
-import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.ItemDistributor;
 import net.farlands.odyssey.data.struct.Proposal;
 import net.farlands.odyssey.util.LocationWrapper;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Location;
 
 import java.util.*;
@@ -25,12 +24,12 @@ public class PluginData {
     public List<Proposal> proposals;
 
     public PluginData() {
-        this.currentMonth = Utils.getMonthInYear();
+        this.currentMonth = FLUtils.getMonthInYear();
         this.lastPatch = 0;
         this.votesUntilParty = 0;
         this.lastPatchnotesMD5 = new byte[0];
-        this.spawn = Utils.LOC_ZERO;
-        this.pvpIslandSpawn = Utils.LOC_ZERO;
+        this.spawn = FLUtils.LOC_ZERO;
+        this.pvpIslandSpawn = FLUtils.LOC_ZERO;
         this.itemDistributors = new ArrayList<>();
         this.spawnTraders = new HashSet<>();
         this.warps = new HashMap<>();

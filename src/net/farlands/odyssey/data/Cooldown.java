@@ -1,7 +1,7 @@
 package net.farlands.odyssey.data;
 
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 public class Cooldown {
     private final long delay;
@@ -26,7 +26,7 @@ public class Cooldown {
     }
 
     public void reset() {
-        reset(Utils.NO_ACTION);
+        reset(FLUtils.NO_ACTION);
     }
 
     public void resetCurrentTask() {

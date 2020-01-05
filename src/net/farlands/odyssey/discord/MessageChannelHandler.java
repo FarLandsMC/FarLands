@@ -2,7 +2,7 @@ package net.farlands.odyssey.discord;
 
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class MessageChannelHandler {
     }
 
     public synchronized void sendMessage(MessageChannel channel, String message) {
-        String key = Utils.getKey(channels, channel);
+        String key = FLUtils.getKey(channels, channel);
         if(key == null)
             channel.sendMessage(message).queue();
         else

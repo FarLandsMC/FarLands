@@ -7,7 +7,7 @@ import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -47,7 +47,7 @@ public class CommandHome extends PlayerCommand {
             sender.sendMessage(ChatColor.RED + (flag ? args[1] + " does" : "You do") + " not have that home.");
             return false;
         }
-        Utils.tpPlayer(sender, loc);
+        FLUtils.tpPlayer(sender, loc);
         return true;
     }
 

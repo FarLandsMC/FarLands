@@ -10,7 +10,7 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.gui.GuiVillagerEditor;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.ReflectionHelper;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -148,7 +148,7 @@ public class GeneralMechanics extends Mechanic {
         if (Material.DRAGON_EGG.equals(event.getClickedBlock() == null ? null : event.getClickedBlock().getType()) && !event.isCancelled()) {
             event.setCancelled(true);
             event.getClickedBlock().setType(Material.AIR);
-            Utils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
+            FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
             event.getPlayer().playSound(event.getClickedBlock().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
             return;
         }
@@ -182,7 +182,7 @@ public class GeneralMechanics extends Mechanic {
             event.setCancelled(true);
             FarLands.getDataHandler().getPluginData().addSpawnTrader(ent.getUniqueId());
             (new GuiVillagerEditor((CraftVillager) ent)).openGui(event.getPlayer());
-        } else if (LEASHABLE_ENTITIES.contains(event.getRightClicked().getType()) && !Utils.isInSpawn(event.getRightClicked().getLocation()) &&
+        } else if (LEASHABLE_ENTITIES.contains(event.getRightClicked().getType()) && !FLUtils.isInSpawn(event.getRightClicked().getLocation()) &&
                 event.getRightClicked() instanceof LivingEntity && hand != null) {
             final LivingEntity entity = (LivingEntity) ent;
             if (Material.LEAD.equals(hand.getType()) && ent instanceof LivingEntity) {
@@ -216,7 +216,7 @@ public class GeneralMechanics extends Mechanic {
             duplicate.setPosition(0.0, 0.0, 0.0);
             duplicate.setCustomName(handle.getCustomName());
             duplicate.setVillagerData(handle.getVillagerData());
-            ReflectionHelper.setFieldValue("trades", EntityVillagerAbstract.class, duplicate, Utils.copyRecipeList(handle.getOffers()));
+            ReflectionHelper.setFieldValue("trades", EntityVillagerAbstract.class, duplicate, FLUtils.copyRecipeList(handle.getOffers()));
             event.getPlayer().openMerchant(new CraftVillager((CraftServer) Bukkit.getServer(), duplicate), true);
         } else if (ent instanceof Tameable) {
             Tameable pet = (Tameable) ent;

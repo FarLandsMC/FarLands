@@ -8,7 +8,7 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.md_5.bungee.api.ChatMessageType;
 
 import org.bukkit.ChatColor;
@@ -16,7 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import static net.farlands.odyssey.util.Utils.*;
+import static net.farlands.odyssey.util.FLUtils.*;
 
 public class CommandWild extends PlayerCommand {
     private final Cooldown globalCooldown;
@@ -40,7 +40,7 @@ public class CommandWild extends PlayerCommand {
             return true;
         }
 
-        if (Utils.serverMspt() > 80) {
+        if (FLUtils.serverMspt() > 80) {
             sender.sendMessage(ChatColor.RED + "The server is too laggy right now to use this command.");
             return true;
         }

@@ -5,7 +5,7 @@ import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.ChatColor;
@@ -55,7 +55,7 @@ public class CommandSkull extends PlayerCommand {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("SkullOwner", args[0]);
         skull.setTag(nbt);
-        Utils.giveItem(sender, CraftItemStack.asBukkitCopy(skull), true);
+        FLUtils.giveItem(sender, CraftItemStack.asBukkitCopy(skull), true);
         return true;
     }
 

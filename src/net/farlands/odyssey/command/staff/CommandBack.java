@@ -4,7 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class CommandBack extends PlayerCommand {
             return true;
         }
         session.setIgnoreTeleportForBackLocations();
-        Utils.tpPlayer(sender, backLocations.remove(backLocations.size() - 1));
+        FLUtils.tpPlayer(sender, backLocations.remove(backLocations.size() - 1));
         return true;
     }
 }

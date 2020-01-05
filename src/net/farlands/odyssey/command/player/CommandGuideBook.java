@@ -1,6 +1,6 @@
 package net.farlands.odyssey.command.player;
 
-import static net.farlands.odyssey.util.Utils.giveItem;
+import static net.farlands.odyssey.util.FLUtils.giveItem;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;

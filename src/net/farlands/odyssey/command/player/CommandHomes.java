@@ -28,7 +28,6 @@ public class CommandHomes extends Command {
             sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
             return true;
         }
-        StringBuilder sb = new StringBuilder("&(gold)");
         if(Rank.getRank(sender).isStaff() && args.length > 0) { // Someone else's home (staff)
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
             if (flp == null) {
@@ -41,12 +40,8 @@ public class CommandHomes extends Command {
             }
             flp.homes.forEach(home -> {
                 Location location = home.getLocation();
-                sb.append("$(hovercmd,/home ").append(home.getName()).append(" ").append(args[0])
-                        .append(",{&(white)Go to home ").append(home.getName()).append("},&(gold)")
-                        .append(home.getName()).append(": &(aqua)")
-                        .append(location.getBlockX()).append(" ")
-                        .append(location.getBlockY()).append(" ")
-                        .append(location.getBlockZ()).append("),\n ");
+                sendFormatted(sender, "&(gold)$(hovercmd,/home %0 %1,Go to home {&(aqua)%0},%0: {&(aqua)%2 %3 %4})",
+                        home.getName(), flp.username, location.getBlockX(), location.getBlockY(), location.getBlockZ());
             });
         } else {
             List<Home> homes = FarLands.getDataHandler().getOfflineFLPlayer(sender).homes;
@@ -54,11 +49,7 @@ public class CommandHomes extends Command {
                 sender.sendMessage(ChatColor.GREEN + "You don\'t have any homes! Set one with " + ChatColor.AQUA + "/sethome");
                 return true;
             }
-            homes.forEach(home -> sb.append("$(hovercmd,/home ").append(home.getName()).append(",{&(white)Go to home ")
-                    .append(home.getName()).append("},").append(home.getName()).append("), "));
         }
-        String msg = sb.toString();
-        sendFormatted(sender, msg.substring(0, msg.length() - 2));
         return true;
     }
 

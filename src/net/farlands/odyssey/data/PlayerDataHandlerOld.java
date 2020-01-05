@@ -5,7 +5,7 @@ import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.struct.*;
 import net.farlands.odyssey.util.FileSystem;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -148,7 +148,7 @@ public class PlayerDataHandlerOld {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("setFlag"));
             ps.setInt(1, 1 << index);
-            ps.setBytes(2, Utils.serializeUuid(uuid));
+            ps.setBytes(2, FLUtils.serializeUuid(uuid));
             ps.executeUpdate();
             ps.close();
             connection.commit();
@@ -162,7 +162,7 @@ public class PlayerDataHandlerOld {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("removeFlag"));
             ps.setInt(1, 255 ^ (1 << index));
-            ps.setBytes(2, Utils.serializeUuid(uuid));
+            ps.setBytes(2, FLUtils.serializeUuid(uuid));
             ps.executeUpdate();
             ps.close();
             connection.commit();
@@ -244,7 +244,7 @@ public class PlayerDataHandlerOld {
             byte[] uuid = rs.getBytes("uuid");
             rs.close();
             ps.close();
-            return loadFLPlayer(Utils.getUuid(uuid, 0), null);
+            return loadFLPlayer(FLUtils.getUuid(uuid, 0), null);
         }catch(SQLException ex) {
             ex.printStackTrace();
             return null;
@@ -274,7 +274,7 @@ public class PlayerDataHandlerOld {
             byte[] uuid = rs.getBytes("uuid");
             rs.close();
             ps.close();
-            return loadFLPlayer(Utils.getUuid(uuid, 0), null);
+            return loadFLPlayer(FLUtils.getUuid(uuid, 0), null);
         }catch(SQLException ex) {
             ex.printStackTrace();
             return null;
@@ -287,7 +287,7 @@ public class PlayerDataHandlerOld {
             ResultSet rs = query("SELECT uuid FROM playerdata WHERE lastIP=\"" +
                     getFLPlayer(player).getLastIP() + "\" AND rank<" + Rank.JR_BUILDER.ordinal());
             while(rs.next()) {
-                UUID uuid = Utils.getUuid(rs.getBytes("uuid"), 0);
+                UUID uuid = FLUtils.getUuid(rs.getBytes("uuid"), 0);
                 if(!player.equals(uuid))
                     alts.add(getFLPlayer(uuid));
             }
@@ -303,7 +303,7 @@ public class PlayerDataHandlerOld {
             return cache.get(uuid).getUsername();
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getUsername"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             if(!rs.next())
                 return null;
@@ -322,7 +322,7 @@ public class PlayerDataHandlerOld {
             return cache.get(uuid).getDisplayName();
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getEffectiveName"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             if(!rs.next())
                 return null;
@@ -341,7 +341,7 @@ public class PlayerDataHandlerOld {
             return cache.get(uuid).getRank();
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getRankByUuid"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             if(!rs.next())
                 return Rank.INITIATE;
@@ -387,7 +387,7 @@ public class PlayerDataHandlerOld {
                 byte[] uuid = rs.getBytes("uuid");
                 rs.close();
                 ps.close();
-                return Utils.getUuid(uuid, 0);
+                return FLUtils.getUuid(uuid, 0);
             }catch(SQLException ex) {
                 ex.printStackTrace();
                 return null;
@@ -399,7 +399,7 @@ public class PlayerDataHandlerOld {
     public synchronized void saveLegacy(OfflineFLPlayer flp) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("newFlp"));
-            ps.setBytes(1, Utils.serializeUuid(flp.getUuid()));
+            ps.setBytes(1, FLUtils.serializeUuid(flp.getUuid()));
             ps.setString(2, flp.getUsername());
             ps.executeUpdate();
             ps.close();
@@ -416,7 +416,7 @@ public class PlayerDataHandlerOld {
             saveFLPlayer(flp, ps, false);
             ps.executeUpdate();
             ps.close();
-            byte[] uuid = Utils.serializeUuid(flp.getUuid());
+            byte[] uuid = FLUtils.serializeUuid(flp.getUuid());
             ps = connection.prepareStatement(queries.get("delAllHomes"));
             ps.setBytes(1, uuid);
             ps.executeUpdate();
@@ -490,7 +490,7 @@ public class PlayerDataHandlerOld {
             byte[] ignored = new byte[flp.getRawIgnoreList().size() * 16];
             int i = 0;
             for(UUID uid : flp.getRawIgnoreList()) {
-                Utils.serializeUuid(uid, ignored, i);
+                FLUtils.serializeUuid(uid, ignored, i);
                 i += 16;
             }
             if(ignored.length == 0)
@@ -498,7 +498,7 @@ public class PlayerDataHandlerOld {
             else
                 saveFlp.setBytes(24, ignored);
 
-            saveFlp.setBytes(25, Utils.serializeUuid(flp.getUuid()));
+            saveFlp.setBytes(25, FLUtils.serializeUuid(flp.getUuid()));
 
             if(batch)
                 saveFlp.addBatch();
@@ -510,7 +510,7 @@ public class PlayerDataHandlerOld {
     private OfflineFLPlayer loadFLPlayer(UUID uuid, String username) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getFlpByUuid"));
-            byte[] serUuid = Utils.serializeUuid(uuid);
+            byte[] serUuid = FLUtils.serializeUuid(uuid);
 
             ps.setBytes(1, serUuid);
             ResultSet rs = ps.executeQuery();
@@ -563,7 +563,7 @@ public class PlayerDataHandlerOld {
             byte[] ignoredPlayers = rs.getBytes("ignoredPlayers");
             if(ignoredPlayers != null) {
                 for (int i = 0; i + 15 < ignoredPlayers.length; i += 16)
-                    flp.setIgnoring(Utils.getUuid(ignoredPlayers, i), true);
+                    flp.setIgnoring(FLUtils.getUuid(ignoredPlayers, i), true);
             }
 
             flp.setPunishments(getPunishments(uuid));
@@ -583,7 +583,7 @@ public class PlayerDataHandlerOld {
     public synchronized void addHome(UUID uuid, String name, Location loc) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("addHome"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ps.setString(2, name);
             ps.setDouble(3, loc.getX());
             ps.setDouble(4, loc.getY());
@@ -606,7 +606,7 @@ public class PlayerDataHandlerOld {
             ps.setDouble(3, loc.getZ());
             ps.setFloat(4, loc.getYaw());
             ps.setFloat(5, loc.getPitch());
-            ps.setBytes(6, Utils.serializeUuid(uuid));
+            ps.setBytes(6, FLUtils.serializeUuid(uuid));
             ps.setString(7, name);
             ps.executeUpdate();
             ps.close();
@@ -619,7 +619,7 @@ public class PlayerDataHandlerOld {
     public synchronized void delHome(UUID uuid, String name) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("delHome"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ps.setString(2, name);
             ps.executeUpdate();
             ps.close();
@@ -632,7 +632,7 @@ public class PlayerDataHandlerOld {
     public synchronized List<Home> getHomes(UUID uuid) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getHomes"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<Home> homes = new ArrayList<>();
             while(rs.next()) {
@@ -651,7 +651,7 @@ public class PlayerDataHandlerOld {
     public synchronized void punish(UUID uuid, Punishment punishment) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("punish"));
-            byte[] serUuid = Utils.serializeUuid(uuid);
+            byte[] serUuid = FLUtils.serializeUuid(uuid);
             ps.setBytes(1, serUuid);
             ps.setInt(2, punishment.getType().ordinal());
             ps.setLong(3, punishment.getDateIssued());
@@ -667,7 +667,7 @@ public class PlayerDataHandlerOld {
     public synchronized void pardon(UUID uuid, Punishment punishment) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("pardon"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ps.setLong(2, punishment.getDateIssued());
             ps.executeUpdate();
             ps.close();
@@ -680,7 +680,7 @@ public class PlayerDataHandlerOld {
     public synchronized List<Punishment> getPunishments(UUID uuid) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getPunishments"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<Punishment> ret = new ArrayList<>();
             while(rs.next()) {
@@ -698,7 +698,7 @@ public class PlayerDataHandlerOld {
     public synchronized void addMail(UUID uuid, String sender, String message) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("addMail"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ps.setString(2, sender);
             ps.setString(3, message);
             ps.executeUpdate();
@@ -712,7 +712,7 @@ public class PlayerDataHandlerOld {
     public synchronized void clearMail(UUID uuid) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("clearMail"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ps.executeUpdate();
             ps.close();
             connection.commit();
@@ -724,7 +724,7 @@ public class PlayerDataHandlerOld {
     public synchronized List<MailMessage> getMail(UUID uuid) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getMail"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<MailMessage> ret = new ArrayList<>();
             while(rs.next())
@@ -740,7 +740,7 @@ public class PlayerDataHandlerOld {
     public synchronized void addNote(UUID uuid, long dateIssued, String sender, String note) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("addNote"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ps.setLong(2, dateIssued);
             ps.setString(3, sender);
             ps.setString(4, note);
@@ -755,7 +755,7 @@ public class PlayerDataHandlerOld {
     public synchronized void clearNotes(UUID uuid) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("clearNotes"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ps.executeUpdate();
             ps.close();
             connection.commit();
@@ -767,11 +767,11 @@ public class PlayerDataHandlerOld {
     public synchronized List<String> getNotes(UUID uuid) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getNotes"));
-            ps.setBytes(1, Utils.serializeUuid(uuid));
+            ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<String> ret = new ArrayList<>();
             while(rs.next())
-                ret.add(Utils.dateToString(rs.getLong("dateTaken"), "MM/dd/yyyy") + " " + rs.getString("sender") + ": " + rs.getString("note"));
+                ret.add(FLUtils.dateToString(rs.getLong("dateTaken"), "MM/dd/yyyy") + " " + rs.getString("sender") + ": " + rs.getString("note"));
             rs.close();
             ps.close();
             return ret;
@@ -793,7 +793,7 @@ public class PlayerDataHandlerOld {
                 while(rs.next()) {
                     name = rs.getString("username");
                     if(username.equalsIgnoreCase(name))
-                        return new Pair<>(Utils.getUuid(rs.getBytes("uuid"), 0), name);
+                        return new Pair<>(FLUtils.getUuid(rs.getBytes("uuid"), 0), name);
                     else if(name.toLowerCase().contains(username.toLowerCase())) {
                         match = rs.getBytes("uuid");
                         matchName = name;
@@ -801,10 +801,10 @@ public class PlayerDataHandlerOld {
                 }
                 rs.close();
                 ps.close();
-                return match == null ? null : new Pair<>(Utils.getUuid(match, 0), matchName);
+                return match == null ? null : new Pair<>(FLUtils.getUuid(match, 0), matchName);
             }else if(id instanceof UUID) {
                 PreparedStatement ps = connection.prepareStatement(queries.get("getUsername"));
-                ps.setBytes(1, Utils.serializeUuid((UUID)id));
+                ps.setBytes(1, FLUtils.serializeUuid((UUID)id));
                 ResultSet rs = ps.executeQuery();
                 if(!rs.next())
                     return null;

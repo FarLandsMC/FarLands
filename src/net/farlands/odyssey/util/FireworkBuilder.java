@@ -50,7 +50,7 @@ public class FireworkBuilder {
             return new int[] {255, 255, 255};
         int[] colors = new int[numColors * 3];
         for(int i = 0;i < numColors;++ i)
-            System.arraycopy(Utils.hsv2rgb(360 * random.nextDouble(), random.nextDouble() * 0.5 + 0.5, 1.0), 0, colors, i, 3);
+            System.arraycopy(FLUtils.hsv2rgb(360 * random.nextDouble(), random.nextDouble() * 0.5 + 0.5, 1.0), 0, colors, i, 3);
         // (RGB_OPTIONS[random.nextInt(3)] << 16) | (RGB_OPTIONS[random.nextInt(3)] << 8) | RGB_OPTIONS[random.nextInt(3)]
         return colors;
     }

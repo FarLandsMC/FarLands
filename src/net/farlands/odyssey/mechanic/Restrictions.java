@@ -2,11 +2,7 @@ package net.farlands.odyssey.mechanic;
 
 import com.kicas.rp.util.TextUtils;
 
-import com.snowgears.shop.event.PlayerCreateShopEvent;
-import com.snowgears.shop.event.PlayerDestroyShopEvent;
-
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.struct.ItemDistributor;
 import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
@@ -14,7 +10,7 @@ import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -44,7 +40,7 @@ public class Restrictions extends Mechanic {
             Material.OAK_FENCE_GATE, Material.SPRUCE_FENCE_GATE, Material.BIRCH_FENCE_GATE, Material.JUNGLE_FENCE_GATE,
             Material.ACACIA_FENCE_GATE, Material.DARK_OAK_FENCE_GATE);
 
-    private Map<UUID, Pair<Cooldown, Pair<Integer, ItemDistributor>>> distributerMakers = new HashMap<>();
+    private Map<UUID, Pair<Pair<Integer, ItemDistributor>, Integer>> distributerMakers = new HashMap<>();
 
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
@@ -57,7 +53,8 @@ public class Restrictions extends Mechanic {
                         "{&(aqua,underline)here}) to view them.", player.getName()));
             }
             List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                    .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP)).collect(Collectors.toList());
+                    .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
+                    .collect(Collectors.toList());
             List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(OfflineFLPlayer::getUsername).collect(Collectors.toList()),
                     normal = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
             if (!banned.isEmpty()) {
@@ -74,18 +71,18 @@ public class Restrictions extends Mechanic {
                     flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
                     alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
                     Logging.broadcastStaff("Punishing " + flp.getUsername() + " for ban evasion, along with the following alts: " +
-                            alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.joining(", ")), "output");
+                            String.join(", ", normal), "output");
                     return;
                 }
             }
         }
 
-        if (!Utils.deltaEquals(flp.getLastLocation(), Utils.LOC_ZERO.asLocation(), 1.0))
-            player.teleport(flp.getLastLocation());
-
-        if (isNew)
+        if (isNew) {
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(),
                     () -> player.teleport(FarLands.getDataHandler().getPluginData().getSpawn()), 5L);
+        } else if (!FLUtils.deltaEquals(flp.getLastLocation(), FLUtils.LOC_ZERO.asLocation(), 1.0)) {
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> player.teleport(flp.getLastLocation()), 5L);
+        }
     }
 
     @EventHandler
@@ -99,7 +96,7 @@ public class Restrictions extends Mechanic {
     public void onRespawn(PlayerRespawnEvent event) {
         if (!event.isBedSpawn()) {
             Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
-            if (Utils.deltaEquals(spawn, Utils.LOC_ZERO.asLocation(), 1e-8D)) {
+            if (FLUtils.deltaEquals(spawn, FLUtils.LOC_ZERO.asLocation(), 1e-8D)) {
                 event.getPlayer().sendMessage(ChatColor.RED + "Server spawn not set! Please contact an owner, " +
                         "administrator, or developer and notify them of this problem.");
                 return;
@@ -114,7 +111,7 @@ public class Restrictions extends Mechanic {
                 .map(PotionEffect::getType).forEach(player::removePotionEffect);
     }
 
-    @EventHandler(ignoreCancelled = true)
+    /*@EventHandler(ignoreCancelled = true)
     public void onShopCreation(PlayerCreateShopEvent event) {
         Player player = event.getPlayer();
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
@@ -130,7 +127,7 @@ public class Restrictions extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onShopDestroyed(PlayerDestroyShopEvent event) {
         FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getOwnerUUID()).removeShop();
-    }
+    }*/
 
     @EventHandler(ignoreCancelled = true) // Prevent players from teleporting using spectator mode
     public void onTeleport(PlayerTeleportEvent event) {
@@ -141,7 +138,7 @@ public class Restrictions extends Mechanic {
     @EventHandler(ignoreCancelled = true) // Prevent portals from forming in spawn
     public void onPortalCreation(PortalCreateEvent event) {
         if (PortalCreateEvent.CreateReason.NETHER_PAIR.equals(event.getReason()) && event.getBlocks().stream()
-                .map(block -> block.getBlock().getLocation()).anyMatch(Utils::isInSpawn)) {
+                .map(block -> block.getBlock().getLocation()).anyMatch(FLUtils::isInSpawn)) {
             event.setCancelled(true);
         }
     }
@@ -178,7 +175,7 @@ public class Restrictions extends Mechanic {
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (Action.RIGHT_CLICK_BLOCK.equals(event.getAction())) {
-            if (Utils.isInSpawn(event.getClickedBlock().getLocation()) && !Rank.getRank(player).isStaff() &&
+            if (FLUtils.isInSpawn(event.getClickedBlock().getLocation()) && !Rank.getRank(player).isStaff() &&
                     DOORS.contains(event.getClickedBlock().getType())) {
                 player.sendMessage(ChatColor.RED + "You cannot change that here.");
                 event.setCancelled(true);
@@ -199,14 +196,14 @@ public class Restrictions extends Mechanic {
                 }
 
                 Pair<Integer, ItemDistributor> stage;
-                if (distributerMakers.containsKey(player.getUniqueId()))
-                    stage = distributerMakers.get(player.getUniqueId()).getSecond();
-                else {
+                if (distributerMakers.containsKey(player.getUniqueId())) {
+                    stage = distributerMakers.get(player.getUniqueId()).getFirst();
+                    FarLands.getScheduler().resetTask(distributerMakers.get(player.getUniqueId()).getSecond());
+                } else {
                     stage = new Pair(0, new ItemDistributor());
-                    distributerMakers.get(player.getUniqueId()).setSecond(stage);
+                    distributerMakers.put(player.getUniqueId(), new Pair<>(stage, FarLands.getScheduler()
+                            .scheduleSyncDelayedTask(() -> distributerMakers.remove(player.getUniqueId()), 30L * 20L)));
                 }
-                distributerMakers.get(player.getUniqueId()).getFirst().reset(
-                        () -> distributerMakers.remove(player.getUniqueId()));
                 switch (stage.getFirst()) {
                     case 0:
                         if (Material.CHEST.equals(event.getClickedBlock().getType())) {
@@ -223,14 +220,13 @@ public class Restrictions extends Mechanic {
                             stage.setFirst(2);
                         } else
                             player.sendMessage(ChatColor.RED + "Please click a chest to set as the public chest.");
-                        distributerMakers.get(player.getUniqueId()).getFirst().resetCurrentTask();
+                        FarLands.getScheduler().resetTask(distributerMakers.get(player.getUniqueId()).getSecond());
                         break;
                     case 2:
                         if (Material.CHEST.equals(event.getClickedBlock().getType())) {
                             stage.getSecond().setPrivate(event.getClickedBlock().getLocation());
                             player.sendMessage(ChatColor.GREEN + "Private chest set, item distributor registered.");
-                            distributerMakers.get(player.getUniqueId()).getFirst().cancel();
-                            distributerMakers.remove(player.getUniqueId());
+                            FarLands.getScheduler().completeTask(distributerMakers.get(player.getUniqueId()).getSecond());
                             FarLands.getDataHandler().getPluginData().itemDistributors.add(stage.getSecond());
                         } else
                             player.sendMessage(ChatColor.RED + "Please click a chest to set as the private chest.");

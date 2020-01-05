@@ -11,7 +11,7 @@ import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.FileSystem;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import net.minecraft.server.v1_15_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
@@ -45,6 +45,7 @@ public class DataHandler extends Mechanic {
     private final Map<UUID, OfflineFLPlayer> flPlayerMap;
     private final Map<Long, OfflineFLPlayer> discordMap;
     private final Map<UUID, FLPlayerSession> sessionMap;
+    private final Map<UUID, FLPlayerSession> cachedSessions;
     private byte[] currentPatchnotesMD5;
     private Config config;
     private PluginData pluginData;
@@ -55,7 +56,7 @@ public class DataHandler extends Mechanic {
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
     private static final List<String> SCRIPTS = Arrays.asList("artifact.sh", "server.sh", "backup.sh", "restart.sh");
-    private static final Map<String, String> DIRECTORIES = Utils.asMap(
+    private static final Map<String, String> DIRECTORIES = FLUtils.asMap(
         new Pair<>("playerdata", "playerdata"),
         new Pair<>("data", "data"), // General plugin data
         new Pair<>("tmp", "cache")
@@ -130,6 +131,7 @@ public class DataHandler extends Mechanic {
         this.flPlayerMap = new HashMap<>();
         this.discordMap = new HashMap<>();
         this.sessionMap = new HashMap<>();
+        this.cachedSessions = new HashMap<>();
         this.currentPatchnotesMD5 = null;
         this.evidenceLockers = new HashMap<>();
         this.deathDatabase = new HashMap<>();
@@ -142,6 +144,9 @@ public class DataHandler extends Mechanic {
 
     @Override
     public void onStartup() {
+        loadNbt();
+        saveNbt();
+
         FarLands.getScheduler().scheduleSyncRepeatingTask(this::update, 50L, 5L * 60L * 20L);
 
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
@@ -173,6 +178,7 @@ public class DataHandler extends Mechanic {
         }
         pdh.onShutdown();
         saveData();
+        saveNbt();
     }
 
     @EventHandler(priority=EventPriority.LOWEST)
@@ -181,7 +187,7 @@ public class DataHandler extends Mechanic {
         FLPlayerSession session = getSession(player);
 
         // Give packages and update
-        Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             Map<String, Pair<ItemStack, String>> packages = getAndRemovePackages(player.getUniqueId());
             if(!packages.isEmpty()) {
                 // Notify the player how many packages they're getting
@@ -193,13 +199,13 @@ public class DataHandler extends Mechanic {
                     final String message = item.getSecond();
                     if (message != null && !message.isEmpty())
                         player.spigot().sendMessage(TextUtils.format("&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
-                                Utils.itemName(item.getFirst()), message));
-                    Utils.giveItem(player, item.getFirst(), true);
+                                FLUtils.itemName(item.getFirst()), message));
+                    FLUtils.giveItem(player, item.getFirst(), true);
                 });
             }
 
             session.update(true);
-        });
+        }, 5L);
 
         FarLands.getDiscordHandler().updateStats();
     }
@@ -209,13 +215,20 @@ public class DataHandler extends Mechanic {
         FLPlayerSession session = getSession(player);
         session.updatePlaytime();
         session.handle.setLastLocation(player.getLocation());
-        if(!session.handle.isVanished())
-            session.handle.setLastLogin(System.currentTimeMillis());
+        if(!session.handle.vanished)
+            session.handle.lastLogin = System.currentTimeMillis();
+
         final UUID uuid = player.getUniqueId();
-        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), FarLands.getDiscordHandler()::updateStats, 5L);
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+            FarLands.getDiscordHandler().updateStats();
+            FLPlayerSession cached = sessionMap.remove(uuid);
+            cached.deactivateAFKChecks();
+            cachedSessions.put(uuid, cached);
+        }, 5L);
+
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             if (Bukkit.getPlayer(uuid) == null)
-                sessionMap.remove(uuid);
+                cachedSessions.remove(uuid).destroy();
         }, 60L * 20L);
     }
 
@@ -241,10 +254,12 @@ public class DataHandler extends Mechanic {
     public void onTeleport(PlayerTeleportEvent event) {
         FLPlayerSession session = getSession(event.getPlayer());
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.update(false), 1L);
-        if(session.backLocations.size() >= 5)
-            session.backLocations.remove(0);
-        if(!session.backLocations.contains(event.getFrom()))
-            session.backLocations.add(event.getFrom());
+        if (!session.ignoreTeleportForBackLocations()) {
+            if(session.backLocations.size() >= 5)
+                session.backLocations.remove(0);
+            if(!session.backLocations.contains(event.getFrom()))
+                session.backLocations.add(event.getFrom());
+        }
     }
 
     @EventHandler(ignoreCancelled=true, priority=EventPriority.HIGH)
@@ -253,6 +268,11 @@ public class DataHandler extends Mechanic {
         if(session.backLocations.size() >= 5)
             session.backLocations.remove(0);
         session.backLocations.add(event.getEntity().getLocation());
+
+        List<PlayerDeath> deaths = FLUtils.getAndPutIfAbsent(deathDatabase, event.getEntity().getUniqueId(), new ArrayList<>());
+        if(deaths.size() >= 3)
+            deaths.remove(0);
+        deaths.add(new PlayerDeath(event.getEntity()));
     }
 
     private void update() {
@@ -276,7 +296,7 @@ public class DataHandler extends Mechanic {
             try {
                 byte[] notes = getResource("patchnotes.txt");
                 if(notes.length > 0)
-                    currentPatchnotesMD5 = Utils.hash(notes);
+                    currentPatchnotesMD5 = FLUtils.hash(notes);
             }catch(IOException ex) {
                 Logging.error("Failed to compare patch notes.");
                 ex.printStackTrace(System.out);
@@ -300,16 +320,20 @@ public class DataHandler extends Mechanic {
     }
 
     public FLPlayerSession getSession(Player player) {
-        FLPlayerSession session = sessionMap.get(player.getUniqueId());
-        if(session == null) {
+        FLPlayerSession session = cachedSessions.remove(player.getUniqueId());
+        if (session != null) {
+            session = new FLPlayerSession(player, session);
+            sessionMap.put(player.getUniqueId(), session);
+            return session;
+        }
+
+        session = sessionMap.get(player.getUniqueId());
+        if (session == null) {
             session = new FLPlayerSession(player, getOfflineFLPlayer(player));
             sessionMap.put(player.getUniqueId(), session);
         }
-        return session;
-    }
 
-    public FLPlayerSession getSession(UUID uuid) {
-        return sessionMap.get(uuid);
+        return session;
     }
 
     public OfflineFLPlayer getOfflineFLPlayer(Player player) {
@@ -387,7 +411,7 @@ public class DataHandler extends Mechanic {
     }
 
     public EvidenceLocker getEvidenceLocker(OfflineFLPlayer flp) {
-        return Utils.getAndPutIfAbsent(evidenceLockers, flp.uuid, new EvidenceLocker(flp)).update(flp);
+        return FLUtils.getAndPutIfAbsent(evidenceLockers, flp.uuid, new EvidenceLocker(flp)).update(flp);
     }
 
     public synchronized void openEvidenceLocker(UUID uuid) {
@@ -477,7 +501,7 @@ public class DataHandler extends Mechanic {
             Map<String, Pair<ItemStack, String>> individualPackages = new HashMap<>();
             serIndividualPackages.getKeys().forEach(packageSender -> {
                 NBTTagCompound serPackage = serIndividualPackages.getCompound(packageSender);
-                individualPackages.put(packageSender, new Pair<>(Utils.itemStackFromNBT(serPackage.getCompound("item")),
+                individualPackages.put(packageSender, new Pair<>(FLUtils.itemStackFromNBT(serPackage.getCompound("item")),
                         serPackage.getString("message")));
             });
             packages.put(UUID.fromString(key), individualPackages);
@@ -490,7 +514,7 @@ public class DataHandler extends Mechanic {
             NBTTagCompound serIndividualPackages = new NBTTagCompound();
             individualPackages.forEach((packageSender, pkg) -> {
                 NBTTagCompound serPackage = new NBTTagCompound();
-                serPackage.set("item", Utils.itemStackToNBT(pkg.getFirst()));
+                serPackage.set("item", FLUtils.itemStackToNBT(pkg.getFirst()));
                 serPackage.setString("message", pkg.getSecond());
                 serIndividualPackages.set(packageSender, serPackage);
             });
@@ -522,15 +546,8 @@ public class DataHandler extends Mechanic {
         return packages.remove(recipient);
     }
 
-    public void addDeath(Player player) {
-        List<PlayerDeath> deaths = Utils.getAndPutIfAbsent(deathDatabase, player.getUniqueId(), new ArrayList<>());
-        if(deaths.size() >= 3)
-            deaths.remove(0);
-        deaths.add(new PlayerDeath(player));
-    }
-
     public List<PlayerDeath> getDeaths(UUID uuid) {
-        return Utils.getAndPutIfAbsent(deathDatabase, uuid, new ArrayList<>());
+        return FLUtils.getAndPutIfAbsent(deathDatabase, uuid, new ArrayList<>());
     }
 
     public void loadData() {
@@ -554,7 +571,7 @@ public class DataHandler extends Mechanic {
         try {
             while (rs.next()) {
                 byte[] uuid = rs.getBytes(1);
-                sqlUuids.add(Utils.getUuid(uuid, 0));
+                sqlUuids.add(FLUtils.getUuid(uuid, 0));
             }
             rs.close();
         }catch (SQLException ex) {
@@ -568,15 +585,21 @@ public class DataHandler extends Mechanic {
 
         config = FileSystem.loadJson(Config.class, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
-        loadEvidenceLockers();
-        loadDeathDatabase();
-        loadPackages();
     }
 
     public void saveData() {
         FileSystem.saveJson((new GsonBuilder()).create(), flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
         FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
+    }
+
+    public void loadNbt() {
+        loadEvidenceLockers();
+        loadDeathDatabase();
+        loadPackages();
+    }
+
+    public void saveNbt() {
         saveEvidenceLockers();
         saveDeathDatabase();
         savePackages();

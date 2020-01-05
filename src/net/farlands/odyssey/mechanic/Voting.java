@@ -7,7 +7,7 @@ import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.struct.ItemReward;
 import net.farlands.odyssey.util.Logging;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -35,7 +35,7 @@ public class Voting extends Mechanic {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(event.getVote().getUsername());
         if (flp == null) // They need to have logged in before
             return;
-        int currentMonth = Utils.getMonthInYear();
+        int currentMonth = FLUtils.getMonthInYear();
         if (currentMonth != pluginData.currentMonth) {
             pluginData.currentMonth = currentMonth;
             FarLands.getDataHandler().getOfflineFLPlayers().forEach(otherFlp -> otherFlp.monthVotes = 0);
@@ -77,9 +77,9 @@ public class Voting extends Mechanic {
     public void doVoteParty() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             ItemStack stack = ItemReward.randomReward(voteConfig.votePartyRewards, voteConfig.votePartyDistribWeight);
-            player.sendMessage(ChatColor.GOLD + "Vote party! Receiving " + ChatColor.AQUA + Utils.itemName(stack));
+            player.sendMessage(ChatColor.GOLD + "Vote party! Receiving " + ChatColor.AQUA + FLUtils.itemName(stack));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.6929134F);
-            Utils.giveItem(player, stack, true);
+            FLUtils.giveItem(player, stack, true);
         });
     }
 }

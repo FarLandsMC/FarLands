@@ -44,8 +44,8 @@ public class Toggles extends Mechanic {
     public void onStartup() {
         FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
             Bukkit.getOnlinePlayers().forEach(player -> {
-                Player recipient = (Player) FarLands.getDataHandler().getSession(player.getUniqueId()).replyToggleRecipient;
-                if (FarLands.getDataHandler().getSession(player.getUniqueId()).autoSendStaffChat)
+                Player recipient = (Player) FarLands.getDataHandler().getSession(player).replyToggleRecipient;
+                if (FarLands.getDataHandler().getSession(player).autoSendStaffChat)
                     sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)Staff chat auto-messaging is toggled on.");
                 else if (FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
                     sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are vanished.");
@@ -116,7 +116,7 @@ public class Toggles extends Mechanic {
     @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent event) {
         if (FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished &&
-                !FarLands.getDataHandler().getSession(event.getPlayer().getUniqueId()).autoSendStaffChat) {
+                !FarLands.getDataHandler().getSession(event.getPlayer()).autoSendStaffChat) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You are vanished, you cannot chat in-game.");
         }

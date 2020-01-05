@@ -108,7 +108,7 @@ public final class ReflectionHelper {
     }
 
     public static Class<?> asWrapper(Class<?> clazz) {
-        return clazz.isPrimitive() ? Utils.getKey(W2P, clazz) : clazz;
+        return clazz.isPrimitive() ? FLUtils.getKey(W2P, clazz) : clazz;
     }
 
     public static Class<?> asNative(Class<?> clazz) {

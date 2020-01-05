@@ -26,7 +26,8 @@ public class CommandAlts extends DiscordCommand {
         }
 
         List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP)).collect(Collectors.toList());
+                .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
+                .collect(Collectors.toList());
         if (alts.isEmpty())
             sender.sendMessage(ChatColor.GOLD + "This player has no alts.");
         else {

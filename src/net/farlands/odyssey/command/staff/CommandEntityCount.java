@@ -3,7 +3,7 @@ package net.farlands.odyssey.command.staff;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -38,7 +38,7 @@ public class CommandEntityCount extends Command {
             List<Entity> entities = world.getEntities().stream().filter(entity -> entity instanceof LivingEntity &&
                     !EntityType.PLAYER.equals(entity.getType())).collect(Collectors.toList());
             sender.sendMessage(ChatColor.GOLD + "Total entities in your world: " +
-                    Utils.color((0.2 * entities.size()) / world.getPlayers().size(), TOTAL_EC_COLORING) + entities.size());
+                    FLUtils.color((0.2 * entities.size()) / world.getPlayers().size(), TOTAL_EC_COLORING) + entities.size());
             reportClusters(sender, entities, true);
         } else {
             ArgumentBundle bundle = bundleArguments(args, sender, false);
@@ -63,14 +63,14 @@ public class CommandEntityCount extends Command {
             sender.sendMessage(ChatColor.GOLD + "Showing entity count" + (bundle.type == null ? "" : " of " +
                     bundle.type.toString().replaceAll("_", "-").toLowerCase()) + (bundle.player == null ?
                     "" : " near " + bundle.player.getName()) + " with radius " + bundle.radius + ":");
-            sender.sendMessage(ChatColor.GOLD + "Total entities: " + Utils.color(entities.size(), TOTAL_EC_COLORING) +
+            sender.sendMessage(ChatColor.GOLD + "Total entities: " + FLUtils.color(entities.size(), TOTAL_EC_COLORING) +
                     entities.size());
             // density = cross section area approximation / # of entities
             // Added multiplicative correction term for increasing the density artificially for large radii
             double density = entities.isEmpty() ? 1000 : (((1 + Math.PI / 2) * radiusSq) / entities.size()) *
                     (1 - (bundle.radius / 400.0));
-            sender.sendMessage(ChatColor.GOLD + "Average entity density: " + Utils.color(1 / density, DENSITY_COLORING) +
-                    "~" + Utils.toStringTruncated(density) + "bk/e");
+            sender.sendMessage(ChatColor.GOLD + "Average entity density: " + FLUtils.color(1 / density, DENSITY_COLORING) +
+                    "~" + FLUtils.toStringTruncated(density) + "bk/e");
             reportClusters(sender, entities, false);
         }
         return true;
@@ -94,7 +94,7 @@ public class CommandEntityCount extends Command {
     // More thorough than the /whylag estimate
     private static void reportClusters(CommandSender sender, List<Entity> entities, boolean findNearbyPlayer) {
         List<List<Entity>> clusters = findClusters(entities.stream().filter(entity -> entity instanceof LivingEntity &&
-                !Utils.isInSpawn(entity.getLocation()) && entity.isValid()).collect(Collectors.toList()));
+                !FLUtils.isInSpawn(entity.getLocation()) && entity.isValid()).collect(Collectors.toList()));
         if (clusters.isEmpty())
             return;
         sender.sendMessage(ChatColor.GOLD + "Entity Clusters:");
@@ -123,8 +123,8 @@ public class CommandEntityCount extends Command {
             double density = Math.PI * (totalDistSq / cluster.size());
             TextUtils.sendFormatted(sender, "&(gold) - Size: {%0%1}, Density: {%2\u2265%3bk/e}, At: $(hovercmd," +
                             "/chain {gm3} {tl %4 %5 %6},{&(aqua)Click to teleport to this location},{&(aqua)%4x %5y %6z})%7",
-                    Utils.color(cluster.size(), CLUSTER_SIZE_COLORING), cluster.size(), Utils.color(1 / density,
-                            CLUSTER_DENSITY_COLORING), Utils.toStringTruncated(density), center.getBlockX(), center.getBlockY(),
+                    FLUtils.color(cluster.size(), CLUSTER_SIZE_COLORING), cluster.size(), FLUtils.color(1 / density,
+                            CLUSTER_DENSITY_COLORING), FLUtils.toStringTruncated(density), center.getBlockX(), center.getBlockY(),
                     center.getBlockZ(), loader == null ? "" : " (near $(hovercmd,/spec " + loader.getName() +
                             ",{&(aqua)Click to spectate " + loader.getName() + "},{&(aqua)" + loader.getName() + "}))");
         });
@@ -156,7 +156,7 @@ public class CommandEntityCount extends Command {
 
     private static Object getArgument(String arg, boolean strict) {
         if (ENTITY_TYPES.contains(arg))
-            return Utils.safeValueOf(EntityType::valueOf, arg.replaceAll("-", "_").toUpperCase());
+            return FLUtils.safeValueOf(EntityType::valueOf, arg.replaceAll("-", "_").toUpperCase());
         else if (arg.matches("\\d+"))
             return Integer.parseInt(arg);
         return strict ? Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().equals(arg)).findAny().orElse(null)

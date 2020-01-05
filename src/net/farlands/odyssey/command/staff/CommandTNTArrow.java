@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.staff;
 
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagList;
 import net.minecraft.server.v1_15_R1.NBTTagString;
@@ -80,7 +80,7 @@ public class CommandTNTArrow extends PlayerCommand {
         NBTTagCompound tag = new NBTTagCompound();
         tag.set("tntArrow", tntArrow);
         tag.set("display", display);
-        Utils.giveItem(sender, Utils.applyTag(tag, new ItemStack(Material.ARROW, amount)), false);
+        FLUtils.giveItem(sender, FLUtils.applyTag(tag, new ItemStack(Material.ARROW, amount)), false);
         return true;
     }
 

@@ -4,13 +4,13 @@ import net.farlands.odyssey.command.FLCommandEvent;
 import net.farlands.odyssey.command.player.CommandSetHome;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import static net.farlands.odyssey.util.Utils.region;
+import static net.farlands.odyssey.util.FLUtils.region;
 
 public class Spawn extends Mechanic {
 
@@ -22,7 +22,7 @@ public class Spawn extends Mechanic {
     @EventHandler
     public void onFLCommand(FLCommandEvent event) {
         if (CommandSetHome.class.equals(event.getCommand()) && event.getSender() instanceof Player &&
-                Utils.isWithin(((Player) event.getSender()).getLocation(), END_PORTAL)) {
+                FLUtils.isWithin(((Player) event.getSender()).getLocation(), END_PORTAL)) {
             event.getSender().sendMessage(ChatColor.RED + "You cannot set a home here.");
             event.setCancelled(true);
         }
@@ -34,7 +34,7 @@ public class Spawn extends Mechanic {
     }
 
     private void checkSpawnPortal(Location from, Location to, PlayerMoveEvent event) {
-        if (!Utils.isWithin(from, END_PORTAL) && Utils.isWithin(to, END_PORTAL)) {
+        if (!FLUtils.isWithin(from, END_PORTAL) && FLUtils.isWithin(to, END_PORTAL)) {
             Player player = event.getPlayer();
             ItemStack stack = player.getInventory().getItemInMainHand();
             if (Material.DIAMOND.equals(stack.getType()) && stack.getAmount() >= 5) {

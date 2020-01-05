@@ -1,14 +1,14 @@
 package net.farlands.odyssey.gui;
 
+import net.farlands.odyssey.mechanic.Mechanic;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class GuiHandler implements Listener {
+public class GuiHandler extends Mechanic {
     private final List<Gui> activeGuis;
 
     public GuiHandler() {

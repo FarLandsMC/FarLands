@@ -9,9 +9,8 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import net.farlands.odyssey.util.Logging;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -24,7 +23,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -167,7 +165,7 @@ public class Chat extends Mechanic {
             return;
         FLPlayerSession session = FarLands.getDataHandler().getSession(player);
         double strikes = session.spamAccumulation;
-        if (Utils.deltaEquals(strikes, 0.0, 1e-8))
+        if (FLUtils.deltaEquals(strikes, 0.0, 1e-8))
             session.spamCooldown.reset(() -> session.spamAccumulation = 0.0);
         strikes += 1 + message.length() / 80.0;
         if (strikes >= 7.0) {
@@ -277,7 +275,7 @@ public class Chat extends Mechanic {
             String censored = s.toLowerCase();
             for (String word : words.keySet())
                 censored = censored.replaceAll("(^|\\W)\\Q" + word + "\\E($|\\W)", getRandomReplacement());
-            return Utils.matchCase(s, censored);
+            return FLUtils.matchCase(s, censored);
         }
 
         public boolean isProfane(String s) {

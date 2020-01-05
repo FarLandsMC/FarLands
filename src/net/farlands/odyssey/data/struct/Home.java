@@ -1,6 +1,6 @@
 package net.farlands.odyssey.data.struct;
 
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -39,6 +39,6 @@ public final class Home {
     @Override
     public String toString() {
         return ChatColor.GOLD + name + ": " + ChatColor.AQUA +
-                Utils.toStringTruncated(x) + ", " + Utils.toStringTruncated(y) + ", " + Utils.toStringTruncated(z);
+                FLUtils.toStringTruncated(x) + ", " + FLUtils.toStringTruncated(y) + ", " + FLUtils.toStringTruncated(z);
     }
 }

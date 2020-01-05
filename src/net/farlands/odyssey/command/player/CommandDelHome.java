@@ -52,7 +52,7 @@ public class CommandDelHome extends Command {
         }
         flp.removeHome(name);
         if (!flag && sender instanceof Player)
-            FarLands.getDataHandler().getSession((Player)sender).lastDeletedHomeName.setValue(args[0], 300L, null);
+            FarLands.getDataHandler().getSession((Player)sender).lastDeletedHomeName.setValue(name, 300L, null);
         sender.sendMessage(ChatColor.GREEN + "Removed home " + ChatColor.AQUA + name);
         return true;
     }

@@ -2,7 +2,7 @@ package net.farlands.odyssey.command;
 
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -23,7 +23,7 @@ public class CommandChain extends Command {
         int index = 0;
         while(index < input.length()) {
             if('{' == input.charAt(index)) {
-                Pair<String, Integer> command = Utils.getEnclosed(index, input);
+                Pair<String, Integer> command = FLUtils.getEnclosed(index, input);
                 if(command == null)
                     return false;
                 commands.add(command.getFirst());

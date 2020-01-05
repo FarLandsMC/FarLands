@@ -10,7 +10,7 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordHandler;
 import net.farlands.odyssey.util.LocationWrapper;
 import net.farlands.odyssey.util.Logging;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -78,7 +78,7 @@ public class OfflineFLPlayer {
         this.debugging = false;
         this.particles = null;
         this.rank = Rank.INITIATE;
-        this.lastLocation = Utils.LOC_ZERO;
+        this.lastLocation = FLUtils.LOC_ZERO;
         this.currentMute = null;
         this.notes = new ArrayList<>();
         this.punishments = new ArrayList<>();
@@ -219,7 +219,7 @@ public class OfflineFLPlayer {
     public void addVote() {
         ++ totalVotes;
         ++ monthVotes;
-        FLPlayerSession session = FarLands.getDataHandler().getSession(uuid);
+        FLPlayerSession session = getSession();
         if(session != null) {
             session.giveVoteRewards(1);
             session.player.sendMessage(ChatColor.GOLD + "Receiving 1 vote reward!");
@@ -458,9 +458,9 @@ public class OfflineFLPlayer {
         if(player != null)
             player.kickPlayer(p.generateBanMessage(punishments.size() - 1, true));
         Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
-        if(!Utils.deltaEquals(spawn, Utils.LOC_ZERO.asLocation(), 1e-8)) { // Make sure spawn is set
+        if(!FLUtils.deltaEquals(spawn, FLUtils.LOC_ZERO.asLocation(), 1e-8)) { // Make sure spawn is set
             if(player != null)
-                Utils.tpPlayer(player, spawn);
+                FLUtils.tpPlayer(player, spawn);
             else
                 setLastLocation(spawn);
         }

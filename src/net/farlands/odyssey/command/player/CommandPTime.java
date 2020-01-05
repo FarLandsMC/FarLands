@@ -4,7 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -35,7 +35,7 @@ public class CommandPTime extends PlayerCommand {
         if(args[0].matches("\\d+"))
             time = Long.parseLong(args[0]);
         else{
-            Time t = Utils.safeValueOf(Time::valueOf, args[0].toUpperCase());
+            Time t = FLUtils.safeValueOf(Time::valueOf, args[0].toUpperCase());
             if(t == null) {
                 sender.sendMessage(ChatColor.RED + "Invalid time. Valid times: " +
                         Arrays.stream(Time.VALUES).map(Time::toString).collect(Collectors.joining(", ")));

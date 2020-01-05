@@ -5,7 +5,7 @@ import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagList;
@@ -34,7 +34,7 @@ public class CommandShovel extends PlayerCommand {
         }
         // Give the shovel and update the command cooldown
         session.setCommandCooldown(this, 10L * 60L * 20L);
-        Utils.giveItem(sender, shovel.clone(), true);
+        FLUtils.giveItem(sender, shovel.clone(), true);
         return true;
     }
 

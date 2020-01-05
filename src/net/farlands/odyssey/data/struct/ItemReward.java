@@ -1,6 +1,6 @@
 package net.farlands.odyssey.data.struct;
 
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -21,6 +21,6 @@ public class ItemReward extends JsonItemStack implements Comparable<ItemReward> 
 
     // The larger the bias, the less likely a rare item is to be selected
     public static ItemStack randomReward(List<ItemReward> rewards, double bias) {
-        return rewards.stream().sorted(ItemReward::compareTo).collect(Collectors.toList()).get(Utils.biasedRandom(rewards.size(), bias)).getStack();
+        return rewards.stream().sorted(ItemReward::compareTo).collect(Collectors.toList()).get(FLUtils.biasedRandom(rewards.size(), bias)).getStack();
     }
 }

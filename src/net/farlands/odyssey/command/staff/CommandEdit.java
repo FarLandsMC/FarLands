@@ -5,7 +5,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.ReflectionHelper;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -57,7 +57,7 @@ public class CommandEdit extends Command {
         if (target == null) { // Send the error if no object was found
             if (!"player".equals(args[0]) && !"config".equals(args[0]))
                 return false;
-            sender.sendMessage(ChatColor.RED + Utils.capitalize(args[0]) + " not found.");
+            sender.sendMessage(ChatColor.RED + FLUtils.capitalize(args[0]) + " not found.");
             return true;
         }
         // Apply restrictions
@@ -145,7 +145,7 @@ public class CommandEdit extends Command {
                 return last.contains("=")
                         ? Collections.emptyList()
                         : getFieldNames(last, value).stream().filter(name -> split.stream().noneMatch(s -> s.substring(0,
-                        Utils.indexOfDefault(s.indexOf('='), s.length())).equals(name)) &&
+                        FLUtils.indexOfDefault(s.indexOf('='), s.length())).equals(name)) &&
                         !RESTRICTED_FIELDS.containsKey(args[2] + '.' + name))
                         .map(name -> args[3].substring(0, args[3].lastIndexOf(',') + 1) + name + "=")
                         .collect(Collectors.toList());
@@ -165,7 +165,7 @@ public class CommandEdit extends Command {
 
     private static Object getValue(String field, Object target) { // Gets a field's value (recursively if needed)
         Field f = ReflectionHelper.getFieldObject(
-                field.substring(0, Utils.indexOfDefault(field.indexOf('.'), field.length())),
+                field.substring(0, FLUtils.indexOfDefault(field.indexOf('.'), field.length())),
                 target.getClass()
         );
         if (f == null)
@@ -179,7 +179,7 @@ public class CommandEdit extends Command {
             if ("null".equals(value))
                 return null;
             if (requiredClass.isEnum())
-                return cast(requiredClass, Utils.safeValueOf(val -> ReflectionHelper.invoke("valueOf", requiredClass, null, val), value));
+                return cast(requiredClass, FLUtils.safeValueOf(val -> ReflectionHelper.invoke("valueOf", requiredClass, null, val), value));
             Class<?> deserializerClass = ReflectionHelper.asWrapper(requiredClass);
             return DESERIALIZER.containsKey(deserializerClass)
                     ? cast(requiredClass, DESERIALIZER.get(deserializerClass).apply(value))
@@ -191,7 +191,7 @@ public class CommandEdit extends Command {
 
     private static Object setValue(String value, String field, Object target) { // Sets a fields value (if possible)
         Field f = ReflectionHelper.getFieldObject(
-                field.substring(0, Utils.indexOfDefault(field.indexOf('.'), field.length())),
+                field.substring(0, FLUtils.indexOfDefault(field.indexOf('.'), field.length())),
                 target.getClass()
         );
         if (f == null)

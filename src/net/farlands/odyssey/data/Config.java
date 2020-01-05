@@ -3,7 +3,7 @@ package net.farlands.odyssey.data;
 import net.farlands.odyssey.data.struct.JsonItemStack;
 import net.farlands.odyssey.discord.DiscordBotConfig;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +65,7 @@ public class Config {
     }
 
     public int getFDS() {
-        return (int)Utils.constrain(fds, 0.0, 99.0);
+        return (int) FLUtils.constrain(fds, 0.0, 99.0);
     }
 
     public boolean isScreenSessionNotSet() {

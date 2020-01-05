@@ -55,8 +55,8 @@ public final class LocationWrapper {
 
     @Override
     public String toString() {
-        return (new StringBuilder()).append("x: ").append(Utils.toStringTruncated(x)).append(", y: ")
-                .append(Utils.toStringTruncated(y)).append(", z: ").append(Utils.toStringTruncated(z))
+        return (new StringBuilder()).append("x: ").append(FLUtils.toStringTruncated(x)).append(", y: ")
+                .append(FLUtils.toStringTruncated(y)).append(", z: ").append(FLUtils.toStringTruncated(z))
                 .append(", world: ").append(world).toString();
     }
 }

@@ -35,13 +35,13 @@ import java.util.stream.Stream;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public final class Utils {
+public final class FLUtils {
     public static final LocationWrapper LOC_ZERO = new LocationWrapper("world", 0.0, 0.0, 0.0, 0.0F, 0.0F);
     public static final Random RNG = new Random();
     public static final Runnable NO_ACTION = () -> {};
     private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED, ChatColor.DARK_RED};
 
-    private Utils() { }
+    private FLUtils() { }
 
     public static MerchantRecipeList copyRecipeList(MerchantRecipeList list) {
         MerchantRecipeList copy = new MerchantRecipeList();
@@ -269,14 +269,14 @@ public final class Utils {
     }
 
     public static void serializeUuid(UUID uuid, byte[] dest, int index) {
-        System.arraycopy(Utils.serializeLong(uuid.getMostSignificantBits()), 0, dest, index, 8);
-        System.arraycopy(Utils.serializeLong(uuid.getLeastSignificantBits()), 0, dest, index + 8, 8);
+        System.arraycopy(FLUtils.serializeLong(uuid.getMostSignificantBits()), 0, dest, index, 8);
+        System.arraycopy(FLUtils.serializeLong(uuid.getLeastSignificantBits()), 0, dest, index + 8, 8);
     }
 
     public static byte[] serializeUuid(UUID uuid) {
         byte[] serUuid = new byte[16];
-        System.arraycopy(Utils.serializeLong(uuid.getMostSignificantBits()), 0, serUuid, 0, 8);
-        System.arraycopy(Utils.serializeLong(uuid.getLeastSignificantBits()), 0, serUuid, 8, 8);
+        System.arraycopy(FLUtils.serializeLong(uuid.getMostSignificantBits()), 0, serUuid, 0, 8);
+        System.arraycopy(FLUtils.serializeLong(uuid.getLeastSignificantBits()), 0, serUuid, 8, 8);
         return serUuid;
     }
 

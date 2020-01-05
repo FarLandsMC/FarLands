@@ -3,9 +3,8 @@ package net.farlands.odyssey.command;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.Logging;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -89,7 +88,7 @@ public abstract class Command extends org.bukkit.command.Command {
 
     public boolean canUse(CommandSender sender) {
         if(Rank.getRank(sender).specialCompareTo(minimumRankRequirement) < 0) {
-            sender.sendMessage(ChatColor.RED + "You must be at least rank " + Utils.capitalize(minimumRankRequirement.toString()) +
+            sender.sendMessage(ChatColor.RED + "You must be at least rank " + FLUtils.capitalize(minimumRankRequirement.toString()) +
                     " to use this command.");
             return false;
         }

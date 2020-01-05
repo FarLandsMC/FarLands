@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -65,6 +66,10 @@ public class DiscordSender implements CommandSender, ICommandListener {
         return channel;
     }
 
+    public Rank getRank() {
+        return flp == null ? Rank.INITIATE : flp.rank;
+    }
+
     @Override
     public void sendMessage(String s) {
         FarLands.getDiscordHandler().sendMessage(channel, Chat.applyDiscordFilters(s));
@@ -102,12 +107,12 @@ public class DiscordSender implements CommandSender, ICommandListener {
 
     @Override
     public boolean hasPermission(String s) {
-        return flp.getRank().hasOP();
+        return isOp();
     }
 
     @Override
     public boolean hasPermission(Permission permission) {
-        return flp.getRank().hasOP();
+        return isOp();
     }
 
     @Override
@@ -143,7 +148,7 @@ public class DiscordSender implements CommandSender, ICommandListener {
 
     @Override
     public boolean isOp() {
-        return flp.getRank().hasOP();
+        return getRank().hasOP();
     }
 
     @Override

@@ -5,7 +5,7 @@ import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.FileSystem;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.command.CommandSender;
 
 import java.io.*;
@@ -23,7 +23,7 @@ public class CommandGetLog extends DiscordCommand {
     public boolean execute(CommandSender sender, String[] args) {
         int start, end;
         if (args.length == 0 || args[0].equalsIgnoreCase("latest"))
-            start = end = parseDate(Utils.dateToString(System.currentTimeMillis() - 21600000L, "yyyy-MM-dd"));
+            start = end = parseDate(FLUtils.dateToString(System.currentTimeMillis() - 21600000L, "yyyy-MM-dd"));
         else {
             try {
                 start = parseDate(args[0]);
@@ -39,7 +39,7 @@ public class CommandGetLog extends DiscordCommand {
     }
 
     private static int parseDate(String date) throws IllegalArgumentException {
-        String[] data = date.substring(0, Utils.indexOfDefault(date.indexOf('.'), date.length())).split("-");
+        String[] data = date.substring(0, FLUtils.indexOfDefault(date.indexOf('.'), date.length())).split("-");
         if (data.length < 3)
             throw new IllegalArgumentException(date);
         try {
@@ -82,7 +82,7 @@ public class CommandGetLog extends DiscordCommand {
                     copy(f, true, out, buffer);
                 });
 
-                if (end == parseDate(Utils.dateToString(System.currentTimeMillis() - 21600000L, "yyyy-MM-dd"))) {
+                if (end == parseDate(FLUtils.dateToString(System.currentTimeMillis() - 21600000L, "yyyy-MM-dd"))) {
                     File latest = new File(String.join(File.separator, System.getProperty("user.dir"),
                             "logs", "latest.log"));
                     if (latest.exists())

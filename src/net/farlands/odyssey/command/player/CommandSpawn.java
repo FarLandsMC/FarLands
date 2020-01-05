@@ -4,7 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,7 +26,7 @@ public class CommandSpawn extends Command {
             return true;
         }
         Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
-        if (Utils.deltaEquals(spawn, Utils.LOC_ZERO.asLocation(), 1e-8D)) { // The spawn defaults to 0,0,0 (not set)
+        if (FLUtils.deltaEquals(spawn, FLUtils.LOC_ZERO.asLocation(), 1e-8D)) { // The spawn defaults to 0,0,0 (not set)
             sender.sendMessage(ChatColor.RED + "Server spawn not set! Please contact an owner, administrator, or developer and notify them of this problem.");
             return true;
         }

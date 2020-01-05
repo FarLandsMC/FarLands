@@ -1,6 +1,6 @@
 package net.farlands.odyssey.data.struct;
 
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ public class Particles {
     }
 
     public void spawn(Player player) {
-        double x = Utils.RNG.nextDouble() * 0.5 - 0.25, z = Utils.RNG.nextDouble() * 0.5 - 0.25;
+        double x = FLUtils.RNG.nextDouble() * 0.5 - 0.25, z = FLUtils.RNG.nextDouble() * 0.5 - 0.25;
         player.getWorld().spawnParticle(type, location.getLocation(player), 10, x, -1.0, z, 0.5);
     }
 

@@ -8,7 +8,7 @@ import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.md_5.bungee.api.ChatMessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -142,8 +142,8 @@ public class AFK extends Mechanic {
                     return;
                 }
 
-                int a = Utils.RNG.nextInt(17), b = Utils.RNG.nextInt(17);
-                boolean op = Utils.RNG.nextBoolean(); // true: +, false: -
+                int a = FLUtils.RNG.nextInt(17), b = FLUtils.RNG.nextInt(17);
+                boolean op = FLUtils.RNG.nextBoolean(); // true: +, false: -
                 String check = ChatColor.RED.toString() + ChatColor.BOLD + "AFK Check: " + a + (op ? " + " : " - ") + b;
                 player.sendMessage(check);
                 player.sendTitle(check, "", 20, 120, 60);

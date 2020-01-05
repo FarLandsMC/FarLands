@@ -2,9 +2,8 @@ package net.farlands.odyssey.data.struct;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.LocationWrapper;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.minecraft.server.v1_15_R1.World;
-import net.minecraft.server.v1_15_R1.WorldServer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
@@ -25,9 +24,9 @@ public class ItemDistributor {
     }
 
     public ItemDistributor() {
-        this.source = Utils.LOC_ZERO;
-        this.pub = Utils.LOC_ZERO;
-        this.priv = Utils.LOC_ZERO;
+        this.source = FLUtils.LOC_ZERO;
+        this.pub = FLUtils.LOC_ZERO;
+        this.priv = FLUtils.LOC_ZERO;
         this.count = 0;
     }
 

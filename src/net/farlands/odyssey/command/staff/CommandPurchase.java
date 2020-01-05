@@ -4,9 +4,8 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.Logging;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -49,7 +48,7 @@ public class CommandPurchase extends Command {
             return true;
         else
             commandCooldowns.put(flp.uuid, System.currentTimeMillis());
-        Rank rank = Utils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
+        Rank rank = FLUtils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
         int price = args.length >= 4 ? Integer.parseInt(args[3]) : 0;
         flp.addDonation(price);
         if (args[1].equalsIgnoreCase("none")) {
@@ -63,7 +62,7 @@ public class CommandPurchase extends Command {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " 15000");
             else if (rank == Rank.PATRON) {
                 if (flp.isOnline()) {
-                    Utils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
+                    FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
                 } else
                     FarLands.getDataHandler().addPackage(flp.getUuid(), "FarLands Staff",
                             FarLands.getFLConfig().patronCollectable.getStack(), "");

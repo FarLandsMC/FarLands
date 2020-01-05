@@ -1,5 +1,6 @@
 package net.farlands.odyssey.data.struct;
 
+import net.farlands.odyssey.util.FLUtils;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagList;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +23,7 @@ public class EvidenceLocker {
         for (String key : nbt.getKeys()) {
             NBTTagList serLocker = nbt.getList(key, 10);
             List<ItemStack> locker = new ArrayList<>();
-            serLocker.stream().map(base -> net.farlands.odyssey.util.Utils.itemStackFromNBT((NBTTagCompound)base))
+            serLocker.stream().map(base -> FLUtils.itemStackFromNBT((NBTTagCompound)base))
                     .forEach(locker::add);
             lockers.put(key, locker);
         }
@@ -42,7 +43,7 @@ public class EvidenceLocker {
         NBTTagCompound nbt = new NBTTagCompound();
         lockers.forEach((key, locker) -> {
             NBTTagList serLocker = new NBTTagList();
-            locker.stream().map(net.farlands.odyssey.util.Utils::itemStackToNBT).forEach(serLocker::add);
+            locker.stream().map(FLUtils::itemStackToNBT).forEach(serLocker::add);
             nbt.set(key, serLocker);
         });
         return nbt;

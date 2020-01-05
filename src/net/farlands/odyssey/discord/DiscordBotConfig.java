@@ -1,7 +1,7 @@
 package net.farlands.odyssey.discord;
 
 import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import java.util.Map;
 
@@ -14,7 +14,7 @@ public class DiscordBotConfig {
     public DiscordBotConfig(String token, long serverID, Pair<String, Long>... channels) {
         this.token = token;
         this.serverID = serverID;
-        this.channels = Utils.asMap(channels);
+        this.channels = FLUtils.asMap(channels);
     }
 
     public DiscordBotConfig() {

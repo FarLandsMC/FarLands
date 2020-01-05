@@ -9,7 +9,7 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TimeInterval;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -56,8 +56,8 @@ public class CommandPackage extends PlayerCommand {
             Player player = recipientFlp.getOnlinePlayer();
             sendFormatted(player, "&(gold){%0} has sent you &(aqua)%1" +
                             (message.equals("") ? "" : "&(gold) with the following message &(aqua)" + message),
-                    senderSession.handle.getDisplayName(), Utils.itemName(item));
-            Utils.giveItem(player, item, true);
+                    senderSession.handle.getDisplayName(), FLUtils.itemName(item));
+            FLUtils.giveItem(player, item, true);
             sender.sendMessage(ChatColor.GOLD + "Package sent.");
             senderSession.setCommandCooldown(this, 10L * 60L * 20L);
             sender.getInventory().setItemInMainHand(null);

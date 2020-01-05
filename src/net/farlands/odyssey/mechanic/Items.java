@@ -3,7 +3,7 @@ package net.farlands.odyssey.mechanic;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.FireworkBuilder;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -65,7 +65,7 @@ public class Items extends Mechanic {
             }
         }
 
-        NBTTagCompound nbt = Utils.getTag(arrow);
+        NBTTagCompound nbt = FLUtils.getTag(arrow);
         if(nbt != null && nbt.hasKey("tntArrow")) {
             // Infinity doesn't apply to these arrows
             if((inv.getItemInMainHand() != null && inv.getItemInMainHand().getType() == Material.BOW
@@ -85,8 +85,8 @@ public class Items extends Mechanic {
     private static void entityExplosion(Location location, List<EntityType> selectionPool) {
         List<Entity> entities = new ArrayList<>();
         for (int i = 0; i < 15; ++i) {
-            Entity entity = location.getWorld().spawnEntity(location, Utils.selectRandom(selectionPool));
-            entity.setVelocity(new Vector(Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1), Utils.randomDouble(-1, 1)));
+            Entity entity = location.getWorld().spawnEntity(location, FLUtils.selectRandom(selectionPool));
+            entity.setVelocity(new Vector(FLUtils.randomDouble(-1, 1), FLUtils.randomDouble(-1, 1), FLUtils.randomDouble(-1, 1)));
             entities.add(entity);
         }
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> entities.stream().filter(Entity::isValid).forEach(Entity::remove), 60 * 20L);
@@ -110,10 +110,10 @@ public class Items extends Mechanic {
                     FireworkBuilder.randomFirework(1, 1, 1).spawnEntity(loc);
                     double dx, dy, dz;
                     for(int i = 0;i < 2;++ i) {
-                        double theta = Utils.RNG.nextDouble() * 2 * Math.PI;
-                        dx = Utils.randomDouble(1.5, 2.5) * Math.cos(theta);
-                        dy = Utils.randomDouble(2, 3) * Math.sin(Utils.RNG.nextDouble() * 0.5 * Math.PI);
-                        dz = Utils.randomDouble(1.5, 2.5) * Math.sin(theta);
+                        double theta = FLUtils.RNG.nextDouble() * 2 * Math.PI;
+                        dx = FLUtils.randomDouble(1.5, 2.5) * Math.cos(theta);
+                        dy = FLUtils.randomDouble(2, 3) * Math.sin(FLUtils.RNG.nextDouble() * 0.5 * Math.PI);
+                        dz = FLUtils.randomDouble(1.5, 2.5) * Math.sin(theta);
                         FireworkBuilder.randomFirework(1, 1, 1).spawnEntity(loc.clone().add(dx, dy, dz));
                     }
                     break;
@@ -135,8 +135,8 @@ public class Items extends Mechanic {
                     for(int i = 0;i < data.strength * 5;++ i) {
                         TNTPrimed tnt = (TNTPrimed)loc.getWorld().spawnEntity(loc, EntityType.PRIMED_TNT);
                         tnt.setFuseTicks(100); // 5 seconds
-                        tnt.setVelocity(new Vector(speed * Utils.randomDouble(-1, 1), speed * Utils.randomDouble(-1, 1),
-                                speed * Utils.randomDouble(-1, 1)));
+                        tnt.setVelocity(new Vector(speed * FLUtils.randomDouble(-1, 1), speed * FLUtils.randomDouble(-1, 1),
+                                speed * FLUtils.randomDouble(-1, 1)));
                     }
                     break;
                 }
@@ -146,7 +146,7 @@ public class Items extends Mechanic {
                     loc.setY(loc.getWorld().getMaxHeight() * 0.75);
                     final double maxRadius = Math.min(15, data.strength * 3);
                     final int taskId = FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
-                        double theta = Utils.randomDouble(0, 2 * Math.PI), radius = Utils.randomDouble(0, maxRadius);
+                        double theta = FLUtils.randomDouble(0, 2 * Math.PI), radius = FLUtils.randomDouble(0, maxRadius);
                         TNTPrimed tnt = (TNTPrimed)loc.getWorld().spawnEntity(loc.clone().add(radius * (2 * Math.cos(theta) - 1), 0,
                                 radius * (2 * Math.sin(theta) - 1)), EntityType.PRIMED_TNT);
                         tnt.setFuseTicks(200); // 10 seconds
@@ -172,25 +172,25 @@ public class Items extends Mechanic {
         if(radius <= 10.0) {
             Map<Block, WrappedBlockData> exploded = getExplodedBlocks(location, radius);
             players.forEach(player -> {
-                Utils.changeBlocks(player, exploded);
+                FLUtils.changeBlocks(player, exploded);
                 player.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 5.0F, 1.0F);
             });
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 Map<Block, WrappedBlockData> reset = new HashMap<>();
                 exploded.keySet().forEach(block -> reset.put(block, WrappedBlockData.createData(block.getBlockData())));
-                players.forEach(player -> Utils.changeBlocks(player, reset));
+                players.forEach(player -> FLUtils.changeBlocks(player, reset));
             }, duration * 20L);
         }else{
             (new Thread(() -> {
                 Map<Block, WrappedBlockData> exploded = getExplodedBlocks(location, radius);
                 players.forEach(player -> {
-                    Utils.changeBlocksAsync(player, exploded);
+                    FLUtils.changeBlocksAsync(player, exploded);
                     player.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 5.0F, 1.0F);
                 });
                 Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     Map<Block, WrappedBlockData> reset = new HashMap<>();
                     exploded.keySet().forEach(block -> reset.put(block, WrappedBlockData.createData(block.getBlockData())));
-                    players.forEach(player -> Utils.changeBlocksAsync(player, reset));
+                    players.forEach(player -> FLUtils.changeBlocksAsync(player, reset));
                 }, duration * 20L);
             })).start();
         }
@@ -207,7 +207,7 @@ public class Items extends Mechanic {
                         Location loc = current.getLocation().clone().subtract(0, 1, 0);
                         exploded.put(current, WrappedBlockData.createData((loc.distanceSquared(location) > r2 ||
                                 UNBREAKABLE_BLOCKS.contains(loc.getBlock().getType())) && loc.getBlock().getType().isSolid() &&
-                                        Utils.randomChance(0.2) ? Material.FIRE : Material.AIR));
+                                        FLUtils.randomChance(0.2) ? Material.FIRE : Material.AIR));
                     }
                 }
             }

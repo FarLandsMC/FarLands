@@ -5,6 +5,7 @@ import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 public class CommandDevReport extends DiscordCommand {
@@ -22,8 +23,9 @@ public class CommandDevReport extends DiscordCommand {
             return false;
 
         long t = globalCooldown.timeRemaining();
+        System.out.println(t);
         if (t > 0) {
-            sender.sendMessage("You can use this command again in " + TimeInterval.formatTime(50L * t, false) + ".");
+            sender.sendMessage(ChatColor.RED + "You can use this command again in " + TimeInterval.formatTime(50L * t, false) + ".");
             return true;
         }
         if ("suggest".equalsIgnoreCase(args[0])) {

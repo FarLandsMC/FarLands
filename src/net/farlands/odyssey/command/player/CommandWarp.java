@@ -3,7 +3,7 @@ package net.farlands.odyssey.command.player;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -28,7 +28,7 @@ public class CommandWarp extends PlayerCommand {
             sender.sendMessage(ChatColor.RED + "Warp not found. Did you spell it correctly?");
             return true;
         }
-        Utils.tpPlayer(sender, warp);
+        FLUtils.tpPlayer(sender, warp);
         return true;
     }
 

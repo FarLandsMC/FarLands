@@ -3,7 +3,7 @@ package net.farlands.odyssey.data.struct;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -47,10 +47,10 @@ public final class TeleportRequest implements Runnable {
         boolean isSenderToRecipient = TeleportType.SENDER_TO_RECIPIENT.equals(type);
         TextUtils.sendFormatted(recipient, "&(gold){&(aqua)%0} has requested %1 Type $(command,/tpaccept,{&(aqua)/tpaccept}) " +
                         "to accept the request, or $(command,/tpdecline,{&(aqua)/tpdecline}) to decline it, or click on the commands to run them.%2",
-                sender.getName(), isSenderToRecipient ? "you to teleport to them." : "to teleport to you.",
-                isSenderToRecipient ? " Move to cancel the teleport." : "");
+                sender.getName(), isSenderToRecipient ? "to teleport to you." : "you to teleport to them.",
+                isSenderToRecipient ? "" : " Move to cancel the teleport.");
         recipient.playSound(recipient.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
-        sender.sendMessage(ChatColor.GOLD + "Request sent." + (isSenderToRecipient ? "" : " Move to cancel the teleport."));
+        sender.sendMessage(ChatColor.GOLD + "Request sent." + (isSenderToRecipient ? " Move to cancel the teleport." : ""));
 
         return true;
     }
@@ -85,7 +85,7 @@ public final class TeleportRequest implements Runnable {
         }
 
         // Execute the teleport and wrap up
-        Utils.tpPlayer(teleporter, toLocation);
+        FLUtils.tpPlayer(teleporter, toLocation);
         endTask();
     }
 
@@ -100,7 +100,7 @@ public final class TeleportRequest implements Runnable {
 
         // Keep track of locations for movement cancellation and the end teleportation
         startLocationTeleporter = teleporter.getLocation().clone();
-        toLocation = Utils.findSafe(anchor.getLocation().clone());
+        toLocation = FLUtils.findSafe(anchor.getLocation().clone());
 
         // Check location safety
         if (toLocation == null) {

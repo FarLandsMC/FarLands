@@ -2,7 +2,7 @@ package net.farlands.odyssey.mechanic.anticheat;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -41,11 +41,11 @@ public class FlightStore {
             return;
         }
         double vy = session.player.getVelocity().getY();
-        if (Utils.deltaEquals(lastVy, Double.MAX_VALUE, 10.0)) { // We're jumping
+        if (FLUtils.deltaEquals(lastVy, Double.MAX_VALUE, 10.0)) { // We're jumping
             PotionEffect jumpBoost = session.player.getPotionEffect(PotionEffectType.JUMP);
             // Calculates what the player's jump velocity should be, with some buffer to prevent false alarms (the +0.025)
             double vyMax = 0.41999998688697815 + 0.1 * (jumpBoost == null ? 0 : jumpBoost.getAmplifier() + 1) + JUMP_TOLERANCE;
-            if (vy > vyMax && !Utils.checkNearby(session.player.getLocation(), Material.SLIME_BLOCK, Material.BUBBLE_COLUMN)) {
+            if (vy > vyMax && !FLUtils.checkNearby(session.player.getLocation(), Material.SLIME_BLOCK, Material.BUBBLE_COLUMN)) {
                 if (sendAlerts)
                     AntiCheat.broadcast(session.player.getName(), "jumped too high.");
                 FarLands.getDebugger().echo("vy", vy);
@@ -96,7 +96,7 @@ public class FlightStore {
                 session.player.hasPotionEffect(PotionEffectType.LEVITATION) ||
                 session.player.hasPotionEffect(PotionEffectType.SLOW_FALLING) ||
                 !Material.AIR.equals(session.player.getWorld().getBlockAt(session.player.getLocation()).getType()) ||
-                Utils.checkNearby(session.player.getLocation(), Material.WATER, Material.LADDER, Material.VINE, Material.LAVA) ||
+                FLUtils.checkNearby(session.player.getLocation(), Material.WATER, Material.LADDER, Material.VINE, Material.LAVA) ||
                 !session.flightDetectorMute.isComplete() ||
                 session.flying;
     }

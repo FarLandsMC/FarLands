@@ -14,7 +14,7 @@ import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.ReflectionHelper;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -161,7 +161,7 @@ public class CommandHandler extends Mechanic {
         String fullCommand = message.getContentDisplay();
         // Notify staff
         Logging.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
-        String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, Utils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
+        String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         final String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
         Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
         if((!(c instanceof DiscordCommand)) && FarLands.getDiscordHandler().getChannel("ingame").getIdLong() != message.getChannel().getIdLong() &&
@@ -237,7 +237,7 @@ public class CommandHandler extends Mechanic {
         String fullCommand = event.getMessage();
 
         FarLands.getMechanicHandler().getMechanic(Chat.class).spamUpdate(player, fullCommand);
-        String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, Utils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
+        String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
         Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
         // Notify staff of usage
@@ -268,7 +268,7 @@ public class CommandHandler extends Mechanic {
         CommandSender sender = event.getSender();
         String fullCommand = event.getCommand();
 
-        String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, Utils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
+        String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
         Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
         // Notify staff of usage

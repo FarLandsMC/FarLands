@@ -4,7 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -36,7 +36,7 @@ public class CommandNotes extends DiscordCommand {
                 flp.notes.forEach(note -> sender.sendMessage(ChatColor.GRAY + note));
             }
         } else if ("add".equals(args[0])) {
-            flp.notes.add(Utils.dateToString(System.currentTimeMillis(), "MM/dd/yyyy") + " " +
+            flp.notes.add(FLUtils.dateToString(System.currentTimeMillis(), "MM/dd/yyyy") + " " +
                     sender.getName() + ": " + joinArgsBeyond(1, " ", args));
             sender.sendMessage(ChatColor.GOLD + "Note added.");
         } else if ("clear".equals(args[0])) {

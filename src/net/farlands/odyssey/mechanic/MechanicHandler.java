@@ -29,6 +29,7 @@ public class MechanicHandler implements Listener {
         // Handlers
         registerMechanic(FarLands.getCommandHandler());
         registerMechanic(FarLands.getDataHandler());
+        registerMechanic(FarLands.getGuiHandler());
 
         // Feature mechanics
         registerMechanic(new AFK());

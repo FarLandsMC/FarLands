@@ -7,7 +7,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.AFK;
 import net.farlands.odyssey.mechanic.Chat;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -33,7 +33,7 @@ public class CommandSetRank extends Command {
             sender.sendMessage(ChatColor.RED + "Could not find player: " + args[0]);
             return true;
         }
-        Rank rank = Utils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
+        Rank rank = FLUtils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
         if (rank == null) {
             sender.sendMessage(ChatColor.RED + "Invalid rank: " + args[1]);
             return true;
@@ -50,11 +50,12 @@ public class CommandSetRank extends Command {
 
         // Manage all the toggles and stuff that will change with rank
         FLPlayerSession session = flp.getSession();
-        if (flp.rank.hasAfkChecks() && !rank.hasAfkChecks() && session != null) {
-            session.afkCheckInitializerCooldown.cancel();
-            session.afkCheckInitializerCooldown = null;
-        } else if (!flp.rank.hasAfkChecks() && rank.hasAfkChecks() && flp.isOnline())
-            AFK.setAFKCooldown(flp.getOnlinePlayer());
+        if (session != null) {
+            if (rank.hasAfkChecks())
+                AFK.setAFKCooldown(session.player);
+            else
+                session.deactivateAFKChecks();
+        }
 
         sender.sendMessage(ChatColor.GREEN + "Updated " + ChatColor.AQUA + args[0] + "\'s" + ChatColor.GREEN + " rank to " + rank.getColor() + rank.toString());
         Player player = flp.getOnlinePlayer();

@@ -1,7 +1,6 @@
 package net.farlands.odyssey.data.struct;
 
-import net.farlands.odyssey.util.Logging;
-import net.farlands.odyssey.util.Utils;
+import net.farlands.odyssey.util.FLUtils;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagList;
 import org.bukkit.Location;
@@ -33,11 +32,11 @@ public class PlayerDeath {
 
     public PlayerDeath(NBTTagCompound nbt) {
         this.time = nbt.getLong("time");
-        this.location = Utils.locationFromNBT(nbt.getCompound("loc"));
+        this.location = FLUtils.locationFromNBT(nbt.getCompound("loc"));
         this.xpLevels = nbt.getInt("xpLevels");
         this.xpPoints = nbt.getFloat("xpPoints");
         this.inventory = new ArrayList<>();
-        nbt.getList("inv", 10).stream().map(base -> Utils.itemStackFromNBT((NBTTagCompound)base)).forEach(this.inventory::add);
+        nbt.getList("inv", 10).stream().map(base -> FLUtils.itemStackFromNBT((NBTTagCompound)base)).forEach(this.inventory::add);
     }
 
     public long getTime() {
@@ -63,11 +62,11 @@ public class PlayerDeath {
     public NBTTagCompound serialize() {
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setLong("time", time);
-        nbt.set("loc", Utils.locationToNBT(location));
+        nbt.set("loc", FLUtils.locationToNBT(location));
         nbt.setInt("xpLevels", xpLevels);
         nbt.setFloat("xpPoints", xpPoints);
         NBTTagList inv = new NBTTagList();
-        inventory.stream().map(Utils::itemStackToNBT).forEach(inv::add);
+        inventory.stream().map(FLUtils::itemStackToNBT).forEach(inv::add);
         nbt.set("inv", inv);
         return nbt;
     }

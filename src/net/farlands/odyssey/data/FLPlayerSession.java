@@ -9,11 +9,8 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.TeleportRequest;
 import net.farlands.odyssey.mechanic.Toggles;
-import net.farlands.odyssey.util.Utils;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import net.farlands.odyssey.util.FLUtils;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -80,6 +77,56 @@ public class FLPlayerSession {
         this.backIgnoreTP = false;
     }
 
+    FLPlayerSession(Player player, FLPlayerSession cached) {
+        this.player = player;
+        this.handle = cached.handle;
+        this.lastTimeRecorded = System.currentTimeMillis();
+        this.spamAccumulation = cached.spamAccumulation;
+        this.afk = cached.afk;
+        this.flying = cached.flying;
+        this.showStaffChat = cached.showStaffChat;
+        this.autoSendStaffChat = cached.autoSendStaffChat;
+        this.isInEvent = cached.isInEvent;
+        this.replyToggleRecipient = cached.replyToggleRecipient;
+        this.seatExit = null;
+        this.backLocations = cached.backLocations;
+        this.teleportRequests = new ArrayList<>();
+
+        this.givePetRecipient = new TransientField<>();
+        this.lastMessageSender = new TransientField<>();
+        this.lastDeletedHomeName = new TransientField<>();
+
+        this.afkCheckInitializerCooldown = null;
+        this.afkCheckCooldown = new Cooldown(30L * 20L);
+        this.mailCooldown = new Cooldown(60L * 20L);
+        this.spamCooldown = new Cooldown(160L);
+        this.flyAlertCooldown = new Cooldown(10L);
+        this.flightDetectorMute = new Cooldown(0L);
+        this.commandCooldowns = cached.commandCooldowns;
+
+        this.backIgnoreTP = false;
+    }
+
+    public void deactivateAFKChecks() {
+        if (afkCheckInitializerCooldown != null) {
+            afkCheckInitializerCooldown.cancel();
+            afkCheckInitializerCooldown = null;
+        }
+        afkCheckCooldown.cancel();
+    }
+
+    void destroy() {
+        deactivateAFKChecks();
+        givePetRecipient.discard();
+        lastMessageSender.discard();
+        lastDeletedHomeName.discard();
+        mailCooldown.cancel();
+        spamCooldown.cancel();
+        flyAlertCooldown.cancel();
+        flightDetectorMute.cancel();
+        commandCooldowns.values().forEach(FarLands.getScheduler()::cancelTask);
+    }
+
     public void update(boolean sendMessages) {
         handle.update();
 
@@ -95,20 +142,22 @@ public class FLPlayerSession {
 
         // Give vote rewards
         if (handle.voteRewards > 0) {
-            if (sendMessages)
+            if (sendMessages) {
                 player.sendMessage(ChatColor.GOLD + "Receiving " + handle.voteRewards + " vote reward" +
                         (handle.voteRewards > 1 ? "s!" : "!"));
+            }
             giveVoteRewards(handle.voteRewards);
             handle.voteRewards = 0;
         }
 
         player.setOp(handle.rank.hasOP());
-        if (!handle.nickname.isEmpty())
+        if (handle.nickname != null && !handle.nickname.isEmpty())
             player.setDisplayName(handle.nickname);
         else
             player.setDisplayName(player.getName());
         player.setPlayerListName((handle.topVoter ? Rank.VOTER : handle.rank).getNameColor() + handle.username);
         handle.lastIP = player.getAddress().toString().split("/")[1].split(":")[0];
+
         flying = handle.flightPreference;
         if (!handle.rank.isStaff()) {
             player.setGameMode(GameMode.SURVIVAL);
@@ -118,13 +167,15 @@ public class FLPlayerSession {
             }
         }
         if ((FarLands.getWorld().equals(player.getWorld()) || "world_the_end".equals(player.getWorld().getName())) &&
-                !Rank.getRank(player).isStaff())
+                !Rank.getRank(player).isStaff()) {
             flying = false;
+        }
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(player.getLocation());
         if (flags != null && flags.hasFlag(RegionFlag.FLIGHT) && flags.isAllowed(RegionFlag.FLIGHT))
             flying = true;
         player.setAllowFlight(flying || GameMode.CREATIVE.equals(player.getGameMode()) ||
                 GameMode.SPECTATOR.equals(player.getGameMode()));
+
         Toggles.hidePlayers(player);
         if (!handle.mail.isEmpty() && sendMessages && mailCooldown.isComplete()) {
             mailCooldown.reset();
@@ -142,7 +193,7 @@ public class FLPlayerSession {
     public void giveVoteRewards(int amount) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
         for (int i = 0; i < amount; ++i)
-            FarLands.getFLConfig().voteConfig.voteRewards.forEach(reward -> Utils.giveItem(player, reward.getStack(), false));
+            FarLands.getFLConfig().voteConfig.voteRewards.forEach(reward -> FLUtils.giveItem(player, reward.getStack(), false));
         player.giveExpLevels(FarLands.getFLConfig().voteConfig.voteXPBoost * amount);
     }
 
@@ -155,7 +206,7 @@ public class FLPlayerSession {
     public void setCommandCooldown(Command command, long delay) {
         Integer taskUid = commandCooldowns.get(command.getClass());
         if(taskUid == null)
-            commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(Utils.NO_ACTION, delay));
+            commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(FLUtils.NO_ACTION, delay));
         else
             FarLands.getScheduler().getTask(taskUid).reset();
     }
