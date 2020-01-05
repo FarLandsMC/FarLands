@@ -1,11 +1,11 @@
 package net.farlands.odyssey.command.player;
 
 import static net.farlands.odyssey.util.Utils.giveItem;
-import static net.farlands.odyssey.mechanic.Chat.error;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.TimeInterval;
 
 import org.bukkit.ChatColor;
@@ -36,7 +36,7 @@ public class CommandGuideBook extends PlayerCommand {
         try {
             return Arrays.asList(FarLands.getDataHandler().getDataTextFile("guidebook.txt").split("\n"));
         }catch(IOException ex) {
-            error("Failed to load guidebook file.");
+            Logging.error("Failed to load guidebook file.");
             ex.printStackTrace(System.out);
         }
         return Collections.emptyList();

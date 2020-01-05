@@ -1,5 +1,6 @@
 package net.farlands.odyssey.data.struct;
 
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Utils;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagList;

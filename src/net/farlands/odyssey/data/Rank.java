@@ -11,8 +11,6 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 
 import java.util.Arrays;
 import java.util.List;
@@ -167,14 +165,6 @@ public enum Rank {
         return equals(VALUES[VALUES.length - 1]) ? this : VALUES[ordinal() + 1];
     }
 
-    private String getTeamName() {
-        return specialCompareTo(VOTER) >= 0 ? (char)('a' + ordinal()) + getSymbol() : "aDefault"; // Prefixes to order teams alphabetically
-    }
-
-    public Team getTeam() {
-        return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(getTeamName());
-    }
-
     public static Rank getRank(CommandSender sender) {
         if(sender instanceof ConsoleCommandSender)
             return VALUES[VALUES.length - 1];
@@ -185,15 +175,5 @@ public enum Rank {
             return flp == null ? Rank.INITIATE : flp.getRank();
         } else
             return FarLands.getDataHandler().getOfflineFLPlayer((Player)sender).rank;
-    }
-
-    public static void createTeams() {
-        final Scoreboard sc = Bukkit.getScoreboardManager().getMainScoreboard();
-        sc.getTeams().forEach(Team::unregister); // Remove old teams
-        Arrays.stream(VALUES).filter(rank -> rank.getTeam() == null).forEach(rank -> { // Add teams
-            Team team = sc.registerNewTeam(rank.getTeamName());
-            team.setColor(rank.getNameColor());
-            team.setPrefix(rank.getNameColor().toString());
-        });
     }
 }

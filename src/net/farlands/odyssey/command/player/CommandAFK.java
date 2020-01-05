@@ -5,6 +5,7 @@ import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.TimeInterval;
 
 import org.bukkit.Bukkit;
@@ -34,7 +35,7 @@ public class CommandAFK extends PlayerCommand {
         if (session.afkCheckInitializerCooldown != null)
             session.afkCheckInitializerCooldown.resetCurrentTask();
 
-        Chat.broadcast(flp -> !flp.handle.isIgnoring(session.handle), " * " + sender.getName() + " is now AFK.", false);
+        Logging.broadcast(flp -> !flp.handle.isIgnoring(session.handle), " * %0 is now AFK.", session.handle.username);
         return true;
     }
 }

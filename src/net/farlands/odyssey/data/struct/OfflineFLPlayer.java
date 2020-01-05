@@ -8,8 +8,8 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordHandler;
-import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.LocationWrapper;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -52,7 +52,7 @@ public class OfflineFLPlayer {
     public static final Map<String, List<String>> SQL_SER_INFO = (new ImmutableMap.Builder<String, List<String>>())
             .put("constants", Arrays.asList("uuid", "username"))
             .put("objects", Arrays.asList("particles", "lastLocation", "currentMute"))
-            .put("ignored", Arrays.asList("punishments", "homes", "mail"))
+            .put("ignored", Arrays.asList("punishments", "homes", "mail", "notes"))
             .build();
 
     public OfflineFLPlayer(UUID uuid, String username) {
@@ -80,6 +80,7 @@ public class OfflineFLPlayer {
         this.rank = Rank.INITIATE;
         this.lastLocation = Utils.LOC_ZERO;
         this.currentMute = null;
+        this.notes = new ArrayList<>();
         this.punishments = new ArrayList<>();
         this.ignoredPlayers = new HashSet<>();
         this.homes = new ArrayList<>();
@@ -390,13 +391,13 @@ public class OfflineFLPlayer {
         Player player = getOnlinePlayer();
         boolean online = player != null;
         if(rank.specialCompareTo(this.rank) > 0) {
-            Chat.broadcast(ChatColor.GOLD + " ** " + ChatColor.GREEN + getUsername() + ChatColor.GOLD +
+            Logging.broadcast(ChatColor.GOLD + " ** " + ChatColor.GREEN + getUsername() + ChatColor.GOLD +
                     " has ranked up to " + rank.getColor() + rank.getSymbol() + ChatColor.GOLD + " ** ", true);
             if(online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
         }
         this.rank = rank;
-        updateDiscord();
+        updateSessionIfOnline(false);
     }
 
     public Location getLastLocation() {

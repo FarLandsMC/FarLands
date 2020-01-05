@@ -45,14 +45,17 @@ public class CommandSetRank extends Command {
                     ChatColor.RED + " to rank " + ChatColor.WHITE + rank.toString());
             return true;
         }
+
+        flp.setRank(rank);
+
         // Manage all the toggles and stuff that will change with rank
         FLPlayerSession session = flp.getSession();
-        if (!flp.rank.hasAfkChecks() && !rank.hasAfkChecks() && session != null) {
-            session.afkCheckCooldown.cancel();
-            session.afkCheckCooldown = null;
-        } else if (flp.rank.isStaff() && !rank.isStaff() && flp.isOnline())
+        if (flp.rank.hasAfkChecks() && !rank.hasAfkChecks() && session != null) {
+            session.afkCheckInitializerCooldown.cancel();
+            session.afkCheckInitializerCooldown = null;
+        } else if (!flp.rank.hasAfkChecks() && rank.hasAfkChecks() && flp.isOnline())
             AFK.setAFKCooldown(flp.getOnlinePlayer());
-        flp.setRank(rank);
+
         sender.sendMessage(ChatColor.GREEN + "Updated " + ChatColor.AQUA + args[0] + "\'s" + ChatColor.GREEN + " rank to " + rank.getColor() + rank.toString());
         Player player = flp.getOnlinePlayer();
         if (player != null) // Notify the player if they're online

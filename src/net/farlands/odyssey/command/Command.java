@@ -4,6 +4,7 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -63,7 +64,7 @@ public abstract class Command extends org.bukkit.command.Command {
                 error.append("    ").append(ste.toString()).append('\n');
             String errorString = error.toString();
             if(showErrorsOnDiscord()) {
-                Chat.error("Error executing command " + getName() + " from " + sender.getName());
+                Logging.error("Error executing command " + getName() + " from " + sender.getName());
                 FarLands.getDebugger().echo(errorString.length() > 1994 ? errorString.substring(0, 1991) + "..." : errorString);
             }
             ex.printStackTrace(System.out);

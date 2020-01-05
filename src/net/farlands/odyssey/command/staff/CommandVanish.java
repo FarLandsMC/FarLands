@@ -5,6 +5,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -22,13 +23,13 @@ public class CommandVanish extends Command {
         if (flp.vanished) {
             sender.sendMessage(ChatColor.GOLD + "You are now vanished.");
             if (online) {
-                Chat.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
+                Logging.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                         ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has left.", true);
             }
         } else {
             sender.sendMessage(ChatColor.GOLD + "You are no longer vanished.");
             if (online) {
-                Chat.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
+                Logging.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                         ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has joined.", true);
             }
         }

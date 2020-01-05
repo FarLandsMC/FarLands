@@ -8,6 +8,7 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -37,62 +38,6 @@ public class Chat extends Mechanic {
         this.rotatingMessages = new ArrayList<>();
     }
 
-    public static void broadcastIngame(BaseComponent[] message) {
-        Bukkit.getOnlinePlayers().stream().map(Player::spigot).forEach(spigot -> spigot.sendMessage(message));
-        Bukkit.getConsoleSender().spigot().sendMessage(message);
-    }
-
-    public static void broadcastFormatted(String message, boolean sendToDiscord, Object... values) {
-        BaseComponent[] formatted = TextUtils.format("{&(gold,bold) > }&(aqua)" + message, values);
-        broadcastIngame(formatted);
-        if (sendToDiscord)
-            FarLands.getDiscordHandler().sendMessage("ingame", formatted);
-    }
-
-    public static void broadcast(String message, boolean applyColors) {
-        broadcastIngame(TextComponent.fromLegacyText(applyColors ? applyColorCodes(message) : removeColorCodes(message)));
-        FarLands.getDiscordHandler().sendMessage("ingame", message);
-    }
-
-    public static void broadcast(Predicate<FLPlayerSession> filter, String message, boolean applyColors) {
-        Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession).filter(filter)
-                .forEach(session -> session.player.sendMessage(applyColors ? applyColorCodes(message) : removeColorCodes(message)));
-        Bukkit.getConsoleSender().sendMessage(applyColors ? applyColorCodes(message) : removeColorCodes(message));
-        FarLands.getDiscordHandler().sendMessage("ingame", message);
-    }
-
-    public static void broadcastStaff(BaseComponent[] message, String discordChannel) { // Set the channel to null to not send to discord
-        Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
-                .filter(session -> session.handle.rank.isStaff() && session.staffChatToggledOn)
-                .forEach(session -> session.player.spigot().sendMessage(message));
-        Bukkit.getConsoleSender().spigot().sendMessage(message);
-        if (discordChannel != null)
-            FarLands.getDiscordHandler().sendMessage(discordChannel, message);
-    }
-
-    public static void broadcastStaff(BaseComponent[] message) {
-        broadcastStaff(message, null);
-    }
-
-    public static void broadcastStaff(String message, String discordChannel) {
-        broadcastStaff(TextComponent.fromLegacyText(message), discordChannel);
-    }
-
-    public static void broadcastStaff(String message) {
-        broadcastStaff(TextComponent.fromLegacyText(message), null);
-    }
-
-    public static void log(Object x) {
-        Bukkit.getLogger().info("[FLv2] - " + x);
-    }
-
-    public static void error(Object x) {
-        String msg = Objects.toString(x);
-        Bukkit.getLogger().severe("[FLv2] - " + msg);
-        FarLands.getDebugger().echo("Error", msg);
-        FarLands.getDiscordHandler().sendMessageRaw("output", msg);
-    }
-
     public void addRotatingMessage(String message) {
         rotatingMessages.add(TextUtils.format(message));
     }
@@ -120,7 +65,7 @@ public class Chat extends Mechanic {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         if (flp.isVanished()) {
             event.setJoinMessage(null);
-            broadcastStaff(ChatColor.GRAY + event.getPlayer().getName() + " joined silently.");
+            Logging.broadcastStaff(ChatColor.GRAY + event.getPlayer().getName() + " joined silently.");
         } else {
             event.setJoinMessage(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                     ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has joined.");
@@ -155,7 +100,7 @@ public class Chat extends Mechanic {
         spamUpdate(player, event.getMessage());
         if (flp.isMuted()) {
             flp.getCurrentMute().sendMuteMessage(player);
-            broadcastStaff(TextUtils.format("&(red)[MUTED] %0: &(gray)%1", event.getPlayer().getName(),
+            Logging.broadcastStaff(TextUtils.format("&(red)[MUTED] %0: &(gray)%1", event.getPlayer().getName(),
                     event.getMessage()));
             return;
         }
@@ -174,7 +119,7 @@ public class Chat extends Mechanic {
             message = applyColorCodes(senderFlp.getRank(), message);
             // Make it seem like the message went through for the sender
             sender.sendMessage(displayPrefix + ChatColor.WHITE + message);
-            broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
+            Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
                     sender.getDisplayName(), message), "alerts");
             return;
         } else
@@ -187,7 +132,7 @@ public class Chat extends Mechanic {
             message = message.substring(1);
         } else {
             FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
-            if (session.staffChatToggledOn) {
+            if (session.autoSendStaffChat) {
                 FarLands.getCommandHandler().getCommand(CommandStaffChat.class).execute(sender, new String[]{"c", message});
                 return;
             }
@@ -316,7 +261,7 @@ public class Chat extends Mechanic {
                 });
                 replacements.addAll(Arrays.asList(FarLands.getDataHandler().getDataTextFile("censor-replacements.txt").split("\n")));
             } catch (IOException ex) {
-                error("Failed to load words and replacements for message filter words.");
+                Logging.error("Failed to load words and replacements for message filter words.");
                 throw new RuntimeException(ex);
             }
         }

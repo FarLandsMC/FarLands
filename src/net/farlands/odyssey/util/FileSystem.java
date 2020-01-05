@@ -2,7 +2,6 @@ package net.farlands.odyssey.util;
 
 import com.google.gson.Gson;
 import net.farlands.odyssey.FarLands;
-import net.farlands.odyssey.mechanic.Chat;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -97,7 +96,7 @@ public final class FileSystem {
             T obj = FarLands.getGson().fromJson(readUTF8(file), clazz);
             return obj == null ? ReflectionHelper.instantiate(clazz) : obj;
         } catch (IOException ex) {
-            Chat.error("Failed to load " + file.getName() + ".");
+            Logging.error("Failed to load " + file.getName() + ".");
             ex.printStackTrace(System.out);
             return ReflectionHelper.instantiate(clazz);
         }
@@ -111,7 +110,7 @@ public final class FileSystem {
         try {
             writeUTF8(gson.toJson(object), file);
         } catch (IOException ex) {
-            Chat.error("Failed to save " + file.getName() + ".");
+            Logging.error("Failed to save " + file.getName() + ".");
             ex.printStackTrace(System.out);
         }
     }

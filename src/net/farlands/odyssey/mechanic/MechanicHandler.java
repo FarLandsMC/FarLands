@@ -3,6 +3,7 @@ package net.farlands.odyssey.mechanic;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import net.farlands.odyssey.mechanic.region.*;
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,7 +42,7 @@ public class MechanicHandler implements Listener {
         registerMechanic(new Voting());
         registerMechanic(new Items());
 
-        Chat.log("Finished registering mechanics.");
+        Logging.log("Finished registering mechanics.");
     }
 
     private void registerMechanic(Mechanic mechanic) {

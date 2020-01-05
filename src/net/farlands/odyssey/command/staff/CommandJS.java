@@ -5,6 +5,7 @@ import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
@@ -63,18 +64,15 @@ public class CommandJS extends Command {
         if (!canUse(sender)) // Extra security
             return true;
 
-        if ("js".equals(args[0])) {
-            SELF_ALIAS.forEach(alias -> engine.put(alias, sender));
+        SELF_ALIAS.forEach(alias -> engine.put(alias, sender));
 
-            try {
-                Object result = engine.eval(joinArgsBeyond(0, " ", args));
-                if (result != null)
-                    sender.sendMessage(result.toString());
-            } catch (ScriptException e) {
-                sender.sendMessage(e.getMessage());
-            }
-        } else
-            return false;
+        try {
+            Object result = engine.eval(String.join(" ", args));
+            if (result != null)
+                sender.sendMessage(result.toString());
+        } catch (ScriptException e) {
+            sender.sendMessage(e.getMessage());
+        }
 
         return true;
     }
@@ -129,7 +127,7 @@ public class CommandJS extends Command {
             URLClassLoader classLoader = urls.contains(null) ? null : new URLClassLoader(urls.toArray(new URL[0]));
             this.operational = !jars.contains(null) && classLoader != null;
             if (!this.operational)
-                Chat.error("Failed to load suggestions for /js.");
+                Logging.error("Failed to load suggestions for /js.");
         }
 
         // "current" should be part of a fully qualified class name

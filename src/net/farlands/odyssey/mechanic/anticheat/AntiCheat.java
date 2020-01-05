@@ -5,6 +5,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
@@ -83,13 +84,13 @@ public class AntiCheat extends Mechanic {
 
     // Formats a message for Anti Cheat
     public static void broadcast(String message, boolean sendToAlerts) {
-        Chat.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
+        Logging.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
         if(sendToAlerts)
             FarLands.getDiscordHandler().sendMessage("alerts", message);
     }
 
     public static void broadcast(String playerName, String message) {
         broadcast(playerName + " " + message, true);
-        Chat.broadcastStaff(TextUtils.format("&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])", playerName));
+        Logging.broadcastStaff(TextUtils.format("&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])", playerName));
     }
 }

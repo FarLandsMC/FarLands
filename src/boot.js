@@ -44,6 +44,11 @@ var flp = function(name) {
     return FL.getPDH().getFLPlayerMatching(name);
 };
 
+var session = function(name) {
+    var p = player(name);
+    return p == null ? null : FL.getDataHandler().getSession(p);
+}
+
 var flpLegacy = function(name) {
     return DH.getFLPlayerLegacy(name);
 };

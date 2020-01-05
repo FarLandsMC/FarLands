@@ -11,6 +11,7 @@ import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -136,7 +137,7 @@ public class CommandMessage extends PlayerCommand {
             FarLands.getDataHandler().getSession((Player) sender).lastMessageSender.setValue(recipient, 10L * 60L * 20L, null);
         String senderName = sender instanceof Player ? sender.getName() : sender.getName();
         String recipientName = recipient instanceof Player ? recipient.getName() : recipient.getName();
-        Chat.broadcastStaff(TextUtils.format("&(red)[%0 -> %1]: &(gray)%2", senderName, recipientName, message));
+        Logging.broadcastStaff(TextUtils.format("&(red)[%0 -> %1]: &(gray)%2", senderName, recipientName, message));
     }
 
     private static String format(String prefix, Rank rank, String name, String message) {

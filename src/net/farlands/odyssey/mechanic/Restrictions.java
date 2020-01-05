@@ -12,6 +12,7 @@ import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.Utils;
 
@@ -52,7 +53,7 @@ public class Restrictions extends Mechanic {
             player.setGameMode(GameMode.SURVIVAL);
             List<String> notes = flp.notes;
             if (!notes.isEmpty()) {
-                Chat.broadcastStaff(TextUtils.format("&(red)%0 has notes. Click $(command,/notes view %0," +
+                Logging.broadcastStaff(TextUtils.format("&(red)%0 has notes. Click $(command,/notes view %0," +
                         "{&(aqua,underline)here}) to view them.", player.getName()));
             }
             List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
@@ -60,11 +61,11 @@ public class Restrictions extends Mechanic {
             List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(OfflineFLPlayer::getUsername).collect(Collectors.toList()),
                     normal = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
             if (!banned.isEmpty()) {
-                Chat.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + banned.size() + " banned player" +
+                Logging.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + banned.size() + " banned player" +
                         (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? "alerts" : null);
             }
             if (!normal.isEmpty()) {
-                Chat.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + normal.size() + " player" +
+                Logging.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + normal.size() + " player" +
                         (normal.size() > 1 ? "s" : "") + ": " + String.join(", ", normal), isNew ? "alerts" : null);
             }
             if (isNew) {
@@ -72,7 +73,7 @@ public class Restrictions extends Mechanic {
                 if (!banned.isEmpty()) {
                     flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
                     alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
-                    Chat.broadcastStaff("Punishing " + flp.getUsername() + " for ban evasion, along with the following alts: " +
+                    Logging.broadcastStaff("Punishing " + flp.getUsername() + " for ban evasion, along with the following alts: " +
                             alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.joining(", ")), "output");
                     return;
                 }
@@ -165,7 +166,7 @@ public class Restrictions extends Mechanic {
         }
         String text = sb.toString().trim();
         if (!text.isEmpty()) {
-            Chat.broadcastStaff(TextUtils.format("&(gray)%0 placed a sign at %1x, %2z:\n%3",
+            Logging.broadcastStaff(TextUtils.format("&(gray)%0 placed a sign at %1x, %2z:\n%3",
                     event.getPlayer().getName(), event.getBlock().getLocation().getBlockX(),
                     event.getBlock().getLocation().getBlockZ(), text));
         }

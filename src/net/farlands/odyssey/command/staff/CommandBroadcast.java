@@ -4,6 +4,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.command.CommandSender;
 
 public class CommandBroadcast extends Command {
@@ -15,7 +16,7 @@ public class CommandBroadcast extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length == 0)
             return false;
-        Chat.broadcastFormatted(String.join(" ", args), true);
+        Logging.broadcastFormatted(String.join(" ", args), true);
         return true;
     }
 }

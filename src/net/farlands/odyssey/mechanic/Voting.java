@@ -6,6 +6,7 @@ import net.farlands.odyssey.data.VoteConfig;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.struct.ItemReward;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -41,7 +42,7 @@ public class Voting extends Mechanic {
         }
         flp.addVote();
         --pluginData.votesUntilParty;
-        Chat.broadcastFormatted("&(gold){&(aqua)%0} just voted $(link,%1,{&(aqua,underline)here}) and received a reward!" +
+        Logging.broadcastFormatted("&(gold){&(aqua)%0} just voted $(link,%1,{&(aqua,underline)here}) and received a reward!" +
                         (pluginData.votesUntilParty > 0 ? " {&(aqua)%2} more $(inflect,noun,2,vote) until a vote party!" : ""),
                 true, flp.getUsername(), voteConfig.voteLink, pluginData.votesUntilParty);
 

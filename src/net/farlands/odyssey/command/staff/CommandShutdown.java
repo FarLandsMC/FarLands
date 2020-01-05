@@ -7,6 +7,7 @@ import net.farlands.odyssey.command.FLShutdownEvent;
 import net.farlands.odyssey.data.Config;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.TimeInterval;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -71,9 +72,9 @@ public class CommandShutdown extends Command {
         NOTIFICATION_TIMES.entrySet().stream().filter(e -> e.getKey() <= seconds).forEach(e -> {
             int delay = seconds - e.getKey();
             if(delay > 0)
-                FarLands.getScheduler().scheduleSyncDelayedTask(() -> Chat.broadcastFormatted(e.getValue(), true), 20L * delay);
+                FarLands.getScheduler().scheduleSyncDelayedTask(() -> Logging.broadcastFormatted(e.getValue(), true), 20L * delay);
             else
-                Chat.broadcastFormatted(e.getValue(), true);
+                Logging.broadcastFormatted(e.getValue(), true);
         });
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
             Config cfg = FarLands.getFLConfig();

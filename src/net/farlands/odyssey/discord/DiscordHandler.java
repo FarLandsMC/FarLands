@@ -19,6 +19,7 @@ import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.struct.Proposal;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -48,11 +49,11 @@ public class DiscordHandler extends ListenerAdapter {
         config = FarLands.getFLConfig().discordBotConfig;
         try {
             if (config.token.isEmpty()) {
-                Chat.log("The bot token was not set. Discord integration will not operate.");
+                Logging.log("The bot token was not set. Discord integration will not operate.");
                 return;
             }
             if (config.serverID == 0L) {
-                Chat.log("The serverID was not set. Discord integration will not operate.");
+                Logging.log("The serverID was not set. Discord integration will not operate.");
                 return;
             }
             jdaBot = (new JDABuilder(AccountType.BOT)).setToken(config.token).addEventListener(this)
@@ -60,7 +61,7 @@ public class DiscordHandler extends ListenerAdapter {
                             FarLands.getDataHandler().getOfflineFLPlayers().size() + " player records"))
                     .setStatus(OnlineStatus.ONLINE).buildAsync();
         } catch (Exception ex) {
-            Chat.error("Failed to setup discord jdaBot.");
+            Logging.error("Failed to setup discord jdaBot.");
             ex.printStackTrace(System.out);
         }
     }
@@ -208,7 +209,7 @@ public class DiscordHandler extends ListenerAdapter {
         message = Chat.removeColorCodes(message.replaceAll("\\s+", " "));
         final String fmessage = message.substring(0, Math.min(256, message.length()));
         if (channelHandler.getChannel("staffcommands").getIdLong() == event.getChannel().getIdLong())
-            Chat.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + fmessage);
+            Logging.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + fmessage);
         else if (channelHandler.getChannel("ingame").getIdLong() == event.getChannel().getIdLong()) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             if (flp != null) {

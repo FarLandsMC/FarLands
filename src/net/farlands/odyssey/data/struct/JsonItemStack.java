@@ -2,6 +2,7 @@ package net.farlands.odyssey.data.struct;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import net.minecraft.server.v1_15_R1.MojangsonParser;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
@@ -31,7 +32,7 @@ public class JsonItemStack {
         try {
             tmp.setTag(MojangsonParser.parse(nbt));
         } catch (CommandSyntaxException ex) {
-            Chat.error("Invalid item JSON detected.");
+            Logging.error("Invalid item JSON detected.");
             return;
         }
         stack = CraftItemStack.asBukkitCopy(tmp);

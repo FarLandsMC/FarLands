@@ -29,7 +29,8 @@ public class FLPlayerSession {
     public double spamAccumulation;
     public boolean afk;
     public boolean flying;
-    public boolean staffChatToggledOn;
+    public boolean showStaffChat;
+    public boolean autoSendStaffChat;
     public boolean isInEvent;
     public CommandSender replyToggleRecipient;
     public Location seatExit;
@@ -56,7 +57,8 @@ public class FLPlayerSession {
         this.spamAccumulation = 0.0;
         this.afk = false;
         this.flying = handle.flightPreference;
-        this.staffChatToggledOn = false;
+        this.showStaffChat = true;
+        this.autoSendStaffChat = false;
         this.isInEvent = false;
         this.replyToggleRecipient = null;
         this.seatExit = null;
@@ -105,6 +107,7 @@ public class FLPlayerSession {
             player.setDisplayName(handle.nickname);
         else
             player.setDisplayName(player.getName());
+        player.setPlayerListName((handle.topVoter ? Rank.VOTER : handle.rank).getNameColor() + handle.username);
         handle.lastIP = player.getAddress().toString().split("/")[1].split(":")[0];
         flying = handle.flightPreference;
         if (!handle.rank.isStaff()) {
@@ -122,7 +125,6 @@ public class FLPlayerSession {
             flying = true;
         player.setAllowFlight(flying || GameMode.CREATIVE.equals(player.getGameMode()) ||
                 GameMode.SPECTATOR.equals(player.getGameMode()));
-        (handle.topVoter && !handle.rank.isStaff() ? Rank.VOTER : handle.rank).getTeam().addEntry(player.getName());
         Toggles.hidePlayers(player);
         if (!handle.mail.isEmpty() && sendMessages && mailCooldown.isComplete()) {
             mailCooldown.reset();

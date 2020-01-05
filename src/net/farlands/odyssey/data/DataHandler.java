@@ -9,6 +9,7 @@ import net.farlands.odyssey.data.struct.*;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.FileSystem;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.Utils;
 
@@ -61,7 +62,7 @@ public class DataHandler extends Mechanic {
     );
     private static final String MAIN_CONFIG_FILE = "mainConfig.json";
     private static final String PLUGIN_DATA_FILE = DIRECTORIES.get("data") + File.separator + "private.json";
-    private static final String PLAYER_DATA_FILE = DIRECTORIES.get("data") + File.separator + "playerdata.json";
+    private static final String PLAYER_DATA_FILE = DIRECTORIES.get("playerdata") + File.separator + "playerdata.json";
     private static final String EVIDENCE_LOCKERS_FILE = DIRECTORIES.get("data") + File.separator + "evidenceLockers.nbt";
     private static final String DEATH_DATABASE = DIRECTORIES.get("data") + File.separator + "deaths.nbt";
     private static final String PACKAGES_FILE = DIRECTORIES.get("data") + File.separator + "packages.nbt";
@@ -98,7 +99,7 @@ public class DataHandler extends Mechanic {
         File playerdataFile = new File(PLAYER_DATA_FILE);
         if(!playerdataFile.exists()) {
             try {
-                if (!playerdataFile.createNewFile())
+                if (!FileSystem.createFile(playerdataFile))
                     throw new RuntimeException("Failed to create player data file.");
             } catch (IOException ex) {
                 throw new RuntimeException("Failed to create player data file.", ex);
@@ -107,7 +108,7 @@ public class DataHandler extends Mechanic {
         initNbt(EVIDENCE_LOCKERS_FILE);
         initNbt(DEATH_DATABASE);
         initNbt(PACKAGES_FILE);
-        Chat.log("Initialized data handler.");
+        Logging.log("Initialized data handler.");
     }
 
     private void initNbt(String file) {
@@ -141,8 +142,7 @@ public class DataHandler extends Mechanic {
 
     @Override
     public void onStartup() {
-        FarLands.getScheduler().scheduleAsyncRepeatingTask(this::update, 50L, 5L * 60L * 20L);
-        Rank.createTeams();
+        FarLands.getScheduler().scheduleSyncRepeatingTask(this::update, 50L, 5L * 60L * 20L);
 
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             DataHandler dh = FarLands.getDataHandler();
@@ -153,7 +153,7 @@ public class DataHandler extends Mechanic {
                             StandardCharsets.UTF_8)) + "```");
                     flPlayerMap.values().forEach(flp -> flp.setViewedPatchnotes(false));
                 }catch(IOException ex) {
-                    Chat.error("Failed to post patch notes to #announcements");
+                    Logging.error("Failed to post patch notes to #announcements");
                     ex.printStackTrace(System.out);
                 }
             }
@@ -278,7 +278,7 @@ public class DataHandler extends Mechanic {
                 if(notes.length > 0)
                     currentPatchnotesMD5 = Utils.hash(notes);
             }catch(IOException ex) {
-                Chat.error("Failed to compare patch notes.");
+                Logging.error("Failed to compare patch notes.");
                 ex.printStackTrace(System.out);
             }
         }
@@ -407,7 +407,7 @@ public class DataHandler extends Mechanic {
         try {
             nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         }catch(IOException ex) {
-            Chat.error("Failed to load evidence locker data.");
+            Logging.error("Failed to load evidence locker data.");
             ex.printStackTrace(System.out);
             return;
         }
@@ -422,7 +422,7 @@ public class DataHandler extends Mechanic {
         try {
             NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         }catch(IOException ex) {
-            Chat.error("Failed to save evidence lockers file.");
+            Logging.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
         }
     }
@@ -432,7 +432,7 @@ public class DataHandler extends Mechanic {
         try {
             nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         }catch(IOException ex) {
-            Chat.error("Failed to load death database.");
+            Logging.error("Failed to load death database.");
             ex.printStackTrace(System.out);
             return;
         }
@@ -455,7 +455,7 @@ public class DataHandler extends Mechanic {
         try {
             NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         }catch(IOException ex) {
-            Chat.error("Failed to save evidence lockers file.");
+            Logging.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
         }
     }
@@ -465,7 +465,7 @@ public class DataHandler extends Mechanic {
         try {
             nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         }catch(IOException ex) {
-            Chat.error("Failed to load items file.");
+            Logging.error("Failed to load items file.");
             ex.printStackTrace(System.out);
             return;
         }
@@ -500,7 +500,7 @@ public class DataHandler extends Mechanic {
         try {
             NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         }catch(IOException ex) {
-            Chat.error("Failed to save items file.");
+            Logging.error("Failed to save items file.");
             ex.printStackTrace(System.out);
         }
     }
@@ -534,6 +534,20 @@ public class DataHandler extends Mechanic {
     }
 
     public void loadData() {
+        try {
+            String flPlayerMapData = FileSystem.readUTF8(FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
+            if (flPlayerMapData.isEmpty())
+                flPlayerMapData = "[]";
+            Collection<OfflineFLPlayer> flps = FarLands.getGson().fromJson(flPlayerMapData, new TypeToken<Collection<OfflineFLPlayer>>(){}.getType());
+            flps.forEach(flp -> {
+                flPlayerMap.put(flp.uuid, flp);
+                if(flp.isDiscordVerified())
+                    discordMap.put(flp.discordID, flp);
+            });
+        }catch (IOException ex) {
+            throw new RuntimeException("Failed to load player data.", ex);
+        }
+
         // Convert SQL things
         ResultSet rs = pdh.query("select uuid from playerdata");
         List<UUID> sqlUuids = new ArrayList<>();
@@ -546,23 +560,11 @@ public class DataHandler extends Mechanic {
         }catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
-        sqlUuids.forEach(uuid -> {
+        sqlUuids.stream().filter(uuid -> !flPlayerMap.containsKey(uuid)).forEach(uuid -> {
             OfflineFLPlayer flp = pdh.getFLPlayer(uuid);
             flp.notes.addAll(pdh.getNotes(uuid));
             flPlayerMap.put(uuid, flp);
         });
-
-        try {
-            String flPlayerMapData = FileSystem.readUTF8(FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
-            Collection<OfflineFLPlayer> flps = FarLands.getGson().fromJson(flPlayerMapData, new TypeToken<Collection<OfflineFLPlayer>>(){}.getType());
-            flps.forEach(flp -> {
-                flPlayerMap.put(flp.uuid, flp);
-                if(flp.isDiscordVerified())
-                    discordMap.put(flp.discordID, flp);
-            });
-        }catch (IOException ex) {
-            throw new RuntimeException("Failed to load player data.", ex);
-        }
 
         config = FileSystem.loadJson(Config.class, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));

@@ -10,6 +10,7 @@ import net.farlands.odyssey.gui.GuiHandler;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.MechanicHandler;
 import net.farlands.odyssey.scheduling.Scheduler;
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -59,7 +60,7 @@ public class FarLands extends JavaPlugin {
         farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
         mechanicHandler.registerMechanics();
         discordHandler.startBot();
-        Bukkit.getScheduler().runTaskLater(this, () -> Chat.log("Successfully loaded FarLands v2."), 50L);
+        Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v2."), 50L);
     }
 
     @Override

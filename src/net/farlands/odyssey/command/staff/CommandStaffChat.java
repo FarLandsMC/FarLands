@@ -4,8 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
-import net.farlands.odyssey.data.struct.OfflineFLPlayer;
-import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,20 +22,25 @@ public class CommandStaffChat extends Command {
         }
 
         // Toggling
-        if ("ctoggle".equals(args[0]) || args.length == 1) {
+        if (args.length == 1) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(ChatColor.RED + "You must be online to toggle staff chat.");
                 return true;
             }
 
             FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
-            sender.sendMessage(ChatColor.GREEN + "Staff chat toggled " +
-                    ((session.staffChatToggledOn = !session.staffChatToggledOn) ? "on." : "off."));
+            if ("ctoggle".equals(args[0])) {
+                sender.sendMessage(ChatColor.GREEN + "Staff chat toggled " +
+                        ((session.showStaffChat = !session.showStaffChat) ? "on." : "off."));
+            }else{
+                sender.sendMessage(ChatColor.GREEN + "Staff chat auto-messaging toggled " +
+                        ((session.autoSendStaffChat = !session.autoSendStaffChat) ? "on." : "off."));
+            }
         }
         // Sending a message
         else {
             String message = joinArgsBeyond(0, " ", args);
-            Chat.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + message);
+            Logging.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + message);
             FarLands.getDiscordHandler().sendMessage("staffcommands", sender.getName() + ": " + message);
         }
 

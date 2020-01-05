@@ -5,6 +5,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -39,7 +40,7 @@ public class CommandPurchase extends Command {
             try {
                 uuid = UUID.fromString(args[2]);
             } catch (IllegalArgumentException ex) {
-                Chat.error("Failed to execute purchase command due to an invalid UUID for player " + args[0]);
+                Logging.error("Failed to execute purchase command due to an invalid UUID for player " + args[0]);
                 return true;
             }
             flp = FarLands.getDataHandler().getOfflineFLPlayer(uuid, args[0]);

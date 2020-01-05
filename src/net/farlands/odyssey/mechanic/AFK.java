@@ -6,6 +6,7 @@ import net.farlands.odyssey.command.FLCommandEvent;
 import net.farlands.odyssey.command.player.CommandMessage;
 import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.FLPlayerSession;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.Utils;
 import net.md_5.bungee.api.ChatMessageType;
@@ -118,7 +119,7 @@ public class AFK extends Mechanic {
 
     public static void setNotAFK(FLPlayerSession session) {
         session.afk = false;
-        Chat.broadcast(flp -> !flp.handle.isIgnoring(session.player), " * " + session.handle.username + " is no longer AFK.", false);
+        Logging.broadcast(flp -> !flp.handle.isIgnoring(session.player), " * %0 is no longer AFK.", session.handle.username);
     }
 
     public static void setAFKCooldown(Player player) {
@@ -166,7 +167,7 @@ public class AFK extends Mechanic {
         if (player.isOnline()) {
             FarLands.getDebugger().echo("Kicking " + player.getName() + " for being AFK or answering the question incorrectly.");
             player.kickPlayer(ChatColor.RED + "Kicked for being AFK.");
-            Chat.broadcastStaff(ChatColor.RED + player.getName() + " was kicked for being AFK.");
+            Logging.broadcastStaff(ChatColor.RED + player.getName() + " was kicked for being AFK.");
         }
     }
 }

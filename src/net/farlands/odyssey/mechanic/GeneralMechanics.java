@@ -8,6 +8,7 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.gui.GuiVillagerEditor;
+import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.Utils;
 
@@ -66,7 +67,7 @@ public class GeneralMechanics extends Mechanic {
         try {
             joinMessage = TextUtils.format(FarLands.getDataHandler().getDataTextFile("join-message.txt"), FarLands.getFLConfig().discordInvite);
         } catch (IOException ex) {
-            Chat.error("Failed to load join message!");
+            Logging.error("Failed to load join message!");
         }
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
@@ -103,7 +104,7 @@ public class GeneralMechanics extends Mechanic {
         }, 125L);
 
         if (isNew) {
-            Chat.broadcast(p -> {
+            Logging.broadcast(p -> {
                 Player pl = p.handle.getOnlinePlayer();
                 if (!player.getUniqueId().equals(p.handle.uuid)) {
                     if (pl != null)
@@ -111,8 +112,7 @@ public class GeneralMechanics extends Mechanic {
                     return true;
                 } else
                     return false;
-            }, ChatColor.GOLD.toString() + ChatColor.BOLD + "> " + ChatColor.RESET + ChatColor.GOLD + "Welcome " +
-                    ChatColor.GREEN + player.getName() + ChatColor.GOLD + " to FarLands!", true);
+            }, "&(gold){&(bold)>} Welcome {&(green)%0} to FarLands!", player.getName());
             player.chat("/chain {guidebook} {shovel}");
             TextUtils.sendFormatted(player, "&(gold)Welcome to FarLands! Please read $(hovercmd,/rules,&(aqua)Click " +
                     "to view the server rules.,&(aqua)our rules) before playing. To get started, you can use " +
@@ -242,7 +242,7 @@ public class GeneralMechanics extends Mechanic {
         FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).updateSessionIfOnline(true);
         AdvancementDisplay ad = ((CraftAdvancement) event.getAdvancement()).getHandle().c();
         if (ad != null && !FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
-            Chat.broadcastIngame(TextComponent.fromLegacyText(event.getPlayer().getDisplayName() + ChatColor.RESET +
+            Logging.broadcastIngame(TextComponent.fromLegacyText(event.getPlayer().getDisplayName() + ChatColor.RESET +
                     " has made the advancement " + ChatColor.GREEN + "[" + ad.a().getText() + "]"));
             FarLands.getDiscordHandler().sendMessage("ingame", event.getPlayer().getDisplayName() +
                     " has made the advancement [" + ad.a().getText() + "]");
@@ -331,11 +331,11 @@ public class GeneralMechanics extends Mechanic {
         if (sleeping < required) {
             if (sendBroadcast && nightSkip.isComplete()) {
                 nightSkip.reset();
-                Chat.broadcastFormatted("%0 &(gold)more $(inflect,noun,0,player) $(inflect,verb,0,need) " +
+                Logging.broadcastFormatted("%0 &(gold)more $(inflect,noun,0,player) $(inflect,verb,0,need) " +
                         "to sleep to skip the night.", false, required - sleeping);
             }
         } else if (required == sleeping) {
-            Chat.broadcastFormatted("&(gold)Skipping the night...", false);
+            Logging.broadcastFormatted("&(gold)Skipping the night...", false);
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 World world = Bukkit.getWorld("world");
                 world.setTime(1000L);
