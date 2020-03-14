@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -40,6 +41,12 @@ public class CommandRankup extends Command {
                     sender.sendMessage(ChatColor.GOLD + "You must complete the advancement " + ChatColor.AQUA +
                             ad.a().getText() + ChatColor.GOLD + " to rankup.");
                 }
+            }
+
+            if(flp.getTotalVotes() < nextRank.getTotalVotesRequired()) {
+                TextUtils.sendFormatted(sender, "&(gold)You must vote {&(aqua)%0} more $(inflect,noun,0,time) to " +
+                                "rankup. Vote for our server {&(aqua)$(hoverlink,%1,Click to follow link,&(underline)here)}.",
+                        nextRank.getTotalVotesRequired() - flp.getTotalVotes(), FarLands.getFLConfig().voteConfig.voteLink);
             }
         }
         return true;

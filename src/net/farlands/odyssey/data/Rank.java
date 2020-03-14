@@ -17,33 +17,38 @@ import java.util.List;
 
 public enum Rank {
     /* Player Ranks */
-    INITIATE("Initiate", ChatColor.GRAY,                           0,    1,  7, 0,  3),
-    BARD("Bard", ChatColor.YELLOW, "story/mine_diamond",           3,    3,  6, 2,  18),
-    ESQUIRE("Esquire", ChatColor.DARK_GREEN, "story/enchant_item", 24,   5,  6, 5,  15),
-    KNIGHT("Knight", ChatColor.GOLD, "end/elytra",                 120,  8,  5, 10, 12),
-    SAGE("Sage", ChatColor.AQUA, "adventure/adventuring_time",     240,  10, 5, 15, 9),
-    ADEPT("Adept", ChatColor.GREEN, "adventure/totem_of_undying",  720,  12, 4, 20, 8),
-    SCHOLAR("Scholar", ChatColor.BLUE, "nether/all_effects",       1440, 16, 3, 30, 7),
-    VOTER("Voter", ChatColor.LIGHT_PURPLE,      -1,   16, 3, 30, 7), // Same as Scholar
-    DONOR("Donor", ChatColor.LIGHT_PURPLE,      -1,   24, 2, 40, 6),
-    PATRON("Patron", ChatColor.DARK_PURPLE,     -1,   32, 0, 50, 3),
-    MEDIA("Media", ChatColor.YELLOW,            -1,   32, 0, 50, 3), // Same as Patron
+    // symbol color playTimeRequired homes tpDelay shops wildCooldown
+    INITIATE("Initiate", ChatColor.GRAY,                                        0,  1, 7,  0,  3),
+    // symbol color advancement playTimeRequired totalVotesRequired homes tpDelay shops wildCooldown
+    BARD    ("Bard",     ChatColor.YELLOW,     "story/mine_diamond",            3,  1,  3, 6,  2, 18),
+    ESQUIRE ("Esquire",  ChatColor.DARK_GREEN, "story/enchant_item",           12,  3,  5, 6,  5, 15),
+    KNIGHT  ("Knight",   ChatColor.GOLD,       "nether/get_wither_skull",      24,  8,  8, 5, 10, 12),
+    SAGE    ("Sage",     ChatColor.AQUA,       "end/find_end_city",            72, 16, 10, 5, 15,  9),
+    ADEPT   ("Adept",    ChatColor.GREEN,      "adventure/totem_of_undying",  144, 32, 12, 4, 20,  8),
+    SCHOLAR ("Scholar",  ChatColor.BLUE,       "adventure/adventuring_time",  240, 64, 16, 3, 30,  7),
+    // symbol color playTimeRequired homes tpDelay shops wildCooldown
+    VOTER   ("Voter",    ChatColor.LIGHT_PURPLE,                               -1, 16, 3, 30,  7), // Same as Scholar
+    DONOR   ("Donor",    ChatColor.LIGHT_PURPLE,                               -1, 24, 2, 40,  6),
+    PATRON  ("Patron",   ChatColor.DARK_PURPLE,                                -1, 32, 0, 50,  3),
+    MEDIA   ("Media",    ChatColor.YELLOW,                                     -1, 32, 0, 50,  3), // Same as Patron
 
     /* Staff Ranks */
+    // permissionLevel symbol color
     JR_BUILDER(1, "Jr. Builder", ChatColor.LIGHT_PURPLE),
-    JR_MOD(1, "Jr. Mod", ChatColor.RED),
-    JR_DEV(1, "Jr. Dev", ChatColor.AQUA),
-    BUILDER(2, "Builder", ChatColor.DARK_PURPLE),
-    MOD(2, "Mod", ChatColor.DARK_RED),
-    ADMIN(3, "Admin", ChatColor.DARK_GREEN),
-    DEV(3, "Dev", ChatColor.DARK_AQUA),
-    OWNER(4, "Owner", ChatColor.GOLD);
+    JR_MOD    (1, "Jr. Mod",     ChatColor.RED),
+    JR_DEV    (1, "Jr. Dev",     ChatColor.AQUA),
+    BUILDER   (2, "Builder",     ChatColor.DARK_PURPLE),
+    MOD       (2, "Mod",         ChatColor.DARK_RED),
+    ADMIN     (3, "Admin",       ChatColor.DARK_GREEN),
+    DEV       (3, "Dev",         ChatColor.DARK_AQUA),
+    OWNER     (4, "Owner",       ChatColor.GOLD);
 
     private final int permissionLevel; // 0: players, 1+: staff
     private final String symbol;
     private final ChatColor color;
     private final String advancement;
     private final int playTimeRequired; // Hours
+    private final int totalVotesRequired;
     private final int homes;
     private final int tpDelay; // Seconds
     private final int shops;
@@ -56,29 +61,31 @@ public enum Rank {
     public static final String DONOR_COST_STR = DONOR_COST_USD + " USD";
     public static final String PATRON_COST_STR = PATRON_COST_USD + " USD";
 
-    Rank(int permissionLevel, String symbol, ChatColor color, String advancement, int playTimeRequired, int homes,
-         int tpDelay, int shops, int wildCooldown) {
+    Rank(int permissionLevel, String symbol, ChatColor color, String advancement, int playTimeRequired,
+         int totalVotesRequired, int homes, int tpDelay, int shops, int wildCooldown) {
         this.permissionLevel = permissionLevel;
         this.symbol = symbol;
         this.color = color;
         this.advancement = advancement;
         this.playTimeRequired = playTimeRequired;
+        this.totalVotesRequired = totalVotesRequired;
         this.homes = homes;
         this.tpDelay = tpDelay;
         this.shops = shops;
         this.wildCooldown = wildCooldown;
     }
 
-    Rank(String symbol, ChatColor color, String advancement, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, symbol, color, advancement, playTimeRequired, homes, tpDelay, shops, wildCooldown);
+    Rank(String symbol, ChatColor color, String advancement, int playTimeRequired, int totalVotesRequired, int homes,
+         int tpDelay, int shops, int wildCooldown) {
+        this(0, symbol, color, advancement, playTimeRequired, totalVotesRequired, homes, tpDelay, shops, wildCooldown);
     }
 
     Rank(String symbol, ChatColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, symbol, color, null, playTimeRequired, homes, tpDelay, shops, wildCooldown);
+        this(0, symbol, color, null, playTimeRequired, 0, homes, tpDelay, shops, wildCooldown);
     }
 
     Rank(int permissionLevel, String symbol, ChatColor color) {
-        this(permissionLevel, symbol, color, null, -1, Integer.MAX_VALUE, 0, 60, 0);
+        this(permissionLevel, symbol, color, null, -1, 0, Integer.MAX_VALUE, 0, 60, 0);
     }
 
     public int specialCompareTo(Rank other) {
@@ -98,6 +105,10 @@ public enum Rank {
 
     public boolean hasPlaytime(OfflineFLPlayer flp) {
         return playTimeRequired >= 0 && flp.getSecondsPlayed() >= playTimeRequired * 3600;
+    }
+
+    public int getTotalVotesRequired() {
+        return totalVotesRequired;
     }
 
     public boolean hasOP() {
@@ -138,7 +149,7 @@ public enum Rank {
     }
 
     public boolean hasRequirements(Player player, OfflineFLPlayer flp) {
-        return hasPlaytime(flp) && completedAdvancement(player);
+        return hasPlaytime(flp) && completedAdvancement(player) && flp.totalVotes >= totalVotesRequired;
     }
 
     public int getPlayTimeRequired() {
