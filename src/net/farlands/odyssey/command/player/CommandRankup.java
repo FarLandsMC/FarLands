@@ -31,7 +31,7 @@ public class CommandRankup extends Command {
             if (!nextRank.hasPlaytime(flp)) {
                 sender.sendMessage(ChatColor.GOLD + "You will rank up to " + nextRank.getColor() +
                         nextRank.getSymbol() + ChatColor.GOLD + " in " + TimeInterval.formatTime(
-                        (nextRank.getPlayTimeRequired() * 3600 - flp.secondsPlayed) * 1000L, false));
+                        ((nextRank.getPlayTimeRequired() - flp.totalVotes) * 3600 - flp.secondsPlayed) * 1000L, false));
             }
 
             if (sender instanceof Player && !nextRank.completedAdvancement((Player) sender)) {
