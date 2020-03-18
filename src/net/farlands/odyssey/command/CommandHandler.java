@@ -1,5 +1,9 @@
 package net.farlands.odyssey.command;
 
+import com.kicas.rp.RegionProtection;
+import com.kicas.rp.data.FlagContainer;
+import com.kicas.rp.data.RegionFlag;
+import com.kicas.rp.data.flagdata.StringFilter;
 import net.dv8tion.jda.core.entities.Message;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.discord.*;
@@ -289,6 +293,13 @@ public class CommandHandler extends Mechanic {
     }
 
     private boolean shouldNotExecute(Command command, CommandSender sender) {
+        // Comply with RP
+        if (sender instanceof Player && !FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff()) {
+            FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(((Player) sender).getLocation());
+            if (flags != null && flags.<StringFilter>getFlagMeta(RegionFlag.DENY_COMMAND).isBlocked(command.getName()))
+                return true;
+        }
+
         FLCommandEvent event = new FLCommandEvent(command, sender);
         FarLands.getInstance().getServer().getPluginManager().callEvent(event);
         return event.isCancelled();
