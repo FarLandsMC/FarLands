@@ -56,22 +56,22 @@ public class Restrictions extends Mechanic {
                     .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
                     .collect(Collectors.toList());
             List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(OfflineFLPlayer::getUsername).collect(Collectors.toList()),
-                    normal = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
+                    unbanned = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
             if (!banned.isEmpty()) {
                 Logging.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + banned.size() + " banned player" +
                         (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? "alerts" : null);
             }
-            if (!normal.isEmpty()) {
-                Logging.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + normal.size() + " player" +
-                        (normal.size() > 1 ? "s" : "") + ": " + String.join(", ", normal), isNew ? "alerts" : null);
+            if (!unbanned.isEmpty()) {
+                Logging.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + unbanned.size() + " player" +
+                        (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? "alerts" : null);
             }
             if (isNew) {
                 flp.setLastLocation(FarLands.getDataHandler().getPluginData().getSpawn());
                 if (!banned.isEmpty()) {
+                    Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.getUsername(),
+                            unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)));
                     flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
                     alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
-                    Logging.broadcastStaff("Punishing " + flp.getUsername() + " for ban evasion, along with the following alts: " +
-                            String.join(", ", normal), "output");
                     return;
                 }
             }
