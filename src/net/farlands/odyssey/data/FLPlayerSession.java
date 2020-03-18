@@ -205,9 +205,12 @@ public class FLPlayerSession {
 
     public void setCommandCooldown(Command command, long delay) {
         Integer taskUid = commandCooldowns.get(command.getClass());
-        if(taskUid == null)
-            commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(FLUtils.NO_ACTION, delay));
-        else
+        if(taskUid == null) {
+            commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(() -> {
+                if (player.isOnline())
+                    TextUtils.sendFormatted(player, "&(gold)You may use {&(aqua)/%0} again.", command.getName());
+            }, delay));
+        } else
             FarLands.getScheduler().getTask(taskUid).reset();
     }
 
