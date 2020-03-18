@@ -203,7 +203,7 @@ public class DiscordHandler extends ListenerAdapter {
         if (event.getAuthor().isBot())
             return;
         DiscordSender sender = new DiscordSender(event.getAuthor(), event.getChannel());
-        String message = event.getMessage().getContentRaw();
+        String message = event.getMessage().getContentStripped();
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
         message = Chat.removeColorCodes(message.replaceAll("\\s+", " "));
