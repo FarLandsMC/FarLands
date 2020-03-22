@@ -156,7 +156,6 @@ public class FLPlayerSession {
             player.setDisplayName(handle.nickname);
         else
             player.setDisplayName(player.getName());
-        player.setPlayerListName((handle.topVoter ? Rank.VOTER : handle.rank).getNameColor() + handle.username);
         (handle.topVoter && !handle.rank.isStaff() ? Rank.VOTER : handle.rank).getTeam().addEntry(player.getName());
         player.setPlayerListName((handle.topVoter && !handle.rank.isStaff() ? Rank.VOTER : handle.rank).getNameColor() + handle.username);
         handle.lastIP = player.getAddress().toString().split("/")[1].split(":")[0];
