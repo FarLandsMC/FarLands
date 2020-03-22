@@ -33,7 +33,7 @@ var getEntityById = function(uuid) {
 };
 
 var getRegionFile = function() {
-  return "r." + Math.floor(self.getLocation().getBlockX()/512) + "." + Math.floor(self.getLocation().getBlockZ()/512) + ".mca"
+    return "r." + (self.getLocation().getBlockX() >> 9) + "." + (self.getLocation().getBlockZ() >> 9) + ".mca"
 };
 
 var sendFormatted = function(recipient, input, values) {

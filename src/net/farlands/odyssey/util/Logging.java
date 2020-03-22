@@ -1,10 +1,13 @@
 package net.farlands.odyssey.util;
 
 import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
+
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -60,12 +63,12 @@ public final class Logging {
     }
 
     public static void log(Object x) {
-        Bukkit.getLogger().info("[FLv2] - " + x);
+        Bukkit.getLogger().info("[FLv" + FarLands.getInstance().getDescription().getVersion() + "] - " + x);
     }
 
     public static void error(Object x) {
         String msg = Objects.toString(x);
-        Bukkit.getLogger().severe("[FLv2] - " + msg);
+        Bukkit.getLogger().severe("[FLv" + FarLands.getInstance().getDescription().getVersion() + "] - " + msg);
         FarLands.getDebugger().echo("Error", msg);
         FarLands.getDiscordHandler().sendMessageRaw("output", msg);
     }

@@ -1,16 +1,17 @@
 package net.farlands.odyssey;
 
 import com.google.gson.*;
+
 import net.farlands.odyssey.command.CommandHandler;
 import net.farlands.odyssey.data.DataHandler;
 import net.farlands.odyssey.data.Config;
 import net.farlands.odyssey.data.Debugger;
 import net.farlands.odyssey.discord.DiscordHandler;
 import net.farlands.odyssey.gui.GuiHandler;
-import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.MechanicHandler;
 import net.farlands.odyssey.scheduling.Scheduler;
 import net.farlands.odyssey.util.Logging;
+
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -60,7 +61,8 @@ public class FarLands extends JavaPlugin {
         farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
         mechanicHandler.registerMechanics();
         discordHandler.startBot();
-        Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v2."), 50L);
+        Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
+                instance.getDescription().getVersion() + "."), 50L);
     }
 
     @Override

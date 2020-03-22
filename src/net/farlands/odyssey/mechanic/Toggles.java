@@ -20,6 +20,7 @@ import net.minecraft.server.v1_15_R1.EnumGamemode;
 import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_15_R1.PacketStatusOutServerInfo;
 import net.minecraft.server.v1_15_R1.ServerPing;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -66,7 +67,7 @@ public class Toggles extends Mechanic {
                         !Rank.getRank(event.getPlayer()).isStaff()) {
                     List infoList = (List) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
                     for (Object infoData : infoList) {
-                        if (EnumGamemode.SPECTATOR.equals(ReflectionHelper.invoke("c", infoData.getClass(), infoData))) {
+                        if (EnumGamemode.SPECTATOR == ReflectionHelper.invoke("c", infoData.getClass(), infoData)) {
                             ReflectionHelper.setFieldValue("c", infoData.getClass(), infoData, EnumGamemode.SURVIVAL);
                         }
                     }
@@ -97,7 +98,7 @@ public class Toggles extends Mechanic {
     }
 
     @EventHandler
-    public void onGameModeChane(PlayerGameModeChangeEvent event) {
+    public void onGameModeChange(PlayerGameModeChangeEvent event) {
         showSpectators(event.getPlayer());
     }
 
@@ -164,7 +165,7 @@ public class Toggles extends Mechanic {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
         if (flp.vanished)
             player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-        else
+        else if (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.getPotionEffect(PotionEffectType.INVISIBILITY).getDuration() > 8 * 60 * 20)
             player.removePotionEffect(PotionEffectType.INVISIBILITY);
 
         Bukkit.getOnlinePlayers().stream().filter(pl -> pl != player).forEach(pl -> {
@@ -177,7 +178,7 @@ public class Toggles extends Mechanic {
 
     private static void showSpectators(Player player) {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
-            if (GameMode.SPECTATOR.equals(player.getGameMode())) {
+            if (GameMode.SPECTATOR == player.getGameMode()) {
                 Bukkit.getOnlinePlayers().stream().filter(p -> Rank.getRank(p).isStaff()).forEach(p ->
                     ((CraftPlayer)p).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(
                         PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_GAME_MODE, ((CraftPlayer)player).getHandle()

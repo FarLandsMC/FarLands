@@ -4,6 +4,7 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -156,6 +157,8 @@ public class FLPlayerSession {
         else
             player.setDisplayName(player.getName());
         player.setPlayerListName((handle.topVoter ? Rank.VOTER : handle.rank).getNameColor() + handle.username);
+        (handle.topVoter && !handle.rank.isStaff() ? Rank.VOTER : handle.rank).getTeam().addEntry(player.getName());
+        player.setPlayerListName((handle.topVoter && !handle.rank.isStaff() ? Rank.VOTER : handle.rank).getNameColor() + handle.username);
         handle.lastIP = player.getAddress().toString().split("/")[1].split(":")[0];
 
         flying = handle.flightPreference;

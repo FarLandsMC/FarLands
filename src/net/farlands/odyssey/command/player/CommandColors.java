@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class CommandColors extends PlayerCommand {
     public CommandColors() {
-        super(Rank.ADEPT, "Show available color codes.", "/colors", "colors");
+        super(Rank.ADEPT, "Show available color codes.", "/colors", "colors", "colours");
     }
 
     @Override

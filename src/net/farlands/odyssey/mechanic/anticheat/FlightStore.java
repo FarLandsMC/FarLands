@@ -3,6 +3,7 @@ package net.farlands.odyssey.mechanic.anticheat;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.util.FLUtils;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -88,7 +89,7 @@ public class FlightStore {
     }
 
     private boolean isImmune() {
-        return session.player.isOnGround() ||
+        return  session.player.isOnGround() ||
                 session.player.isSwimming() ||
                 session.player.isGliding() ||
                 session.player.getVehicle() != null ||
@@ -96,7 +97,10 @@ public class FlightStore {
                 session.player.hasPotionEffect(PotionEffectType.LEVITATION) ||
                 session.player.hasPotionEffect(PotionEffectType.SLOW_FALLING) ||
                 !Material.AIR.equals(session.player.getWorld().getBlockAt(session.player.getLocation()).getType()) ||
-                FLUtils.checkNearby(session.player.getLocation(), Material.WATER, Material.LADDER, Material.VINE, Material.LAVA) ||
+                FLUtils.checkNearby(session.player.getLocation(),
+                        // TODO: add nether vines for 1.16 update
+                        Material.WATER, Material.LAVA, Material.LADDER, Material.VINE, Material.COBWEB
+                ) ||
                 !session.flightDetectorMute.isComplete() ||
                 session.flying;
     }

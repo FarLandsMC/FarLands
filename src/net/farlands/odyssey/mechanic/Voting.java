@@ -1,6 +1,7 @@
 package net.farlands.odyssey.mechanic;
 
 import com.vexsoftware.votifier.model.VotifierEvent;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.VoteConfig;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -8,6 +9,7 @@ import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.struct.ItemReward;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;

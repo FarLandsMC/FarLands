@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -8,6 +9,7 @@ import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TimeInterval;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -25,17 +27,23 @@ public class CommandPunish extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length < ("punish".equals(args[0]) ? 3 : 2))
+        if (args.length < ("pardon".equals(args[0]) ? 2 : 3))
             return false;
+
+        if (sender.getName().equals(args[1])) {
+            sender.sendMessage(ChatColor.RED + "Careful now!");
+            return true;
+        }
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
-        if(flp == null) {
+        if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
-        if("punish".equals(args[0]) || "ban".equals(args[0])) {
+
+        if (!"pardon".equals(args[0])) {
             Rank senderRank = Rank.getRank(sender), punishedRank = flp.getRank();
             // Staff can mute players, Non-Jr. staff can mute Jr. staff, Owners can mute all staff except owners.
-            if(!(sender instanceof ConsoleCommandSender) && ((senderRank.specialCompareTo(punishedRank) == 0) ||
+            if (!(sender instanceof ConsoleCommandSender) && ((senderRank.specialCompareTo(punishedRank) == 0) ||
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
                             (punishedRank.getPermissionLevel() == 2 || punishedRank.getPermissionLevel() == 3)) ||
                     (senderRank.getPermissionLevel() == 1 && punishedRank.getPermissionLevel() > 1))) {
@@ -43,12 +51,12 @@ public class CommandPunish extends Command {
                 return true;
             }
             Punishment.PunishmentType pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
-            if(pt == null) {
+            if (pt == null) {
                 sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
                 return true;
             }
             String punishMessage = args.length > 3 ? joinArgsBeyond(2, " ", args) : null;
-            if(punishMessage != null && punishMessage.length() > 256) {
+            if (punishMessage != null && punishMessage.length() > 256) {
                 sender.sendMessage(ChatColor.RED + "Punishment messages are limited to 256 characters, it will be truncated.");
                 punishMessage = punishMessage.substring(0, 256);
             }
@@ -61,23 +69,23 @@ public class CommandPunish extends Command {
             sender.sendMessage(ChatColor.GOLD + "P" + message.replaceAll("`", "\""));
             FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
                     " has p" + Chat.removeColorCodes(message));
-        }else{ // Remove punishment
+        } else { // Remove punishment
             Punishment.PunishmentType pt;
-            if(args.length == 2) { // Remove latest punishment
+            if (args.length == 2) { // Remove latest punishment
                 Punishment punishment = flp.isBanned() ? flp.getCurrentPunishment() : flp.getMostRecentPunishment();
-                if(punishment == null) {
+                if (punishment == null) {
                     sender.sendMessage(ChatColor.RED + "This player has no punishments on record.");
                     return true;
                 }
                 pt = punishment.getType();
-            }else{ // Remove specific punishment
+            } else { // Remove specific punishment
                 pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
-                if(pt == null) {
+                if (pt == null) {
                     sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
                     return true;
                 }
             }
-            if(flp.pardon(pt))
+            if (flp.pardon(pt))
                 sender.sendMessage(ChatColor.GOLD + "Pardoned " + ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD + " from " + pt.getHumanName());
             else
                 sender.sendMessage(ChatColor.RED + "This player does not have that punishment on record.");
@@ -87,7 +95,7 @@ public class CommandPunish extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        switch(args.length) {
+        switch (args.length) {
             case 0:
             case 1:
                 return getOnlinePlayers(args.length == 0 ? "" : args[0], sender);

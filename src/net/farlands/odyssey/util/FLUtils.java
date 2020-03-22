@@ -6,10 +6,13 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+
 import net.farlands.odyssey.FarLands;
+
 import net.minecraft.server.v1_15_R1.MerchantRecipe;
 import net.minecraft.server.v1_15_R1.MerchantRecipeList;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -77,15 +80,6 @@ public final class FLUtils {
 
     public static Material material(ItemStack stack) {
         return stack == null ? Material.AIR : stack.getType();
-    }
-
-    public static Pair<Location, Location> region(String world, double x1, double y1, double z1, double x2, double y2, double z2) {
-        World w = Bukkit.getWorld(world);
-        return new Pair<>(new Location(w, x1, y1, z1), new Location(w, x2, y2, z2));
-    }
-
-    public static Pair<Location, Location> region(double x1, double y1, double z1, double x2, double y2, double z2) {
-        return region("world", x1, y1, z1, x2, y2, z2);
     }
 
     public static boolean isWithin(Location loc, List<Pair<Location, Location>> region) {
@@ -391,7 +385,7 @@ public final class FLUtils {
         return foot && head;
     }
     public static boolean canStand(Block b) { // if a player can safely stand here
-        return b.getType().name().endsWith("_SLAB") || !(b.isPassable() ||
+        return b.getType().name().endsWith("_SLAB") || !(b.isPassable() && b.getType() != Material.WATER ||
                 b.getType().name().endsWith("_TRAPDOOR") && ((Openable)b.getBlockData()).isOpen() ||
                 Arrays.asList(Material.MAGMA_BLOCK, Material.CACTUS).contains(b.getType()));
     }
@@ -399,8 +393,8 @@ public final class FLUtils {
     public static Location findSafe(final Location l) {
         l.setX(l.getBlockX() + .5);
         l.setZ(l.getBlockZ() + .5);
-        return findSafe(l, max(1, l.getBlockY() - 8), min(l.getBlockY() + 7,
-                l.getWorld().getName().equals("world_nether") ? 126 : 254));
+        return findSafe(l, max(0, l.getBlockY() - 8), min(l.getBlockY() + 7,
+                l.getWorld().getName().equals("world_nether") ? 126 : 255));
     }
     private static Location findSafe(final Location origin, int s, int e) {
         Location safe = origin.clone();
@@ -408,19 +402,15 @@ public final class FLUtils {
         safe.setX(constrain(safe.getX(), -border, border));
         safe.setZ(constrain(safe.getZ(), -border, border));
         if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-            return safe.add(0, .5, 0);
-        do {
-            safe.setY((s + e) >> 1);
-            if (canStand(safe.getBlock())) {
+            return safe.add(0, .3125, 0);
+        for (int i = s + e >> 1, c = 0; s <= i && i <= e; i += ((++c & 1) == 1 ? c : c * -1)) {
+            safe.setY(i);
+            if (canStand(safe.getBlock()))
                 if (isSafe(safe.clone()))
-                    return safe.add(0, 1.5, 0);
-                s = safe.getBlockY() + 1;
-            } else
-                e = safe.getBlockY() - 1;
-        } while (s <= e);
-        if (!FarLands.getWorld().equals(origin.getWorld()))
-            FarLands.getDebugger().echo("unsafe tp @ " +
-                    safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
+                    return safe.add(0, 1, 0);
+        }
+        FarLands.getDebugger().echo("unsafe tp @ " +
+                safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
         return null;
     }
 

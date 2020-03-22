@@ -3,6 +3,7 @@ package net.farlands.odyssey.data;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -11,6 +12,8 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.Arrays;
 import java.util.List;
@@ -170,14 +173,32 @@ public enum Rank {
     }
 
     public static Rank getRank(CommandSender sender) {
-        if(sender instanceof ConsoleCommandSender)
+        if (sender instanceof ConsoleCommandSender)
             return VALUES[VALUES.length - 1];
-        else if(sender instanceof BlockCommandSender)
+        else if (sender instanceof BlockCommandSender)
             return MOD;
-        else if(sender instanceof DiscordSender) {
-            OfflineFLPlayer flp = ((DiscordSender)sender).getFlp();
+        else if (sender instanceof DiscordSender) {
+            OfflineFLPlayer flp = ((DiscordSender) sender).getFlp();
             return flp == null ? Rank.INITIATE : flp.getRank();
         } else
-            return FarLands.getDataHandler().getOfflineFLPlayer((Player)sender).rank;
+            return FarLands.getDataHandler().getOfflineFLPlayer((Player) sender).rank;
+    }
+
+    private String getTeamName() {
+        return specialCompareTo(VOTER) >= 0 ? (char) ('a' + ordinal()) + getSymbol() : "aDefault"; // Prefixes to order teams alphabetically
+    }
+
+    public Team getTeam() {
+        return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(getTeamName());
+    }
+
+    public static void createTeams() {
+        final Scoreboard sc = Bukkit.getScoreboardManager().getMainScoreboard();
+        sc.getTeams().forEach(Team::unregister); // Remove old teams
+        Arrays.stream(VALUES).filter(rank -> rank.getTeam() == null).forEach(rank -> { // Add teams
+            Team team = sc.registerNewTeam(rank.getTeamName());
+            team.setColor(rank.getNameColor());
+            team.setPrefix(rank.getNameColor().toString());
+        });
     }
 }

@@ -1,10 +1,13 @@
 package net.farlands.odyssey.mechanic;
 
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.FireworkBuilder;
 import net.farlands.odyssey.util.FLUtils;
+
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -41,38 +44,38 @@ public class Items extends Mechanic {
 
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
-        if(event.getEntity() == null || !EntityType.PLAYER.equals(event.getEntity().getType()))
+        if (EntityType.PLAYER != event.getEntity().getType())
             return;
-        PlayerInventory inv = ((Player)event.getEntity()).getInventory();
+        PlayerInventory inv = ((Player) event.getEntity()).getInventory();
         ItemStack arrow = null;
         int arrowIndex = -1;
-        if(inv.getItemInOffHand() != null && Material.ARROW.equals(inv.getItemInOffHand().getType())) {
+        if (Material.ARROW != inv.getItemInOffHand().getType()) {
             arrow = inv.getItemInOffHand();
             arrowIndex = 0;
-        }else{
-            for(int i = 27;i < 36;++ i) {
-                if(inv.getItem(i) != null && Material.ARROW.equals(inv.getItem(i).getType())) {
+        } else {
+            for (int i = 27; i < 36; ++i) {
+                if (inv.getItem(i) != null && Material.ARROW == inv.getItem(i).getType()) {
                     arrow = inv.getItem(i);
                     arrowIndex = i;
                     break;
                 }
             }
-            if(arrow == null) {
+            if (arrow == null) {
                 arrowIndex = inv.first(Material.ARROW);
-                if(arrowIndex < 0)
+                if (arrowIndex < 0)
                     return;
                 arrow = inv.getItem(arrowIndex);
             }
         }
 
         NBTTagCompound nbt = FLUtils.getTag(arrow);
-        if(nbt != null && nbt.hasKey("tntArrow")) {
+        if (nbt != null && nbt.hasKey("tntArrow")) {
             // Infinity doesn't apply to these arrows
-            if((inv.getItemInMainHand() != null && inv.getItemInMainHand().getType() == Material.BOW
+            if ((inv.getItemInMainHand().getType() == Material.BOW
                     ? inv.getItemInMainHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0
-                    : inv.getItemInOffHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0) && arrowIndex >= 0 &&
-                    ((Player)event.getEntity()).getGameMode() == GameMode.SURVIVAL) {
-                if(arrow.getAmount() == 1)
+                    : inv.getItemInOffHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0) &&
+                    arrowIndex >= 0 && ((Player) event.getEntity()).getGameMode() == GameMode.SURVIVAL) {
+                if (arrow.getAmount() == 1)
                     inv.setItem(arrowIndex, null);
                 else
                     arrow.setAmount(arrow.getAmount() - 1);
@@ -95,21 +98,20 @@ public class Items extends Mechanic {
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
-        if(tntArrows.containsKey(event.getEntity().getUniqueId())) {
+        if (tntArrows.containsKey(event.getEntity().getUniqueId())) {
             TNTArrow data = tntArrows.get(event.getEntity().getUniqueId());
-            switch(data.type) {
+            switch (data.type) {
                 case 0:
                     fakeExplosion(event.getEntity().getLocation(), data.strength * 5.0, data.duration);
                     break;
                 case 1:
                     event.getEntity().getWorld().createExplosion(event.getEntity().getLocation(), data.strength * 4.0F, true);
                     break;
-                case 2:
-                {
+                case 2: {
                     Location loc = event.getEntity().getLocation();
                     FireworkBuilder.randomFirework(1, 1, 1).spawnEntity(loc);
                     double dx, dy, dz;
-                    for(int i = 0;i < 2;++ i) {
+                    for (int i = 0; i < 2; ++i) {
                         double theta = FLUtils.RNG.nextDouble() * 2 * Math.PI;
                         dx = FLUtils.randomDouble(1.5, 2.5) * Math.cos(theta);
                         dy = FLUtils.randomDouble(2, 3) * Math.sin(FLUtils.RNG.nextDouble() * 0.5 * Math.PI);
@@ -118,40 +120,36 @@ public class Items extends Mechanic {
                     }
                     break;
                 }
-                case 3:
-                {
+                case 3: {
                     entityExplosion(event.getEntity().getLocation().add(0, 1, 0), PASSIVES);
                     break;
                 }
-                case 4:
-                {
+                case 4: {
                     entityExplosion(event.getEntity().getLocation().add(0, 1, 0), HOSTILES);
                     break;
                 }
-                case 5:
-                {
+                case 5: {
                     Location loc = event.getEntity().getLocation().add(0, 3, 0);
                     double speed = Math.min(2, Math.max(0.3, data.strength * 0.25));
-                    for(int i = 0;i < data.strength * 5;++ i) {
-                        TNTPrimed tnt = (TNTPrimed)loc.getWorld().spawnEntity(loc, EntityType.PRIMED_TNT);
+                    for (int i = 0; i < data.strength * 5; ++i) {
+                        TNTPrimed tnt = (TNTPrimed) loc.getWorld().spawnEntity(loc, EntityType.PRIMED_TNT);
                         tnt.setFuseTicks(100); // 5 seconds
                         tnt.setVelocity(new Vector(speed * FLUtils.randomDouble(-1, 1), speed * FLUtils.randomDouble(-1, 1),
                                 speed * FLUtils.randomDouble(-1, 1)));
                     }
                     break;
                 }
-                case 6:
-                {
+                case 6: {
                     final Location loc = event.getEntity().getLocation().clone();
                     loc.setY(loc.getWorld().getMaxHeight() * 0.75);
                     final double maxRadius = Math.min(15, data.strength * 3);
                     final int taskId = FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
                         double theta = FLUtils.randomDouble(0, 2 * Math.PI), radius = FLUtils.randomDouble(0, maxRadius);
-                        TNTPrimed tnt = (TNTPrimed)loc.getWorld().spawnEntity(loc.clone().add(radius * (2 * Math.cos(theta) - 1), 0,
+                        TNTPrimed tnt = (TNTPrimed) loc.getWorld().spawnEntity(loc.clone().add(radius * (2 * Math.cos(theta) - 1), 0,
                                 radius * (2 * Math.sin(theta) - 1)), EntityType.PRIMED_TNT);
                         tnt.setFuseTicks(200); // 10 seconds
                     }, 0, 2);
-                    FarLands.getScheduler().scheduleSyncDelayedTask(() -> FarLands.getScheduler().cancelTask(taskId), (long)(data.strength * 81));
+                    FarLands.getScheduler().scheduleSyncDelayedTask(() -> FarLands.getScheduler().cancelTask(taskId), (long) (data.strength * 81));
                     break;
                 }
             }
@@ -160,16 +158,16 @@ public class Items extends Mechanic {
         }
     }
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
-        if(tntArrows.containsKey(event.getDamager().getUniqueId()) && tntArrows.get(event.getDamager().getUniqueId()).type == 2)
+        if (tntArrows.containsKey(event.getDamager().getUniqueId()) && tntArrows.get(event.getDamager().getUniqueId()).type == 2)
             event.setCancelled(true);
     }
 
     private void fakeExplosion(Location location, double radius, int duration) {
-        List<Player> players = location.getWorld().getEntities().stream().filter(ent -> EntityType.PLAYER.equals(ent.getType()) &&
+        List<Player> players = location.getWorld().getEntities().stream().filter(ent -> EntityType.PLAYER == ent.getType() &&
                 ent.getLocation().distanceSquared(location) < 75 * 75).map(ent -> (Player) ent).collect(Collectors.toList());
-        if(radius <= 10.0) {
+        if (radius <= 10.0) {
             Map<Block, WrappedBlockData> exploded = getExplodedBlocks(location, radius);
             players.forEach(player -> {
                 FLUtils.changeBlocks(player, exploded);
@@ -180,7 +178,7 @@ public class Items extends Mechanic {
                 exploded.keySet().forEach(block -> reset.put(block, WrappedBlockData.createData(block.getBlockData())));
                 players.forEach(player -> FLUtils.changeBlocks(player, reset));
             }, duration * 20L);
-        }else{
+        } else {
             (new Thread(() -> {
                 Map<Block, WrappedBlockData> exploded = getExplodedBlocks(location, radius);
                 players.forEach(player -> {
@@ -199,15 +197,15 @@ public class Items extends Mechanic {
     private Map<Block, WrappedBlockData> getExplodedBlocks(Location location, double radius) {
         final double r2 = radius * radius;
         Map<Block, WrappedBlockData> exploded = new HashMap<>();
-        for(double y = -radius;y < radius;++ y) {
-            for(double x = -radius;x < radius;++ x) {
-                for(double z = -radius;z < radius;++ z) {
+        for (double y = -radius; y < radius; ++y) {
+            for (double x = -radius; x < radius; ++x) {
+                for (double z = -radius; z < radius; ++z) {
                     Block current = location.clone().add(x, y, z).getBlock();
-                    if(!UNBREAKABLE_BLOCKS.contains(current.getType()) && current.getLocation().distanceSquared(location) <= r2) {
+                    if (!UNBREAKABLE_BLOCKS.contains(current.getType()) && current.getLocation().distanceSquared(location) <= r2) {
                         Location loc = current.getLocation().clone().subtract(0, 1, 0);
                         exploded.put(current, WrappedBlockData.createData((loc.distanceSquared(location) > r2 ||
                                 UNBREAKABLE_BLOCKS.contains(loc.getBlock().getType())) && loc.getBlock().getType().isSolid() &&
-                                        FLUtils.randomChance(0.2) ? Material.FIRE : Material.AIR));
+                                FLUtils.randomChance(0.2) ? Material.FIRE : Material.AIR));
                     }
                 }
             }

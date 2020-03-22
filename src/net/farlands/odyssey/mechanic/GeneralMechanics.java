@@ -5,10 +5,12 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.FLPlayerSession;
+import net.farlands.odyssey.data.struct.ItemDistributor;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.gui.GuiVillagerEditor;
 import net.farlands.odyssey.util.Logging;
+import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.FLUtils;
 
@@ -19,6 +21,7 @@ import net.minecraft.server.v1_15_R1.AdvancementDisplay;
 import net.minecraft.server.v1_15_R1.EntityTypes;
 import net.minecraft.server.v1_15_R1.EntityVillager;
 import net.minecraft.server.v1_15_R1.EntityVillagerAbstract;
+
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -34,7 +37,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -55,6 +60,8 @@ public class GeneralMechanics extends Mechanic {
     private Cooldown nightSkip;
     private List<UUID> leashedEntities;
 
+    private Map<UUID, Pair<Pair<Integer, ItemDistributor>, Integer>> distributerMakers = new HashMap<>();
+
     public GeneralMechanics() {
         this.fireworkLaunches = new HashMap<>();
         this.joinMessage = new BaseComponent[0];
@@ -73,18 +80,18 @@ public class GeneralMechanics extends Mechanic {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
                 Bukkit.getOnlinePlayers().forEach(player -> {
                     OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
-                    if (flp.hasParticles() && !flp.isVanished() && !GameMode.SPECTATOR.equals(player.getGameMode()))
+                    if (flp.hasParticles() && !flp.isVanished() && GameMode.SPECTATOR != player.getGameMode())
                         flp.getParticles().spawn(player);
                 }), 0L, 60L);
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () -> {
-            Bukkit.getWorld("world").getEntities().stream().filter(e -> EntityType.DROPPED_ITEM.equals(e.getType()))
-                    .map(e -> (Item) e).filter(e -> Material.SLIME_BALL.equals(e.getItemStack().getType()) && e.isValid() && e.getLocation().getChunk().isSlimeChunk())
-                    .forEach(e -> {
-                        e.getWorld().playSound(e.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
-                        e.setVelocity(new org.bukkit.util.Vector(0.0, 0.4, 0.0));
-                    });
-        }, 0L, 100L);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
+                Bukkit.getWorld("world").getEntities().stream().filter(e -> EntityType.DROPPED_ITEM == e.getType())
+                        .map(e -> (Item) e).filter(e -> Material.SLIME_BALL == e.getItemStack().getType() &&
+                        e.isValid() && e.getLocation().getChunk().isSlimeChunk())
+                        .forEach(e -> {
+                            e.getWorld().playSound(e.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
+                            e.setVelocity(new org.bukkit.util.Vector(0.0, 0.4, 0.0));
+                        }), 0L, 100L);
     }
 
     @Override
@@ -122,17 +129,22 @@ public class GeneralMechanics extends Mechanic {
         }
 
         if ("world".equals(player.getWorld().getName()))
-            updateNightSkip(true, 0, 0);
+            FarLands.getScheduler().scheduleSyncDelayedTask(() -> updateNightSkip(true), 1);
     }
 
     @Override
     public void onPlayerQuit(Player player) {
-        if (player.getVehicle() != null && FarLands.getDataHandler().getSession(player).seatExit != null) {
-            player.getVehicle().remove();
-            player.teleport(FarLands.getDataHandler().getSession(player).seatExit);
+        Location exit = FarLands.getDataHandler().getSession(player).seatExit;
+        Entity vehicle = player.getVehicle();
+        if (vehicle != null) {
+            vehicle.eject();
+            vehicle.remove();
+        }
+        if (exit != null) {
+            player.teleport(exit);
             FarLands.getDataHandler().getSession(player).seatExit = null;
         }
-        updateNightSkip(true, 1, 0);
+        FarLands.getScheduler().scheduleSyncDelayedTask(() -> updateNightSkip(true), 1);
     }
 
     @EventHandler
@@ -142,22 +154,44 @@ public class GeneralMechanics extends Mechanic {
             event.setLine(i, Chat.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onItemTransferred(InventoryMoveItemEvent event) {
+        FarLands.getDataHandler().getPluginData().itemDistributors.forEach(id -> id.accept(event));
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getHand() == EquipmentSlot.OFF_HAND)
+            return; // Ignore offhand packet
+
+        if (event.getClickedBlock() == null)
+            return;
+
         Player player = event.getPlayer();
-        if (Material.DRAGON_EGG.equals(event.getClickedBlock() == null ? null : event.getClickedBlock().getType()) && !event.isCancelled()) {
+        if (Material.DRAGON_EGG == event.getClickedBlock().getType()) {
             event.setCancelled(true);
             event.getClickedBlock().setType(Material.AIR);
             FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
             event.getPlayer().playSound(event.getClickedBlock().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
             return;
         }
+
+        if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.NETHER_PORTAL) {
+            Location location = event.getClickedBlock().getLocation();
+            player.sendMessage(ChatColor.DARK_PURPLE + "This portal best links to " +
+                    (location.getWorld().getName().equals("world") ?
+                            (location.getBlockX() >> 3) + " " + location.getBlockY() + " " + (location.getBlockZ() >> 3) :                  // x / 8
+                            (location.getBlockX() << 3) + "(+15) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+15)") +  // x * 8
+                    " in the " + (location.getWorld().getName().equals("world") ? "Nether" : "Overworld") + ".");
+            return;
+        }
+
         ItemStack chestplate = player.getInventory().getChestplate();
-        if (Material.FIREWORK_ROCKET.equals(event.getMaterial()) && EquipmentSlot.HAND.equals(event.getHand()) &&
-                Action.RIGHT_CLICK_BLOCK.equals(event.getAction()) && Material.ELYTRA.equals(chestplate == null ? null :
-                chestplate.getType()) && !player.isGliding()) {
+        if (GameMode.SPECTATOR != player.getGameMode() &&
+                Material.FIREWORK_ROCKET == event.getMaterial() && Action.RIGHT_CLICK_BLOCK == event.getAction() &&
+                Material.ELYTRA == (chestplate == null ? null : chestplate.getType()) && !player.isGliding()) {
             event.setCancelled(true);
-            if (!GameMode.CREATIVE.equals(player.getGameMode())) {
+            if (GameMode.CREATIVE != player.getGameMode()) {
                 PlayerInventory inv = player.getInventory();
                 ItemStack hand = inv.getItemInMainHand();
                 if (hand.getAmount() == 1)
@@ -168,8 +202,64 @@ public class GeneralMechanics extends Mechanic {
             Firework firework = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
             firework.addPassenger(player);
             fireworkLaunches.put(firework.getUniqueId(), player);
-            // Add if another condition is added below
-            //return;
+            return;
+        }
+
+        if (GameMode.CREATIVE == player.getGameMode() && Rank.getRank(player).isStaff() &&
+                Material.IRON_NUGGET == event.getMaterial()) {
+            if (Action.RIGHT_CLICK_BLOCK == event.getAction()) {
+                if (FarLands.getDataHandler().getPluginData().itemDistributors.stream()
+                        .anyMatch(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
+                    player.sendMessage(ChatColor.RED + "This chest is already a source for an item distributer.");
+                    event.setCancelled(true);
+                    return;
+                }
+
+                Pair<Integer, ItemDistributor> stage;
+                if (distributerMakers.containsKey(player.getUniqueId())) {
+                    stage = distributerMakers.get(player.getUniqueId()).getFirst();
+                    FarLands.getScheduler().resetTask(distributerMakers.get(player.getUniqueId()).getSecond());
+                } else {
+                    stage = new Pair<>(0, new ItemDistributor());
+                    distributerMakers.put(player.getUniqueId(), new Pair<>(stage, FarLands.getScheduler()
+                            .scheduleSyncDelayedTask(() -> distributerMakers.remove(player.getUniqueId()), 30L * 20L)));
+                }
+                switch (stage.getFirst()) {
+                    case 0:
+                        if (Material.CHEST == event.getClickedBlock().getType()) {
+                            stage.getSecond().setSource(event.getClickedBlock().getLocation());
+                            player.sendMessage(ChatColor.GREEN + "Source chest set.");
+                            stage.setFirst(1);
+                        } else
+                            player.sendMessage(ChatColor.RED + "Please click a chest to set as the source.");
+                        break;
+                    case 1:
+                        if (Material.CHEST == event.getClickedBlock().getType()) {
+                            stage.getSecond().setPublic(event.getClickedBlock().getLocation());
+                            player.sendMessage(ChatColor.GREEN + "Public chest set.");
+                            stage.setFirst(2);
+                        } else
+                            player.sendMessage(ChatColor.RED + "Please click a chest to set as the public chest.");
+                        FarLands.getScheduler().resetTask(distributerMakers.get(player.getUniqueId()).getSecond());
+                        break;
+                    case 2:
+                        if (Material.CHEST == event.getClickedBlock().getType()) {
+                            stage.getSecond().setPrivate(event.getClickedBlock().getLocation());
+                            player.sendMessage(ChatColor.GREEN + "Private chest set, item distributor registered.");
+                            FarLands.getScheduler().completeTask(distributerMakers.get(player.getUniqueId()).getSecond());
+                            FarLands.getDataHandler().getPluginData().itemDistributors.add(stage.getSecond());
+                        } else
+                            player.sendMessage(ChatColor.RED + "Please click a chest to set as the private chest.");
+                        break;
+                }
+                event.setCancelled(true);
+            } else if (Action.LEFT_CLICK_BLOCK == event.getAction()) {
+                if (FarLands.getDataHandler().getPluginData().itemDistributors
+                        .removeIf(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
+                    player.sendMessage(ChatColor.GREEN + "Removed item distributor.");
+                    event.setCancelled(true);
+                }
+            }
         }
     }
 
@@ -177,15 +267,15 @@ public class GeneralMechanics extends Mechanic {
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         Entity ent = event.getRightClicked();
         ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
-        if (EntityType.VILLAGER.equals(event.getRightClicked().getType()) && GameMode.CREATIVE.equals(event.getPlayer().getGameMode()) &&
-                Material.BLAZE_ROD.equals(hand.getType()) && Rank.getRank(event.getPlayer()).isStaff()) {
+        if (EntityType.VILLAGER == event.getRightClicked().getType() && GameMode.CREATIVE == event.getPlayer().getGameMode() &&
+                Material.BLAZE_ROD == hand.getType() && Rank.getRank(event.getPlayer()).isStaff()) {
             event.setCancelled(true);
             FarLands.getDataHandler().getPluginData().addSpawnTrader(ent.getUniqueId());
             (new GuiVillagerEditor((CraftVillager) ent)).openGui(event.getPlayer());
         } else if (LEASHABLE_ENTITIES.contains(event.getRightClicked().getType()) && !FLUtils.isInSpawn(event.getRightClicked().getLocation()) &&
-                event.getRightClicked() instanceof LivingEntity && hand != null) {
+                event.getRightClicked() instanceof LivingEntity) {
             final LivingEntity entity = (LivingEntity) ent;
-            if (Material.LEAD.equals(hand.getType()) && ent instanceof LivingEntity) {
+            if (Material.LEAD == hand.getType()) {
                 if (entity.isLeashed())
                     return;
                 event.setCancelled(true); // Don't open any GUIs
@@ -264,22 +354,31 @@ public class GeneralMechanics extends Mechanic {
                 }, 1);
             });
         } else
-            updateNightSkip(false, 1, 0);
+            updateNightSkip(false);
+    }
+
+    // Send items from the end to the correct location
+    @EventHandler(ignoreCancelled = true)
+    public void onEntityTeleport(EntityPortalEvent event) {
+        if (event.getEntity().getType() == EntityType.DROPPED_ITEM &&
+                "world_the_end".equals(event.getFrom().getWorld().getName()) &&
+                "world".equals(event.getTo().getWorld().getName())) {
+            event.setTo(FarLands.getDataHandler().getPluginData().getSpawn());
+        }
     }
 
     @EventHandler
     public void onFireworkExplode(FireworkExplodeEvent event) {
         if (fireworkLaunches.containsKey(event.getEntity().getUniqueId())) {
             Player player = fireworkLaunches.get(event.getEntity().getUniqueId());
-            if (player.isValid() && !"farlands".equals(player.getWorld().getName())) {
+            if (player.isValid() && !"farlands".equals(player.getWorld().getName()))
                 player.setGliding(true);
-            }
         }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerBedEnter(PlayerBedEnterEvent event) {
-        updateNightSkip(true, 0, 1);
+        updateNightSkip(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -314,7 +413,7 @@ public class GeneralMechanics extends Mechanic {
         }
     }
 
-    private void updateNightSkip(boolean sendBroadcast, int roff, int soff) {
+    private void updateNightSkip(boolean sendBroadcast) {
         int dayTime = (int) (Bukkit.getWorld("world").getTime() % 24000);
         if (12541 > dayTime || dayTime > 23458)
             return;
@@ -323,11 +422,11 @@ public class GeneralMechanics extends Mechanic {
                 .filter(player -> "world".equals(player.getWorld().getName())).map(player -> (Player) player)
                 .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
                 .collect(Collectors.toList());
-        int sleeping = (int) online.stream().filter(Player::isSleeping).count() + soff;
+        int sleeping = (int) online.stream().filter(Player::isSleeping).count();
         if (sleeping <= 0)
             return;
 
-        int required = (online.size() + 1 - roff) / 2;
+        int required = (online.size() + 1) / 2;
         if (sleeping < required) {
             if (sendBroadcast && nightSkip.isComplete()) {
                 nightSkip.reset();

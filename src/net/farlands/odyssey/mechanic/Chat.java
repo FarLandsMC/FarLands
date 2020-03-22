@@ -1,6 +1,7 @@
 package net.farlands.odyssey.mechanic;
 
 import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.player.CommandMessage;
 import net.farlands.odyssey.command.staff.CommandStaffChat;
@@ -10,7 +11,9 @@ import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
+
 import net.md_5.bungee.api.chat.BaseComponent;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -212,6 +215,7 @@ public class Chat extends Mechanic {
     }
 
     public static String applyDiscordFilters(String message) {
+        message = message.replaceAll("\\\\", "\\\\\\\\");
         for (String c : DISCORD_CHARS)
             message = message.replaceAll("\\" + c, "\\\\" + c);
         message = message.replaceAll("@", "\\\\@ ");

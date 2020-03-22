@@ -33,16 +33,26 @@ public class CommandRestoreDeath extends Command {
             sender.sendMessage(ChatColor.RED + "This player has no deaths on record.");
             return true;
         }
-        // 1 for most recent
-        int death = args.length < 2 ? deaths.size() - 1 : deaths.size() - Integer.parseInt(args[1]);
-        if (deaths.size() - 1 < death || death < 0) {
-            sender.sendMessage("Death number must be between 1 and " + deaths.size());
-            return true;
+        // newest deaths at tail of list
+        int death;
+        if (args.length < 2) {
+            death = deaths.size() - 1;
+        } else {
+            try {
+                death = deaths.size() - Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage("2nd argument must be a number between 1 and " + deaths.size());
+                return true;
+            }
+            if (deaths.size() - 1 < death || death < 0) {
+                sender.sendMessage("Death number must be between 1 and " + deaths.size());
+                return true;
+            }
         }
         player.setLevel(deaths.get(death).getXpLevels());
         player.setExp(deaths.get(death).getXpPoints());
         List<ItemStack> deathInv = deaths.get(death).getInventory();
-        for (int i = -1; ++i < deathInv.size();)
+        for (int i = deathInv.size(); --i >= 0;)
             player.getInventory().setItem(i, deathInv.get(i));
         return true;
     }

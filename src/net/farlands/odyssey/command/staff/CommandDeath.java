@@ -1,9 +1,12 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.PlayerDeath;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -34,19 +37,27 @@ public class CommandDeath extends PlayerCommand {
         }
 
         int death;
-        try {
-            death = args.length < 2 ? deaths.size() - 1 : deaths.size() - Integer.parseInt(args[1]);
-        } catch (NumberFormatException ex) {
-            sender.sendMessage(ChatColor.RED + "Invalid death number. If you wish to rollback a death, use " +
-                    "/restoredeath.");
-            return true;
+        if (args.length < 2) {
+            death = deaths.size() - 1;
+        } else {
+            try {
+                death = deaths.size() - Integer.parseInt(args[1]);
+            } catch (NumberFormatException ex) {
+                sender.sendMessage(ChatColor.RED + "Invalid death number. If you wish to rollback a death, use " +
+                        "/restoredeath.");
+                return true;
+            }
+            if (deaths.size() - 1 < death || death < 0) {
+                sender.sendMessage("Death number must be between 1 and " + deaths.size());
+                return true;
+            }
         }
-
-        if(deaths.size() - 1 < death || death < 0) {
-            sender.sendMessage("Death number must be between 1 and " + deaths.size());
-            return true;
-        }
-        sender.teleport(deaths.get(death).getLocation());
+        Location deathLocation = deaths.get(death).getLocation();
+        sender.teleport(deathLocation);
+        sendFormatted(sender, "&(gray)Player {&(white)%0} died at " +
+                        "$(hovercmd,/tl %1 %2 %3 %4 %5 %6,{&(gray)Click to teleport},&(white)%1 %2 %3 %4 %5 %6)",
+                args[0], deathLocation.getX(), deathLocation.getY(), deathLocation.getZ(),
+                deathLocation.getYaw(), deathLocation.getPitch(), deathLocation.getWorld().getName());
         return true;
     }
 

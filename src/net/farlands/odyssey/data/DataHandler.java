@@ -2,7 +2,9 @@ package net.farlands.odyssey.data;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.struct.*;
@@ -16,6 +18,7 @@ import net.farlands.odyssey.util.FLUtils;
 import net.minecraft.server.v1_15_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -62,18 +65,18 @@ public class DataHandler extends Mechanic {
         new Pair<>("tmp", "cache")
     );
     private static final String MAIN_CONFIG_FILE = "mainConfig.json";
-    private static final String PLUGIN_DATA_FILE = DIRECTORIES.get("data") + File.separator + "private.json";
-    private static final String PLAYER_DATA_FILE = DIRECTORIES.get("playerdata") + File.separator + "playerdata.json";
-    private static final String EVIDENCE_LOCKERS_FILE = DIRECTORIES.get("data") + File.separator + "evidenceLockers.nbt";
-    private static final String DEATH_DATABASE = DIRECTORIES.get("data") + File.separator + "deaths.nbt";
-    private static final String PACKAGES_FILE = DIRECTORIES.get("data") + File.separator + "packages.nbt";
+    private static final String PLUGIN_DATA_FILE =      DIRECTORIES.get("data") +       File.separator + "private.json";
+    private static final String PLAYER_DATA_FILE =      DIRECTORIES.get("playerdata") + File.separator + "playerdata.json";
+    private static final String EVIDENCE_LOCKERS_FILE = DIRECTORIES.get("data") +       File.separator + "evidenceLockers.nbt";
+    private static final String DEATH_DATABASE =        DIRECTORIES.get("data") +       File.separator + "deaths.nbt";
+    private static final String PACKAGES_FILE =         DIRECTORIES.get("data") +       File.separator + "packages.nbt";
 
     private void init() {
         SCRIPTS.forEach(script -> {
             byte[] data;
             try {
                 data = getResource("scripts/" + script);
-            }catch(IOException ex) {
+            } catch (IOException ex) {
                 System.out.println("Failed to load script: " + script);
                 ex.printStackTrace();
                 return;
@@ -82,23 +85,23 @@ public class DataHandler extends Mechanic {
             try {
                 FileSystem.createFile(file);
                 FileOutputStream fos = new FileOutputStream(file);
-                for(byte b : data)
+                for (byte b : data)
                     fos.write(b);
                 fos.flush();
                 fos.close();
-            }catch(IOException ex) {
+            } catch (IOException ex) {
                 System.out.println("Failed to update script: " + script);
                 ex.printStackTrace();
             }
         });
-        for(String dirName : DIRECTORIES.values()) {
+        for (String dirName : DIRECTORIES.values()) {
             File dir = FileSystem.getFile(rootDirectory, dirName);
-            if(!dir.exists() && !dir.mkdirs())
+            if (!dir.exists() && !dir.mkdirs())
                 throw new RuntimeException("Failed to create directory during the initialization of the data handler. " +
                         "Did you give the process access to the FS?");
         }
         File playerdataFile = new File(PLAYER_DATA_FILE);
-        if(!playerdataFile.exists()) {
+        if (!playerdataFile.exists()) {
             try {
                 if (!FileSystem.createFile(playerdataFile))
                     throw new RuntimeException("Failed to create player data file.");
@@ -114,12 +117,12 @@ public class DataHandler extends Mechanic {
 
     private void initNbt(String file) {
         File f = FileSystem.getFile(rootDirectory, file);
-        if(!f.exists()) {
+        if (!f.exists()) {
             try {
-                if(!f.createNewFile())
+                if (!f.createNewFile())
                     throw new RuntimeException("Failed to create " + file + ". Did you give the process access to the FS?");
                 NBTCompressedStreamTools.a(new NBTTagCompound(), new FileOutputStream(f));
-            }catch(IOException ex) {
+            } catch (IOException ex) {
                 throw new RuntimeException("Failed to create " + file + ". Did you give the process access to the FS?", ex);
             }
         }
@@ -148,16 +151,17 @@ public class DataHandler extends Mechanic {
         saveNbt();
 
         FarLands.getScheduler().scheduleSyncRepeatingTask(this::update, 50L, 5L * 60L * 20L);
+        Rank.createTeams();
 
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             DataHandler dh = FarLands.getDataHandler();
-            if(dh.arePatchnotesDifferent()) {
+            if (dh.arePatchnotesDifferent()) {
                 try {
                     FarLands.getDiscordHandler().sendMessageRaw("announcements", "@everyone Patch **#" + dh.getCurrentPatch() +
                             "** has been released!\n```" + Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"),
                             StandardCharsets.UTF_8)) + "```");
                     flPlayerMap.values().forEach(flp -> flp.setViewedPatchnotes(false));
-                }catch(IOException ex) {
+                } catch (IOException ex) {
                     Logging.error("Failed to post patch notes to #announcements");
                     ex.printStackTrace(System.out);
                 }
@@ -165,14 +169,14 @@ public class DataHandler extends Mechanic {
         }, 100L);
 
         int gcCycleTime = FarLands.getFLConfig().gcCycleTime;
-        if(gcCycleTime > 0)
+        if (gcCycleTime > 0)
             Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), System::gc, 20L * 60L * 5L, 20L * 60L * gcCycleTime);
     }
 
     @Override
     public void onShutdown() {
         update();
-        if(arePatchnotesDifferent()) {
+        if (arePatchnotesDifferent()) {
             pluginData.lastPatchnotesMD5 = currentPatchnotesMD5;
             ++pluginData.lastPatch;
         }
@@ -181,7 +185,7 @@ public class DataHandler extends Mechanic {
         saveNbt();
     }
 
-    @EventHandler(priority=EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         FLPlayerSession session = getSession(player);
@@ -189,7 +193,7 @@ public class DataHandler extends Mechanic {
         // Give packages and update
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             Map<String, Pair<ItemStack, String>> packages = getAndRemovePackages(player.getUniqueId());
-            if(!packages.isEmpty()) {
+            if (!packages.isEmpty()) {
                 // Notify the player how many packages they're getting
                 player.spigot().sendMessage(TextUtils.format("&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}",
                         packages.size(), packages.keySet().stream().map(sender -> "{" + sender + "}").collect(Collectors.joining(", "))));
@@ -215,7 +219,7 @@ public class DataHandler extends Mechanic {
         FLPlayerSession session = getSession(player);
         session.updatePlaytime();
         session.handle.setLastLocation(player.getLocation());
-        if(!session.handle.vanished)
+        if (!session.handle.vanished)
             session.handle.lastLogin = System.currentTimeMillis();
 
         final UUID uuid = player.getUniqueId();
@@ -234,43 +238,43 @@ public class DataHandler extends Mechanic {
 
     @EventHandler
     public void onVillagerAcquireTrades(VillagerAcquireTradeEvent event) {
-        if(pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
+        if (pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onVillagerChangeCareer(VillagerCareerChangeEvent event) {
-        if(pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
+        if (pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
             event.setCancelled(true);
     }
 
     @EventHandler
     public void onVillagerReplenishTrades(VillagerReplenishTradeEvent event) {
-        if(pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
+        if (pluginData.isSpawnTrader(event.getEntity().getUniqueId()))
             event.setCancelled(true);
     }
 
-    @EventHandler(ignoreCancelled=true)
+    @EventHandler(ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
         FLPlayerSession session = getSession(event.getPlayer());
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.update(false), 1L);
         if (!session.ignoreTeleportForBackLocations()) {
-            if(session.backLocations.size() >= 5)
+            if (session.backLocations.size() >= 5)
                 session.backLocations.remove(0);
-            if(!session.backLocations.contains(event.getFrom()))
+            if (!session.backLocations.contains(event.getFrom()))
                 session.backLocations.add(event.getFrom());
         }
     }
 
-    @EventHandler(ignoreCancelled=true, priority=EventPriority.HIGH)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onPlayerDeath(PlayerDeathEvent event) {
         FLPlayerSession session = getSession(event.getEntity());
-        if(session.backLocations.size() >= 5)
+        if (session.backLocations.size() >= 5)
             session.backLocations.remove(0);
         session.backLocations.add(event.getEntity().getLocation());
 
         List<PlayerDeath> deaths = FLUtils.getAndPutIfAbsent(deathDatabase, event.getEntity().getUniqueId(), new ArrayList<>());
-        if(deaths.size() >= 3)
+        if (deaths.size() >= 3)
             deaths.remove(0);
         deaths.add(new PlayerDeath(event.getEntity()));
     }
@@ -292,12 +296,12 @@ public class DataHandler extends Mechanic {
     }
 
     public boolean arePatchnotesDifferent() {
-        if(currentPatchnotesMD5 == null) {
+        if (currentPatchnotesMD5 == null) {
             try {
                 byte[] notes = getResource("patchnotes.txt");
-                if(notes.length > 0)
+                if (notes.length > 0)
                     currentPatchnotesMD5 = FLUtils.hash(notes);
-            }catch(IOException ex) {
+            } catch (IOException ex) {
                 Logging.error("Failed to compare patch notes.");
                 ex.printStackTrace(System.out);
             }
@@ -314,7 +318,7 @@ public class DataHandler extends Mechanic {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[65535];
         int len;
-        while((len = istream.read(buffer)) > 0)
+        while ((len = istream.read(buffer)) > 0)
             baos.write(buffer, 0, len);
         return baos.toByteArray();
     }
@@ -341,10 +345,10 @@ public class DataHandler extends Mechanic {
     }
 
     public OfflineFLPlayer getOfflineFLPlayer(CommandSender sender) {
-        if(sender instanceof Player)
-            return getOfflineFLPlayer((Player)sender);
-        else if(sender instanceof DiscordSender)
-            return ((DiscordSender)sender).getFlp();
+        if (sender instanceof Player)
+            return getOfflineFLPlayer((Player) sender);
+        else if (sender instanceof DiscordSender)
+            return ((DiscordSender) sender).getFlp();
         return null;
     }
 
@@ -354,7 +358,7 @@ public class DataHandler extends Mechanic {
 
     public OfflineFLPlayer getOfflineFLPlayer(UUID uuid, String username) {
         OfflineFLPlayer flp = flPlayerMap.get(uuid);
-        if(flp == null) {
+        if (flp == null) {
             flp = new OfflineFLPlayer(uuid, username);
             flPlayerMap.put(uuid, flp);
         }
@@ -373,13 +377,13 @@ public class DataHandler extends Mechanic {
         String lowerCaseUsername = username.toLowerCase();
         OfflineFLPlayer match = null;
         int matchLevel = 0;
-        for(OfflineFLPlayer flp : flPlayerMap.values()) {
-            if(flp.username.equals(username))
+        for (OfflineFLPlayer flp : flPlayerMap.values()) {
+            if (flp.username.equals(username))
                 return flp;
-            else if(matchLevel == 1 && flp.username.equalsIgnoreCase(username)) {
+            else if (matchLevel == 1 && flp.username.equalsIgnoreCase(username)) {
                 match = flp;
                 matchLevel = 2;
-            }else if(matchLevel == 0 && flp.username.toLowerCase().startsWith(lowerCaseUsername)) {
+            } else if (matchLevel == 0 && flp.username.toLowerCase().startsWith(lowerCaseUsername)) {
                 match = flp;
                 matchLevel = 1;
             }
@@ -401,7 +405,7 @@ public class DataHandler extends Mechanic {
 
     public File getDirectory(String name) {
         String dir = DIRECTORIES.get(name);
-        if(dir == null)
+        if (dir == null)
             return null;
         return FileSystem.getFile(rootDirectory, dir);
     }
@@ -430,7 +434,7 @@ public class DataHandler extends Mechanic {
         NBTTagCompound nbt;
         try {
             nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
-        }catch(IOException ex) {
+        } catch (IOException ex) {
             Logging.error("Failed to load evidence locker data.");
             ex.printStackTrace(System.out);
             return;
@@ -445,7 +449,7 @@ public class DataHandler extends Mechanic {
 
         try {
             NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
-        }catch(IOException ex) {
+        } catch (IOException ex) {
             Logging.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
         }
@@ -455,7 +459,7 @@ public class DataHandler extends Mechanic {
         NBTTagCompound nbt;
         try {
             nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
-        }catch(IOException ex) {
+        } catch (IOException ex) {
             Logging.error("Failed to load death database.");
             ex.printStackTrace(System.out);
             return;
@@ -463,7 +467,7 @@ public class DataHandler extends Mechanic {
 
         nbt.getKeys().forEach(uuid -> {
             List<PlayerDeath> deaths = new ArrayList<>();
-            nbt.getList(uuid, 10).stream().map(base -> new PlayerDeath((NBTTagCompound)base)).forEach(deaths::add);
+            nbt.getList(uuid, 10).stream().map(base -> new PlayerDeath((NBTTagCompound) base)).forEach(deaths::add);
             deathDatabase.put(UUID.fromString(uuid), deaths);
         });
     }
@@ -478,7 +482,7 @@ public class DataHandler extends Mechanic {
 
         try {
             NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
-        }catch(IOException ex) {
+        } catch (IOException ex) {
             Logging.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
         }
@@ -488,12 +492,12 @@ public class DataHandler extends Mechanic {
         NBTTagCompound nbt;
         try {
             nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
-        }catch(IOException ex) {
+        } catch (IOException ex) {
             Logging.error("Failed to load items file.");
             ex.printStackTrace(System.out);
             return;
         }
-        if(nbt.isEmpty())
+        if (nbt.isEmpty())
             return;
 
         nbt.getKeys().forEach(key -> {
@@ -523,7 +527,7 @@ public class DataHandler extends Mechanic {
 
         try {
             NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
-        }catch(IOException ex) {
+        } catch (IOException ex) {
             Logging.error("Failed to save items file.");
             ex.printStackTrace(System.out);
         }
@@ -532,16 +536,16 @@ public class DataHandler extends Mechanic {
     public boolean addPackage(UUID recipient, String sender, ItemStack stack, String message) {
         packages.putIfAbsent(recipient, new HashMap<>());
         Map<String, Pair<ItemStack, String>> pkgs = packages.get(recipient);
-        if(pkgs.containsKey(sender))
+        if (pkgs.containsKey(sender))
             return false;
-        else{
+        else {
             pkgs.put(sender, new Pair<>(stack, message));
             return true;
         }
     }
 
     public Map<String, Pair<ItemStack, String>> getAndRemovePackages(UUID recipient) {
-        if(!packages.containsKey(recipient))
+        if (!packages.containsKey(recipient))
             return Collections.emptyMap();
         return packages.remove(recipient);
     }
@@ -555,13 +559,14 @@ public class DataHandler extends Mechanic {
             String flPlayerMapData = FileSystem.readUTF8(FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
             if (flPlayerMapData.isEmpty())
                 flPlayerMapData = "[]";
-            Collection<OfflineFLPlayer> flps = FarLands.getGson().fromJson(flPlayerMapData, new TypeToken<Collection<OfflineFLPlayer>>(){}.getType());
+            Collection<OfflineFLPlayer> flps = FarLands.getGson().fromJson(flPlayerMapData, new TypeToken<Collection<OfflineFLPlayer>>() {
+            }.getType());
             flps.forEach(flp -> {
                 flPlayerMap.put(flp.uuid, flp);
-                if(flp.isDiscordVerified())
+                if (flp.isDiscordVerified())
                     discordMap.put(flp.discordID, flp);
             });
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             throw new RuntimeException("Failed to load player data.", ex);
         }
 
@@ -574,7 +579,7 @@ public class DataHandler extends Mechanic {
                 sqlUuids.add(FLUtils.getUuid(uuid, 0));
             }
             rs.close();
-        }catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
         sqlUuids.stream().filter(uuid -> !flPlayerMap.containsKey(uuid)).forEach(uuid -> {

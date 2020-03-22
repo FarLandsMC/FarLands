@@ -6,6 +6,7 @@ import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.FileSystem;
 import net.farlands.odyssey.util.FLUtils;
+
 import org.bukkit.command.CommandSender;
 
 import java.io.*;
@@ -77,7 +78,7 @@ public class CommandGetLog extends DiscordCommand {
                     if (!f.isFile() || "latest.log".equals(f.getName()))
                         return false;
                     int date = parseDate(f.getName());
-                    return date >= start && date <= end;
+                    return start <= date && date <= end;
                 }).sorted(Comparator.comparingInt(f -> getLogNumber(f.getName()))).forEach(f -> {
                     copy(f, true, out, buffer);
                 });
