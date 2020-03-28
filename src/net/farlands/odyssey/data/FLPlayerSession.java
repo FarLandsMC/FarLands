@@ -4,7 +4,6 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.util.TextUtils;
-
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -14,6 +13,7 @@ import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +23,7 @@ import java.util.Map;
 public class FLPlayerSession {
     public final Player player;
     public final OfflineFLPlayer handle;
+    public final PermissionAttachment permissionAttachment;
     public long lastTimeRecorded;
     public double spamAccumulation;
     public boolean afk;
@@ -51,6 +52,7 @@ public class FLPlayerSession {
     public FLPlayerSession(Player player, OfflineFLPlayer handle) {
         this.player = player;
         this.handle = handle;
+        this.permissionAttachment = player.addAttachment(FarLands.getInstance());
         this.lastTimeRecorded = System.currentTimeMillis();
         this.spamAccumulation = 0.0;
         this.afk = false;
@@ -81,6 +83,7 @@ public class FLPlayerSession {
     FLPlayerSession(Player player, FLPlayerSession cached) {
         this.player = player;
         this.handle = cached.handle;
+        this.permissionAttachment = player.addAttachment(FarLands.getInstance());
         this.lastTimeRecorded = System.currentTimeMillis();
         this.spamAccumulation = cached.spamAccumulation;
         this.afk = cached.afk;
@@ -132,6 +135,7 @@ public class FLPlayerSession {
         handle.update();
 
         updatePlaytime();
+        permissionAttachment.setPermission("headdb.open", handle.rank.specialCompareTo(Rank.PATRON) >= 0);
 
         // Update rank
         for (int i = handle.rank.ordinal() + 1; i < Rank.VALUES.length - 1; ++i) {
@@ -226,13 +230,13 @@ public class FLPlayerSession {
         return taskUid == null ? 0L : FarLands.getScheduler().taskTimeRemaining(taskUid);
     }
 
-    public synchronized boolean ignoreTeleportForBackLocations() {
+    public synchronized boolean ignoreTPForBackLocations() {
         boolean old = backIgnoreTP;
         backIgnoreTP = false;
         return old;
     }
 
-    public synchronized void setIgnoreTeleportForBackLocations() {
+    public synchronized void setIgnoreTPForBackLocations() {
         backIgnoreTP = true;
     }
 }

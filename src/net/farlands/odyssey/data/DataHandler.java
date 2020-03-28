@@ -258,7 +258,7 @@ public class DataHandler extends Mechanic {
     public void onTeleport(PlayerTeleportEvent event) {
         FLPlayerSession session = getSession(event.getPlayer());
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.update(false), 1L);
-        if (!session.ignoreTeleportForBackLocations()) {
+        if (!session.ignoreTPForBackLocations()) {
             if (session.backLocations.size() >= 5)
                 session.backLocations.remove(0);
             if (!session.backLocations.contains(event.getFrom()))

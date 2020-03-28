@@ -24,7 +24,7 @@ public class CommandBack extends PlayerCommand {
             sender.sendMessage(ChatColor.RED + "You have nowhere to teleport back to.");
             return true;
         }
-        session.setIgnoreTeleportForBackLocations();
+        session.setIgnoreTPForBackLocations();
         FLUtils.tpPlayer(sender, backLocations.remove(backLocations.size() - 1));
         return true;
     }
