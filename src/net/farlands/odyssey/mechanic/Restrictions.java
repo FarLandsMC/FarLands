@@ -39,8 +39,8 @@ public class Restrictions extends Mechanic {
             player.setGameMode(GameMode.SURVIVAL);
             List<String> notes = flp.notes;
             if (!notes.isEmpty()) {
-                Logging.broadcastStaff(TextUtils.format("&(red)%0 has notes. Click $(command,/notes view %0," +
-                        "{&(aqua,underline)here}) to view them.", player.getName()));
+                Logging.broadcastStaff(TextUtils.format("&(red)%0 has notes. Hover $(command,&(gray)%1," +
+                        "{&(aqua,underline)here}) to view them.", player.getName(), String.join("\n", notes)));
             }
             List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
                     .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
