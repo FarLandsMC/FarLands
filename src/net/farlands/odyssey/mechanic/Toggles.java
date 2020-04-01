@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -35,6 +36,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.server.TabCompleteEvent;
+import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -77,7 +79,6 @@ public class Toggles extends Mechanic {
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Status.Server.SERVER_INFO) {
             @Override
-            @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
                 PacketStatusOutServerInfo packet = (PacketStatusOutServerInfo) event.getPacket().getHandle();
                 ServerPing ping = (ServerPing) ReflectionHelper.getFieldValue("b", PacketStatusOutServerInfo.class, packet);
@@ -133,6 +134,14 @@ public class Toggles extends Mechanic {
     public void onEntityTarget(EntityTargetEvent event) {
         event.setCancelled(event.getTarget() instanceof Player &&
                 FarLands.getDataHandler().getOfflineFLPlayer((Player) event.getTarget()).god);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onLightningStrike(LightningStrikeEvent event) {
+        event.setCancelled(event.getCause() == LightningStrikeEvent.Cause.TRIDENT &&
+                event.getWorld().getNearbyEntities(event.getLightning().getLocation(), 5.0, 5.0, 5.0,
+                        entity -> entity.getType() == EntityType.PLAYER).stream()
+                        .map(FarLands.getDataHandler()::getOfflineFLPlayer).anyMatch(flp -> !flp.pvp));
     }
 
     @EventHandler(ignoreCancelled = true)
