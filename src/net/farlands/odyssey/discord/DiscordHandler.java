@@ -93,7 +93,7 @@ public class DiscordHandler extends ListenerAdapter {
         if (!active)
             return;
         jdaBot.getPresence().setGame(Game.of(Game.GameType.DEFAULT, "with " +
-                FarLands.getDataHandler().getOfflineFLPlayers().size() + " player records"));
+                FarLands.getDataHandler().getOfflineFLPlayers().size() + " player files"));
         int online = (int) Bukkit.getOnlinePlayers().stream()
                 .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished).count();
         long restartTime = FarLands.getFLConfig().restartTime;
