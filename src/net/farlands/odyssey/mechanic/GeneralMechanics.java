@@ -26,6 +26,7 @@ import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_15_R1.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftVillager;
@@ -35,6 +36,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
@@ -45,6 +47,7 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.io.IOException;
 import java.util.*;
@@ -145,6 +148,20 @@ public class GeneralMechanics extends Mechanic {
             FarLands.getDataHandler().getSession(player).seatExit = null;
         }
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> updateNightSkip(true), 1);
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onPlayerBreakBlock(BlockBreakEvent event) {
+        if (event.getPlayer().getGameMode() == GameMode.SURVIVAL && event.getBlock().getType().name().endsWith("SHULKER_BOX")) {
+            event.setDropItems(false);
+            ItemStack stack = new ItemStack(event.getBlock().getType());
+            BlockStateMeta blockStateMeta = (BlockStateMeta) stack.getItemMeta();
+            ShulkerBox blockState = (ShulkerBox) blockStateMeta.getBlockState();
+            blockState.getInventory().setContents(((ShulkerBox) event.getBlock().getState()).getInventory().getContents());
+            blockStateMeta.setBlockState(blockState);
+            stack.setItemMeta(blockStateMeta);
+            event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), stack);
+        }
     }
 
     @EventHandler
