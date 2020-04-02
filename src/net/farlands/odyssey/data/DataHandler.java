@@ -159,7 +159,7 @@ public class DataHandler extends Mechanic {
             DataHandler dh = FarLands.getDataHandler();
             if (dh.arePatchnotesDifferent()) {
                 try {
-                    FarLands.getDiscordHandler().sendMessageRaw("announcements", "@everyone Patch **#" + dh.getCurrentPatch() +
+                    FarLands.getDiscordHandler().sendMessageRaw("announcements", "Patch **#" + dh.getCurrentPatch() +
                             "** has been released!\n```" + Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"),
                             StandardCharsets.UTF_8)) + "```");
                     flPlayerMap.values().forEach(flp -> flp.setViewedPatchnotes(false));
