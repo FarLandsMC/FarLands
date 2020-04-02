@@ -27,69 +27,80 @@ public class CommandPunish extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (args.length < ("pardon".equals(args[0]) ? 2 : 3))
+        if (args.length < ("pardon".equals(args[0]) || "puniship".equals(args[0]) ? 2 : 3))
             return false;
-
-        if (sender.getName().equals(args[1])) {
-            sender.sendMessage(ChatColor.RED + "Careful now!");
-            return true;
-        }
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if (flp == null) {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
+        if (flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender.getName()).getUuid())) {
+            sender.sendMessage(ChatColor.RED + "That was close!");
+            return true;
+        }
 
+        Rank senderRank = Rank.getRank(sender);
         if (!"pardon".equals(args[0])) {
-            Rank senderRank = Rank.getRank(sender), punishedRank = flp.getRank();
             // Staff can mute players, Non-Jr. staff can mute Jr. staff, Owners can mute all staff except owners.
-            if (!(sender instanceof ConsoleCommandSender) && ((senderRank.specialCompareTo(punishedRank) == 0) ||
+            if (!(sender instanceof ConsoleCommandSender) && ((senderRank.specialCompareTo(flp.rank) == 0) ||
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
-                            (punishedRank.getPermissionLevel() == 2 || punishedRank.getPermissionLevel() == 3)) ||
-                    (senderRank.getPermissionLevel() == 1 && punishedRank.getPermissionLevel() > 1))) {
+                            (flp.rank.getPermissionLevel() == 2 || flp.rank.getPermissionLevel() == 3)) ||
+                    (senderRank.getPermissionLevel() == 1 && flp.rank.getPermissionLevel() > 1))) {
                 sender.sendMessage(ChatColor.RED + "You do not have permission to punish this person.");
                 return true;
             }
-            Punishment.PunishmentType pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
-            if (pt == null) {
-                sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
-                return true;
-            }
-            String punishMessage = args.length > 3 ? joinArgsBeyond(2, " ", args) : null;
-            if (punishMessage != null && punishMessage.length() > 256) {
-                sender.sendMessage(ChatColor.RED + "Punishment messages are limited to 256 characters, it will be truncated.");
-                punishMessage = punishMessage.substring(0, 256);
-            }
-            // +2L fixes any lingering off-by-one error(s), kind of patchy but it works
-            long time = flp.punish(pt, punishMessage);
-            // The beginning 'P' is added later
-            String message = "unished " + ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD +
-                    " for " + pt.getHumanName() + (punishMessage == null ? "" : " with message `" + punishMessage + "`") +
-                    ". Expires: " + (time < 0L ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE));
-            sender.sendMessage(ChatColor.GOLD + "P" + message.replaceAll("`", "\""));
-            FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
-                    " has p" + Chat.removeColorCodes(message));
-        } else { // Remove punishment
-            Punishment.PunishmentType pt;
-            if (args.length == 2) { // Remove latest punishment
-                Punishment punishment = flp.isBanned() ? flp.getCurrentPunishment() : flp.getMostRecentPunishment();
-                if (punishment == null) {
-                    sender.sendMessage(ChatColor.RED + "This player has no punishments on record.");
-                    return true;
-                }
-                pt = punishment.getType();
-            } else { // Remove specific punishment
-                pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
+        }
+
+        switch (args[0]) {
+            case "punish":
+            case "ban": {
+                Punishment.PunishmentType pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
                 if (pt == null) {
                     sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
                     return true;
                 }
+                String punishMessage = args.length > 3 ? joinArgsBeyond(2, " ", args) : null;
+                if (punishMessage != null && punishMessage.length() > 256) {
+                    sender.sendMessage(ChatColor.RED + "Punishment messages are limited to 256 characters, it will be truncated.");
+                    punishMessage = punishMessage.substring(0, 256);
+                }
+                punish(sender, flp, pt, punishMessage);
+                break;
             }
-            if (flp.pardon(pt))
-                sender.sendMessage(ChatColor.GOLD + "Pardoned " + ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD + " from " + pt.getHumanName());
-            else
-                sender.sendMessage(ChatColor.RED + "This player does not have that punishment on record.");
+
+            case "puniship": {
+                FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                        .filter(flp0 -> flp.lastIP.equals(flp0.lastIP))
+                        .filter(flp0 -> !flp0.getCurrentPunishment().getType().isPermanent())
+                        .forEach(flp0 -> punish(sender, flp0, Punishment.PunishmentType.PERMANENT, null));
+                break;
+            }
+
+            case "pardon": {
+                Punishment.PunishmentType pt;
+                if (args.length == 2) { // Remove latest punishment
+                    Punishment punishment = flp.isBanned() ? flp.getCurrentPunishment() : flp.getMostRecentPunishment();
+                    if (punishment == null) {
+                        sender.sendMessage(ChatColor.RED + "This player has no punishments on record.");
+                        return true;
+                    }
+                    pt = punishment.getType();
+                } else { // Remove specific punishment
+                    pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
+                    if (pt == null) {
+                        sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
+                        return true;
+                    }
+                }
+                if (flp.pardon(pt)) {
+                    sender.sendMessage(ChatColor.GOLD + "Pardoned " + ChatColor.AQUA + flp.username +
+                            ChatColor.GOLD + " from " + Utils.formattedName(pt));
+                } else
+                    sender.sendMessage(ChatColor.RED + "This player does not have that punishment on record.");
+                break;
+            }
         }
+
         return true;
     }
 
@@ -105,5 +116,16 @@ public class CommandPunish extends Command {
             default:
                 return Collections.emptyList();
         }
+    }
+
+    private void punish(CommandSender sender, OfflineFLPlayer flp, Punishment.PunishmentType pt, String punishMessage) {
+        long time = flp.punish(pt, punishMessage);
+        // The beginning 'P' is added later
+        String message = "unished " + ChatColor.AQUA + flp.username + ChatColor.GOLD +
+                " for " + Utils.formattedName(pt) + (punishMessage == null ? "" : " with message `" + punishMessage + "`") +
+                ". Expires: " + (time < 0L ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE));
+        sender.sendMessage(ChatColor.GOLD + "P" + message.replaceAll("`", "\""));
+        FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
+                " has p" + Chat.removeColorCodes(message));
     }
 }
