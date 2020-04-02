@@ -78,6 +78,8 @@ public class Restrictions extends Mechanic {
     @EventHandler
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) { // Handles bans
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getUniqueId());
+        if (flp == null && !FarLands.getDataHandler().allowNewPlayers())
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "You cannot join the server right now. Try again in 5-10 minutes.");
         if (flp != null && flp.isBanned())
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
     }

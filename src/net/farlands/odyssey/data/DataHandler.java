@@ -49,6 +49,7 @@ public class DataHandler extends Mechanic {
     private final Map<Long, OfflineFLPlayer> discordMap;
     private final Map<UUID, FLPlayerSession> sessionMap;
     private final Map<UUID, FLPlayerSession> cachedSessions;
+    private boolean allowNewPlayers;
     private byte[] currentPatchnotesMD5;
     private Config config;
     private PluginData pluginData;
@@ -135,6 +136,7 @@ public class DataHandler extends Mechanic {
         this.discordMap = new HashMap<>();
         this.sessionMap = new HashMap<>();
         this.cachedSessions = new HashMap<>();
+        this.allowNewPlayers = true;
         this.currentPatchnotesMD5 = null;
         this.evidenceLockers = new HashMap<>();
         this.deathDatabase = new HashMap<>();
@@ -293,6 +295,14 @@ public class DataHandler extends Mechanic {
 
     public PluginData getPluginData() {
         return pluginData;
+    }
+
+    public boolean allowNewPlayers() {
+        return allowNewPlayers;
+    }
+
+    public void setAllowNewPlayers(boolean allowNewPlayers) {
+        this.allowNewPlayers = allowNewPlayers;
     }
 
     public boolean arePatchnotesDifferent() {
