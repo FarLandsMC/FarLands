@@ -59,7 +59,8 @@ public class Restrictions extends Mechanic {
                 flp.setLastLocation(FarLands.getDataHandler().getPluginData().getSpawn());
                 if (!banned.isEmpty()) {
                     Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.getUsername(),
-                            unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)));
+                            unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)),
+                            "output");
                     flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
                     alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
                     return;
