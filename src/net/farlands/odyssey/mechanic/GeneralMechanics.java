@@ -156,6 +156,9 @@ public class GeneralMechanics extends Mechanic {
             event.setDropItems(false);
             ItemStack stack = new ItemStack(event.getBlock().getType());
             BlockStateMeta blockStateMeta = (BlockStateMeta) stack.getItemMeta();
+            String customName = ((ShulkerBox)event.getBlock().getState()).getCustomName();
+            if (customName != null && !customName.isEmpty())
+                blockStateMeta.setDisplayName(customName);
             ShulkerBox blockState = (ShulkerBox) blockStateMeta.getBlockState();
             blockState.getInventory().setContents(((ShulkerBox) event.getBlock().getState()).getInventory().getContents());
             blockStateMeta.setBlockState(blockState);
