@@ -13,6 +13,7 @@ import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
@@ -85,7 +86,7 @@ public class Restrictions extends Mechanic {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onRespawn(PlayerRespawnEvent event) {
         if (!event.isBedSpawn()) {
             Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
