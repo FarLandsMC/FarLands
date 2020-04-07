@@ -40,6 +40,7 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Toggles extends Mechanic {
@@ -107,7 +108,7 @@ public class Toggles extends Mechanic {
     public void onSendTabCompletes(TabCompleteEvent event) {
         if (Rank.getRank(event.getSender()).isStaff())
             return;
-        List<String> completions = event.getCompletions();
+        List<String> completions = new ArrayList<>(event.getCompletions());
         completions.removeIf(str -> {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(str);
             return flp != null && flp.vanished;
