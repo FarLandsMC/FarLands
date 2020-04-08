@@ -135,7 +135,7 @@ public class FLPlayerSession {
         handle.update();
 
         updatePlaytime();
-        permissionAttachment.setPermission("headdb.open", handle.rank.specialCompareTo(Rank.PATRON) >= 0);
+        permissionAttachment.setPermission("headdb.open", handle.rank.specialCompareTo(Rank.DONOR) >= 0);
 
         // Update rank
         for (int i = handle.rank.ordinal() + 1; i < Rank.VALUES.length - 1; ++i) {
