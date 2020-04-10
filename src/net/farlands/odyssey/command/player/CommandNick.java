@@ -47,7 +47,7 @@ public class CommandNick extends PlayerCommand {
                 sender.sendMessage(ChatColor.RED + "Your nickname must be at least 60% ASCII characters.");
                 return true;
             }
-            flp.nickname = Chat.applyColorCodes(args[1]);
+            flp.nickname = Chat.applyColorCodes(Rank.getRank(sender), args[1]);
             sender.sendMessage(ChatColor.GREEN + "Nickname set.");
         } else { // Remove nickname
             if (args.length > 1 && Rank.getRank(sender).isStaff()) {
