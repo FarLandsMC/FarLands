@@ -15,7 +15,7 @@ public class FlightStore {
     private double lastVy;
     private int strikes;
 
-    private static final double JUMP_TOLERANCE = (99.0 - FarLands.getFLConfig().getFDS()) * (2.0 / 990.0) + 0.025;
+    private static final double JUMP_TOLERANCE = (99.0 - FarLands.getFLConfig().getFDS()) * (2.0 / 990.0) + 0.25;
     private static final double VELOCITY_DELTA_TOLERANCE = (100 - FarLands.getFLConfig().getFDS()) / 400.0;
     private static final int MAX_STRIKES = 100 - FarLands.getFLConfig().getFDS();
 
