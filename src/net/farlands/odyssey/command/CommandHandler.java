@@ -13,6 +13,7 @@ import net.farlands.odyssey.command.player.CommandMe;
 import net.farlands.odyssey.command.staff.*;
 import net.farlands.odyssey.command.staff.CommandDebug;
 import net.farlands.odyssey.command.staff.CommandKick;
+import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
@@ -30,6 +31,7 @@ import org.bukkit.craftbukkit.v1_15_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
@@ -291,6 +293,13 @@ public class CommandHandler extends Mechanic {
         });
 
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        FLPlayerSession session = FarLands.getDataHandler().getSession(event.getEntity());
+        if (session.handle.rank == Rank.INITIATE)
+            session.setCommandCooldown(getCommand(CommandWild.class), Rank.INITIATE.getWildCooldown() * 60L * 20L);
     }
 
     private boolean shouldNotExecute(Command command, CommandSender sender) {
