@@ -6,6 +6,7 @@ import net.farlands.odyssey.command.CommandHandler;
 import net.farlands.odyssey.data.DataHandler;
 import net.farlands.odyssey.data.Config;
 import net.farlands.odyssey.data.Debugger;
+import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordHandler;
 import net.farlands.odyssey.gui.GuiHandler;
 import net.farlands.odyssey.mechanic.MechanicHandler;
@@ -57,6 +58,7 @@ public class FarLands extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Rank.createTeams();
         scheduler.start();
         farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
         mechanicHandler.registerMechanics();

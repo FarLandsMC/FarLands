@@ -153,7 +153,6 @@ public class DataHandler extends Mechanic {
         saveNbt();
 
         FarLands.getScheduler().scheduleSyncRepeatingTask(this::update, 50L, 5L * 60L * 20L);
-        Rank.createTeams();
 
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             DataHandler dh = FarLands.getDataHandler();
