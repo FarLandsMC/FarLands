@@ -41,6 +41,7 @@ public class OfflineFLPlayer {
     public boolean debugging;
     public Particles particles;
     public Rank rank;
+    public ChatColor staffChatColor;
     public LocationWrapper lastLocation;
     public Mute currentMute;
     public List<String> notes;
@@ -78,6 +79,7 @@ public class OfflineFLPlayer {
         this.debugging = false;
         this.particles = null;
         this.rank = Rank.INITIATE;
+        this.staffChatColor = ChatColor.RED;
         this.lastLocation = FLUtils.LOC_ZERO;
         this.currentMute = null;
         this.notes = new ArrayList<>();

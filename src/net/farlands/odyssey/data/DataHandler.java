@@ -349,6 +349,10 @@ public class DataHandler extends Mechanic {
         return session;
     }
 
+    public Collection<FLPlayerSession> getSessions() {
+        return sessionMap.values();
+    }
+
     public OfflineFLPlayer getOfflineFLPlayer(Player player) {
         return getOfflineFLPlayer(player.getUniqueId(), player.getName());
     }
