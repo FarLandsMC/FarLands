@@ -115,7 +115,7 @@ public class CommandMessage extends PlayerCommand {
     public static void sendMessage(CommandSender recipient, CommandSender sender, String message) {
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
         // Censor the message if censoring
-        if (recipientFlp != null && recipientFlp.isCensoring())
+        if (recipientFlp != null && recipientFlp.censoring)
             message = Chat.getMessageFilter().censor(message);
         // This changes the message for the sender so they can see their message was censored when sent
 

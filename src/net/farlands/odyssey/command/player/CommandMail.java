@@ -46,7 +46,7 @@ public class CommandMail extends Command {
             }
             // Apply formatting
             String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args));
-            sender.sendMessage(format("To", flp.getRank().getNameColor(), flp.getUsername(), message));
+            sender.sendMessage(format("To", flp.rank.getNameColor(), flp.username, message));
             if (!flp.isIgnoring(senderFlp)) { // Check for ignoring
                 flp.addMail(sender.getName(), message);
                 Player player = flp.getOnlinePlayer();

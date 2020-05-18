@@ -22,7 +22,7 @@ public class CommandEvidenceLocker extends PlayerCommand {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
-        if(flp.getPunishments().isEmpty()) {
+        if(flp.punishments.isEmpty()) {
             sender.sendMessage(ChatColor.RED + "This player has no punishments, thus no evidence locker slots.");
             return true;
         }

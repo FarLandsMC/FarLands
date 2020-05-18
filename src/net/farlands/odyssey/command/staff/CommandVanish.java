@@ -24,13 +24,13 @@ public class CommandVanish extends Command {
             sender.sendMessage(ChatColor.GOLD + "You are now vanished.");
             if (online) {
                 Logging.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                        ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has left.", true);
+                        ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has left.", true);
             }
         } else {
             sender.sendMessage(ChatColor.GOLD + "You are no longer vanished.");
             if (online) {
                 Logging.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                        ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has joined.", true);
+                        ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has joined.", true);
             }
         }
         if (online)

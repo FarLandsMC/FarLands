@@ -52,22 +52,22 @@ public class CommandPurchase extends Command {
         int price = args.length >= 4 ? Integer.parseInt(args[3]) : 0;
         flp.addDonation(price);
         if (args[1].equalsIgnoreCase("none")) {
-            if (flp.getAmountDonated() >= Rank.PATRON_COST_USD)
+            if (flp.amountDonated >= Rank.PATRON_COST_USD)
                 rank = Rank.PATRON;
-            else if (flp.getAmountDonated() >= Rank.DONOR_COST_USD)
+            else if (flp.amountDonated >= Rank.DONOR_COST_USD)
                 rank = Rank.DONOR;
         }
-        if (rank != null && rank.specialCompareTo(flp.getRank()) > 0) {
+        if (rank != null && rank.specialCompareTo(flp.rank) > 0) {
             if (rank == Rank.DONOR)
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " 15000");
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.username + " 15000");
             else if (rank == Rank.PATRON) {
                 if (flp.isOnline()) {
                     FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
                 } else
-                    FarLands.getDataHandler().addPackage(flp.getUuid(), "FarLands Staff",
+                    FarLands.getDataHandler().addPackage(flp.uuid, "FarLands Staff",
                             FarLands.getFLConfig().patronCollectable.getStack(), "");
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.getUsername() + " " +
-                        (flp.getRank() == Rank.DONOR ? "45000" : "60000"));
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.username + " " +
+                        (flp.rank == Rank.DONOR ? "45000" : "60000"));
             }
             flp.setRank(rank);
             Player player = flp.getOnlinePlayer();

@@ -221,7 +221,7 @@ public class DiscordHandler extends ListenerAdapter {
                     return;
                 }
 
-                Rank rank = flp.getRank();
+                Rank rank = flp.rank;
 
                 if (!rank.isStaff() && Chat.getMessageFilter().autoCensor(fmessage)) {
                     sendMessageRaw("alerts", "Deleted message from in-game channel:\n```" + fmessage +
@@ -231,14 +231,14 @@ public class DiscordHandler extends ListenerAdapter {
                 }
 
                 Bukkit.getOnlinePlayers().stream().filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).isIgnoring(flp)).forEach(p -> {
-                    boolean censor = FarLands.getDataHandler().getOfflineFLPlayer(p).isCensoring();
+                    boolean censor = FarLands.getDataHandler().getOfflineFLPlayer(p).censoring;
                     p.sendMessage(String.format(ChatColor.DARK_GRAY + "DISCORD" +
                             (rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor().toString() : "") + " %s: " +
-                            ChatColor.WHITE + "%s", flp.getUsername(), censor ? Chat.getMessageFilter().censor(fmessage) : fmessage));
+                            ChatColor.WHITE + "%s", flp.username, censor ? Chat.getMessageFilter().censor(fmessage) : fmessage));
                 });
                 Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.DARK_GRAY + "DISCORD" +
                         (rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor().toString() : "") + " %s: " +
-                        ChatColor.WHITE + "%s", flp.getUsername(), fmessage));
+                        ChatColor.WHITE + "%s", flp.username, fmessage));
             }
         }
     }

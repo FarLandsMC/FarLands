@@ -161,7 +161,7 @@ public class DataHandler extends Mechanic {
                     FarLands.getDiscordHandler().sendMessageRaw("announcements", "Patch **#" + dh.getCurrentPatch() +
                             "** has been released!\n```" + Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"),
                             StandardCharsets.UTF_8)) + "```");
-                    flPlayerMap.values().forEach(flp -> flp.setViewedPatchnotes(false));
+                    flPlayerMap.values().forEach(flp -> flp.viewedPatchnotes = false);
                 } catch (IOException ex) {
                     Logging.error("Failed to post patch notes to #announcements");
                     ex.printStackTrace(System.out);
@@ -379,7 +379,7 @@ public class DataHandler extends Mechanic {
     }
 
     public OfflineFLPlayer getOfflineFLPlayer(String username) {
-        return flPlayerMap.values().stream().filter(flp -> username.equalsIgnoreCase(flp.getUsername())).findFirst().orElse(null);
+        return flPlayerMap.values().stream().filter(flp -> username.equalsIgnoreCase(flp.username)).findFirst().orElse(null);
     }
 
     public OfflineFLPlayer getOfflineFLPlayerMatching(String username) {

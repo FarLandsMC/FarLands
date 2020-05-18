@@ -36,7 +36,7 @@ public class Restrictions extends Mechanic {
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
-        if (!flp.getRank().isStaff()) {
+        if (!flp.rank.isStaff()) {
             player.setGameMode(GameMode.SURVIVAL);
             List<String> notes = flp.notes;
             if (!notes.isEmpty()) {
@@ -46,20 +46,20 @@ public class Restrictions extends Mechanic {
             List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
                     .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
                     .collect(Collectors.toList());
-            List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(OfflineFLPlayer::getUsername).collect(Collectors.toList()),
-                    unbanned = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
+            List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
+                    unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
             if (!banned.isEmpty()) {
-                Logging.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + banned.size() + " banned player" +
+                Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + banned.size() + " banned player" +
                         (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? "alerts" : null);
             }
             if (!unbanned.isEmpty()) {
-                Logging.broadcastStaff(ChatColor.RED + flp.getUsername() + " shares the same IP as " + unbanned.size() + " player" +
+                Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + unbanned.size() + " player" +
                         (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? "alerts" : null);
             }
             if (isNew) {
                 flp.setLastLocation(FarLands.getDataHandler().getPluginData().getSpawn());
                 if (!banned.isEmpty()) {
-                    Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.getUsername(),
+                    Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.username,
                             unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)),
                             "output");
                     flp.punish(Punishment.PunishmentType.BAN_EVASION, null);

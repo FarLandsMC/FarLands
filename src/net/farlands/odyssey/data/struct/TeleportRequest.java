@@ -25,7 +25,7 @@ public final class TeleportRequest implements Runnable {
         this.recipient = recipient;
         this.teleporter = TeleportType.SENDER_TO_RECIPIENT.equals(type) ? sender : recipient;
         this.anchor = TeleportType.SENDER_TO_RECIPIENT.equals(type) ? recipient : sender;
-        this.delay = FarLands.getDataHandler().getOfflineFLPlayer(teleporter).getRank().getTpDelay() * 20;
+        this.delay = FarLands.getDataHandler().getOfflineFLPlayer(teleporter).rank.getTpDelay() * 20;
     }
 
     public boolean open() {

@@ -30,7 +30,7 @@ public class CommandMute extends Command {
             return true;
         }
         if("mute".equals(args[0])) {
-            Rank senderRank = Rank.getRank(sender), mutedRank = flp.getRank();
+            Rank senderRank = Rank.getRank(sender), mutedRank = flp.rank;
             // Staff can mute players, Non-Jr. staff can mute Jr. staff, Owners can mute all staff except owners.
             if(!(sender instanceof ConsoleCommandSender) && ((senderRank.specialCompareTo(mutedRank) == 0) ||
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
@@ -55,11 +55,11 @@ public class CommandMute extends Command {
                 }
                 mute = new Mute(time, reason);
             }
-            flp.setCurrentMute(mute); // Update the player's mute
+            flp.currentMute = mute; // Update the player's mute
             if(flp.isOnline())
                 mute.sendMuteMessage(flp.getOnlinePlayer());
             // Send formatted message to player and discord
-            String message = "uted " + flp.getUsername() + " with reason `" + mute.getReason() + "`. Expires: " +
+            String message = "uted " + flp.username + " with reason `" + mute.getReason() + "`. Expires: " +
                     TimeInterval.formatTime(1000L * time, false);
             sender.sendMessage(ChatColor.GOLD + "M" + message.replaceAll("`", "\""));
             FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) + " m" +
@@ -69,10 +69,10 @@ public class CommandMute extends Command {
                 sender.sendMessage(ChatColor.RED + "This player is not muted.");
                 return true;
             }
-            flp.setCurrentMute(null);
+            flp.currentMute = null;
             if(flp.isOnline())
                 flp.getOnlinePlayer().sendMessage(ChatColor.GREEN + "Your mute has expired.");
-            sender.sendMessage(ChatColor.GREEN + "Unmuted " + flp.getUsername() + ".");
+            sender.sendMessage(ChatColor.GREEN + "Unmuted " + flp.username + ".");
         }
         return true;
     }

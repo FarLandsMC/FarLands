@@ -147,73 +147,21 @@ public class OfflineFLPlayer {
             FarLands.getDataHandler().getSession(player).update(sendMessages);
     }
 
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public long getDiscordID() {
-        return discordID;
-    }
-
     public void setDiscordID(long discordID) {
         this.discordID = discordID;
         FarLands.getDataHandler().updateDiscordMap(discordID, this);
-    }
-
-    public void setDiscordIDSilent(long discordID) {
-        this.discordID = discordID;
     }
 
     public boolean isDiscordVerified() {
         return discordID != 0;
     }
 
-    public void setLastLogin(long lastLogin) {
-        this.lastLogin = lastLogin;
-    }
-
     public long getLastLogin() {
-        return isOnline() && !isVanished() ? System.currentTimeMillis() : lastLogin;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void setNicknameSilent(String nickname) {
-        this.nickname = nickname;
+        return isOnline() && !vanished ? System.currentTimeMillis() : lastLogin;
     }
 
     public String getDisplayName() {
         return nickname == null || nickname.isEmpty() ? username : nickname;
-    }
-
-    public String getLastIP() {
-        return lastIP;
-    }
-
-    public void setLastIP(String lastIP) {
-        this.lastIP = lastIP;
-    }
-
-    public int getSecondsPlayed() {
-        return secondsPlayed;
-    }
-
-    public void setSecondsPlayed(int secondsPlayed) {
-        this.secondsPlayed = secondsPlayed;
     }
 
     public void addVote() {
@@ -227,52 +175,12 @@ public class OfflineFLPlayer {
             ++ voteRewards;
     }
 
-    public int getVoteRewards() {
-        return voteRewards;
-    }
-
-    public void setVoteRewards(int voteRewards) {
-        this.voteRewards = voteRewards;
-    }
-
-    public int getTotalVotes() {
-        return totalVotes;
-    }
-
-    public void setTotalVotes(int totalVotes) {
-        this.totalVotes = totalVotes;
-    }
-
-    public int getMonthVotes() {
-        return monthVotes;
-    }
-
-    public void setMonthVotes(int monthVotes) {
-        this.monthVotes = monthVotes;
-    }
-
     public void clearMonthVotes() {
         monthVotes = 0;
     }
 
-    public int getAmountDonated() {
-        return amountDonated;
-    }
-
     public void addDonation(int amount) {
         amountDonated += amount;
-    }
-
-    public void setAmountDonated(int amountDonated) {
-        this.amountDonated = amountDonated;
-    }
-
-    public int getShops() {
-        return shops;
-    }
-
-    public void setShops(int shops) {
-        this.shops = shops;
     }
 
     public void addShop() {
@@ -288,84 +196,8 @@ public class OfflineFLPlayer {
             -- shops;
     }
 
-    public void setFlightPreference(boolean value) {
-        this.flightPreference = value;
-    }
-
-    public void setFlightPreferenceSilent(boolean value) {
-        this.flightPreference = value;
-    }
-
-    public boolean getFlightPreference() {
-        return flightPreference;
-    }
-
-    public void setGod(boolean value) {
-        god = value;
-    }
-
-    public boolean isGod() {
-        return god;
-    }
-
-    public void setVanished(boolean value) {
-        vanished = value;
-    }
-
-    public void setVanishedSilent(boolean value) {
-        this.vanished = value;
-    }
-
-    public boolean isVanished() {
-        return vanished;
-    }
-
-    public void setCensoring(boolean value) {
-        censoring = value;
-    }
-
-    public boolean isCensoring() {
-        return censoring;
-    }
-
-    public void setPvPing(boolean value) {
-        pvp = value;
-    }
-
-    public boolean isPvPing() {
-        return pvp;
-    }
-
-    public void setTopVoter(boolean value) {
-        topVoter = value;
-    }
-
-    public boolean isTopVoter() {
-        return topVoter;
-    }
-
-    public boolean viewedPatchnotes() {
-        return viewedPatchnotes;
-    }
-
-    public void setViewedPatchnotes(boolean value) {
-        viewedPatchnotes = value;
-    }
-
-    public Particles getParticles() {
-        return particles;
-    }
-
     public boolean hasParticles() {
         return particles != null && rank.specialCompareTo(Rank.DONOR) >= 0;
-    }
-
-    public void setDebugging(boolean value) {
-        this.debugging = value;
-    }
-
-    public boolean isDebugging() {
-        return debugging;
     }
 
     public void setParticles(Particle type, Particles.ParticleLocation location) {
@@ -379,19 +211,11 @@ public class OfflineFLPlayer {
         }
     }
 
-    public Rank getRank() {
-        return rank;
-    }
-
-    public void setRankSilent(Rank rank) {
-        this.rank = rank;
-    }
-
     public void setRank(Rank rank) {
         Player player = getOnlinePlayer();
         boolean online = player != null;
         if(rank.specialCompareTo(this.rank) > 0) {
-            Logging.broadcast(ChatColor.GOLD + " ** " + ChatColor.GREEN + getUsername() + ChatColor.GOLD +
+            Logging.broadcast(ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
                     " has ranked up to " + rank.getColor() + rank.getSymbol() + ChatColor.GOLD + " ** ", true);
             if(online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
@@ -417,10 +241,6 @@ public class OfflineFLPlayer {
                 .collect(Collectors.toList());
     }
 
-    public Set<UUID> getRawIgnoreList() {
-        return ignoredPlayers;
-    }
-
     public boolean isIgnoring(CommandSender sender) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         return flp != null && ignoredPlayers.contains(flp.uuid);
@@ -435,14 +255,6 @@ public class OfflineFLPlayer {
             return ignoredPlayers.add(player);
         else
             return ignoredPlayers.remove(player);
-    }
-
-    public void setCurrentMute(Mute mute) {
-        currentMute = mute;
-    }
-
-    public Mute getCurrentMute() {
-        return currentMute;
     }
 
     public boolean isMuted() {
@@ -497,24 +309,12 @@ public class OfflineFLPlayer {
         return isBanned() ? getCurrentPunishment() : getMostRecentPunishment();
     }
 
-    public List<Punishment> getPunishments() {
-        return punishments;
-    }
-
-    public void setPunishments(List<Punishment> punishments) {
-        this.punishments = punishments;
-    }
-
     public boolean isBanned() {
         for(int i = 0;i < punishments.size();++ i) {
             if(punishments.get(i).isActive(i))
                 return true;
         }
         return false;
-    }
-
-    public List<Home> getHomes() {
-        return homes;
     }
 
     public boolean hasHome(String name) {
@@ -545,24 +345,12 @@ public class OfflineFLPlayer {
         homes.removeIf(home -> name.equals(home.getName()));
     }
 
-    public void setHomes(List<Home> homes) {
-        this.homes = homes;
-    }
-
     public void addMail(String sender, String message) {
         mail.add(new MailMessage(sender, message));
     }
 
-    public List<MailMessage> getMail() {
-        return mail;
-    }
-
     public void clearMail() {
         mail.clear();
-    }
-
-    public void setMail(List<MailMessage> mail) {
-        this.mail = mail;
     }
 
     @Override
@@ -572,7 +360,7 @@ public class OfflineFLPlayer {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || other instanceof OfflineFLPlayer && uuid.equals(((OfflineFLPlayer)other).getUuid());
+        return other == this || other instanceof OfflineFLPlayer && uuid.equals(((OfflineFLPlayer)other).uuid);
     }
 
     @Override

@@ -46,7 +46,7 @@ public class Voting extends Mechanic {
         --pluginData.votesUntilParty;
         Logging.broadcastFormatted("&(gold){&(aqua)%0} just voted $(link,%1,{&(aqua,underline)here}) and received a reward!" +
                         (pluginData.votesUntilParty > 0 ? " {&(aqua)%2} more $(inflect,noun,2,vote) until a vote party!" : ""),
-                true, flp.getUsername(), voteConfig.voteLink, pluginData.votesUntilParty);
+                true, flp.username, voteConfig.voteLink, pluginData.votesUntilParty);
 
         updateTopVoter();
         updateVoteParty();

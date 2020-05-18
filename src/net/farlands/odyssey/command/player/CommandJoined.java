@@ -35,7 +35,7 @@ public class CommandJoined extends Command {
             sender.sendMessage(ChatColor.GOLD + "This player has never joined the server before.");
             return true;
         }
-        sender.sendMessage(ChatColor.GOLD + flp.getUsername() + " joined on " + SDF.format(new Date(Bukkit.getOfflinePlayer(flp.getUuid()).getFirstPlayed())));
+        sender.sendMessage(ChatColor.GOLD + flp.username + " joined on " + SDF.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed())));
         return true;
     }
 

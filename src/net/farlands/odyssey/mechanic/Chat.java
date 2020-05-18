@@ -64,12 +64,12 @@ public class Chat extends Mechanic {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
-        if (flp.isVanished()) {
+        if (flp.vanished) {
             event.setJoinMessage(null);
             Logging.broadcastStaff(ChatColor.GRAY + event.getPlayer().getName() + " joined silently.");
         } else {
             event.setJoinMessage(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                    ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has joined.");
+                    ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has joined.");
             FarLands.getDiscordHandler().sendMessage("ingame", event.getJoinMessage());
         }
     }
@@ -77,11 +77,11 @@ public class Chat extends Mechanic {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
-        if (flp.isVanished())
+        if (flp.vanished)
             event.setQuitMessage(null);
         else {
             event.setQuitMessage(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                    ChatColor.RESET + flp.getRank().getNameColor() + flp.getUsername() + ChatColor.YELLOW + " has left.");
+                    ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has left.");
             FarLands.getDiscordHandler().sendMessage("ingame", event.getQuitMessage());
         }
     }
@@ -100,7 +100,7 @@ public class Chat extends Mechanic {
 
         spamUpdate(player, event.getMessage());
         if (flp.isMuted()) {
-            flp.getCurrentMute().sendMuteMessage(player);
+            flp.currentMute.sendMuteMessage(player);
             Logging.broadcastStaff(TextUtils.format("&(red)[MUTED] %0: &(gray)%1", event.getPlayer().getName(),
                     event.getMessage()));
             return;
@@ -109,22 +109,22 @@ public class Chat extends Mechanic {
     }
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
-        Rank rank = senderFlp.getRank(),
-                displayedRank = senderFlp.isTopVoter() && !rank.isStaff() ? Rank.VOTER : rank;
+        Rank rank = senderFlp.rank,
+                displayedRank = senderFlp.topVoter && !rank.isStaff() ? Rank.VOTER : rank;
         chat(senderFlp, sender, message.trim(), displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
                 displayedRank.getSymbol() + displayedRank.getNameColor() + " " + senderFlp.getDisplayName() + ": " + ChatColor.WHITE);
     }
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message, String displayPrefix) {
-        if (!senderFlp.getRank().isStaff() && MESSAGE_FILTER.autoCensor(removeColorCodes(message))) {
-            message = applyColorCodes(senderFlp.getRank(), message);
+        if (!senderFlp.rank.isStaff() && MESSAGE_FILTER.autoCensor(removeColorCodes(message))) {
+            message = applyColorCodes(senderFlp.rank, message);
             // Make it seem like the message went through for the sender
             sender.sendMessage(displayPrefix + ChatColor.WHITE + message);
             Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
                     sender.getDisplayName(), message), "alerts");
             return;
         } else
-            message = applyColorCodes(senderFlp.getRank(), message);
+            message = applyColorCodes(senderFlp.rank, message);
 
 
         if (message.substring(0, 1).equals("!")) {
@@ -154,7 +154,7 @@ public class Chat extends Mechanic {
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
                 .filter(session -> !session.handle.isIgnoring(senderFlp))
                 .forEach(session -> {
-                    if (session.handle.isCensoring())
+                    if (session.handle.censoring)
                         session.player.sendMessage(censorMessage);
                     else
                         session.player.sendMessage(fmessage);

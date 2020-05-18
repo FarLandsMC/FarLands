@@ -34,7 +34,7 @@ public class CommandPunish extends Command {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
-        if (flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender.getName()).getUuid())) {
+        if (flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender.getName()).uuid)) {
             sender.sendMessage(ChatColor.RED + "That was close!");
             return true;
         }

@@ -122,7 +122,7 @@ public abstract class Command extends org.bukkit.command.Command {
     // Excludes vanished players
     public static Player getPlayer(String name, CommandSender sender) {
         Player player = Bukkit.getServer().getPlayer(name);
-        if (player == null || (!Rank.getRank(sender).isStaff() && FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished()))
+        if (player == null || (!Rank.getRank(sender).isStaff() && FarLands.getDataHandler().getOfflineFLPlayer(player).vanished))
             return null;
         return player;
     }
@@ -131,7 +131,7 @@ public abstract class Command extends org.bukkit.command.Command {
     public static List<String> getOnlinePlayers(String partialName, CommandSender sender) {
         Stream<? extends Player> stream = Bukkit.getOnlinePlayers().stream();
         if (!Rank.getRank(sender).isStaff())
-            stream = stream.filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).isVanished());
+            stream = stream.filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished);
         return stream.map(Player::getName).filter(name -> name.toLowerCase().startsWith(partialName.toLowerCase()))
                 .collect(Collectors.toList());
     }

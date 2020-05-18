@@ -202,7 +202,7 @@ public class PlayerDataHandlerOld {
     }
 
     public synchronized boolean isNew(Player player) {
-        return getFLPlayer(player).getSecondsPlayed() < 30;
+        return getFLPlayer(player).secondsPlayed < 30;
     }
 
     public synchronized OfflineFLPlayer getFLPlayer(Player player) {
@@ -262,7 +262,7 @@ public class PlayerDataHandlerOld {
     public synchronized OfflineFLPlayer getFLPlayer(long discordID) { // Note: does not create new player data
         if(discordID == 0)
             return null;
-        OfflineFLPlayer flp = cache.values().stream().filter(flp0 -> flp0.getDiscordID() == discordID).findAny().orElse(null);
+        OfflineFLPlayer flp = cache.values().stream().filter(flp0 -> flp0.discordID == discordID).findAny().orElse(null);
         if(flp != null)
             return flp;
         try {
@@ -285,7 +285,7 @@ public class PlayerDataHandlerOld {
         List<OfflineFLPlayer> alts = new ArrayList<>();
         try {
             ResultSet rs = query("SELECT uuid FROM playerdata WHERE lastIP=\"" +
-                    getFLPlayer(player).getLastIP() + "\" AND rank<" + Rank.JR_BUILDER.ordinal());
+                    getFLPlayer(player).lastIP + "\" AND rank<" + Rank.JR_BUILDER.ordinal());
             while(rs.next()) {
                 UUID uuid = FLUtils.getUuid(rs.getBytes("uuid"), 0);
                 if(!player.equals(uuid))
@@ -300,7 +300,7 @@ public class PlayerDataHandlerOld {
 
     public synchronized String getUsername(UUID uuid) {
         if(cache.containsKey(uuid))
-            return cache.get(uuid).getUsername();
+            return cache.get(uuid).username;
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getUsername"));
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
@@ -338,7 +338,7 @@ public class PlayerDataHandlerOld {
 
     public synchronized Rank getRank(UUID uuid) {
         if(cache.containsKey(uuid))
-            return cache.get(uuid).getRank();
+            return cache.get(uuid).rank;
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getRankByUuid"));
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
@@ -399,8 +399,8 @@ public class PlayerDataHandlerOld {
     public synchronized void saveLegacy(OfflineFLPlayer flp) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("newFlp"));
-            ps.setBytes(1, FLUtils.serializeUuid(flp.getUuid()));
-            ps.setString(2, flp.getUsername());
+            ps.setBytes(1, FLUtils.serializeUuid(flp.uuid));
+            ps.setString(2, flp.username);
             ps.executeUpdate();
             ps.close();
             connection.commit();
@@ -416,22 +416,22 @@ public class PlayerDataHandlerOld {
             saveFLPlayer(flp, ps, false);
             ps.executeUpdate();
             ps.close();
-            byte[] uuid = FLUtils.serializeUuid(flp.getUuid());
+            byte[] uuid = FLUtils.serializeUuid(flp.uuid);
             ps = connection.prepareStatement(queries.get("delAllHomes"));
             ps.setBytes(1, uuid);
             ps.executeUpdate();
             ps.close();
-            flp.getHomes().forEach(h -> addHome(flp.getUuid(), h.getName(), h.getLocation()));
+            flp.homes.forEach(h -> addHome(flp.uuid, h.getName(), h.getLocation()));
             ps = connection.prepareStatement(queries.get("delAllPunishments"));
             ps.setBytes(1, uuid);
             ps.executeUpdate();
             ps.close();
-            flp.getPunishments().forEach(p -> punish(flp.getUuid(), p));
+            flp.punishments.forEach(p -> punish(flp.uuid, p));
             ps = connection.prepareStatement(queries.get("clearMail"));
             ps.setBytes(1, uuid);
             ps.executeUpdate();
             ps.close();
-            flp.getMail().forEach(m -> addMail(flp.getUuid(), m.getSender(), m.getMessage()));
+            flp.mail.forEach(m -> addMail(flp.uuid, m.getSender(), m.getMessage()));
         }catch(SQLException ex) {
             ex.printStackTrace();
         }
@@ -451,45 +451,45 @@ public class PlayerDataHandlerOld {
 
     public synchronized void saveFLPlayer(OfflineFLPlayer flp, PreparedStatement saveFlp, boolean batch) {
         try {
-            saveFlp.setString(1, flp.getUsername());
-            saveFlp.setLong(2, flp.getDiscordID());
+            saveFlp.setString(1, flp.username);
+            saveFlp.setLong(2, flp.discordID);
             saveFlp.setLong(3, flp.getLastLogin());
-            saveFlp.setString(4, flp.getNickname());
-            saveFlp.setString(5, flp.getLastIP());
-            saveFlp.setInt(6, flp.getSecondsPlayed());
-            saveFlp.setInt(7, flp.getTotalVotes());
-            saveFlp.setInt(8, flp.getMonthVotes());
-            saveFlp.setInt(9, flp.getVoteRewards());
-            saveFlp.setInt(10, flp.getAmountDonated());
-            saveFlp.setInt(11, flp.getShops());
-            int flags = (flp.getFlightPreference() ? 1 : 0) << 7 | (flp.isGod() ? 1 : 0) << 6 | (flp.isVanished() ? 1 : 0) << 5 |
-                    (flp.isCensoring() ? 1 : 0) << 4 | (flp.isPvPing() ? 1 : 0) << 3 | (flp.isTopVoter() ? 1 : 0) << 2 |
-                    (flp.viewedPatchnotes() ? 1 : 0) << 1 | (flp.isDebugging() ? 1 : 0);
+            saveFlp.setString(4, flp.nickname);
+            saveFlp.setString(5, flp.lastIP);
+            saveFlp.setInt(6, flp.secondsPlayed);
+            saveFlp.setInt(7, flp.totalVotes);
+            saveFlp.setInt(8, flp.monthVotes);
+            saveFlp.setInt(9, flp.voteRewards);
+            saveFlp.setInt(10, flp.amountDonated);
+            saveFlp.setInt(11, flp.shops);
+            int flags = (flp.flightPreference ? 1 : 0) << 7 | (flp.god ? 1 : 0) << 6 | (flp.vanished ? 1 : 0) << 5 |
+                    (flp.censoring ? 1 : 0) << 4 | (flp.pvp ? 1 : 0) << 3 | (flp.topVoter ? 1 : 0) << 2 |
+                    (flp.viewedPatchnotes ? 1 : 0) << 1 | (flp.debugging ? 1 : 0);
             saveFlp.setInt(12, (byte)flags);
-            if(flp.getParticles() == null) {
+            if(flp.particles == null) {
                 saveFlp.setInt(13, -1);
                 saveFlp.setInt(14, -1);
             }else{
-                saveFlp.setInt(13, flp.getParticles().getType().ordinal());
-                saveFlp.setInt(14, flp.getParticles().getLocation().ordinal());
+                saveFlp.setInt(13, flp.particles.getType().ordinal());
+                saveFlp.setInt(14, flp.particles.getLocation().ordinal());
             }
-            saveFlp.setInt(15, flp.getRank().ordinal());
+            saveFlp.setInt(15, flp.rank.ordinal());
             saveFlp.setInt(16, DataHandler.WORLDS.indexOf(flp.getLastLocation().getWorld().getName()));
             saveFlp.setDouble(17, flp.getLastLocation().getX());
             saveFlp.setDouble(18, flp.getLastLocation().getY());
             saveFlp.setDouble(19, flp.getLastLocation().getZ());
             saveFlp.setFloat(20, flp.getLastLocation().getYaw());
             saveFlp.setFloat(21, flp.getLastLocation().getPitch());
-            if(flp.getCurrentMute() == null) {
+            if(flp.currentMute == null) {
                 saveFlp.setLong(22, 0);
                 saveFlp.setString(23, "");
             }else{
-                saveFlp.setLong(22, flp.getCurrentMute().getDateEnds());
-                saveFlp.setString(23, flp.getCurrentMute().getReason());
+                saveFlp.setLong(22, flp.currentMute.getDateEnds());
+                saveFlp.setString(23, flp.currentMute.getReason());
             }
-            byte[] ignored = new byte[flp.getRawIgnoreList().size() * 16];
+            byte[] ignored = new byte[flp.ignoredPlayers.size() * 16];
             int i = 0;
-            for(UUID uid : flp.getRawIgnoreList()) {
+            for(UUID uid : flp.ignoredPlayers) {
                 FLUtils.serializeUuid(uid, ignored, i);
                 i += 16;
             }
@@ -498,7 +498,7 @@ public class PlayerDataHandlerOld {
             else
                 saveFlp.setBytes(24, ignored);
 
-            saveFlp.setBytes(25, FLUtils.serializeUuid(flp.getUuid()));
+            saveFlp.setBytes(25, FLUtils.serializeUuid(flp.uuid));
 
             if(batch)
                 saveFlp.addBatch();
@@ -530,45 +530,45 @@ public class PlayerDataHandlerOld {
                 return flp;
             }
             if(username == null)
-                flp.setUsername(rs.getString("username"));
-            flp.setDiscordIDSilent(rs.getLong("discordID"));
-            flp.setLastLogin(rs.getLong("lastLogin"));
-            flp.setNicknameSilent(rs.getString("nickname"));
-            flp.setLastIP(rs.getString("lastIP"));
-            flp.setSecondsPlayed(rs.getInt("secondsPlayed"));
-            flp.setTotalVotes(rs.getInt("totalVotes"));
-            flp.setMonthVotes(rs.getInt("monthVotes"));
-            flp.setVoteRewards(rs.getInt("voteRewards"));
-            flp.setAmountDonated(rs.getInt("amountDonated"));
-            flp.setShops(rs.getInt("shops"));
+                flp.username = rs.getString("username");
+            flp.discordID = rs.getLong("discordID");
+            flp.lastLogin = rs.getLong("lastLogin");
+            flp.nickname = rs.getString("nickname");
+            flp.lastIP = rs.getString("lastIP");
+            flp.secondsPlayed = rs.getInt("secondsPlayed");
+            flp.totalVotes = rs.getInt("totalVotes");
+            flp.monthVotes = rs.getInt("monthVotes");
+            flp.voteRewards = rs.getInt("voteRewards");
+            flp.amountDonated = rs.getInt("amountDonated");
+            flp.shops = rs.getInt("shops");
             int flags = rs.getInt("flags");
-            flp.setFlightPreferenceSilent((flags & 0x80) != 0);
-            flp.setGod((flags & 0x40) != 0);
-            flp.setVanishedSilent((flags & 0x20) != 0);
-            flp.setCensoring((flags & 0x10) != 0);
-            flp.setPvPing((flags & 0x8) != 0);
-            flp.setTopVoter((flags & 0x4) != 0);
-            flp.setViewedPatchnotes((flags & 0x2) != 0);
-            flp.setDebugging((flags & 0x1) != 0);
+            flp.flightPreference = (flags & 0x80) != 0;
+            flp.god = (flags & 0x40) != 0;
+            flp.vanished = (flags & 0x20) != 0;
+            flp.censoring = (flags & 0x10) != 0;
+            flp.pvp = (flags & 0x8) != 0;
+            flp.topVoter = (flags & 0x4) != 0;
+            flp.viewedPatchnotes = (flags & 0x2) != 0;
+            flp.debugging = (flags & 0x1) != 0;
             int particleType = rs.getInt("particles_type"), loc = rs.getInt("particles_location");
             if(particleType >= 0 && loc >= 0)
                 flp.setParticles(Particle.values()[particleType], Particles.ParticleLocation.VALUES[loc]);
-            flp.setRankSilent(Rank.VALUES[rs.getInt("rank")]);
+            flp.rank = Rank.VALUES[rs.getInt("rank")];
             flp.setLastLocation(DataHandler.WORLDS.get(rs.getInt("lastLocation_world")), rs.getDouble("lastLocation_x"),
                     rs.getDouble("lastLocation_y"), rs.getDouble("lastLocation_z"), rs.getFloat("lastLocation_yaw"),
                     rs.getFloat("lastLocation_pitch"));
             long muteDateEnds = rs.getLong("currentMute_dateEnds");
             if(muteDateEnds > 0)
-                flp.setCurrentMute(new Mute(muteDateEnds, rs.getString("currentMute_reason")));
+                flp.currentMute = new Mute(muteDateEnds, rs.getString("currentMute_reason"));
             byte[] ignoredPlayers = rs.getBytes("ignoredPlayers");
             if(ignoredPlayers != null) {
                 for (int i = 0; i + 15 < ignoredPlayers.length; i += 16)
                     flp.setIgnoring(FLUtils.getUuid(ignoredPlayers, i), true);
             }
 
-            flp.setPunishments(getPunishments(uuid));
-            flp.setHomes(getHomes(uuid));
-            flp.setMail(getMail(uuid));
+            flp.punishments = getPunishments(uuid);
+            flp.homes = getHomes(uuid);
+            flp.mail = getMail(uuid);
 
             rs.close();
             ps.close();

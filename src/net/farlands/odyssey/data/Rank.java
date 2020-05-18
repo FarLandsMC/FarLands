@@ -179,7 +179,7 @@ public enum Rank {
             return MOD;
         else if (sender instanceof DiscordSender) {
             OfflineFLPlayer flp = ((DiscordSender) sender).getFlp();
-            return flp == null ? Rank.INITIATE : flp.getRank();
+            return flp == null ? Rank.INITIATE : flp.rank;
         } else
             return FarLands.getDataHandler().getOfflineFLPlayer((Player) sender).rank;
     }

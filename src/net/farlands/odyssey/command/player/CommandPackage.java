@@ -62,12 +62,12 @@ public class CommandPackage extends PlayerCommand {
             senderSession.setCommandCooldown(this, 10L * 60L * 20L);
             sender.getInventory().setItemInMainHand(null);
         } else {
-            if (FarLands.getDataHandler().addPackage(recipientFlp.getUuid(), senderSession.handle.getDisplayName(), item, message)) {
+            if (FarLands.getDataHandler().addPackage(recipientFlp.uuid, senderSession.handle.getDisplayName(), item, message)) {
                 sender.sendMessage(ChatColor.GOLD + "Package sent.");
                 sender.getInventory().setItemInMainHand(null);
                 senderSession.setCommandCooldown(this, 10L * 60L * 20L);
             } else
-                sender.sendMessage(ChatColor.RED + "You cannot send " + recipientFlp.getUsername() + " a package right now.");
+                sender.sendMessage(ChatColor.RED + "You cannot send " + recipientFlp.username + " a package right now.");
         }
         return true;
     }

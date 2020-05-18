@@ -31,8 +31,8 @@ public class CommandAlts extends DiscordCommand {
         if (alts.isEmpty())
             sender.sendMessage(ChatColor.GOLD + "This player has no alts.");
         else {
-            List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(OfflineFLPlayer::getUsername).collect(Collectors.toList()),
-                    normal = alts.stream().filter(p -> !p.isBanned()).map(OfflineFLPlayer::getUsername).collect(Collectors.toList());
+            List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
+                    normal = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
             if (!banned.isEmpty())
                 sender.sendMessage(ChatColor.GOLD + "Banned alts: " + String.join(", ", banned));
             if (!normal.isEmpty())

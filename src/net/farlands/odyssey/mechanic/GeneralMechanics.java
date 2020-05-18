@@ -83,8 +83,8 @@ public class GeneralMechanics extends Mechanic {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
                 Bukkit.getOnlinePlayers().forEach(player -> {
                     OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
-                    if (flp.hasParticles() && !flp.isVanished() && GameMode.SPECTATOR != player.getGameMode())
-                        flp.getParticles().spawn(player);
+                    if (flp.hasParticles() && !flp.vanished && GameMode.SPECTATOR != player.getGameMode())
+                        flp.particles.spawn(player);
                 }), 0L, 60L);
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
@@ -108,7 +108,7 @@ public class GeneralMechanics extends Mechanic {
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.5F);
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
-            if (!flp.viewedPatchnotes())
+            if (!flp.viewedPatchnotes)
                 player.sendMessage(ChatColor.GOLD + "Patch " + ChatColor.AQUA + "#" + FarLands.getDataHandler().getCurrentPatch() +
                         ChatColor.GOLD + " has been released! View changes with " + ChatColor.AQUA + "/patchnotes");
         }, 125L);

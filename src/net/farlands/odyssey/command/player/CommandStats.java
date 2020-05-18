@@ -32,13 +32,13 @@ public class CommandStats extends Command {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.update(); // Make sure our stats are fresh
             sender.sendMessage(
-                ChatColor.GREEN + "Showing stats for " + ChatColor.GOLD + flp.getUsername() + ":\n" +
-                ChatColor.GREEN + "Rank: " + flp.getRank().getColor() + flp.getRank().getSymbol() + ChatColor.GREEN + '\n' +
-                "Time Played: " + TimeInterval.formatTime(flp.getSecondsPlayed() * 1000L, false) + '\n' +
-                (isPersonal && sender instanceof Player && flp.getAmountDonated() > 0 ? "Amount Donated: $" +
-                        flp.getAmountDonated() + "\n" : "") +
-                "Votes this Month: " + flp.getMonthVotes() + '\n' +
-                "Total Votes: " + flp.getTotalVotes()
+                ChatColor.GREEN + "Showing stats for " + ChatColor.GOLD + flp.username + ":\n" +
+                ChatColor.GREEN + "Rank: " + flp.rank.getColor() + flp.rank.getSymbol() + ChatColor.GREEN + '\n' +
+                "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + '\n' +
+                (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
+                        flp.amountDonated + "\n" : "") +
+                "Votes this Month: " + flp.monthVotes + '\n' +
+                "Total Votes: " + flp.totalVotes
             );
         });
         return true;

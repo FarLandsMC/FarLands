@@ -16,7 +16,7 @@ public class CommandPropose extends DiscordCommand {
         if (args.length == 0)
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        FarLands.getDataHandler().getPluginData().addProposal(flp.getUsername(), String.join(" ", args));
+        FarLands.getDataHandler().getPluginData().addProposal(flp.username, String.join(" ", args));
         return true;
     }
 

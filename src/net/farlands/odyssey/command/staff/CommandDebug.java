@@ -23,8 +23,8 @@ public class CommandDebug extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         if(args.length == 0) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-            boolean debugging = !flp.isDebugging();
-            flp.setDebugging(debugging);
+            boolean debugging = !flp.debugging;
+            flp.debugging = debugging;
             sender.sendMessage(ChatColor.AQUA + "Debugging: " + debugging);
             if (debugging)
                 FarLands.getMechanicHandler().getMechanic(AntiCheat.class).put(sender);

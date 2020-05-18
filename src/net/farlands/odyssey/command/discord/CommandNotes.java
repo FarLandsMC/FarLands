@@ -30,9 +30,9 @@ public class CommandNotes extends DiscordCommand {
         }
         if ("view".equals(args[0])) {
             if (flp.notes.isEmpty())
-                sender.sendMessage(ChatColor.AQUA + flp.getUsername() + ChatColor.GOLD + " does not have any notes.");
+                sender.sendMessage(ChatColor.AQUA + flp.username + ChatColor.GOLD + " does not have any notes.");
             else {
-                sender.sendMessage(ChatColor.GOLD + "Showing notes for " + ChatColor.AQUA + flp.getUsername() + ":");
+                sender.sendMessage(ChatColor.GOLD + "Showing notes for " + ChatColor.AQUA + flp.username + ":");
                 flp.notes.forEach(note -> sender.sendMessage(ChatColor.GRAY + note));
             }
         } else if ("add".equals(args[0])) {
@@ -41,7 +41,7 @@ public class CommandNotes extends DiscordCommand {
             sender.sendMessage(ChatColor.GOLD + "Note added.");
         } else if ("clear".equals(args[0])) {
             flp.notes.clear();
-            sender.sendMessage(ChatColor.GOLD + "Cleared notes of " + ChatColor.AQUA + flp.getUsername());
+            sender.sendMessage(ChatColor.GOLD + "Cleared notes of " + ChatColor.AQUA + flp.username);
         } else
             return false;
         return true;

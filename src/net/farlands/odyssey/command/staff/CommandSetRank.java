@@ -63,7 +63,7 @@ public class CommandSetRank extends Command {
             player.sendMessage(ChatColor.GREEN + "Your rank has been updated to " + rank.getColor() + rank.toString());
         // Notify discord
         FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
-                " has updated " + Chat.applyDiscordFilters(flp.getUsername()) + "\'s rank to `" + rank.getSymbol() +
+                " has updated " + Chat.applyDiscordFilters(flp.username) + "\'s rank to `" + rank.getSymbol() +
                 "`.");
         return true;
     }

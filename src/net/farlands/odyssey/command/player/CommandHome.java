@@ -54,7 +54,7 @@ public class CommandHome extends PlayerCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
-                ? FarLands.getDataHandler().getOfflineFLPlayer(sender).getHomes().stream().map(Home::getName)
+                ? FarLands.getDataHandler().getOfflineFLPlayer(sender).homes.stream().map(Home::getName)
                     .filter(home -> home.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList())
                 : (Rank.getRank(sender).isStaff() ? getOnlinePlayers(args[1], sender) : Collections.emptyList()); // For staff
