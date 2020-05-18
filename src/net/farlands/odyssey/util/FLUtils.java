@@ -16,7 +16,6 @@ import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.Openable;
 import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -34,9 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 public final class FLUtils {
     public static final LocationWrapper LOC_ZERO = new LocationWrapper("world", 0.0, 0.0, 0.0, 0.0F, 0.0F);
@@ -374,44 +370,6 @@ public final class FLUtils {
 
     public static double constrain(double d, double min, double max) {
         return d < min ? min : (d > max ? max : d);
-    }
-    public static boolean isSafe(Location location) {
-        Block b = location.add(0, 1, 0).getBlock();
-        boolean foot = b.getType().name().endsWith("SIGN") || b.getType().name().endsWith("_FENCE_GATE") || !(b.getType().isSolid() ||
-                Arrays.asList(Material.LAVA, Material.FIRE, Material.CACTUS, Material.SWEET_BERRY_BUSH).contains(b.getType()));
-        b = location.add(0, 1, 0).getBlock();
-        boolean head = b.getType().name().endsWith("SIGN") || b.getType().name().endsWith("_FENCE_GATE") || !(b.getType().isSolid() ||
-                b.isLiquid() || Arrays.asList(Material.FIRE, Material.CACTUS, Material.SWEET_BERRY_BUSH).contains(b.getType()));
-        return foot && head;
-    }
-    public static boolean canStand(Block b) { // if a player can safely stand here
-        return b.getType().name().endsWith("_SLAB") || !(b.isPassable() && b.getType() != Material.WATER ||
-                b.getType().name().endsWith("_TRAPDOOR") && ((Openable)b.getBlockData()).isOpen() ||
-                Arrays.asList(Material.MAGMA_BLOCK, Material.CACTUS).contains(b.getType()));
-    }
-
-    public static Location findSafe(final Location l) {
-        l.setX(l.getBlockX() + .5);
-        l.setZ(l.getBlockZ() + .5);
-        return findSafe(l, max(0, l.getBlockY() - 8), min(l.getBlockY() + 7,
-                l.getWorld().getName().equals("world_nether") ? 126 : 255));
-    }
-    private static Location findSafe(final Location origin, int s, int e) {
-        Location safe = origin.clone();
-        int border = (int)origin.getWorld().getWorldBorder().getSize() / 2 - 1;
-        safe.setX(constrain(safe.getX(), -border, border));
-        safe.setZ(constrain(safe.getZ(), -border, border));
-        if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-            return safe.add(0, .3125, 0);
-        for (int i = s + e >> 1, c = 0; s <= i && i <= e; i += ((++c & 1) == 1 ? c : c * -1)) {
-            safe.setY(i);
-            if (canStand(safe.getBlock()))
-                if (isSafe(safe.clone()))
-                    return safe.add(0, 1, 0);
-        }
-        FarLands.getDebugger().echo("unsafe tp @ " +
-                safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
-        return null;
     }
 
     public static String toStringTruncated(double d) {

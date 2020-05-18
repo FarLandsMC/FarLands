@@ -16,7 +16,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import static net.farlands.odyssey.util.FLUtils.*;
+import static net.farlands.odyssey.util.FLUtils.RNG;
+import static net.farlands.odyssey.util.FLUtils.tpPlayer;
+import static com.kicas.rp.util.Utils.*;
 
 public class CommandWild extends PlayerCommand {
     private final Cooldown globalCooldown;

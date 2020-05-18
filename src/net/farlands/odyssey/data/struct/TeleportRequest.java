@@ -1,6 +1,7 @@
 package net.farlands.odyssey.data.struct;
 
 import com.kicas.rp.util.TextUtils;
+import com.kicas.rp.util.Utils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.util.FLUtils;
@@ -100,7 +101,7 @@ public final class TeleportRequest implements Runnable {
 
         // Keep track of locations for movement cancellation and the end teleportation
         startLocationTeleporter = teleporter.getLocation().clone();
-        toLocation = FLUtils.findSafe(anchor.getLocation().clone());
+        toLocation = Utils.findSafe(anchor.getLocation().clone(), 0, 256);
 
         // Check location safety
         if (toLocation == null) {
