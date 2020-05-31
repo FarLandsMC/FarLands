@@ -1,11 +1,12 @@
 package net.farlands.odyssey.command.discord;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.util.TimeInterval;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 public class CommandDevReport extends DiscordCommand {
@@ -23,20 +24,21 @@ public class CommandDevReport extends DiscordCommand {
             return false;
 
         long t = globalCooldown.timeRemaining();
-        System.out.println(t);
         if (t > 0) {
-            sender.sendMessage(ChatColor.RED + "You can use this command again in " + TimeInterval.formatTime(50L * t, false) + ".");
+            TextUtils.sendFormatted(sender, "&(red)You can use this command again in %0.", TimeInterval.formatTime(50L * t, false));
             return true;
         }
+
+        String message;
         if ("suggest".equalsIgnoreCase(args[0])) {
-            String message = "Suggestion from `" + sender.getName() + "`:```" + joinArgsBeyond(0, " ", args) + "```";
-            FarLands.getDiscordHandler().sendMessageRaw("suggestions", message);
-            FarLands.getDiscordHandler().sendMessageRaw("devreports", message);
+            message = "Suggestion from `" + sender.getName() + "`:```" + joinArgsBeyond(0, " ", args) + "```";
+            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.SUGGESTIONS, message);
         } else {
-            String message = "Glitch/bug report from `" + sender.getName() + "`:```" + joinArgsBeyond(0, " ", args) + "```";
-            FarLands.getDiscordHandler().sendMessageRaw("bugreports", message);
-            FarLands.getDiscordHandler().sendMessageRaw("devreports", message);
+            message = "Glitch/bug report from `" + sender.getName() + "`:```" + joinArgsBeyond(0, " ", args) + "```";
+            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.BUG_REPORTS, message);
         }
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEV_REPORTS, message);
+
         globalCooldown.reset();
         return true;
     }

@@ -5,6 +5,7 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.AFK;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.FLUtils;
@@ -62,8 +63,8 @@ public class CommandSetRank extends Command {
         if (player != null) // Notify the player if they're online
             player.sendMessage(ChatColor.GREEN + "Your rank has been updated to " + rank.getColor() + rank.toString());
         // Notify discord
-        FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
-                " has updated " + Chat.applyDiscordFilters(flp.username) + "\'s rank to `" + rank.getSymbol() +
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) +
+                " has updated " + Chat.applyDiscordFilters(flp.username) + "\'s rank to `" + rank.getName() +
                 "`.");
         return true;
     }

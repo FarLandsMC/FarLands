@@ -1,11 +1,11 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -20,17 +20,23 @@ public class CommandRealName extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if (args.length == 0)
             return false;
+
         args[0] = args[0].toLowerCase();
         List<String> matches = new ArrayList<>();
         for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
             String nickname = flp.nickname.toLowerCase();
+
+            // Match ignoring case
             if (args[0].equals(nickname)) {
-                sender.sendMessage(ChatColor.GREEN + "Matches: " + flp.username);
+                TextUtils.sendFormatted(sender, "&(green)Matches: &(gold)%0", flp.username);
                 return true;
-            } else if (nickname.contains(args[0]) || flp.username.toLowerCase().contains(args[0]))
+            }
+            // Match via containment (ignoring case)
+            else if (nickname.contains(args[0]) || flp.username.toLowerCase().contains(args[0]))
                 matches.add(flp.username);
         }
-        sender.sendMessage(ChatColor.GREEN + "Matches: " + (matches.isEmpty() ? ChatColor.RED + "None" : ChatColor.GOLD + String.join(", ", matches)));
+
+        TextUtils.sendFormatted(sender, "&(green)Matches: %0", matches.isEmpty() ? "&(red)None" : "&(gold)" + String.join(", ", matches));
         return true;
     }
 }

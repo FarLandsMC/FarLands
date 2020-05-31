@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MessageChannelHandler {
-    private final Map<String, MessageChannel> channels;
-    private final Map<String, List<String>> buffers;
+    private final Map<DiscordChannel, MessageChannel> channels;
+    private final Map<DiscordChannel, List<String>> buffers;
 
     public MessageChannelHandler() {
         this.channels = new HashMap<>();
@@ -24,48 +24,51 @@ public class MessageChannelHandler {
 
     private synchronized void flush() {
         StringBuilder sb = new StringBuilder();
-        channels.forEach((key, channel) -> {
-            buffers.get(key).forEach(msg -> {
-                if(sb.length() + msg.length() > 1999) {
-                    for(int i = 0;i < msg.length();i += 1999) {
+        channels.forEach((channel, messageChannel) -> {
+            buffers.get(channel).forEach(messageBuffer -> {
+                if(sb.length() + messageBuffer.length() > 1999) {
+                    for(int i = 0;i < messageBuffer.length();i += 1999) {
                         if(sb.length() > 0) {
-                            channel.sendMessage(sb).queue();
+                            messageChannel.sendMessage(sb).queue();
                             sb.setLength(0);
                         }
-                        sb.append(msg.substring(i, Math.min(i + 1999, msg.length())).trim()).append('\n');
+                        sb.append(messageBuffer.substring(i, Math.min(i + 1999, messageBuffer.length())).trim()).append('\n');
                     }
                 }else
-                    sb.append(msg.trim()).append('\n');
+                    sb.append(messageBuffer.trim()).append('\n');
             });
+
             if(sb.length() > 0 && !sb.toString().matches("\\s+")) {
-                channel.sendMessage(sb).queue();
+                messageChannel.sendMessage(sb).queue();
                 sb.setLength(0);
             }
-            buffers.get(key).clear();
+
+            buffers.get(channel).clear();
         });
     }
 
-    public void setChannel(String name, MessageChannel channel) {
-        channels.put(name, channel);
-        buffers.put(name, new ArrayList<>());
+    public void setChannel(DiscordChannel channel, MessageChannel messageChannel) {
+        channels.put(channel, messageChannel);
+        buffers.put(channel, new ArrayList<>());
     }
 
-    public MessageChannel getChannel(String name) {
-        return channels.get(name);
+    public MessageChannel getChannel(DiscordChannel channel) {
+        return channels.get(channel);
     }
 
     public synchronized void sendMessage(MessageChannel channel, String message) {
-        String key = FLUtils.getKey(channels, channel);
+        DiscordChannel key = FLUtils.getKey(channels, channel);
         if(key == null)
             channel.sendMessage(message).queue();
         else
             sendMessage(key, message);
     }
 
-    public synchronized void sendMessage(final String channel, String message) {
+    public synchronized void sendMessage(DiscordChannel channel, String message) {
         List<String> buffer = buffers.get(channel);
         if(buffer == null)
             return;
+
         buffer.add(message);
     }
 }

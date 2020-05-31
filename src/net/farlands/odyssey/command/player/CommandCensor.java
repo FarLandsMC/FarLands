@@ -1,7 +1,6 @@
 package net.farlands.odyssey.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -23,24 +22,30 @@ public class CommandCensor extends PlayerCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
-        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+    public boolean execute(Player sender, String[] args) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp.censoring) {
-            if (ranCommandOnce.containsKey(player.getUniqueId())) {
+            // They ran it once and confirmed that they want to disable the censor
+            if (ranCommandOnce.containsKey(sender.getUniqueId())) {
                 flp.censoring = false;
-                FarLands.getScheduler().completeTask(ranCommandOnce.get(player.getUniqueId()));
-                sendFormatted(player, "&(gold)Censor disabled. You can re-enable it with " +
+                FarLands.getScheduler().completeTask(ranCommandOnce.get(sender.getUniqueId()));
+                TextUtils.sendFormatted(sender, "&(gold)Censor disabled. You can re-enable it with " +
                         "$(hovercmd,/censor,{&(gray)Click to Run},&(aqua)/censor).");
-            } else {
-                ranCommandOnce.put(player.getUniqueId(), FarLands.getScheduler()
-                        .scheduleSyncDelayedTask(() -> ranCommandOnce.remove(player.getUniqueId()), 30L * 20L));
-                sendFormatted(player, "&(red)Are you sure you want to disable the chat censor? Confirm with " +
+            }
+            // Prompt the sender to confirm by rerunning the command
+            else {
+                ranCommandOnce.put(sender.getUniqueId(), FarLands.getScheduler()
+                        .scheduleSyncDelayedTask(() -> ranCommandOnce.remove(sender.getUniqueId()), 30L * 20L));
+                TextUtils.sendFormatted(sender, "&(red)Are you sure you want to disable the chat censor? Confirm with " +
                         "$(hovercmd,/censor,{&(gray)Click to Run},&(dark_red)/censor).");
             }
-        } else {
-            flp.censoring = true;
-            player.sendMessage(ChatColor.GOLD + "Chat censor enabled.");
         }
+        // Enable the censor
+        else {
+            flp.censoring = true;
+            TextUtils.sendFormatted(sender, "&(gold)Chat censor enabled.");
+        }
+
         return true;
     }
 }

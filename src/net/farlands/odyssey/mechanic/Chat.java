@@ -8,6 +8,7 @@ import net.farlands.odyssey.command.staff.CommandStaffChat;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
@@ -70,7 +71,7 @@ public class Chat extends Mechanic {
         } else {
             event.setJoinMessage(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                     ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has joined.");
-            FarLands.getDiscordHandler().sendMessage("ingame", event.getJoinMessage());
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getJoinMessage());
         }
     }
 
@@ -82,13 +83,13 @@ public class Chat extends Mechanic {
         else {
             event.setQuitMessage(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                     ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has left.");
-            FarLands.getDiscordHandler().sendMessage("ingame", event.getQuitMessage());
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getQuitMessage());
         }
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        FarLands.getDiscordHandler().sendMessage("ingame", event.getDeathMessage());
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getDeathMessage());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -111,17 +112,18 @@ public class Chat extends Mechanic {
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
         Rank rank = senderFlp.rank,
                 displayedRank = senderFlp.topVoter && !rank.isStaff() ? Rank.VOTER : rank;
-        chat(senderFlp, sender, message.trim(), displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
-                displayedRank.getSymbol() + displayedRank.getNameColor() + " " + senderFlp.getDisplayName() + ": " + ChatColor.WHITE);
+        chat(senderFlp, sender, displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
+                displayedRank.getName() + displayedRank.getNameColor() + " " + senderFlp.getDisplayName() + ": " +
+                ChatColor.WHITE, message.trim());
     }
 
-    public static void chat(OfflineFLPlayer senderFlp, Player sender, String message, String displayPrefix) {
+    public static void chat(OfflineFLPlayer senderFlp, Player sender, String displayPrefix, String message) {
         if (!senderFlp.rank.isStaff() && MESSAGE_FILTER.autoCensor(removeColorCodes(message))) {
             message = applyColorCodes(senderFlp.rank, message);
             // Make it seem like the message went through for the sender
             sender.sendMessage(displayPrefix + ChatColor.WHITE + message);
             Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
-                    sender.getDisplayName(), message), "alerts");
+                    sender.getDisplayName(), message), DiscordChannel.ALERTS);
             return;
         } else
             message = applyColorCodes(senderFlp.rank, message);
@@ -139,7 +141,7 @@ public class Chat extends Mechanic {
             }
             if (session.replyToggleRecipient != null) {
                 if (session.replyToggleRecipient instanceof Player && ((Player) session.replyToggleRecipient).isOnline()) {
-                    CommandMessage.sendMessage(session.replyToggleRecipient, sender, message);
+                    CommandMessage.sendMessages(session.replyToggleRecipient, sender, message);
                     return;
                 } else {
                     sender.sendMessage(ChatColor.RED + session.replyToggleRecipient.getName() +
@@ -159,7 +161,7 @@ public class Chat extends Mechanic {
                     else
                         session.player.sendMessage(fmessage);
                 });
-        FarLands.getDiscordHandler().sendMessage("ingame", fmessage);
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, fmessage);
         Bukkit.getConsoleSender().sendMessage(fmessage);
     }
 

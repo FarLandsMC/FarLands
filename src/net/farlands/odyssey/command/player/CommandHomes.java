@@ -1,14 +1,12 @@
 package net.farlands.odyssey.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -25,31 +23,38 @@ public class CommandHomes extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if((sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) && args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
+            TextUtils.sendFormatted(sender, "&(red)You must be in-game to use this command.");
             return true;
         }
-        if(Rank.getRank(sender).isStaff() && args.length > 0) { // Someone else's home (staff)
+
+        // Someone else's home (staff)
+        if(Rank.getRank(sender).isStaff() && args.length > 0) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
             if (flp == null) {
-                sender.sendMessage(ChatColor.RED + "Player not found.");
+                TextUtils.sendFormatted(sender, "&(red)Player not found.");
                 return false;
             }
+
             if (flp.homes.isEmpty()) {
-                sender.sendMessage(ChatColor.GREEN + "This player does not have any homes.");
+                TextUtils.sendFormatted(sender, "&(green)This player does not have any homes.");
                 return true;
             }
+
             flp.homes.forEach(home -> {
                 Location location = home.getLocation();
-                sendFormatted(sender, "&(gold)$(hovercmd,/home %0 %1,Go to home {&(aqua)%0},%0: {&(aqua)%2 %3 %4})",
+                TextUtils.sendFormatted(sender, "&(gold)$(hovercmd,/home %0 %1,Go to home {&(aqua)%0},%0: {&(aqua)%2 %3 %4})",
                         home.getName(), flp.username, location.getBlockX(), location.getBlockY(), location.getBlockZ());
             });
-        } else {
+        }
+        // The sender's homes
+        else {
             List<Home> homes = FarLands.getDataHandler().getOfflineFLPlayer(sender).homes;
             if (homes.isEmpty()) {
-                sender.sendMessage(ChatColor.GREEN + "You don\'t have any homes! Set one with " + ChatColor.AQUA + "/sethome");
+                TextUtils.sendFormatted(sender, "&(green)You don\'t have any homes! Set one with &(aqua)/sethome");
                 return true;
             }
         }
+
         return true;
     }
 
@@ -61,7 +66,7 @@ public class CommandHomes extends Command {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1 && Rank.getRank(sender).isStaff()
-                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender)
+                ? getOnlinePlayers(args[0], sender)
                 : Collections.emptyList();
     }
 }

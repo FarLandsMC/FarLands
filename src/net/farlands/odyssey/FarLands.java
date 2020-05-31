@@ -13,9 +13,12 @@ import net.farlands.odyssey.mechanic.MechanicHandler;
 import net.farlands.odyssey.scheduling.Scheduler;
 import net.farlands.odyssey.util.Logging;
 
+import net.farlands.odyssey.util.Pair;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -65,6 +68,55 @@ public class FarLands extends JavaPlugin {
         discordHandler.startBot();
         Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
                 instance.getDescription().getVersion() + "."), 50L);
+
+        /*Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            double theta = 0;
+            Player player = null;
+
+            static final double VELOCITY = 1;
+            static final double PERIOD = 16;
+
+            double thetaStep() {
+                double a = 1 + (PERIOD * theta) / (2 * Math.PI);
+                a = (4 * Math.PI / PERIOD) * (VELOCITY + (Math.PI / PERIOD) * (a * a));
+                return Math.sqrt(a) - (2 * Math.PI) / PERIOD - theta;
+            }
+
+            double radius() {
+                return 16 * (1 + (PERIOD * theta) / (2 * Math.PI));
+            }
+
+            Pair<Double, Double> position() {
+                double radius = radius();
+                return new Pair<>(radius * Math.cos(theta), radius * Math.sin(theta));
+            }
+
+            @Override
+            public void run() {
+                if (player == null) {
+                    player = Bukkit.getPlayer("xCassyx");
+                    return;
+                }
+
+                if (!player.isOnline() || !player.isValid()) {
+                    player = null;
+                    return;
+                }
+
+                if (player.getLocation().getY() < 128)
+                    return;
+
+                // Teleport the player to the desired location
+                Pair<Double, Double> position = position();
+                Location location = player.getLocation().clone();
+                location.setX(position.getFirst());
+                location.setZ(position.getSecond());
+                player.teleport(location);
+
+                // Increase position around the spiral
+                theta += thetaStep();
+            }
+        }, 1L, 1L);*/
     }
 
     @Override

@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 
@@ -18,7 +19,7 @@ public class CommandExtinguish extends PlayerCommand {
             sender.setFireTicks(0);
             sender.playSound(sender.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1.0F, 1.0F);
         } else
-            sender.sendMessage(ChatColor.RED + "You are not on fire right now.");
+            TextUtils.sendFormatted(sender, "&(red)You are not on fire right now.");
         return true;
     }
 }

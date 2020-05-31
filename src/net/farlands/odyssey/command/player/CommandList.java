@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
@@ -7,7 +8,6 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -51,31 +51,28 @@ public class CommandList extends Command {
         }
 
         if (players.size() + staff.size() == 0) {
-            sender.sendMessage(ChatColor.RED + "There are no players online currently.");
+            TextUtils.sendFormatted(sender, "&(gold)There are no players online currently.");
             return true;
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(ChatColor.GOLD).append("- ").append(total).append(" Player").append(total != 1 ? "s" : "")
-                .append(" Online -\n");
+        sb.append("&(gold)- ").append(total).append(" Player").append(total != 1 ? "s" : "").append(" Online -\n");
         if (!players.isEmpty()) {
             players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                    .append(rank.getSymbol()).append(": ").append(ChatColor.GOLD)
-                    .append(String.join(", ", players.get(rank))).append('\n'));
+                    .append(rank.getName()).append(": &(gold)").append(String.join(", ", players.get(rank))).append('\n'));
         }
         if (!staff.isEmpty()) {
             if (!players.isEmpty())
-                sb.append(ChatColor.GOLD).append("- Staff -\n");
+                sb.append("&(gold)- Staff -\n");
 
             staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                    .append(rank.getSymbol()).append(": ").append(ChatColor.GOLD)
-                    .append(String.join(", ", staff.get(rank))).append('\n'));
+                    .append(rank.getName()).append(": &(gold)").append(String.join(", ", staff.get(rank))).append('\n'));
         }
 
         if (listHasVanishedPlayer)
             sb.append("\n*These players are vanished.");
 
-        sender.sendMessage(sb.toString().trim());
+        TextUtils.sendFormatted(sender, sb.toString().trim());
 
         return true;
     }

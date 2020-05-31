@@ -1,20 +1,19 @@
 package net.farlands.odyssey.discord;
 
-import net.farlands.odyssey.util.Pair;
-import net.farlands.odyssey.util.FLUtils;
-
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class DiscordBotConfig {
     public String token;
     public long serverID;
-    public Map<String, Long> channels;
+    public Map<DiscordChannel, Long> channels;
 
-    @SafeVarargs
-    public DiscordBotConfig(String token, long serverID, Pair<String, Long>... channels) {
+    public DiscordBotConfig(String token, long serverID) {
         this.token = token;
         this.serverID = serverID;
-        this.channels = FLUtils.asMap(channels);
+        this.channels = new HashMap<>();
+        Arrays.stream(DiscordChannel.VALUES).forEach(channel -> channels.put(channel, 0L));
     }
 
     public DiscordBotConfig() {

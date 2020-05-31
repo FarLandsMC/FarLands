@@ -6,6 +6,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
@@ -50,18 +51,18 @@ public class Restrictions extends Mechanic {
                     unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
             if (!banned.isEmpty()) {
                 Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + banned.size() + " banned player" +
-                        (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? "alerts" : null);
+                        (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? DiscordChannel.ALERTS : null);
             }
             if (!unbanned.isEmpty()) {
                 Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + unbanned.size() + " player" +
-                        (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? "alerts" : null);
+                        (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? DiscordChannel.ALERTS : null);
             }
             if (isNew) {
                 flp.setLastLocation(FarLands.getDataHandler().getPluginData().getSpawn());
                 if (!banned.isEmpty()) {
                     Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.username,
                             unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)),
-                            "output");
+                            DiscordChannel.NOTEBOOK);
                     flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
                     alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
                     return;

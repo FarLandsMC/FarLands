@@ -33,7 +33,7 @@ public class CommandStats extends Command {
             flp.update(); // Make sure our stats are fresh
             sender.sendMessage(
                 ChatColor.GREEN + "Showing stats for " + ChatColor.GOLD + flp.username + ":\n" +
-                ChatColor.GREEN + "Rank: " + flp.rank.getColor() + flp.rank.getSymbol() + ChatColor.GREEN + '\n' +
+                ChatColor.GREEN + "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + '\n' +
                 "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + '\n' +
                 (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
                         flp.amountDonated + "\n" : "") +

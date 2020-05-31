@@ -8,6 +8,7 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.struct.ItemDistributor;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.gui.GuiVillagerEditor;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
@@ -354,7 +355,7 @@ public class GeneralMechanics extends Mechanic {
         if (ad != null && !FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
             Logging.broadcastIngame(TextComponent.fromLegacyText(event.getPlayer().getDisplayName() + ChatColor.RESET +
                     " has made the advancement " + ChatColor.GREEN + "[" + ad.a().getText() + "]"));
-            FarLands.getDiscordHandler().sendMessage("ingame", event.getPlayer().getDisplayName() +
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getPlayer().getDisplayName() +
                     " has made the advancement [" + ad.a().getText() + "]");
         }
     }

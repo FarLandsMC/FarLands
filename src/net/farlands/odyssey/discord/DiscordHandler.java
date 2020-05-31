@@ -97,46 +97,50 @@ public class DiscordHandler extends ListenerAdapter {
         int online = (int) Bukkit.getOnlinePlayers().stream()
                 .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished).count();
         long restartTime = FarLands.getFLConfig().restartTime;
-        (new ChannelManager((TextChannel) channelHandler.getChannel("ingame"))).setTopic(online + " player" + (online == 1 ? "" : "s") +
-                " online. Next restart in " + TimeInterval.formatTime(86459999L - ((System.currentTimeMillis() - restartTime) % 86400000L),
-                false, TimeInterval.MINUTE)).queue();
+        (new ChannelManager((TextChannel) channelHandler.getChannel(DiscordChannel.IN_GAME)))
+                .setTopic(online + " player" + (online == 1 ? "" : "s") + " online. Next restart in " +
+                        TimeInterval.formatTime(
+                                86459999L - ((System.currentTimeMillis() - restartTime) % 86400000L),
+                                false,
+                                TimeInterval.MINUTE)
+                ).queue();
     }
 
     public void sendMessage(MessageChannel channel, String message) {
         channelHandler.sendMessage(channel, message);
     }
 
-    public void sendMessageRaw(String channelName, String message) {
+    public void sendMessageRaw(DiscordChannel channel, String message) {
         if (!active)
             return;
-        channelHandler.sendMessage(channelName, message);
+        channelHandler.sendMessage(channel, message);
     }
 
-    public void sendMessage(String channelName, String message) {
-        sendMessageRaw(channelName, Chat.applyDiscordFilters(message));
+    public void sendMessage(DiscordChannel channel, String message) {
+        sendMessageRaw(channel, Chat.applyDiscordFilters(message));
     }
 
-    public void sendMessage(String channelName, BaseComponent[] message) {
+    public void sendMessage(DiscordChannel channel, BaseComponent[] message) {
         StringBuilder sb = new StringBuilder();
         for (BaseComponent bc : message) {
             if (bc instanceof TextComponent)
                 sb.append(((TextComponent) bc).getText());
         }
-        sendMessage(channelName, sb.toString());
+        sendMessage(channel, sb.toString());
     }
 
-    public MessageChannel getChannel(String key) {
-        return channelHandler.getChannel(key);
+    public MessageChannel getChannel(DiscordChannel channel) {
+        return channelHandler.getChannel(channel);
     }
 
     public static boolean isManagedRole(Role role) {
-        return Stream.of(Rank.VALUES).anyMatch(rank -> role.getName().equals(rank.getSymbol())) ||
+        return Stream.of(Rank.VALUES).anyMatch(rank -> role.getName().equals(rank.getName())) ||
                 STAFF_ROLE.equals(role.getName()) || VERIFIED_ROLE.equals(role.getName());
     }
 
     @Override
     public void onReady(ReadyEvent event) {
-        config.channels.forEach((name, id) -> channelHandler.setChannel(name, id == 0L ? null : jdaBot.getTextChannelById(id)));
+        config.channels.forEach((channel, id) -> channelHandler.setChannel(channel, id == 0L ? null : jdaBot.getTextChannelById(id)));
         channelHandler.startTicking();
         FarLands.getScheduler().scheduleSyncRepeatingTask(this::updateStats, 0L, 1200L);
         active = true;
@@ -208,9 +212,9 @@ public class DiscordHandler extends ListenerAdapter {
             return;
         message = Chat.removeColorCodes(message.replaceAll("\\s+", " "));
         final String fmessage = message.substring(0, Math.min(256, message.length()));
-        if (channelHandler.getChannel("staffcommands").getIdLong() == event.getChannel().getIdLong())
+        if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong())
             Logging.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + fmessage);
-        else if (channelHandler.getChannel("ingame").getIdLong() == event.getChannel().getIdLong()) {
+        else if (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong()) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             if (flp != null) {
                 if (flp.isMuted() || flp.isBanned()) {
@@ -224,7 +228,7 @@ public class DiscordHandler extends ListenerAdapter {
                 Rank rank = flp.rank;
 
                 if (!rank.isStaff() && Chat.getMessageFilter().autoCensor(fmessage)) {
-                    sendMessageRaw("alerts", "Deleted message from in-game channel:\n```" + fmessage +
+                    sendMessageRaw(DiscordChannel.ALERTS, "Deleted message from in-game channel:\n```" + fmessage +
                             "```\nSent by: `" + sender.getName() + "`.");
                     event.getMessage().delete().queue();
                     return;

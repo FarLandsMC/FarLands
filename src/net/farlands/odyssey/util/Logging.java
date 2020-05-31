@@ -5,6 +5,7 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -24,13 +25,13 @@ public final class Logging {
         BaseComponent[] formatted = TextUtils.format("{&(gold,bold) > }&(aqua)" + message, values);
         broadcastIngame(formatted);
         if (sendToDiscord)
-            FarLands.getDiscordHandler().sendMessage("ingame", formatted);
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, formatted);
     }
 
     public static void broadcast(String input, Object... values) {
         BaseComponent[] formatted = TextUtils.format(input, values);
         broadcastIngame(formatted);
-        FarLands.getDiscordHandler().sendMessage("ingame", formatted);
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, formatted);
     }
 
     public static void broadcast(Predicate<FLPlayerSession> filter, String input, Object... values) {
@@ -38,10 +39,10 @@ public final class Logging {
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession).filter(filter)
                 .forEach(session -> session.player.spigot().sendMessage(formatted));
         Bukkit.getConsoleSender().spigot().sendMessage(formatted);
-        FarLands.getDiscordHandler().sendMessage("ingame", formatted);
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, formatted);
     }
 
-    public static void broadcastStaff(BaseComponent[] message, String discordChannel) { // Set the channel to null to not send to discord
+    public static void broadcastStaff(BaseComponent[] message, DiscordChannel discordChannel) { // Set the channel to null to not send to discord
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
                 .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
                 .forEach(session -> session.player.spigot().sendMessage(message));
@@ -54,7 +55,7 @@ public final class Logging {
         broadcastStaff(message, null);
     }
 
-    public static void broadcastStaff(String message, String discordChannel) {
+    public static void broadcastStaff(String message, DiscordChannel discordChannel) {
         broadcastStaff(TextComponent.fromLegacyText(message), discordChannel);
     }
 
@@ -70,6 +71,6 @@ public final class Logging {
         String msg = Objects.toString(x);
         Bukkit.getLogger().severe("[FLv" + FarLands.getInstance().getDescription().getVersion() + "] - " + msg);
         FarLands.getDebugger().echo("Error", msg);
-        FarLands.getDiscordHandler().sendMessageRaw("output", msg);
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, msg);
     }
 }

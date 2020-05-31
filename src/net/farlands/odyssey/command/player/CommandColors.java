@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
@@ -8,7 +9,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandColors extends PlayerCommand {
@@ -17,10 +17,11 @@ public class CommandColors extends PlayerCommand {
     }
 
     @Override
-    public boolean execute(Player player, String[] args) {
-        List<String> colors = Arrays.stream(ChatColor.values()).filter(color -> !Chat.ILLEGAL_COLORS.contains(color) && !ChatColor.RESET.equals(color))
-                .map(color -> color + color.toString().replace("\u00A7", "&") + ChatColor.RESET).collect(Collectors.toList());
-        player.sendMessage(ChatColor.GOLD + "Color codes: " + String.join("  ", colors));
+    public boolean execute(Player sender, String[] args) {
+        TextUtils.sendFormatted(sender, "&(gold)Color codes: %0", Arrays.stream(ChatColor.values())
+                .filter(color -> !Chat.ILLEGAL_COLORS.contains(color) && !ChatColor.RESET.equals(color))
+                .map(color -> color + color.toString().replace("\u00A7", "&") + ChatColor.RESET)
+                .collect(Collectors.joining(" ")));
         return true;
     }
 }

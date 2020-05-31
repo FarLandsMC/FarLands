@@ -8,6 +8,7 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.struct.*;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.FileSystem;
@@ -60,17 +61,12 @@ public class DataHandler extends Mechanic {
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
     private static final List<String> SCRIPTS = Arrays.asList("artifact.sh", "server.sh", "backup.sh", "restart.sh");
-    private static final Map<String, String> DIRECTORIES = FLUtils.asMap(
-        new Pair<>("playerdata", "playerdata"),
-        new Pair<>("data", "data"), // General plugin data
-        new Pair<>("tmp", "cache")
-    );
-    private static final String MAIN_CONFIG_FILE = "mainConfig.json";
-    private static final String PLUGIN_DATA_FILE =      DIRECTORIES.get("data") +       File.separator + "private.json";
-    private static final String PLAYER_DATA_FILE =      DIRECTORIES.get("playerdata") + File.separator + "playerdata.json";
-    private static final String EVIDENCE_LOCKERS_FILE = DIRECTORIES.get("data") +       File.separator + "evidenceLockers.nbt";
-    private static final String DEATH_DATABASE =        DIRECTORIES.get("data") +       File.separator + "deaths.nbt";
-    private static final String PACKAGES_FILE =         DIRECTORIES.get("data") +       File.separator + "packages.nbt";
+    private static final String MAIN_CONFIG_FILE      = "mainConfig.json";
+    private static final String PLUGIN_DATA_FILE      = Directory.DATA        + File.separator + "private.json";
+    private static final String PLAYER_DATA_FILE      = Directory.PLAYER_DATA + File.separator + "playerdata.json";
+    private static final String EVIDENCE_LOCKERS_FILE = Directory.DATA        + File.separator + "evidenceLockers.nbt";
+    private static final String DEATH_DATABASE        = Directory.DATA        + File.separator + "deaths.nbt";
+    private static final String PACKAGES_FILE         = Directory.DATA        + File.separator + "packages.nbt";
 
     private void init() {
         SCRIPTS.forEach(script -> {
@@ -95,11 +91,12 @@ public class DataHandler extends Mechanic {
                 ex.printStackTrace();
             }
         });
-        for (String dirName : DIRECTORIES.values()) {
-            File dir = FileSystem.getFile(rootDirectory, dirName);
-            if (!dir.exists() && !dir.mkdirs())
+        for (Directory directory : Directory.values()) {
+            File dir = FileSystem.getFile(rootDirectory, directory.toString());
+            if (!dir.exists() && !dir.mkdirs()) {
                 throw new RuntimeException("Failed to create directory during the initialization of the data handler. " +
                         "Did you give the process access to the FS?");
+            }
         }
         File playerdataFile = new File(PLAYER_DATA_FILE);
         if (!playerdataFile.exists()) {
@@ -130,7 +127,7 @@ public class DataHandler extends Mechanic {
     }
 
     public DataHandler(File rootDirectory) {
-        this.pdh = new PlayerDataHandlerOld(FileSystem.getFile(rootDirectory, DIRECTORIES.get("data"), "playerdata.db"), this);
+        this.pdh = new PlayerDataHandlerOld(FileSystem.getFile(rootDirectory, Directory.DATA.toString(), "playerdata.db"), this);
         this.rootDirectory = rootDirectory;
         this.flPlayerMap = new HashMap<>();
         this.discordMap = new HashMap<>();
@@ -158,7 +155,7 @@ public class DataHandler extends Mechanic {
             DataHandler dh = FarLands.getDataHandler();
             if (dh.arePatchnotesDifferent()) {
                 try {
-                    FarLands.getDiscordHandler().sendMessageRaw("announcements", "Patch **#" + dh.getCurrentPatch() +
+                    FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.ANNOUNCEMENTS, "Patch **#" + dh.getCurrentPatch() +
                             "** has been released!\n```" + Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"),
                             StandardCharsets.UTF_8)) + "```");
                     flPlayerMap.values().forEach(flp -> flp.viewedPatchnotes = false);
@@ -232,7 +229,7 @@ public class DataHandler extends Mechanic {
         }, 5L);
 
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-            if (Bukkit.getPlayer(uuid) == null)
+            if (Bukkit.getPlayer(uuid) == null && cachedSessions.containsKey(uuid))
                 cachedSessions.remove(uuid).destroy();
         }, 60L * 20L);
     }
@@ -413,18 +410,11 @@ public class DataHandler extends Mechanic {
     }
 
     public String getDataTextFile(String fileName) throws IOException {
-        return FileSystem.readUTF8(FileSystem.getFile(rootDirectory, DIRECTORIES.get("data"), fileName));
-    }
-
-    public File getDirectory(String name) {
-        String dir = DIRECTORIES.get(name);
-        if (dir == null)
-            return null;
-        return FileSystem.getFile(rootDirectory, dir);
+        return FileSystem.readUTF8(FileSystem.getFile(rootDirectory, Directory.DATA.toString(), fileName));
     }
 
     public File getTempFile(String name) {
-        return FileSystem.getFile(rootDirectory, DIRECTORIES.get("tmp"), name);
+        return FileSystem.getFile(rootDirectory, Directory.CACHE.toString(), name);
     }
 
     public EvidenceLocker getEvidenceLocker(OfflineFLPlayer flp) {
@@ -621,5 +611,24 @@ public class DataHandler extends Mechanic {
         saveEvidenceLockers();
         saveDeathDatabase();
         savePackages();
+    }
+
+    public enum Directory {
+        PLAYER_DATA("playerdata"),
+        DATA("data"),
+        CACHE("cache");
+
+        public static final Directory[] VALUES = values();
+
+        private final String directory;
+
+        Directory(String directory) {
+            this.directory = directory;
+        }
+
+        @Override
+        public String toString() {
+            return directory;
+        }
     }
 }

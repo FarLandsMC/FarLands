@@ -5,6 +5,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Mute;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TimeInterval;
 import org.bukkit.ChatColor;
@@ -62,7 +63,7 @@ public class CommandMute extends Command {
             String message = "uted " + flp.username + " with reason `" + mute.getReason() + "`. Expires: " +
                     TimeInterval.formatTime(1000L * time, false);
             sender.sendMessage(ChatColor.GOLD + "M" + message.replaceAll("`", "\""));
-            FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) + " m" +
+            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) + " m" +
                     Chat.removeColorCodes(message));
         }else{ // Un-mute
             if(!flp.isMuted()) {

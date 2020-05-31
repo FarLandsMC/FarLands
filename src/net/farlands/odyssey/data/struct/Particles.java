@@ -5,8 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-
 public class Particles {
     private Particle type;
     private ParticleLocation location;
@@ -52,14 +50,6 @@ public class Particles {
 
         public Location getLocation(Player player) {
             return (fromEyeLocation ? player.getEyeLocation() : player.getLocation()).add(0.0, yOffset, 0.0);
-        }
-
-        public String getAlias() {
-            return toString().replaceAll("_", "-").toLowerCase();
-        }
-
-        public static ParticleLocation specialValueOf(String name) {
-            return Arrays.stream(VALUES).filter(pl -> pl.getAlias().equals(name)).findAny().orElse(null);
         }
     }
 }

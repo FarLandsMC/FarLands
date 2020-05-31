@@ -1,12 +1,12 @@
 package net.farlands.odyssey.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
+import com.kicas.rp.command.TabCompleterBase;
+import com.kicas.rp.util.TextUtils;
+import com.kicas.rp.util.Utils;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.util.FLUtils;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,38 +23,40 @@ public class CommandPTime extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
-        if("reset".equalsIgnoreCase(args[0])) {
-            sender.resetPlayerTime();
-            sender.sendMessage(ChatColor.GREEN + "Clock synchronized to world time.");
-            return true;
-        }
+
         // Parse the specified time, and update the player's time
         long time;
-        if(args[0].matches("\\d+"))
+        if (args[0].matches("\\d+"))
             time = Long.parseLong(args[0]);
-        else{
+        else {
             Time t = FLUtils.safeValueOf(Time::valueOf, args[0].toUpperCase());
-            if(t == null) {
-                sender.sendMessage(ChatColor.RED + "Invalid time. Valid times: " +
-                        Arrays.stream(Time.VALUES).map(Time::toString).collect(Collectors.joining(", ")));
+
+            if (t == null) {
+                TextUtils.sendFormatted(sender, "&(red)Invalid time, valid times: %0",
+                        Arrays.stream(Time.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
+                return true;
+            } else if (t == Time.RESET) {
+                sender.resetPlayerTime();
+                TextUtils.sendFormatted(sender, "&(green)Clock synchronized to world time.");
                 return true;
             }
+
             time = t.getTicks();
         }
+
         sender.setPlayerTime(time % 24000L, false);
-        sendFormatted(sender, "&(green)Personal time set. Use $(hovercmd,/ptime reset,{&(gray)Click to Run},&(aqua)/ptime reset) " +
+        TextUtils.sendFormatted(sender, "&(green)Personal time set. Use $(hovercmd,/ptime reset,{&(gray)Click to Run},&(aqua)/ptime reset) " +
                 "to synchronize your time to the world time.");
+
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
-                ? Arrays.stream(Time.VALUES).map(Enum::toString)
-                    .filter(name -> name.startsWith(args.length == 0 ? "" : args[0].toLowerCase()))
-                    .collect(Collectors.toList())
+                ? TabCompleterBase.filterStartingWith(args[0], Arrays.stream(Time.VALUES).map(Utils::formattedName))
                 : Collections.emptyList();
     }
 
@@ -76,11 +78,6 @@ public class CommandPTime extends PlayerCommand {
 
         public long getTicks() {
             return ticks;
-        }
-        
-        @Override
-        public String toString() {
-            return super.toString().toLowerCase();
         }
     }
 }

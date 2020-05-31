@@ -1,12 +1,12 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -21,8 +21,9 @@ public class CommandMe extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         if (args.length <= 0)
             return false;
+
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        Chat.chat(flp, sender, String.join(" ", args), " * " + Chat.removeColorCodes(flp.getDisplayName()) + ' ');
+        Chat.chat(flp, sender, " * " + Chat.removeColorCodes(flp.getDisplayName()) + " ", String.join(" ", args));
         return true;
     }
 
@@ -30,9 +31,10 @@ public class CommandMe extends PlayerCommand {
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
                 !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            sender.sendMessage(ChatColor.RED + "You cannot use this command while muted.");
+            TextUtils.sendFormatted(sender, "&(red)You cannot use this command while muted.");
             return false;
         }
+
         return super.canUse(sender);
     }
 }

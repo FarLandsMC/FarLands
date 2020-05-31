@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.discord;
 
+import com.kicas.rp.util.TextUtils;
 import net.dv8tion.jda.core.entities.Message;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
@@ -26,26 +27,31 @@ public class CommandArtifact extends DiscordCommand {
     public boolean execute(CommandSender sender, String[] args) {
         if (!canUse(sender)) // Extra security
             return true;
+
         if (!(sender instanceof DiscordSender)) {
-            sender.sendMessage(ChatColor.RED + "This command must be used from discord.");
+            TextUtils.sendFormatted(sender, "&(red)This command must be used from discord.");
             return false;
         }
+
         if (FarLands.getFLConfig().isScreenSessionNotSet()) {
-            sender.sendMessage(ChatColor.RED + "The screen session for this server instance is not specified. " +
+            TextUtils.sendFormatted(sender, "&(red)The screen session for this server instance is not specified. " +
                     "This command requires that field to run.");
             return true;
         }
 
-        String cid = args[0].substring(0, args[0].indexOf(':')), mid = args[0].substring(args[0].indexOf(':') + 1);
-        Message msg = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(cid).getMessageById(mid).complete();
-        List<Message.Attachment> attachments = msg.getAttachments();
+        // Locate the attachment
+        String channelId = args[0].substring(0, args[0].indexOf(':')), messageId = args[0].substring(args[0].indexOf(':') + 1);
+        Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).getMessageById(messageId).complete();
+        List<Message.Attachment> attachments = message.getAttachments();
         if (attachments.isEmpty()) {
             sender.sendMessage("You must attach the jar to the command message.");
             return true;
         }
+
         File dest = FarLands.getDataHandler().getTempFile(attachments.get(0).getFileName());
         if (dest.exists())
             dest.delete();
+
         attachments.get(0).download(dest);
         Config cfg = FarLands.getFLConfig();
         if (args.length > 1 && "true".equals(args[1])) {
@@ -53,6 +59,7 @@ public class CommandArtifact extends DiscordCommand {
                     args.length > 2 ? args[2] : "false");
             FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
         }
+
         return true;
     }
 
@@ -62,11 +69,13 @@ public class CommandArtifact extends DiscordCommand {
             return true;
         else if (sender instanceof BlockCommandSender) // Prevent people circumventing permissions by using a command block
             return false;
+
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null || !FarLands.getFLConfig().jsUsers.contains(flp.uuid.toString())) {
             sender.sendMessage(ChatColor.RED + "You cannot use this command.");
             return false;
         }
+
         return super.canUse(sender);
     }
 

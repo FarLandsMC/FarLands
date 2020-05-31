@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
@@ -7,7 +8,6 @@ import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -23,33 +23,39 @@ public class CommandSeen extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        OfflineFLPlayer flp = args.length <= 0 ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
+        OfflineFLPlayer flp = args.length <= 0
+                ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
                 : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+
         if (flp == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            TextUtils.sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
-        Rank rank = Rank.getRank(sender);
-        StringBuilder sb = new StringBuilder();
-        sb.append(ChatColor.GREEN).append("Last Seen: ").append(TimeInterval
-                .formatTime(System.currentTimeMillis() - flp.getLastLogin(), false));
 
+        Rank rank = Rank.getRank(sender);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("&(gold)Last Seen: &(aqua)").append(TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false));
+
+        // Test to see if this command isn't in #in-game essentially; make sure punishment info is private
         if (sender instanceof DiscordSender && ((DiscordSender) sender).getChannel().getIdLong() ==
                 FarLands.getFLConfig().discordBotConfig.channels.get("staffcommands") ||
                 sender instanceof Player && rank.isStaff() || sender instanceof ConsoleCommandSender) {
-            sb.append("\nMuted: ").append(flp.isMuted());
+            sb.append("\n&(gold)Muted: &(aqua)").append(flp.isMuted());
+
             if (!flp.punishments.isEmpty()) {
-                sb.append("\nPunishments:");
+                sb.append("\n&(gold)Punishments:");
                 flp.punishments.forEach(p -> sb.append("\n - ").append(p));
             }
-            sb.append("\nLast IP: ").append(flp.lastIP);
+            sb.append("\n&(gold)Last IP: &(aqua)").append(flp.lastIP);
         }
-        sender.sendMessage(sb.toString());
+
+        TextUtils.sendFormatted(sender, sb.toString());
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args[0], sender) : Collections.emptyList();
     }
 }

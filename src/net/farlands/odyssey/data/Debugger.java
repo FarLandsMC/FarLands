@@ -1,6 +1,7 @@
 package net.farlands.odyssey.data;
 
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.discord.DiscordChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -23,7 +24,7 @@ public class Debugger {
             if(FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + key + ": " + ChatColor.GREEN + data.get());
         });
-        FarLands.getDiscordHandler().sendMessageRaw("debug", "```" + key + ": " + data.get() + "```");
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + key + ": " + data.get() + "```");
     }
 
     public void echo(String key, Object data) {
@@ -35,7 +36,7 @@ public class Debugger {
             if(FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + msg);
         });
-        FarLands.getDiscordHandler().sendMessageRaw("debug", "```" + msg + "```");
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + msg + "```");
     }
 
     public void post(String key, Function<String[], String> data) {

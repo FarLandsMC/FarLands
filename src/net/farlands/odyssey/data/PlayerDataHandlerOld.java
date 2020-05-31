@@ -636,8 +636,8 @@ public class PlayerDataHandlerOld {
             ResultSet rs = ps.executeQuery();
             List<Home> homes = new ArrayList<>();
             while(rs.next()) {
-                homes.add(new Home(rs.getString("name"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"),
-                        rs.getFloat("yaw"), rs.getFloat("pitch")));
+                homes.add(new Home(rs.getString("name"), Bukkit.getWorld("world").getUID(), rs.getDouble("x"),
+                        rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch")));
             }
             rs.close();
             ps.close();

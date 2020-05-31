@@ -121,7 +121,7 @@ public class OfflineFLPlayer {
         List<Role> roles = new ArrayList<>();
         roles.add(rank.isStaff() ? dh.getRole(DiscordHandler.STAFF_ROLE) : dh.getRole(DiscordHandler.VERIFIED_ROLE));
         if(rank.specialCompareTo(Rank.DONOR) >= 0)
-            roles.add(dh.getRole(rank.getSymbol()));
+            roles.add(dh.getRole(rank.getName()));
         if(!member.getRoles().containsAll(roles)) {
             List<Role> add = new ArrayList<>(), remove = new ArrayList<>();
             roles.stream().filter(role -> !member.getRoles().contains(role)).forEach(add::add);
@@ -218,7 +218,7 @@ public class OfflineFLPlayer {
         boolean online = player != null;
         if(rank.specialCompareTo(this.rank) > 0) {
             Logging.broadcast(ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
-                    " has ranked up to " + rank.getColor() + rank.getSymbol() + ChatColor.GOLD + " ** ", true);
+                    " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ", true);
             if(online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
         }

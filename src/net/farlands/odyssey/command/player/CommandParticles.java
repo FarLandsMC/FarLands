@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.command.TabCompleterBase;
+import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.odyssey.FarLands;
@@ -7,7 +9,6 @@ import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.Particles;
 import net.farlands.odyssey.data.Rank;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.command.CommandSender;
@@ -31,28 +32,35 @@ public class CommandParticles extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         if (args.length == 0)
             return false;
+
         if ("none".equalsIgnoreCase(args[0])) {
-            FarLands.getDataHandler().getOfflineFLPlayer(sender).setParticles(null, null); // Removes particles
-            sender.sendMessage(ChatColor.GREEN + "Particles removed.");
+            // Removes particles
+            FarLands.getDataHandler().getOfflineFLPlayer(sender).setParticles(null, null);
+            TextUtils.sendFormatted(sender, "&(green)Particles removed.");
         } else {
+            // Get and check the type
             Particle type = Utils.valueOfFormattedName(args[0], Particle.class);
             if (type == null) {
-                sender.sendMessage(ChatColor.RED + "Invalid particle type: " + args[0]);
+                TextUtils.sendFormatted(sender, "&(red)Invalid particle type: %0", args[0]);
                 return true;
             } else if (ILLEGAL_PARTICLES.contains(type)) {
-                sender.sendMessage(ChatColor.RED + "You cannot use that particle type.");
+                TextUtils.sendFormatted(sender, "&(red)You cannot use that particle type.");
                 return true;
             }
+
+            // Get and check the location
             Particles.ParticleLocation location = args.length == 1
                     ? Particles.ParticleLocation.ABOVE_HEAD
-                    : Particles.ParticleLocation.specialValueOf(args[1]);
+                    : Utils.valueOfFormattedName(args[1], Particles.ParticleLocation.class);
             if (location == null) {
-                sender.sendMessage(ChatColor.RED + "Invalid particle location: " + args[1]);
+                TextUtils.sendFormatted(sender, "&(red)Invalid particle location: %0", args[1]);
                 return true;
             }
+
             FarLands.getDataHandler().getOfflineFLPlayer(sender).setParticles(type, location);
-            sender.sendMessage(ChatColor.GREEN + "Particles set.");
+            TextUtils.sendFormatted(sender, "&(green)Particles set.");
         }
+
         return true;
     }
 
@@ -61,15 +69,17 @@ public class CommandParticles extends PlayerCommand {
         switch (args.length) {
             case 0:
             case 1: {
-                List<String> completions = Arrays.stream(Particle.values()).filter(p -> !ILLEGAL_PARTICLES.contains(p))
+                List<String> completions = Arrays.stream(Particle.values())
+                        .filter(p -> !ILLEGAL_PARTICLES.contains(p))
                         .map(Utils::formattedName)
-                        .filter(p -> p.startsWith(args.length == 0 ? "" : args[0])).collect(Collectors.toCollection(ArrayList::new));
+                        .filter(p -> p.startsWith(args[0]))
+                        .collect(Collectors.toCollection(ArrayList::new));
                 completions.add("none");
                 return completions;
             }
             case 2:
-                return Arrays.stream(Particles.ParticleLocation.VALUES).map(Particles.ParticleLocation::getAlias)
-                        .filter(l -> l.startsWith(args[1])).collect(Collectors.toList());
+                return TabCompleterBase.filterStartingWith(args[1], Arrays.stream(Particles.ParticleLocation.VALUES)
+                        .map(Utils::formattedName));
             default:
                 return Collections.emptyList();
         }

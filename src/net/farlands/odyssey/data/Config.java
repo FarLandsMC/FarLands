@@ -46,21 +46,7 @@ public class Config {
         this.patronCollectable = null;
         this.rotatingMessages = new ArrayList<>();
         this.jsUsers = new ArrayList<>();
-        this.discordBotConfig = new DiscordBotConfig("", 0L,
-            new Pair<>("output", 0L),
-            new Pair<>("archives", 0L),
-            new Pair<>("ingame", 0L),
-            new Pair<>("announcements", 0L),
-            new Pair<>("reports", 0L),
-            new Pair<>("warpproposals", 0L),
-            new Pair<>("debug", 0L),
-            new Pair<>("alerts", 0L),
-            new Pair<>("devreports", 0L),
-            new Pair<>("suggestions", 0L),
-            new Pair<>("bugreports", 0L),
-            new Pair<>("staffcommands", 0L),
-            new Pair<>("commandlog", 0L)
-        );
+        this.discordBotConfig = new DiscordBotConfig();
         this.voteConfig = new VoteConfig();
     }
 

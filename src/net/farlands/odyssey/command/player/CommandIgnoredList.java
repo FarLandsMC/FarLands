@@ -1,10 +1,10 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -17,11 +17,12 @@ public class CommandIgnoredList extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         List<String> ignoreList = FarLands.getDataHandler().getOfflineFLPlayer(sender).getIgnoreList();
-        sender.sendMessage(ChatColor.GREEN + (
-            ignoreList.isEmpty()
-            ? "You are not ignoring any players."
-            : String.join(", ", ignoreList)
-        ));
+        TextUtils.sendFormatted(
+                sender,
+                "&(green)%0", ignoreList.isEmpty()
+                        ? "You are not ignoring any players."
+                        : String.join(", ", ignoreList)
+        );
         return true;
     }
 }

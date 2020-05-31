@@ -1,10 +1,10 @@
 package net.farlands.odyssey.command.discord;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
@@ -21,22 +21,23 @@ public class CommandAlts extends DiscordCommand {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            TextUtils.sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
 
         List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
                 .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
                 .collect(Collectors.toList());
+
         if (alts.isEmpty())
-            sender.sendMessage(ChatColor.GOLD + "This player has no alts.");
+            TextUtils.sendFormatted(sender, "&(gold)This player has no alts.");
         else {
             List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
-                    normal = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
+                    unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
             if (!banned.isEmpty())
-                sender.sendMessage(ChatColor.GOLD + "Banned alts: " + String.join(", ", banned));
-            if (!normal.isEmpty())
-                sender.sendMessage(ChatColor.GOLD + "Alts: " + String.join(", ", normal));
+                TextUtils.sendFormatted(sender, "&(gold)Banned alts: %0", String.join(", ", banned));
+            if (!unbanned.isEmpty())
+                TextUtils.sendFormatted(sender, "&(gold)Alts: %0", String.join(", ", unbanned));
         }
 
         return true;

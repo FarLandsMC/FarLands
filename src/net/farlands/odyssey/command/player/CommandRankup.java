@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -7,7 +8,6 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 
 import net.minecraft.server.v1_15_R1.AdvancementDisplay;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_15_R1.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
@@ -19,29 +19,37 @@ public class CommandRankup extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
+        // Trigger the rank-up if possible
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         Rank nextRank = flp.rank.getNextRank();
         flp.updateSessionIfOnline(false);
+
+        // Rank-up failed so notify the player of the remaining time
         if (!flp.rank.equals(nextRank)) {
             if (!nextRank.isPlaytimeObtainable()) {
-                sender.sendMessage(ChatColor.GOLD + "You can no longer rank up from playtime.");
+                TextUtils.sendFormatted(sender, "&(gold)You can no longer rank up from playtime.");
                 return true;
             }
 
             if (!nextRank.hasPlaytime(flp)) {
-                sender.sendMessage(ChatColor.GOLD + "You will rank up to " + nextRank.getColor() +
-                        nextRank.getSymbol() + ChatColor.GOLD + " in " + TimeInterval.formatTime(
-                        ((nextRank.getPlayTimeRequired() - flp.totalVotes) * 3600 - flp.secondsPlayed) * 1000L, false));
+                TextUtils.sendFormatted(
+                        sender,
+                        "&(gold)You will rank up to {%0%1} in %2",
+                        nextRank.getColor(),
+                        nextRank.getName(),
+                        TimeInterval.formatTime(((nextRank.getPlayTimeRequired() - flp.totalVotes) * 3600 - flp.secondsPlayed) * 1000L, false)
+                );
             }
 
             if (sender instanceof Player && !nextRank.completedAdvancement((Player) sender)) {
-                AdvancementDisplay ad = ((CraftAdvancement) nextRank.getAdvancement()).getHandle().c();
-                if (ad != null) {
-                    sender.sendMessage(ChatColor.GOLD + "You must complete the advancement " + ChatColor.AQUA +
-                            ad.a().getText() + ChatColor.GOLD + " to rankup.");
+                AdvancementDisplay advancementDisplay = ((CraftAdvancement) nextRank.getAdvancement()).getHandle().c();
+                if (advancementDisplay != null) {
+                    TextUtils.sendFormatted(sender, "&(gold)You must complete the advancement {&(aqua)%0} to rankup.",
+                            advancementDisplay.a().getText());
                 }
             }
         }
+
         return true;
     }
 }

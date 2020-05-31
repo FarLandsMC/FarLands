@@ -4,6 +4,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
@@ -75,7 +76,7 @@ public class CommandPurchase extends Command {
                 player.sendMessage(ChatColor.GREEN + "Your rank has been updated to " + rank.getColor() + rank.toString());
         }
         if (price > 0)
-            FarLands.getDiscordHandler().sendMessage("output", args[0] + " has donated " + price + " USD.");
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.NOTEBOOK, args[0] + " has donated " + price + " USD.");
         return true;
     }
 

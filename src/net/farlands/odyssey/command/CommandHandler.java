@@ -15,6 +15,7 @@ import net.farlands.odyssey.command.staff.CommandDebug;
 import net.farlands.odyssey.command.staff.CommandKick;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.Logging;
@@ -162,6 +163,10 @@ public class CommandHandler extends Mechanic {
         return (T)commands.stream().filter(c -> clazz.equals(c.getClass())).findAny().orElse(null);
     }
 
+    public List<Command> getCommands() {
+        return commands;
+    }
+
     // Returns true if the command was handled
     @SuppressWarnings("unchecked")
     public boolean handleDiscordCommand(DiscordSender sender, Message message) {
@@ -171,12 +176,12 @@ public class CommandHandler extends Mechanic {
         String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         final String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
         Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
-        if((!(c instanceof DiscordCommand)) && FarLands.getDiscordHandler().getChannel("ingame").getIdLong() != message.getChannel().getIdLong() &&
-                FarLands.getDiscordHandler().getChannel("staffcommands").getIdLong() != message.getChannel().getIdLong()) {
+        if((!(c instanceof DiscordCommand)) && FarLands.getDiscordHandler().getChannel(DiscordChannel.IN_GAME).getIdLong() != message.getChannel().getIdLong() &&
+                FarLands.getDiscordHandler().getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() != message.getChannel().getIdLong()) {
             return false;
         }
         if(Rank.getRank(sender).specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c))
-            FarLands.getDiscordHandler().sendMessage("commandlog", sender.getName() + ": " + fullCommand);
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, sender.getName() + ": " + fullCommand);
         if(c == null) {
             Map<String, org.bukkit.command.Command> knownCommands =
                     (Map<String, org.bukkit.command.Command>) ReflectionHelper.getFieldValue
@@ -251,7 +256,7 @@ public class CommandHandler extends Mechanic {
         if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))))
             Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
         if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c))
-            FarLands.getDiscordHandler().sendMessage("commandlog", event.getPlayer().getName() + ": " + fullCommand);
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, event.getPlayer().getName() + ": " + fullCommand);
         if(c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {

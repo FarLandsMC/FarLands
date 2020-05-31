@@ -3,6 +3,7 @@ package net.farlands.odyssey.mechanic.anticheat;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.mechanic.Mechanic;
 import net.farlands.odyssey.util.Logging;
@@ -86,7 +87,7 @@ public class AntiCheat extends Mechanic {
     public static void broadcast(String message, boolean sendToAlerts) {
         Logging.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
         if(sendToAlerts)
-            FarLands.getDiscordHandler().sendMessage("alerts", message);
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.ALERTS, message);
     }
 
     public static void broadcast(String playerName, String message) {

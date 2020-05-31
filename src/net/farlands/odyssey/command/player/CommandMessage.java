@@ -1,6 +1,5 @@
 package net.farlands.odyssey.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.TextUtils;
 
 import net.farlands.odyssey.FarLands;
@@ -24,72 +23,93 @@ import java.util.Collections;
 import java.util.List;
 
 public class CommandMessage extends PlayerCommand {
+    private static final String REPLY_ALIAS = "r";
+
     public CommandMessage() {
         super(Rank.INITIATE, "Send a private message to another player.", "/msg <player> <message>", true, "msg",
-                "w", "m", "r", "tell", "whisper");
+                "w", "m", REPLY_ALIAS, "tell", "whisper");
     }
 
     @Override
     public boolean execute(Player sender, String[] args) {
         FLPlayerSession senderSession = FarLands.getDataHandler().getSession(sender);
+
         // Reply to the last message sent
-        if ("r".equals(args[0])) {
-            if (args.length < 2)
+        if (REPLY_ALIAS.equals(args[0])) {
+            // If they just type "/r" ignore it
+            if (args.length == 1)
                 return true;
+
+            // Check to make sure they have a recent conversation to reply to
             CommandSender recipient = senderSession.lastMessageSender.getValue();
             if (recipient == null) {
                 sender.sendMessage(ChatColor.RED + "You have no recent messages to reply to.");
                 return true;
             }
+
             // Keep the name stored
-            sendMessage(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
+            sendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
         }
         // Non-/r aliases
         else {
-            // No arguments sent to the command
+            // No arguments sent to the command so we toggle auto-messaging
             if (args.length == 1) {
                 CommandSender currentReplyToggle = senderSession.replyToggleRecipient;
                 CommandSender lastMessageSender = senderSession.lastMessageSender.getValue();
+
+                // The sender does not have the toggle currently active for anyone
                 if (currentReplyToggle == null) {
+                    // They do not have a recent conversation, so we don't know who to set the reply toggle to
                     if (lastMessageSender == null)
-                        sender.sendMessage(ChatColor.RED + "You do not have an active reply toggle currently.");
+                        TextUtils.sendFormatted(sender, "&(red)You do not have an active reply toggle currently.");
+                    // Set the recipient to the person they were last chatting with
                     else {
                         senderSession.replyToggleRecipient = lastMessageSender;
-                        sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}. Type " +
+                        TextUtils.sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}. Type " +
                                 "$(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
-                                "or start your message with {&(aqua)!} to send it to public chat.", lastMessageSender.getName());
+                                "or start your message with {&(aqua)!} to send it to public chat.",
+                                lastMessageSender.getName());
                     }
-                } else {
+                }
+                // Disable auto-messaging since it's already active
+                else {
                     senderSession.replyToggleRecipient = null;
-                    sender.sendMessage(ChatColor.GOLD + "You are no longer messaging " + currentReplyToggle.getName() + ".");
+                    TextUtils.sendFormatted(sender, "&(gold)You are no longer messaging %0", currentReplyToggle.getName());
                 }
-                return true;
-            } else if (args.length == 2) {
-                Player newToggled = getPlayer(args[1], sender);
-                if (newToggled == null) {
-                    sender.sendMessage(ChatColor.RED + "Player not found");
-                    return true;
-                }
-                CommandSender toggled = senderSession.replyToggleRecipient;
-                if (toggled != null && toggled.equals(newToggled)) {
-                    senderSession.replyToggleRecipient = null;
-                    sender.sendMessage(ChatColor.GOLD + "You are no longer messaging " + toggled.getName() + ".");
-                } else {
-                    senderSession.replyToggleRecipient = newToggled;
-                    sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}" +
-                            (toggled == null ? "" : " and no longer messaging {&(aqua)" + toggled.getName() + "}") +
-                            ". Type $(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
-                            "or start your message with {&(aqua)!} to send it to public chat.", newToggled.getName());
-                }
+
                 return true;
             }
+
+            // Get the recipient and make sure they exist
             CommandSender recipient = getPlayer(args[1], sender);
             if (recipient == null) {
-                sender.sendMessage(ChatColor.RED + "Player not found.");
+                TextUtils.sendFormatted(sender, "&(red)Player not found.");
                 return true;
             }
+
+            // One argument was sent, so toggle auto-reply for the player they specified
+            if (args.length == 2) {
+                CommandSender toggled = senderSession.replyToggleRecipient;
+
+                // The name the specified matches who they are currently replying to, so disable auto-reply
+                if (toggled != null && toggled.equals(recipient)) {
+                    senderSession.replyToggleRecipient = null;
+                    TextUtils.sendFormatted(sender, "&(gold)You are no longer messaging %0", toggled.getName());
+                }
+                // They specified a different person so switch to the new player
+                else {
+                    senderSession.replyToggleRecipient = recipient;
+                    TextUtils.sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}" +
+                            (toggled == null ? "" : " and no longer messaging {&(aqua)" + toggled.getName() + "}") +
+                            ". Type $(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
+                            "or start your message with {&(aqua)!} to send it to public chat.", recipient.getName());
+                }
+
+                return true;
+            }
+
             // Try to send the message, and if it succeeds then store the metadata for /r
-            sendMessage(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
+            sendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
         }
         return true;
     }
@@ -112,42 +132,53 @@ public class CommandMessage extends PlayerCommand {
     }
 
     // Send the formatted message
-    public static void sendMessage(CommandSender recipient, CommandSender sender, String message) {
+    public static void sendMessages(CommandSender recipient, CommandSender sender, String message) {
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
-        // Censor the message if censoring
-        if (recipientFlp != null && recipientFlp.censoring)
-            message = Chat.getMessageFilter().censor(message);
-        // This changes the message for the sender so they can see their message was censored when sent
 
+        // Censor the message if censoring
+        String censored = message;
+        if (recipientFlp != null && recipientFlp.censoring)
+            censored = Chat.getMessageFilter().censor(message);
+
+        // Send the messages to both parties involved
         if (sender instanceof Player)
-            sender.sendMessage(format("To", getRank(recipient), getDisplayName(recipient), message));
-        recipient.sendMessage(format("From", getRank(sender), getDisplayName(sender), message));
-        FLPlayerSession recipientSession = null;
+            sendMessage(sender, "To", getRank(recipient), getDisplayName(recipient), message);
+        sendMessage(recipient, "From", getRank(sender), getDisplayName(sender), censored);
+
+        // Find the recipient's session if it exists
+        FLPlayerSession recipientSession;
         if (recipient instanceof Player) {
             Player player = (Player) recipient;
             recipientSession = FarLands.getDataHandler().getSession(player);
+
             // Check for AFK toggle
             if (recipientSession.afk)
                 sender.sendMessage(ChatColor.RED + "This player is AFK, so they may not receive your message.");
+
+            // Play a sound for the recipient if they're online to notify them of the message
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
-        }
-        if (recipientSession != null)
+
+            // Store the sender for easy replying
             recipientSession.lastMessageSender.setValue(sender, 10L * 60L * 20L, null);
+        }
+
+        // Store the recipient for easy replying
         if (sender instanceof Player)
             FarLands.getDataHandler().getSession((Player) sender).lastMessageSender.setValue(recipient, 10L * 60L * 20L, null);
-        String senderName = sender instanceof Player ? sender.getName() : sender.getName();
-        String recipientName = recipient instanceof Player ? recipient.getName() : recipient.getName();
-        Logging.broadcastStaff(TextUtils.format("&(red)[%0 -> %1]: &(gray)%2",
-                Chat.removeColorCodes(senderName), Chat.removeColorCodes(recipientName), message));
+
+        // Notify staff of the message
+        Logging.broadcastStaff(TextUtils.format("&(red)[%0 -> %1]: &(gray)%2", Chat.removeColorCodes(sender.getName()),
+                Chat.removeColorCodes(recipient.getName()), message));
     }
 
-    private static String format(String prefix, Rank rank, String name, String message) {
-        return ChatColor.DARK_GRAY + prefix + ' ' + rank.getNameColor() + name + ": " + ChatColor.RESET + message;
+    private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {
+        TextUtils.sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, rank.getNameColor(), name, message);
     }
 
     private static String getDisplayName(CommandSender sender) {
         if (sender instanceof Player)
             return FarLands.getDataHandler().getOfflineFLPlayer(sender).getDisplayName();
+
         return sender.getName();
     }
 

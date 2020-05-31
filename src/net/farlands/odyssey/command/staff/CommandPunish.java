@@ -7,6 +7,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TimeInterval;
 
@@ -34,7 +35,7 @@ public class CommandPunish extends Command {
             sender.sendMessage(ChatColor.RED + "Player not found.");
             return true;
         }
-        if (flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender.getName()).uuid)) {
+        if (flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender).uuid)) {
             sender.sendMessage(ChatColor.RED + "That was close!");
             return true;
         }
@@ -125,7 +126,7 @@ public class CommandPunish extends Command {
                 " for " + Utils.formattedName(pt) + (punishMessage == null ? "" : " with message `" + punishMessage + "`") +
                 ". Expires: " + (time < 0L ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE));
         sender.sendMessage(ChatColor.GOLD + "P" + message.replaceAll("`", "\""));
-        FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) +
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) +
                 " has p" + Chat.removeColorCodes(message));
     }
 }

@@ -7,6 +7,7 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
+import net.farlands.odyssey.discord.DiscordChannel;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -85,7 +86,7 @@ public class CommandStaffChat extends Command {
             FarLands.getDataHandler().getSessions().stream().filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
                     .forEach(session -> TextUtils.sendFormatted(session.player, "%0[SC] %1: %2",
                             session.handle.staffChatColor, session.handle.username, message));
-            FarLands.getDiscordHandler().sendMessage("staffcommands", sender.getName() + ": " + message);
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, sender.getName() + ": " + message);
         }
 
         return true;

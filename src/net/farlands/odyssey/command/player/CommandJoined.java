@@ -1,12 +1,12 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -32,15 +32,17 @@ public class CommandJoined extends Command {
         OfflineFLPlayer flp = args.length <= 0 ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
                 : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if(flp == null) {
-            sender.sendMessage(ChatColor.GOLD + "This player has never joined the server before.");
+            TextUtils.sendFormatted(sender, "&(gold)This player has never joined the server before.");
             return true;
         }
-        sender.sendMessage(ChatColor.GOLD + flp.username + " joined on " + SDF.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed())));
+
+        TextUtils.sendFormatted(sender, "&(gold)%0 joined on %1", flp.username,
+                SDF.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed())));
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
+        return args.length <= 1 ? getOnlinePlayers(args[0], sender) : Collections.emptyList();
     }
 }

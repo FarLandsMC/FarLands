@@ -1,11 +1,11 @@
 package net.farlands.odyssey.command.player;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class CommandPvP extends PlayerCommand {
@@ -17,7 +17,7 @@ public class CommandPvP extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         flp.pvp = !flp.pvp;
-        sender.sendMessage(ChatColor.GOLD + "PvP " + (flp.pvp ? "enabled." : "disabled."));
+        TextUtils.sendFormatted(sender, "&(green)PvP %0", flp.pvp ? "enabled." : "disabled.");
         return true;
     }
 }

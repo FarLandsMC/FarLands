@@ -3,6 +3,7 @@ package net.farlands.odyssey.command.staff;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,7 +30,7 @@ public class CommandKick extends Command {
         String reason = args.length > 1 ? joinArgsBeyond(0, " ", args) : "Kicked by an operator.";
         player.kickPlayer(reason);
         sender.sendMessage(ChatColor.GOLD + "Kicked " + ChatColor.AQUA + player.getName() + ChatColor.GOLD + " for reason: \"" + reason + "\"");
-        FarLands.getDiscordHandler().sendMessageRaw("output", Chat.applyDiscordFilters(sender.getName()) + " kicked " +
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) + " kicked " +
                 Chat.applyDiscordFilters(player.getName()) + " for reason: `" + reason + "`");
         return true;
     }

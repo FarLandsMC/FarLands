@@ -3,6 +3,7 @@ package net.farlands.odyssey.data.struct;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageReaction;
 import net.farlands.odyssey.FarLands;
+import net.farlands.odyssey.discord.DiscordChannel;
 
 public class Proposal {
     private long messageID;
@@ -17,7 +18,7 @@ public class Proposal {
         String msg0 = "@everyone A new proposal was issued by **" + issuer + "**:```" + message +
                 "```This vote will expire 48 hours after it was issued. Votes required to pass: " +
                 ((staffCount() + 1) / 2);
-        Message messageObj = FarLands.getDiscordHandler().getChannel("output").sendMessage(msg0).complete();
+        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).sendMessage(msg0).complete();
         messageID = messageObj.getIdLong();
         messageObj.addReaction(VOTE_YES).queue(unused -> messageObj.addReaction(VOTE_NO).queue());
     }
@@ -34,7 +35,7 @@ public class Proposal {
     }
 
     public void update() {
-        Message messageObj = FarLands.getDiscordHandler().getChannel("output").getMessageById(messageID).complete();
+        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).getMessageById(messageID).complete();
         if (messageObj == null || System.currentTimeMillis() > dateEnds) {
             resolve(2);
             return;
@@ -97,7 +98,7 @@ public class Proposal {
                 result += "expired. " + VOTE_NO;
                 break;
         }
-        FarLands.getDiscordHandler().sendMessageRaw("output", result);
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, result);
         resolved = true;
     }
 

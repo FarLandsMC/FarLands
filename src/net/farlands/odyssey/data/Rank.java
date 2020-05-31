@@ -47,7 +47,7 @@ public enum Rank {
     OWNER     (4, "Owner",       ChatColor.GOLD);
 
     private final int permissionLevel; // 0: players, 1+: staff
-    private final String symbol;
+    private final String name;
     private final ChatColor color;
     private final String advancement;
     private final int playTimeRequired; // Hours
@@ -63,10 +63,10 @@ public enum Rank {
     public static final String DONOR_COST_STR = DONOR_COST_USD + " USD";
     public static final String PATRON_COST_STR = PATRON_COST_USD + " USD";
 
-    Rank(int permissionLevel, String symbol, ChatColor color, String advancement, int playTimeRequired, int homes,
+    Rank(int permissionLevel, String name, ChatColor color, String advancement, int playTimeRequired, int homes,
          int tpDelay, int shops, int wildCooldown) {
         this.permissionLevel = permissionLevel;
-        this.symbol = symbol;
+        this.name = name;
         this.color = color;
         this.advancement = advancement;
         this.playTimeRequired = playTimeRequired;
@@ -76,16 +76,16 @@ public enum Rank {
         this.wildCooldown = wildCooldown;
     }
 
-    Rank(String symbol, ChatColor color, String advancement, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, symbol, color, advancement, playTimeRequired, homes, tpDelay, shops, wildCooldown);
+    Rank(String name, ChatColor color, String advancement, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
+        this(0, name, color, advancement, playTimeRequired, homes, tpDelay, shops, wildCooldown);
     }
 
-    Rank(String symbol, ChatColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, symbol, color, null, playTimeRequired, homes, tpDelay, shops, wildCooldown);
+    Rank(String name, ChatColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
+        this(0, name, color, null, playTimeRequired, homes, tpDelay, shops, wildCooldown);
     }
 
-    Rank(int permissionLevel, String symbol, ChatColor color) {
-        this(permissionLevel, symbol, color, null, -1, Integer.MAX_VALUE, 0, 60, 0);
+    Rank(int permissionLevel, String name, ChatColor color) {
+        this(permissionLevel, name, color, null, -1, Integer.MAX_VALUE, 0, 60, 0);
     }
 
     public int specialCompareTo(Rank other) {
@@ -123,8 +123,8 @@ public enum Rank {
         return permissionLevel;
     }
 
-    public String getSymbol() {
-        return symbol;
+    public String getName() {
+        return name;
     }
 
     public ChatColor getColor() {
@@ -185,7 +185,7 @@ public enum Rank {
     }
 
     private String getTeamName() {
-        return specialCompareTo(VOTER) >= 0 ? (char) ('a' + ordinal()) + getSymbol() : "aDefault"; // Prefixes to order teams alphabetically
+        return specialCompareTo(VOTER) >= 0 ? (char) ('a' + ordinal()) + getName() : "aDefault"; // Prefixes to order teams alphabetically
     }
 
     public Team getTeam() {
