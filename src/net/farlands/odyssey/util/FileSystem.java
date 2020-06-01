@@ -1,6 +1,7 @@
 package net.farlands.odyssey.util;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.farlands.odyssey.FarLands;
 
 import java.io.*;
@@ -99,6 +100,22 @@ public final class FileSystem {
             Logging.error("Failed to load " + file.getName() + ".");
             ex.printStackTrace(System.out);
             return ReflectionHelper.instantiate(clazz);
+        }
+    }
+
+    public static <T> T loadJson(TypeToken<T> typeToken, T defaultValue, File file) {
+        try {
+            if (!file.exists()) {
+                FileSystem.createFile(file);
+                return defaultValue;
+            }
+
+            T obj = FarLands.getGson().fromJson(readUTF8(file), typeToken.getType());
+            return obj == null ? defaultValue : obj;
+        } catch (IOException ex) {
+            Logging.error("Failed to load " + file.getName() + ".");
+            ex.printStackTrace(System.out);
+            return defaultValue;
         }
     }
 

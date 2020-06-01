@@ -15,10 +15,10 @@ public class Proposal {
     public static final String VOTE_NO = "\u274C";
 
     private void init(String issuer) {
-        String msg0 = "@everyone A new proposal was issued by **" + issuer + "**:```" + message +
+        String formattedMessage = "@everyone A new proposal was issued by **" + issuer + "**:```" + message +
                 "```This vote will expire 48 hours after it was issued. Votes required to pass: " +
                 ((staffCount() + 1) / 2);
-        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).sendMessage(msg0).complete();
+        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).sendMessage(formattedMessage).complete();
         messageID = messageObj.getIdLong();
         messageObj.addReaction(VOTE_YES).queue(unused -> messageObj.addReaction(VOTE_NO).queue());
     }

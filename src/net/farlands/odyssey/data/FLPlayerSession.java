@@ -9,6 +9,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.struct.TeleportRequest;
 import net.farlands.odyssey.mechanic.Toggles;
+import net.farlands.odyssey.scheduling.TaskBase;
 import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -33,7 +34,6 @@ public class FLPlayerSession {
     public boolean isInEvent;
     public CommandSender replyToggleRecipient;
     public Location seatExit;
-    public List<Location> backLocations;
     public List<TeleportRequest> teleportRequests;
 
     // Transient fields
@@ -47,7 +47,8 @@ public class FLPlayerSession {
     private final Map<Class<? extends Command>, Integer> commandCooldowns;
 
     // Internally managed fields
-    private boolean backIgnoreTP;
+    private List<Location> backLocations;
+    private long lastBackLocationModification;
 
     public FLPlayerSession(Player player, OfflineFLPlayer handle) {
         this.player = player;
@@ -62,7 +63,6 @@ public class FLPlayerSession {
         this.isInEvent = false;
         this.replyToggleRecipient = null;
         this.seatExit = null;
-        this.backLocations = new ArrayList<>();
         this.teleportRequests = new ArrayList<>();
 
         this.givePetRecipient = new TransientField<>();
@@ -77,7 +77,8 @@ public class FLPlayerSession {
         this.flightDetectorMute = new Cooldown(0L);
         this.commandCooldowns = new HashMap<>();
 
-        this.backIgnoreTP = false;
+        this.backLocations = new ArrayList<>();
+        this.lastBackLocationModification = 0L;
     }
 
     FLPlayerSession(Player player, FLPlayerSession cached) {
@@ -93,7 +94,6 @@ public class FLPlayerSession {
         this.isInEvent = cached.isInEvent;
         this.replyToggleRecipient = cached.replyToggleRecipient;
         this.seatExit = null;
-        this.backLocations = cached.backLocations;
         this.teleportRequests = new ArrayList<>();
 
         this.givePetRecipient = new TransientField<>();
@@ -108,7 +108,8 @@ public class FLPlayerSession {
         this.flightDetectorMute = new Cooldown(0L);
         this.commandCooldowns = cached.commandCooldowns;
 
-        this.backIgnoreTP = false;
+        this.backLocations = cached.backLocations;
+        this.lastBackLocationModification = 0L;
     }
 
     public void deactivateAFKChecks() {
@@ -210,14 +211,14 @@ public class FLPlayerSession {
     }
 
     public void setCommandCooldown(Command command, long delay) {
-        Integer taskUid = commandCooldowns.get(command.getClass());
-        if(taskUid == null) {
+        TaskBase task = FarLands.getScheduler().getTask(commandCooldowns.getOrDefault(command.getClass(), -1));
+        if(task == null) {
             commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(() -> {
                 if (player.isOnline())
                     TextUtils.sendFormatted(player, "&(gold)You may use {&(aqua)/%0} again.", command.getName());
             }, delay));
         } else
-            FarLands.getScheduler().getTask(taskUid).reset();
+            task.reset();
     }
 
     public boolean isCommandCooldownComplete(Command command) {
@@ -230,13 +231,19 @@ public class FLPlayerSession {
         return taskUid == null ? 0L : FarLands.getScheduler().taskTimeRemaining(taskUid);
     }
 
-    public synchronized boolean ignoreTPForBackLocations() {
-        boolean old = backIgnoreTP;
-        backIgnoreTP = false;
-        return old;
+    public void addBackLocation(Location location) {
+        long time = System.currentTimeMillis();
+        if (time - lastBackLocationModification > 250) {
+            backLocations.add(location);
+            if (backLocations.size() > 5)
+                backLocations.remove(0);
+
+            lastBackLocationModification = time;
+        }
     }
 
-    public synchronized void setIgnoreTPForBackLocations() {
-        backIgnoreTP = true;
+    public Location getBackLocation() {
+        lastBackLocationModification = System.currentTimeMillis();
+        return backLocations.isEmpty() ? null : backLocations.remove(backLocations.size() - 1);
     }
 }

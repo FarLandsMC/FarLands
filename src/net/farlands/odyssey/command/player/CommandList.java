@@ -7,6 +7,7 @@ import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 
+import net.farlands.odyssey.discord.DiscordChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,8 +21,10 @@ public class CommandList extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        final boolean showVanished = sender instanceof DiscordSender ? ((DiscordSender) sender).getChannel().getIdLong() ==
-                FarLands.getFLConfig().discordBotConfig.channels.get("staffcommands") : Rank.getRank(sender).isStaff();
+        final boolean showVanished = sender instanceof DiscordSender
+                ? ((DiscordSender) sender).getChannel().getIdLong() ==
+                        FarLands.getFLConfig().discordBotConfig.channels.get(DiscordChannel.STAFF_COMMANDS)
+                : Rank.getRank(sender).isStaff();
 
         Map<Rank, List<String>> players = new HashMap<>(), staff = new HashMap<>(), bucket;
         int total = 0;

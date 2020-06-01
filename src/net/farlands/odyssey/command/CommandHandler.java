@@ -63,6 +63,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandGetLog());           // Admin
         registerCommand(new CommandNotes());            // Jr Builder
         registerCommand(new CommandPropose());          // Builder
+        registerCommand(new CommandUploadSchem());      // Builder
         registerCommand(new CommandVerify());           // Initiate
 
         // Player Commands
@@ -98,6 +99,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandRanks());            // Initiate
         registerCommand(new CommandRankup());           // Initiate
         registerCommand(new CommandRealName());         // Initiate
+        registerCommand(new CommandReboot());           // Initiate
         registerCommand(new CommandReport());           // Initiate
         registerCommand(new CommandResetHome());        // Initiate
         registerCommand(new CommandRules());            // Initiate
@@ -137,6 +139,7 @@ public class CommandHandler extends Mechanic {
         //registerCommand(new CommandJS());               // Admin (must be js user)
         registerCommand(new CommandKick());             // Jr_Builder
         registerCommand(new CommandMined());            // Builder
+        registerCommand(new CommandMoveSchems());       // Builder
         registerCommand(new CommandMute());             // Jr_Builder
         registerCommand(new CommandPunish());           // Jr_Builder
         registerCommand(new CommandPurchase());         // Mod

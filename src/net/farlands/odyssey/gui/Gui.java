@@ -38,7 +38,6 @@ public abstract class Gui {
         return inv;
     }
 
-    @SuppressWarnings("deprecation")
     public boolean matches(InventoryEvent event) {
         return inv.equals(event.getInventory());
     }

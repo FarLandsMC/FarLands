@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 public final class FLUtils {
     public static final LocationWrapper LOC_ZERO = new LocationWrapper("world", 0.0, 0.0, 0.0, 0.0F, 0.0F);
     public static final Random RNG = new Random();
-    public static final Runnable NO_ACTION = () -> {};
+    public static final Runnable NO_ACTION = () -> { };
     private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED, ChatColor.DARK_RED};
 
     private FLUtils() { }
@@ -300,7 +300,7 @@ public final class FLUtils {
 
     public static String itemName(ItemStack stack) {
         String custom = stack.getItemMeta().getDisplayName();
-        return custom.isEmpty() ? Integer.toString(stack.getAmount()) + " * " + capitalize(stack.getType().toString().replaceAll("_", " ")) : custom;
+        return custom.isEmpty() ? stack.getAmount() + " * " + capitalize(stack.getType().toString().replaceAll("_", " ")) : custom;
     }
 
     public static Location locationFromNBT(NBTTagCompound nbt) {

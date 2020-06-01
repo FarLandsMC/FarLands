@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class CommandPWeather extends PlayerCommand {
     public CommandPWeather() {
-        super(Rank.SAGE, "Change your personal in-game weather.", "/pweather <clear|rain|reset>", "pweather");
+        super(Rank.SAGE, "Change your personal in-game weather.", "/pweather <clear|reset>", "pweather");
     }
 
     @Override
@@ -38,10 +38,6 @@ public class CommandPWeather extends PlayerCommand {
         switch (weatherType) {
             case CLEAR:
                 sender.setPlayerWeather(WeatherType.CLEAR);
-                break;
-
-            case RAIN:
-                sender.setPlayerWeather(WeatherType.DOWNFALL);
                 break;
 
             case RESET:
@@ -65,9 +61,7 @@ public class CommandPWeather extends PlayerCommand {
 
 
     private enum CustomWeatherType {
-        CLEAR,
-        RAIN,
-        RESET;
+        CLEAR, RESET;
 
         static final CustomWeatherType[] VALUES = values();
     }

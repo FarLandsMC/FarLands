@@ -6,6 +6,7 @@ import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
+import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.util.TimeInterval;
 
 import org.bukkit.Location;
@@ -39,7 +40,7 @@ public class CommandSeen extends Command {
 
         // Test to see if this command isn't in #in-game essentially; make sure punishment info is private
         if (sender instanceof DiscordSender && ((DiscordSender) sender).getChannel().getIdLong() ==
-                FarLands.getFLConfig().discordBotConfig.channels.get("staffcommands") ||
+                FarLands.getFLConfig().discordBotConfig.channels.get(DiscordChannel.STAFF_COMMANDS) ||
                 sender instanceof Player && rank.isStaff() || sender instanceof ConsoleCommandSender) {
             sb.append("\n&(gold)Muted: &(aqua)").append(flp.isMuted());
 

@@ -58,6 +58,7 @@ public class DataHandler extends Mechanic {
     private Map<UUID, List<PlayerDeath>> deathDatabase;
     private List<UUID> openEvidenceLockers;
     private Map<UUID, Map<String, Pair<org.bukkit.inventory.ItemStack, String>>> packages;
+    private Map<String, ItemCollection> itemData;
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
     private static final List<String> SCRIPTS = Arrays.asList("artifact.sh", "server.sh", "backup.sh", "restart.sh");
@@ -67,6 +68,7 @@ public class DataHandler extends Mechanic {
     private static final String EVIDENCE_LOCKERS_FILE = Directory.DATA        + File.separator + "evidenceLockers.nbt";
     private static final String DEATH_DATABASE        = Directory.DATA        + File.separator + "deaths.nbt";
     private static final String PACKAGES_FILE         = Directory.DATA        + File.separator + "packages.nbt";
+    private static final String ITEMS_FILE            = Directory.DATA        + File.separator + "items.json";
 
     private void init() {
         SCRIPTS.forEach(script -> {
@@ -91,6 +93,7 @@ public class DataHandler extends Mechanic {
                 ex.printStackTrace();
             }
         });
+
         for (Directory directory : Directory.values()) {
             File dir = FileSystem.getFile(rootDirectory, directory.toString());
             if (!dir.exists() && !dir.mkdirs()) {
@@ -98,6 +101,7 @@ public class DataHandler extends Mechanic {
                         "Did you give the process access to the FS?");
             }
         }
+
         File playerdataFile = new File(PLAYER_DATA_FILE);
         if (!playerdataFile.exists()) {
             try {
@@ -107,9 +111,11 @@ public class DataHandler extends Mechanic {
                 throw new RuntimeException("Failed to create player data file.", ex);
             }
         }
+
         initNbt(EVIDENCE_LOCKERS_FILE);
         initNbt(DEATH_DATABASE);
         initNbt(PACKAGES_FILE);
+
         Logging.log("Initialized data handler.");
     }
 
@@ -140,14 +146,14 @@ public class DataHandler extends Mechanic {
         this.openEvidenceLockers = new ArrayList<>();
         this.packages = new HashMap<>();
         init();
-        loadData();
-        saveData();
+        loadCriticalData();
+        saveCriticalData();
     }
 
     @Override
     public void onStartup() {
-        loadNbt();
-        saveNbt();
+        loadData();
+        saveData();
 
         FarLands.getScheduler().scheduleSyncRepeatingTask(this::update, 50L, 5L * 60L * 20L);
 
@@ -179,8 +185,8 @@ public class DataHandler extends Mechanic {
             ++pluginData.lastPatch;
         }
         pdh.onShutdown();
+        saveCriticalData();
         saveData();
-        saveNbt();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -255,21 +261,13 @@ public class DataHandler extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
         FLPlayerSession session = getSession(event.getPlayer());
+        session.addBackLocation(event.getFrom());
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.update(false), 1L);
-        if (!session.ignoreTPForBackLocations()) {
-            if (session.backLocations.size() >= 5)
-                session.backLocations.remove(0);
-            if (!session.backLocations.contains(event.getFrom()))
-                session.backLocations.add(event.getFrom());
-        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        FLPlayerSession session = getSession(event.getEntity());
-        if (session.backLocations.size() >= 5)
-            session.backLocations.remove(0);
-        session.backLocations.add(event.getEntity().getLocation());
+        getSession(event.getEntity()).addBackLocation(event.getEntity().getLocation());
 
         List<PlayerDeath> deaths = FLUtils.getAndPutIfAbsent(deathDatabase, event.getEntity().getUniqueId(), new ArrayList<>());
         if (deaths.size() >= 3)
@@ -557,21 +555,17 @@ public class DataHandler extends Mechanic {
         return FLUtils.getAndPutIfAbsent(deathDatabase, uuid, new ArrayList<>());
     }
 
-    public void loadData() {
-        try {
-            String flPlayerMapData = FileSystem.readUTF8(FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
-            if (flPlayerMapData.isEmpty())
-                flPlayerMapData = "[]";
-            Collection<OfflineFLPlayer> flps = FarLands.getGson().fromJson(flPlayerMapData, new TypeToken<Collection<OfflineFLPlayer>>() {
-            }.getType());
-            flps.forEach(flp -> {
-                flPlayerMap.put(flp.uuid, flp);
-                if (flp.isDiscordVerified())
-                    discordMap.put(flp.discordID, flp);
-            });
-        } catch (IOException ex) {
-            throw new RuntimeException("Failed to load player data.", ex);
-        }
+    public ItemCollection getItemCollection(String name) {
+        return itemData.get(name);
+    }
+
+    public void loadCriticalData() {
+        FileSystem.loadJson(new TypeToken<Collection<OfflineFLPlayer>>() { }, Collections.emptyList(),
+                FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE)).forEach(flp -> {
+            flPlayerMap.put(flp.uuid, flp);
+            if (flp.isDiscordVerified())
+                discordMap.put(flp.discordID, flp);
+        });
 
         // Convert SQL things
         ResultSet rs = pdh.query("select uuid from playerdata");
@@ -595,19 +589,23 @@ public class DataHandler extends Mechanic {
         pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
     }
 
-    public void saveData() {
+    public void saveCriticalData() {
+        // Disable pretty-printing
         FileSystem.saveJson((new GsonBuilder()).create(), flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
         FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
     }
 
-    public void loadNbt() {
+    public void loadData() {
+        itemData = FileSystem.loadJson(new TypeToken<HashMap<String, ItemCollection>>() { }, new HashMap<>(),
+                FileSystem.getFile(rootDirectory, ITEMS_FILE));
         loadEvidenceLockers();
         loadDeathDatabase();
         loadPackages();
     }
 
-    public void saveNbt() {
+    public void saveData() {
+        FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
         saveEvidenceLockers();
         saveDeathDatabase();
         savePackages();
@@ -630,5 +628,11 @@ public class DataHandler extends Mechanic {
         public String toString() {
             return directory;
         }
+    }
+
+    public enum Server {
+        MAIN, DEV;
+
+        public static final Server[] VALUES = values();
     }
 }
