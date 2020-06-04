@@ -4,18 +4,20 @@ import net.minecraft.server.v1_15_R1.BlockPosition;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import java.util.UUID;
+
 /**
  * This class will play nice with Gson.
  */
-public final class LocationWrapper {
-    private final String world;
-    private double x;
-    private double y;
-    private double z;
-    private float yaw;
-    private float pitch;
+public class LocationWrapper {
+    protected final UUID world;
+    protected double x;
+    protected double y;
+    protected double z;
+    protected float yaw;
+    protected float pitch;
 
-    public LocationWrapper(String world, double x, double y, double z, float yaw, float pitch) {
+    public LocationWrapper(UUID world, double x, double y, double z, float yaw, float pitch) {
         this.world = world;
         this.x = x;
         this.y = y;
@@ -25,7 +27,7 @@ public final class LocationWrapper {
     }
 
     public LocationWrapper(Location loc) {
-        this(loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+        this(loc.getWorld().getUID(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
     }
 
     public Location asLocation() {
@@ -55,8 +57,8 @@ public final class LocationWrapper {
 
     @Override
     public String toString() {
-        return (new StringBuilder()).append("x: ").append(FLUtils.toStringTruncated(x)).append(", y: ")
-                .append(FLUtils.toStringTruncated(y)).append(", z: ").append(FLUtils.toStringTruncated(z))
-                .append(", world: ").append(world).toString();
+        return "x: " + FLUtils.toStringTruncated(x) + ", y: " +
+                FLUtils.toStringTruncated(y) + ", z: " + FLUtils.toStringTruncated(z) +
+                ", world: " + Bukkit.getWorld(world).getName();
     }
 }

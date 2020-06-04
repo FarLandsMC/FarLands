@@ -16,7 +16,6 @@ import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 import net.minecraft.server.v1_15_R1.AdvancementDisplay;
 import net.minecraft.server.v1_15_R1.EntityTypes;
@@ -353,8 +352,6 @@ public class GeneralMechanics extends Mechanic {
         FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).updateSessionIfOnline(true);
         AdvancementDisplay ad = ((CraftAdvancement) event.getAdvancement()).getHandle().c();
         if (ad != null && !FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
-            Logging.broadcastIngame(TextComponent.fromLegacyText(event.getPlayer().getDisplayName() + ChatColor.RESET +
-                    " has made the advancement " + ChatColor.GREEN + "[" + ad.a().getText() + "]"));
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getPlayer().getDisplayName() +
                     " has made the advancement [" + ad.a().getText() + "]");
         }
@@ -384,7 +381,7 @@ public class GeneralMechanics extends Mechanic {
         if (event.getEntity().getType() == EntityType.DROPPED_ITEM &&
                 "world_the_end".equals(event.getFrom().getWorld().getName()) &&
                 "world".equals(event.getTo().getWorld().getName())) {
-            event.setTo(FarLands.getDataHandler().getPluginData().getSpawn());
+            event.setTo(FarLands.getDataHandler().getPluginData().spawn.asLocation());
         }
     }
 

@@ -4,8 +4,8 @@ import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
-import net.farlands.odyssey.util.FLUtils;
 
+import net.farlands.odyssey.util.LocationWrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -25,8 +25,8 @@ public class CommandSpawn extends Command {
             sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
             return true;
         }
-        Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
-        if (FLUtils.deltaEquals(spawn, FLUtils.LOC_ZERO.asLocation(), 1e-8D)) { // The spawn defaults to 0,0,0 (not set)
+        LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
+        if (spawn == null) {
             sender.sendMessage(ChatColor.RED + "Server spawn not set! Please contact an owner, administrator, or developer and notify them of this problem.");
             return true;
         }
@@ -38,12 +38,12 @@ public class CommandSpawn extends Command {
             }
             Player player = flp.getOnlinePlayer();
             if (player == null)
-                flp.setLastLocation(spawn);
+                flp.lastLocation = spawn;
             else
-                player.teleport(spawn);
+                player.teleport(spawn.asLocation());
             sender.sendMessage(ChatColor.GREEN + "Moved player to spawn.");
         } else
-            ((Player) sender).teleport(spawn);
+            ((Player) sender).teleport(spawn.asLocation());
         return true;
     }
 

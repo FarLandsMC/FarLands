@@ -24,9 +24,9 @@ public class ItemDistributor {
     }
 
     public ItemDistributor() {
-        this.source = FLUtils.LOC_ZERO;
-        this.pub = FLUtils.LOC_ZERO;
-        this.priv = FLUtils.LOC_ZERO;
+        this.source = null;
+        this.pub = null;
+        this.priv = null;
         this.count = 0;
     }
 

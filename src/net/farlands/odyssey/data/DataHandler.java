@@ -150,11 +150,13 @@ public class DataHandler extends Mechanic {
         saveCriticalData();
     }
 
-    @Override
-    public void onStartup() {
+    public void preStartup() {
         loadData();
         saveData();
+    }
 
+    @Override
+    public void onStartup() {
         FarLands.getScheduler().scheduleSyncRepeatingTask(this::update, 50L, 5L * 60L * 20L);
 
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
@@ -560,6 +562,16 @@ public class DataHandler extends Mechanic {
     }
 
     public void loadCriticalData() {
+        config = FileSystem.loadJson(Config.class, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
+        pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
+    }
+
+    public void saveCriticalData() {
+        FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
+        FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
+    }
+
+    public void loadData() {
         FileSystem.loadJson(new TypeToken<Collection<OfflineFLPlayer>>() { }, Collections.emptyList(),
                 FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE)).forEach(flp -> {
             flPlayerMap.put(flp.uuid, flp);
@@ -567,36 +579,28 @@ public class DataHandler extends Mechanic {
                 discordMap.put(flp.discordID, flp);
         });
 
-        // Convert SQL things
-        ResultSet rs = pdh.query("select uuid from playerdata");
-        List<UUID> sqlUuids = new ArrayList<>();
         try {
-            while (rs.next()) {
-                byte[] uuid = rs.getBytes(1);
-                sqlUuids.add(FLUtils.getUuid(uuid, 0));
+            // Convert SQL things
+            ResultSet rs = pdh.query("select uuid from playerdata");
+            List<UUID> sqlUuids = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    byte[] uuid = rs.getBytes(1);
+                    sqlUuids.add(FLUtils.getUuid(uuid, 0));
+                }
+                rs.close();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
-            rs.close();
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
+            sqlUuids.stream().filter(uuid -> !flPlayerMap.containsKey(uuid)).forEach(uuid -> {
+                OfflineFLPlayer flp = pdh.getFLPlayer(uuid);
+                flp.notes.addAll(pdh.getNotes(uuid));
+                flPlayerMap.put(uuid, flp);
+            });
+        } catch (Throwable t) {
+            t.printStackTrace(System.out);
         }
-        sqlUuids.stream().filter(uuid -> !flPlayerMap.containsKey(uuid)).forEach(uuid -> {
-            OfflineFLPlayer flp = pdh.getFLPlayer(uuid);
-            flp.notes.addAll(pdh.getNotes(uuid));
-            flPlayerMap.put(uuid, flp);
-        });
 
-        config = FileSystem.loadJson(Config.class, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
-        pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
-    }
-
-    public void saveCriticalData() {
-        // Disable pretty-printing
-        FileSystem.saveJson((new GsonBuilder()).create(), flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
-        FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
-        FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
-    }
-
-    public void loadData() {
         itemData = FileSystem.loadJson(new TypeToken<HashMap<String, ItemCollection>>() { }, new HashMap<>(),
                 FileSystem.getFile(rootDirectory, ITEMS_FILE));
         loadEvidenceLockers();
@@ -605,6 +609,8 @@ public class DataHandler extends Mechanic {
     }
 
     public void saveData() {
+        // Disable pretty-printing
+        FileSystem.saveJson((new GsonBuilder()).create(), flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
         FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
         saveEvidenceLockers();
         saveDeathDatabase();

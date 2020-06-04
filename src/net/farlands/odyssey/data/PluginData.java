@@ -28,20 +28,12 @@ public class PluginData {
         this.lastPatch = 0;
         this.votesUntilParty = 0;
         this.lastPatchnotesMD5 = new byte[0];
-        this.spawn = FLUtils.LOC_ZERO;
-        this.pvpIslandSpawn = FLUtils.LOC_ZERO;
+        this.spawn = null;
+        this.pvpIslandSpawn = null;
         this.itemDistributors = new ArrayList<>();
         this.spawnTraders = new HashSet<>();
         this.warps = new HashMap<>();
         this.proposals = new ArrayList<>();
-    }
-
-    public Location getSpawn() {
-        return spawn.asLocation();
-    }
-
-    public Location getPvPIslandSpawn() {
-        return pvpIslandSpawn.asLocation();
     }
 
     public void setSpawn(Location spawn) {

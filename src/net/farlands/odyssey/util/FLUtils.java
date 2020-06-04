@@ -35,7 +35,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public final class FLUtils {
-    public static final LocationWrapper LOC_ZERO = new LocationWrapper("world", 0.0, 0.0, 0.0, 0.0F, 0.0F);
     public static final Random RNG = new Random();
     public static final Runnable NO_ACTION = () -> { };
     private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED, ChatColor.DARK_RED};
@@ -304,13 +303,13 @@ public final class FLUtils {
     }
 
     public static Location locationFromNBT(NBTTagCompound nbt) {
-        return new Location(Bukkit.getWorld(nbt.getString("world")), nbt.getDouble("x"), nbt.getDouble("y"),
+        return new Location(Bukkit.getWorld(UUID.fromString(nbt.getString("world"))), nbt.getDouble("x"), nbt.getDouble("y"),
                 nbt.getDouble("z"), nbt.getFloat("yaw"), nbt.getFloat("pitch"));
     }
 
     public static NBTTagCompound locationToNBT(Location location) {
         NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setString("world", location.getWorld().getName());
+        nbt.setString("world", location.getWorld().getUID().toString());
         nbt.setDouble("x", location.getX());
         nbt.setDouble("y", location.getY());
         nbt.setDouble("z", location.getZ());
@@ -391,7 +390,8 @@ public final class FLUtils {
     }
 
     public static boolean isInSpawn(Location loc, double radius) {
-        return "world".equals(loc.getWorld().getName()) && loc.distance(FarLands.getDataHandler().getPluginData().getSpawn()) < radius;
+        LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
+        return spawn != null && "world".equals(loc.getWorld().getName()) && loc.distance(spawn.asLocation()) < radius;
     }
 
     public static boolean isInSpawn(Location loc) {

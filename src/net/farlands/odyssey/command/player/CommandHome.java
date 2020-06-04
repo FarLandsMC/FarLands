@@ -31,7 +31,7 @@ public class CommandHome extends PlayerCommand {
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null) {
             TextUtils.sendFormatted(sender, "&(red)Player not found.");
-            return false;
+            return true;
         }
 
         // Get the home name

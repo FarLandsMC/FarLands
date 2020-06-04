@@ -35,6 +35,11 @@ public class CommandResetHome extends PlayerCommand {
                 ? FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1])
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
+        if (flp == null) {
+            TextUtils.sendFormatted(sender, "&(red)Player not found.");
+            return true;
+        }
+
         // Check to make sure the location is in a valid world
         Location location = sender.getLocation();
         if (!("world".equals(location.getWorld().getName()) || "world_nether".equals(location.getWorld().getName()))) {

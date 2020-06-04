@@ -554,9 +554,9 @@ public class PlayerDataHandlerOld {
             if(particleType >= 0 && loc >= 0)
                 flp.setParticles(Particle.values()[particleType], Particles.ParticleLocation.VALUES[loc]);
             flp.rank = Rank.VALUES[rs.getInt("rank")];
-            flp.setLastLocation(DataHandler.WORLDS.get(rs.getInt("lastLocation_world")), rs.getDouble("lastLocation_x"),
-                    rs.getDouble("lastLocation_y"), rs.getDouble("lastLocation_z"), rs.getFloat("lastLocation_yaw"),
-                    rs.getFloat("lastLocation_pitch"));
+            flp.setLastLocation(Bukkit.getWorld(DataHandler.WORLDS.get(rs.getInt("lastLocation_world"))).getUID(),
+                    rs.getDouble("lastLocation_x"), rs.getDouble("lastLocation_y"), rs.getDouble("lastLocation_z"),
+                    rs.getFloat("lastLocation_yaw"), rs.getFloat("lastLocation_pitch"));
             long muteDateEnds = rs.getLong("currentMute_dateEnds");
             if(muteDateEnds > 0)
                 flp.currentMute = new Mute(muteDateEnds, rs.getString("currentMute_reason"));

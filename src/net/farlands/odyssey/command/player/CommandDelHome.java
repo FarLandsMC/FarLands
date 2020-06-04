@@ -26,11 +26,11 @@ public class CommandDelHome extends PlayerCommand {
         // Whether or not we're deleting someone else's home
         boolean deleteUnownedHome = Rank.getRank(sender).isStaff() && args.length > 1;
 
-        OfflineFLPlayer flp = deleteUnownedHome ? FarLands.getDataHandler().getOfflineFLPlayer(args[0])
+        OfflineFLPlayer flp = deleteUnownedHome ? FarLands.getDataHandler().getOfflineFLPlayer(args[1])
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null) {
             TextUtils.sendFormatted(sender, "&(red)Player not found.");
-            return false;
+            return true;
         }
 
         String name;

@@ -30,6 +30,8 @@ public class CommandStaffChat extends Command {
             return true;
         }
 
+        FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
+
         if ("staffchat".equals(args[0])) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(ChatColor.RED + "You must be online to manage staff chat settings.");
@@ -40,8 +42,6 @@ public class CommandStaffChat extends Command {
                 TextUtils.sendFormatted(sender, "&(red)Usage: /staffchat <toggle-message|toggle-view|set-color>...");
                 return true;
             }
-
-            FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
 
             switch (args[1]) {
                 // Toggle on/off auto-messaging
@@ -83,10 +83,10 @@ public class CommandStaffChat extends Command {
 
         } else {
             String message = joinArgsBeyond(0, " ", args);
-            FarLands.getDataHandler().getSessions().stream().filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
-                    .forEach(session -> TextUtils.sendFormatted(session.player, "%0[SC] %1: %2",
-                            session.handle.staffChatColor, session.handle.username, message));
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, sender.getName() + ": " + message);
+            FarLands.getDataHandler().getSessions().stream().filter(s -> s.handle.rank.isStaff() && s.showStaffChat)
+                    .forEach(s -> TextUtils.sendFormatted(s.player, "%0[SC] %1: %2", s.handle.staffChatColor,
+                            session.handle.username, message));
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, session.handle.username + ": " + message);
         }
 
         return true;

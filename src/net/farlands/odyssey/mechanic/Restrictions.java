@@ -8,6 +8,7 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
+import net.farlands.odyssey.util.LocationWrapper;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
 
@@ -58,7 +59,7 @@ public class Restrictions extends Mechanic {
                         (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? DiscordChannel.ALERTS : null);
             }
             if (isNew) {
-                flp.setLastLocation(FarLands.getDataHandler().getPluginData().getSpawn());
+                flp.lastLocation = FarLands.getDataHandler().getPluginData().spawn;
                 if (!banned.isEmpty()) {
                     Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.username,
                             unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)),
@@ -71,9 +72,12 @@ public class Restrictions extends Mechanic {
         }
 
         if (isNew) {
-            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(),
-                    () -> player.teleport(FarLands.getDataHandler().getPluginData().getSpawn()), 5L);
-        } else if (!FLUtils.deltaEquals(flp.getLastLocation(), FLUtils.LOC_ZERO.asLocation(), 1.0)) {
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
+                if (spawn != null)
+                    player.teleport(spawn.asLocation());
+            }, 5L);
+        } else if (flp.lastLocation != null) {
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> player.teleport(flp.getLastLocation()), 5L);
         }
     }
@@ -90,13 +94,13 @@ public class Restrictions extends Mechanic {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onRespawn(PlayerRespawnEvent event) {
         if (!event.isBedSpawn()) {
-            Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
-            if (FLUtils.deltaEquals(spawn, FLUtils.LOC_ZERO.asLocation(), 1e-8D)) {
+            LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
+            if (spawn == null) {
                 event.getPlayer().sendMessage(ChatColor.RED + "Server spawn not set! Please contact an owner, " +
                         "administrator, or developer and notify them of this problem.");
                 return;
             }
-            event.setRespawnLocation(spawn);
+            event.setRespawnLocation(spawn.asLocation());
         }
     }
 

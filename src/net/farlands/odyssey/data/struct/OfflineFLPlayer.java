@@ -53,7 +53,7 @@ public class OfflineFLPlayer {
     public static final Map<String, List<String>> SQL_SER_INFO = (new ImmutableMap.Builder<String, List<String>>())
             .put("constants", Arrays.asList("uuid", "username"))
             .put("objects", Arrays.asList("particles", "lastLocation", "currentMute"))
-            .put("ignored", Arrays.asList("punishments", "homes", "mail", "notes"))
+            .put("ignored", Arrays.asList("punishments", "homes", "mail", "notes", "staffChatColor"))
             .build();
 
     public OfflineFLPlayer(UUID uuid, String username) {
@@ -80,7 +80,7 @@ public class OfflineFLPlayer {
         this.particles = null;
         this.rank = Rank.INITIATE;
         this.staffChatColor = ChatColor.RED;
-        this.lastLocation = FLUtils.LOC_ZERO;
+        this.lastLocation = null;
         this.currentMute = null;
         this.notes = new ArrayList<>();
         this.punishments = new ArrayList<>();
@@ -234,7 +234,7 @@ public class OfflineFLPlayer {
         lastLocation = new LocationWrapper(location);
     }
 
-    public void setLastLocation(String world, double x, double y, double z, float yaw, float pitch) {
+    public void setLastLocation(UUID world, double x, double y, double z, float yaw, float pitch) {
         lastLocation = new LocationWrapper(world, x, y, z, yaw, pitch);
     }
 
@@ -271,12 +271,12 @@ public class OfflineFLPlayer {
         Player player = getOnlinePlayer();
         if(player != null)
             player.kickPlayer(p.generateBanMessage(punishments.size() - 1, true));
-        Location spawn = FarLands.getDataHandler().getPluginData().getSpawn();
-        if(!FLUtils.deltaEquals(spawn, FLUtils.LOC_ZERO.asLocation(), 1e-8)) { // Make sure spawn is set
+        LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
+        if(spawn != null) { // Make sure spawn is set
             if(player != null)
-                FLUtils.tpPlayer(player, spawn);
+                FLUtils.tpPlayer(player, spawn.asLocation());
             else
-                setLastLocation(spawn);
+                lastLocation = spawn;
         }
         return p.totalTime(punishments.size() - 1);
     }

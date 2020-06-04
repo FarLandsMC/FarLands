@@ -32,7 +32,7 @@ public class CommandHomes extends Command {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
             if (flp == null) {
                 TextUtils.sendFormatted(sender, "&(red)Player not found.");
-                return false;
+                return true;
             }
 
             if (flp.homes.isEmpty()) {
