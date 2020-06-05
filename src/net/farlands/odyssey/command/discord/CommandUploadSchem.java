@@ -1,14 +1,17 @@
 package net.farlands.odyssey.command.discord;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
+
 import net.dv8tion.jda.core.entities.Message;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.FileSystem;
 import net.farlands.odyssey.util.Logging;
+
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
@@ -31,7 +34,7 @@ public class CommandUploadSchem extends DiscordCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof DiscordSender)) {
-            TextUtils.sendFormatted(sender, "&(red)This command must be used from discord.");
+            sendFormatted(sender, "&(red)This command must be used from discord.");
             return false;
         }
 

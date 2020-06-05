@@ -1,9 +1,13 @@
 package net.farlands.odyssey.data.struct;
 
 import com.google.common.collect.ImmutableMap;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
@@ -11,6 +15,7 @@ import net.farlands.odyssey.discord.DiscordHandler;
 import net.farlands.odyssey.util.LocationWrapper;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
+
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -349,6 +354,11 @@ public class OfflineFLPlayer {
 
     public void addMail(String sender, String message) {
         mail.add(new MailMessage(sender, message));
+
+        Player player = getOnlinePlayer();
+        if (player != null) // Notify the player if online
+            sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read," +
+                    "{&(gray)Click to Run},&(yellow)/mail read)");
     }
 
     public void clearMail() {

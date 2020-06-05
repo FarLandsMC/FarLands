@@ -78,14 +78,9 @@ public class CommandMail extends Command {
                 sendMailMessage(sender, "To", recipientFlp.rank.getNameColor(), recipientFlp.username, message);
 
                 // Check for ignoring
-                if (!recipientFlp.isIgnoring(senderFlp)) {
+                if (!recipientFlp.isIgnoring(senderFlp))
                     recipientFlp.addMail(sender.getName(), message);
-
-                    Player player = recipientFlp.getOnlinePlayer();
-                    if (player != null) // Notify the player if online
-                        sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read," +
-                                "{&(gray)Click to Run},&(yellow)/mail read)");
-                }
+                break;
             }
 
             case READ: {
@@ -122,11 +117,13 @@ public class CommandMail extends Command {
                 }
 
                 sendFormatted(sender, "&(gold)Clear your mail with $(hovercmd,/mail clear,{&(gray)Click to Run},&(yellow)/mail clear)");
+                break;
             }
 
             case CLEAR: {
                 senderFlp.mail.clear();
                 sendFormatted(sender, "&(green)Mail cleared.");
+                break;
             }
         }
 

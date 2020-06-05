@@ -59,7 +59,7 @@ public class CommandNick extends PlayerCommand {
 
             // Enforce 60% ASCII
             if (nonAscii / rawLen > 0.4) {
-                sendFormatted(sender, "&(red)Your nickname must be at least 60\\% ASCII characters.");
+                sendFormatted(sender, "&(red)Your nickname must be at least 60% ASCII characters.");
                 return true;
             }
 

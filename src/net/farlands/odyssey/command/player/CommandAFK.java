@@ -34,7 +34,7 @@ public class CommandAFK extends PlayerCommand {
 
         // Set them to be AFK
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.afk = true, 50L);
-        session.setCommandCooldown(this, 10L * 60L * 20L);
+        session.setCommandCooldown(this, 3L * 60L * 20L);
 
         // Reset their AFK check cooldown
         if (session.afkCheckInitializerCooldown != null)

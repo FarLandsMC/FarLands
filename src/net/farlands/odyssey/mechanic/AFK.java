@@ -1,6 +1,7 @@
 package net.farlands.odyssey.mechanic;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.FLCommandEvent;
 import net.farlands.odyssey.command.player.CommandMessage;
@@ -9,7 +10,9 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.FLUtils;
+
 import net.md_5.bungee.api.ChatMessageType;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -40,7 +43,7 @@ public class AFK extends Mechanic {
         Bukkit.getScheduler().runTaskTimerAsynchronously(FarLands.getInstance(), () -> {
             Bukkit.getOnlinePlayers().forEach(player -> {
                 if (afkCheckList.containsKey(player.getUniqueId())) {
-                    TextUtils.sendFormatted(player, ChatMessageType.ACTION_BAR, "&(red,bold,magic)MM {&(reset)%0} MM",
+                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(red,bold,magic)MM {&(reset)%0} MM",
                             afkCheckList.get(player.getUniqueId()).getFirst());
                 }
             });

@@ -10,8 +10,8 @@ import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
-
 import net.farlands.odyssey.util.Logging;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -44,7 +44,7 @@ public class CommandMessage extends PlayerCommand {
             // Check to make sure they have a recent conversation to reply to
             CommandSender recipient = senderSession.lastMessageSender.getValue();
             if (recipient == null) {
-                sender.sendMessage(ChatColor.RED + "You have no recent messages to reply to.");
+                sendFormatted(sender, "&(red)You have no recent messages to reply to.");
                 return true;
             }
 
@@ -154,7 +154,7 @@ public class CommandMessage extends PlayerCommand {
 
             // Check for AFK toggle
             if (recipientSession.afk)
-                sender.sendMessage(ChatColor.RED + "This player is AFK, so they may not receive your message.");
+                sendFormatted(sender, "&(red)This player is AFK, so they may not receive your message.");
 
             // Play a sound for the recipient if they're online to notify them of the message
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);

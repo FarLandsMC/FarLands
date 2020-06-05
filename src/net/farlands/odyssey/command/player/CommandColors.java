@@ -21,7 +21,7 @@ public class CommandColors extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         sendFormatted(sender, "&(gold)Color codes: %0", Arrays.stream(ChatColor.values())
                 .filter(color -> !Chat.ILLEGAL_COLORS.contains(color) && !ChatColor.RESET.equals(color))
-                .map(color -> color + color.toString().replace("\u00A7", "&") + ChatColor.RESET)
+                .map(color -> color + color.toString().replace("\u00A7", "\\&") + ChatColor.RESET)
                 .collect(Collectors.joining(" ")));
         return true;
     }

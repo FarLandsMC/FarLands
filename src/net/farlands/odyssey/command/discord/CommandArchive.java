@@ -1,15 +1,18 @@
 package net.farlands.odyssey.command.discord;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
+
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.restaction.AuditableRestAction;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordChannel;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -44,7 +47,7 @@ public class CommandArchive extends DiscordCommand {
 
         Action action = Utils.valueOfFormattedName(args[1], Action.class);
         if (action == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid action: %0. Valid actions: %1.", args[1],
+            sendFormatted(sender, "&(red)Invalid action: %0. Valid actions: %1.", args[1],
                     Arrays.stream(Action.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
             return true;
         }
@@ -127,9 +130,9 @@ public class CommandArchive extends DiscordCommand {
                 else if (action == Action.DELETE)
                     channel.delete().complete();
 
-                TextUtils.sendFormatted(sender, "&(green)Archive complete.");
+                sendFormatted(sender, "&(green)Archive complete.");
             } else
-                TextUtils.sendFormatted(sender, "&(red)Failed to send archive to discord.");
+                sendFormatted(sender, "&(red)Failed to send archive to discord.");
 
             archiveFile.delete();
         }

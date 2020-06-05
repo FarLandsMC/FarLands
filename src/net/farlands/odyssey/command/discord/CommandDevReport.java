@@ -1,12 +1,14 @@
 package net.farlands.odyssey.command.discord;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.util.TimeInterval;
+
 import org.bukkit.command.CommandSender;
 
 public class CommandDevReport extends DiscordCommand {
@@ -25,7 +27,7 @@ public class CommandDevReport extends DiscordCommand {
 
         long t = globalCooldown.timeRemaining();
         if (t > 0) {
-            TextUtils.sendFormatted(sender, "&(red)You can use this command again in %0.", TimeInterval.formatTime(50L * t, false));
+            sendFormatted(sender, "&(red)You can use this command again in %0.", TimeInterval.formatTime(50L * t, false));
             return true;
         }
 

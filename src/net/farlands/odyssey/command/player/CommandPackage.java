@@ -73,9 +73,11 @@ public class CommandPackage extends PlayerCommand {
             senderSession.setCommandCooldown(this, 10L * 60L * 20L);
 
             // Notify parties involved
-            sendFormatted(player, "&(gold){&(aqua)%0} has sent you {&(aqua)%1}%2",
+            sendFormatted(player, "&(gold){&(aqua)%0} has sent you {&(aqua)%1}%2.",
                     senderSession.handle.getDisplayName(), FLUtils.itemName(item),
-                    message.equals("") ? "" : " with the following message: &(aqua)" + message);
+                    message.equals("") ? "" : " with the following message: {&(aqua)" + message + "}");
+            sendFormatted(sender, "&(gold)Package sent to {&(aqua)%0}%1.",
+                    recipientFlp.getDisplayName(), message.isEmpty() ? "" : "with the following message: {&(aqua)" + message + "}");
         }
         // If the recipient is not online then queue it for when the log back in
         else {

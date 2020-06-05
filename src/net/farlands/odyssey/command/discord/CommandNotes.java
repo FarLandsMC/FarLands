@@ -1,7 +1,8 @@
 package net.farlands.odyssey.command.discord;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Rank;
@@ -27,22 +28,22 @@ public class CommandNotes extends DiscordCommand {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if (flp == null) {
-            TextUtils.sendFormatted(sender, "&(red)Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
 
         Action action = Utils.valueOfFormattedName(args[0], Action.class);
         if (action == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid action: %0", args[0]);
+            sendFormatted(sender, "&(red)Invalid action: %0", args[0]);
             return true;
         }
 
         switch (action) {
             case VIEW:
                 if (flp.notes.isEmpty())
-                    TextUtils.sendFormatted(sender, "&(gold){&(aqua)%0} does not have any notes.", flp.username);
+                    sendFormatted(sender, "&(gold){&(aqua)%0} does not have any notes.", flp.username);
                 else {
-                    TextUtils.sendFormatted(sender, "&(gold)Showing notes for {&(aqua)%0:}\n&(gray)%1",
+                    sendFormatted(sender, "&(gold)Showing notes for {&(aqua)%0:}\n&(gray)%1",
                             flp.username, String.join("\n", flp.notes));
                 }
                 break;
@@ -50,12 +51,12 @@ public class CommandNotes extends DiscordCommand {
             case ADD:
                 flp.notes.add(FLUtils.dateToString(System.currentTimeMillis(), "MM/dd/yyyy") + " " +
                         sender.getName() + ": " + joinArgsBeyond(1, " ", args));
-                TextUtils.sendFormatted(sender, "&(gold)Note added.");
+                sendFormatted(sender, "&(gold)Note added.");
                 break;
 
             case CLEAR:
                 flp.notes.clear();
-                TextUtils.sendFormatted(sender, "&(gold)Cleared notes of &(aqua)%0", flp.username);
+                sendFormatted(sender, "&(gold)Cleared notes of &(aqua)%0", flp.username);
                 break;
         }
 

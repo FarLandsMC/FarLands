@@ -1,7 +1,9 @@
 package net.farlands.odyssey.command.discord;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.dv8tion.jda.core.entities.Message;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.command.DiscordSender;
@@ -9,6 +11,7 @@ import net.farlands.odyssey.command.FLShutdownEvent;
 import net.farlands.odyssey.data.Config;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -29,12 +32,12 @@ public class CommandArtifact extends DiscordCommand {
             return true;
 
         if (!(sender instanceof DiscordSender)) {
-            TextUtils.sendFormatted(sender, "&(red)This command must be used from discord.");
+            sendFormatted(sender, "&(red)This command must be used from discord.");
             return false;
         }
 
         if (FarLands.getFLConfig().isScreenSessionNotSet()) {
-            TextUtils.sendFormatted(sender, "&(red)The screen session for this server instance is not specified. " +
+            sendFormatted(sender, "&(red)The screen session for this server instance is not specified. " +
                     "This command requires that field to run.");
             return true;
         }

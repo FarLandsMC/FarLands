@@ -20,7 +20,7 @@ public class CommandPatchnotes extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         try {
-            sendFormatted(sender, "&(gold)Showing notes for patch &(aqua)#%0:\n&(gray)%1",
+            sendFormatted(sender, "&(gold)Showing notes for patch &(aqua)#%0:\n{&(gray)%1}",
                     FarLands.getDataHandler().getCurrentPatch(),
                     Chat.applyColorCodes(new String(FarLands.getDataHandler().getResource("patchnotes.txt"), StandardCharsets.UTF_8)));
             FarLands.getDataHandler().getOfflineFLPlayer(sender).viewedPatchnotes = true;

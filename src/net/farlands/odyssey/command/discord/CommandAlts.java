@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.discord;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.data.Rank;
@@ -21,7 +22,7 @@ public class CommandAlts extends DiscordCommand {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
-            TextUtils.sendFormatted(sender, "&(red)Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
 
@@ -30,14 +31,14 @@ public class CommandAlts extends DiscordCommand {
                 .collect(Collectors.toList());
 
         if (alts.isEmpty())
-            TextUtils.sendFormatted(sender, "&(gold)This player has no alts.");
+            sendFormatted(sender, "&(gold)This player has no alts.");
         else {
             List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
                     unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
             if (!banned.isEmpty())
-                TextUtils.sendFormatted(sender, "&(gold)Banned alts: %0", String.join(", ", banned));
+                sendFormatted(sender, "&(gold)Banned alts: %0", String.join(", ", banned));
             if (!unbanned.isEmpty())
-                TextUtils.sendFormatted(sender, "&(gold)Alts: %0", String.join(", ", unbanned));
+                sendFormatted(sender, "&(gold)Alts: %0", String.join(", ", unbanned));
         }
 
         return true;
