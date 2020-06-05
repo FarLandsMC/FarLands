@@ -54,6 +54,11 @@ public class CommandHomes extends Command {
                 sendFormatted(sender, "&(green)You don\'t have any homes! Set one with &(aqua)/sethome");
                 return true;
             }
+            homes.forEach(home -> {
+                Location location = home.getLocation();
+                sendFormatted(sender, "&(gold)$(hovercmd,/home %0,Go to home {&(aqua)%0},%0: {&(aqua)%1 %2 %3})",
+                        home.getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+            });
         }
 
         return true;
