@@ -86,6 +86,8 @@ public class CommandStaffChat extends Command {
         } else {
             OfflineFLPlayer handle = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             String message = joinArgsBeyond(0, " ", args);
+            if (message.isEmpty())
+                return true;
             FarLands.getDataHandler().getSessions().stream().filter(s -> s.handle.rank.isStaff() && s.showStaffChat)
                     .forEach(s -> sendFormatted(s.player, "%0[SC] %1: %2", s.handle.staffChatColor,
                             handle.username, message));
