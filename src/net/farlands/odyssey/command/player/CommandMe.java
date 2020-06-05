@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
@@ -31,7 +32,7 @@ public class CommandMe extends PlayerCommand {
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
                 !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            TextUtils.sendFormatted(sender, "&(red)You cannot use this command while muted.");
+            sendFormatted(sender, "&(red)You cannot use this command while muted.");
             return false;
         }
 

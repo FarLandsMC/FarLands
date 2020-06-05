@@ -3,7 +3,6 @@ package net.farlands.odyssey.command.staff;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 
-import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.Logging;
 import org.bukkit.command.CommandSender;
 

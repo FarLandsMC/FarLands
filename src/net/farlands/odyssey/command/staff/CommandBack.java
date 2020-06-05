@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
@@ -17,7 +18,7 @@ public class CommandBack extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         Location backLocation = FarLands.getDataHandler().getSession(sender).getBackLocation();
         if(backLocation == null) {
-            TextUtils.sendFormatted(sender, "&(red)You have nowhere to teleport back to.");
+            sendFormatted(sender, "&(red)You have nowhere to teleport back to.");
             return true;
         }
         FLUtils.tpPlayer(sender, backLocation);

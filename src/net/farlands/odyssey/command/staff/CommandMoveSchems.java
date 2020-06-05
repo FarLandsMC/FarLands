@@ -1,8 +1,9 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.DataHandler;
@@ -28,7 +29,7 @@ public class CommandMoveSchems extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         // Make sure the config has been setup correctly
         if (Arrays.stream(DataHandler.Server.VALUES).anyMatch(server -> !FarLands.getFLConfig().serverRoots.containsKey(server))) {
-            TextUtils.sendFormatted(sender, "&(red)The config has not been setup to support this command, " +
+            sendFormatted(sender, "&(red)The config has not been setup to support this command, " +
                     "please contact a developer about this.");
             return true;
         }
@@ -39,14 +40,14 @@ public class CommandMoveSchems extends Command {
 
         // Check to make sure at least one schematic is specified
         if (args.length == 4) {
-            TextUtils.sendFormatted(sender, "&(red)Please specify one or more schematic files to move.");
+            sendFormatted(sender, "&(red)Please specify one or more schematic files to move.");
             return true;
         }
 
         // Parse the "from" server and get the directory
         DataHandler.Server fromServer = Utils.valueOfFormattedName(args[1], DataHandler.Server.class);
         if (fromServer == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid source server: %0", args[1]);
+            sendFormatted(sender, "&(red)Invalid source server: %0", args[1]);
             return true;
         }
         String fromDirectory = FarLands.getFLConfig().serverRoots.get(fromServer);
@@ -54,14 +55,14 @@ public class CommandMoveSchems extends Command {
         // Parse the "to" server and get the directory
         DataHandler.Server toServer = Utils.valueOfFormattedName(args[3], DataHandler.Server.class);
         if (toServer == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid destination server: %0", args[3]);
+            sendFormatted(sender, "&(red)Invalid destination server: %0", args[3]);
             return true;
         }
         String toDirectory = FarLands.getFLConfig().serverRoots.get(toServer);
 
         // Ensure the servers aren't the same
         if (fromServer == toServer) {
-            TextUtils.sendFormatted(sender, "&(red)The two servers specified must be different.");
+            sendFormatted(sender, "&(red)The two servers specified must be different.");
             return true;
         }
 
@@ -73,12 +74,12 @@ public class CommandMoveSchems extends Command {
                 Files.deleteIfExists(dest);
                 Files.copy(Paths.get(fromDirectory, "plugins", "WorldEdit", "schematics", args[i]), dest);
             } catch (IOException ex) {
-                TextUtils.sendFormatted(sender, "&(red)Failed to copy schematics.");
+                sendFormatted(sender, "&(red)Failed to copy schematics.");
                 return true;
             }
         }
 
-        TextUtils.sendFormatted(sender, "&(green)Successfully copied schematics.");
+        sendFormatted(sender, "&(green)Successfully copied schematics.");
         return true;
     }
 

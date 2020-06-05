@@ -1,8 +1,9 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
@@ -31,7 +32,7 @@ public class CommandReport extends Command {
         // Get and check the report type
         ReportType reportType = Utils.valueOfFormattedName(args[0], ReportType.class);
         if (reportType == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid report type: %0", args[0]);
+            sendFormatted(sender, "&(red)Invalid report type: %0", args[0]);
             return true;
         }
 
@@ -43,7 +44,7 @@ public class CommandReport extends Command {
         // If it's a player report add the player's name
         if (reportType == ReportType.PLAYER) {
             if (args.length < 3) {
-                TextUtils.sendFormatted(sender, "&(red)Usage: /report player <playerName> <description>");
+                sendFormatted(sender, "&(red)Usage: /report player <playerName> <description>");
                 return true;
             }
 
@@ -75,7 +76,7 @@ public class CommandReport extends Command {
                     "```" + joinArgsBeyond(0, " ", args) + "```");
         }
 
-        TextUtils.sendFormatted(sender, "&(green)Report sent.");
+        sendFormatted(sender, "&(green)Report sent.");
         return true;
     }
 

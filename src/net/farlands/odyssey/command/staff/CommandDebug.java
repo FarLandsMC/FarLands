@@ -1,11 +1,13 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.anticheat.AntiCheat;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,25 +23,25 @@ public class CommandDebug extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length == 0) {
+        if (args.length == 0) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             boolean debugging = !flp.debugging;
             flp.debugging = debugging;
-            sender.sendMessage(ChatColor.AQUA + "Debugging: " + debugging);
+            sendFormatted(sender, "&(aqua)Debugging: %0", debugging);
             if (debugging)
                 FarLands.getMechanicHandler().getMechanic(AntiCheat.class).put(sender);
             else
                 FarLands.getMechanicHandler().getMechanic(AntiCheat.class).remove(sender);
-        }else{
+        } else {
             String[] newArgs = new String[args.length - 1];
-            if(newArgs.length > 0)
+            if (newArgs.length > 0)
                 System.arraycopy(args, 1, newArgs, 0, newArgs.length);
             String post = FarLands.getDebugger().getPost(args[0], newArgs);
-            if(post == null) {
-                sender.sendMessage(ChatColor.RED + args[0] + " has not been posted.");
+            if (post == null) {
+                sendFormatted(sender, "&(red)%0 has not been posted.", args[0]);
                 return true;
             }
-            sender.sendMessage(ChatColor.AQUA + args[0] + ": " + ChatColor.GREEN + post);
+            sendFormatted(sender, "&(aqua)%0: &(green)%1", args[0], post);
         }
         return true;
     }

@@ -1,8 +1,9 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 
@@ -29,7 +30,7 @@ public class CommandPWeather extends PlayerCommand {
         // Parse and check the weather type
         CustomWeatherType weatherType = Utils.valueOfFormattedName(args[0], CustomWeatherType.class);
         if (weatherType == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid weather type, please specify one of the following: %0",
+            sendFormatted(sender, "&(red)Invalid weather type, please specify one of the following: %0",
                     Arrays.stream(CustomWeatherType.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
             return true;
         }
@@ -42,11 +43,11 @@ public class CommandPWeather extends PlayerCommand {
 
             case RESET:
                 sender.resetPlayerWeather();
-                TextUtils.sendFormatted(sender, "&(green)Weather synchronized to world weather.");
+                sendFormatted(sender, "&(green)Weather synchronized to world weather.");
                 return true;
         }
 
-        TextUtils.sendFormatted(sender, "&(green)Personal weather set. Use $(hovercmd,/pweather reset,{&(gray)Click to Run}" +
+        sendFormatted(sender, "&(green)Personal weather set. Use $(hovercmd,/pweather reset,{&(gray)Click to Run}" +
                 ",&(aqua)/pweather reset) to synchronize your weather to the world weather.");
 
         return true;

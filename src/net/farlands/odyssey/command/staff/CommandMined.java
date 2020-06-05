@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 
@@ -10,8 +12,6 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandMined extends PlayerCommand {
     public CommandMined() {

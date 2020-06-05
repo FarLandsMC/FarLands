@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -17,7 +18,7 @@ public class CommandPvP extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         flp.pvp = !flp.pvp;
-        TextUtils.sendFormatted(sender, "&(green)PvP %0", flp.pvp ? "enabled." : "disabled.");
+        sendFormatted(sender, "&(green)PvP %0", flp.pvp ? "enabled." : "disabled.");
         return true;
     }
 }

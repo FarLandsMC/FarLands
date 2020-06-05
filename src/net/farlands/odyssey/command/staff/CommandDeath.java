@@ -7,7 +7,6 @@ import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.PlayerDeath;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,12 +26,12 @@ public class CommandDeath extends PlayerCommand {
             return false;
         UUID uuid = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]).uuid;
         if(uuid == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         List<PlayerDeath> deaths = FarLands.getDataHandler().getDeaths(uuid);
         if(deaths.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "This player has no deaths on record.");
+            sendFormatted(sender, "&(red)This player has no deaths on record.");
             return true;
         }
 
@@ -43,7 +42,7 @@ public class CommandDeath extends PlayerCommand {
             try {
                 death = deaths.size() - Integer.parseInt(args[1]);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Invalid death number. If you wish to rollback a death, use " +
+                sendFormatted(sender, "&(red)Invalid death number. If you wish to rollback a death, use " +
                         "/restoredeath.");
                 return true;
             }

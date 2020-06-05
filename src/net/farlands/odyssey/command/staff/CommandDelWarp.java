@@ -1,10 +1,12 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.Rank;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,11 +26,11 @@ public class CommandDelWarp extends PlayerCommand {
             return false;
         PluginData pd = FarLands.getDataHandler().getPluginData();
         if(!pd.getWarpNames().contains(args[0])) {
-            sender.sendMessage(ChatColor.RED + "Warp not found.");
+            sendFormatted(sender, "&(red)Warp not found.");
             return true;
         }
         pd.removeWarp(args[0]);
-        sender.sendMessage(ChatColor.GREEN + "Warp removed.");
+        sendFormatted(sender, "&(green)Warp removed.");
         return true;
     }
     

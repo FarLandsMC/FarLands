@@ -1,10 +1,13 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -24,12 +27,12 @@ public class CommandKick extends Command {
             return false;
         Player player = getPlayer(args[0], sender);
         if(player == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         String reason = args.length > 1 ? joinArgsBeyond(0, " ", args) : "Kicked by an operator.";
         player.kickPlayer(reason);
-        sender.sendMessage(ChatColor.GOLD + "Kicked " + ChatColor.AQUA + player.getName() + ChatColor.GOLD + " for reason: \"" + reason + "\"");
+        sendFormatted(sender, "&(gold)Kicked {&(aqua)%0} for reason: \"%1\"", player.getName(), reason);
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) + " kicked " +
                 Chat.applyDiscordFilters(player.getName()) + " for reason: `" + reason + "`");
         return true;

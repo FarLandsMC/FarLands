@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
@@ -28,7 +29,7 @@ public class CommandRealName extends Command {
 
             // Match ignoring case
             if (args[0].equals(nickname)) {
-                TextUtils.sendFormatted(sender, "&(green)Matches: &(gold)%0", flp.username);
+                sendFormatted(sender, "&(green)Matches: &(gold)%0", flp.username);
                 return true;
             }
             // Match via containment (ignoring case)
@@ -36,7 +37,7 @@ public class CommandRealName extends Command {
                 matches.add(flp.username);
         }
 
-        TextUtils.sendFormatted(sender, "&(green)Matches: %0", matches.isEmpty() ? "&(red)None" : "&(gold)" + String.join(", ", matches));
+        sendFormatted(sender, "&(green)Matches: %0", matches.isEmpty() ? "&(red)None" : "&(gold)" + String.join(", ", matches));
         return true;
     }
 }

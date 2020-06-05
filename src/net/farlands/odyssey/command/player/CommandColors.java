@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
@@ -18,7 +19,7 @@ public class CommandColors extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        TextUtils.sendFormatted(sender, "&(gold)Color codes: %0", Arrays.stream(ChatColor.values())
+        sendFormatted(sender, "&(gold)Color codes: %0", Arrays.stream(ChatColor.values())
                 .filter(color -> !Chat.ILLEGAL_COLORS.contains(color) && !ChatColor.RESET.equals(color))
                 .map(color -> color + color.toString().replace("\u00A7", "&") + ChatColor.RESET)
                 .collect(Collectors.joining(" ")));

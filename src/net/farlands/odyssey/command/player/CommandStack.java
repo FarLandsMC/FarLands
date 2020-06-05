@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
@@ -7,7 +8,6 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Materials;
 
-import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.LocationWrapper;
@@ -193,7 +193,7 @@ public class CommandStack extends PlayerCommand {
         }
 
         if (warnFullInventory)
-            TextUtils.sendFormatted(player, "&(red)Some items were dropped as the inventory was full");
+            sendFormatted(player, "&(red)Some items were dropped as the inventory was full");
 
         return storageContents;
     }
@@ -209,7 +209,7 @@ public class CommandStack extends PlayerCommand {
             warning.append(",&(bold)items) should be $(hover," +
                     "&(gray)These items are prone to deletion on use when stacked," +
                     "&(bold)unstacked before use).");
-            TextUtils.sendFormatted(player, warning.toString());
+            sendFormatted(player, warning.toString());
             warning.setLength(0);
             return false;
         }

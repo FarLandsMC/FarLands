@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
@@ -19,12 +20,12 @@ public class CommandPatchnotes extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         try {
-            TextUtils.sendFormatted(sender, "&(gold)Showing notes for patch &(aqua)#%0:\n&(gray)%1",
+            sendFormatted(sender, "&(gold)Showing notes for patch &(aqua)#%0:\n&(gray)%1",
                     FarLands.getDataHandler().getCurrentPatch(),
                     Chat.applyColorCodes(new String(FarLands.getDataHandler().getResource("patchnotes.txt"), StandardCharsets.UTF_8)));
             FarLands.getDataHandler().getOfflineFLPlayer(sender).viewedPatchnotes = true;
         } catch (IOException ex) {
-            TextUtils.sendFormatted(sender, "&(red)Failed to retrieve patch notes. Please report this error to a staff member.");
+            sendFormatted(sender, "&(red)Failed to retrieve patch notes. Please report this error to a staff member.");
         }
 
         return true;

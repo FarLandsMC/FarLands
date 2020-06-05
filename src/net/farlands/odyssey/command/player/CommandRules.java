@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 
@@ -13,7 +14,7 @@ public class CommandRules extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        TextUtils.sendFormatted(
+        sendFormatted(
                 sender,
                 "&(gold)Server Rules:\n" +
                 "1. No hacking, cheating, or exploits of any kind.\n" +

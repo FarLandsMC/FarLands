@@ -1,7 +1,8 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.Home;
@@ -29,7 +30,7 @@ public class CommandDelHome extends PlayerCommand {
         OfflineFLPlayer flp = deleteUnownedHome ? FarLands.getDataHandler().getOfflineFLPlayer(args[1])
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null) {
-            TextUtils.sendFormatted(sender, "&(red)Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
 
@@ -38,14 +39,14 @@ public class CommandDelHome extends PlayerCommand {
             name = "home";
         else {
             if (args[0].equals("home")) {
-                TextUtils.sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/delhome home} by typing " +
+                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/delhome home} by typing " +
                         "$(hovercmd,/delhome,{&(gray)Click to Run},&(dark_aqua)/delhome)!");
             }
             name = args[0];
         }
 
         if (!flp.hasHome(name)) {
-            TextUtils.sendFormatted(sender, "&(red)%0 not have a home named \"%1\"",
+            sendFormatted(sender, "&(red)%0 not have a home named \"%1\"",
                     deleteUnownedHome ? flp.username + " does" : "You do", name);
             return false;
         }

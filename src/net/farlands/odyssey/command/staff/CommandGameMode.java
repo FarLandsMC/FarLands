@@ -1,10 +1,12 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
-import org.bukkit.ChatColor;
+
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -21,7 +23,7 @@ public class CommandGameMode extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         if (!("spec".equals(args[0]) || "gm3".equals(args[0])) && Rank.BUILDER.specialCompareTo(Rank.getRank(sender)) > 0) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            sendFormatted(sender, "&(red)You do not have permission to use this command.");
             return true;
         }
         boolean isFlying = sender.isFlying();
@@ -42,7 +44,7 @@ public class CommandGameMode extends PlayerCommand {
                 if (args.length > 1) {
                     Player targetPlayer = getPlayer(args[1], sender);
                     if (targetPlayer == null) {
-                        sender.sendMessage(ChatColor.RED + "Player not found.");
+                        sendFormatted(sender, "&(red)Player not found.");
                         return true;
                     }
                     sender.setGameMode(GameMode.SPECTATOR);

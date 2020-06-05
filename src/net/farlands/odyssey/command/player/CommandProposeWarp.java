@@ -1,7 +1,8 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
@@ -28,12 +29,12 @@ public class CommandProposeWarp extends PlayerCommand {
             return false;
 
         if(!WARP_TYPES.contains(args[0])) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid warp type: %0", args[0]);
+            sendFormatted(sender, "&(red)Invalid warp type: %0", args[0]);
             return true;
         }
 
         if(FarLands.getDataHandler().getPluginData().getWarpNames().contains(args[1])) {
-            TextUtils.sendFormatted(sender, "&(red)A warp with that name already exists, please choose another name.");
+            sendFormatted(sender, "&(red)A warp with that name already exists, please choose another name.");
             return true;
         }
 
@@ -46,7 +47,7 @@ public class CommandProposeWarp extends PlayerCommand {
                 .append(' ').append(l.getWorld().getName()).append("`\n");
         sb.append("Description:\n```").append(joinArgsBeyond(1, " ", args)).append("```");
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.WARP_PROPOSALS, sb.toString());
-        TextUtils.sendFormatted(sender, "&(green)Proposal sent.");
+        sendFormatted(sender, "&(green)Proposal sent.");
 
         return true;
     }

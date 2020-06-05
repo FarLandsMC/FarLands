@@ -1,11 +1,12 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.FLUtils;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,7 +26,7 @@ public class CommandWarp extends PlayerCommand {
             return false;
         Location warp = FarLands.getDataHandler().getPluginData().getWarp(args[0]);
         if (warp == null) {
-            sender.sendMessage(ChatColor.RED + "Warp not found. Did you spell it correctly?");
+            sendFormatted(sender, "&(red)Warp not found. Did you spell it correctly?");
             return true;
         }
         FLUtils.tpPlayer(sender, warp);

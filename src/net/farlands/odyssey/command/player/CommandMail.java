@@ -1,7 +1,8 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.MailMessage;
@@ -32,7 +33,7 @@ public class CommandMail extends Command {
             return false;
 
         if (sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) {
-            TextUtils.sendFormatted(sender, "&(red)You must be in-game to use this command.");
+            sendFormatted(sender, "&(red)You must be in-game to use this command.");
             return true;
         }
 
@@ -40,7 +41,7 @@ public class CommandMail extends Command {
         OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         Action action = Utils.valueOfFormattedName(args[0], Action.class);
         if (action == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid action \"%0\" expected one of the following: %1",
+            sendFormatted(sender, "&(red)Invalid action \"%0\" expected one of the following: %1",
                     args[0], Arrays.stream(Action.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
             return true;
         }
@@ -49,25 +50,25 @@ public class CommandMail extends Command {
             case SEND: {
                 // Check arg count
                 if (args.length == 1) {
-                    TextUtils.sendFormatted(sender, "&(red)Usage: /mail send <player> [message]");
+                    sendFormatted(sender, "&(red)Usage: /mail send <player> [message]");
                     return true;
                 }
 
                 // Get recipient
                 OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
                 if (recipientFlp == null) {
-                    TextUtils.sendFormatted(sender, "&(red)Player not found.");
+                    sendFormatted(sender, "&(red)Player not found.");
                     return true;
                 }
 
                 if (args.length == 2) {
-                    TextUtils.sendFormatted(sender, "&(red)You cannot send an empty mail message.");
+                    sendFormatted(sender, "&(red)You cannot send an empty mail message.");
                     return true;
                 }
 
                 // Prevent someone from spamming mail
                 if (recipientFlp.mail.stream().filter(msg -> msg.getSender().equals(sender.getName())).count() >= 5) {
-                    TextUtils.sendFormatted(sender, "&(red)You cannot send any more mail to this person until they " +
+                    sendFormatted(sender, "&(red)You cannot send any more mail to this person until they " +
                             "read your current messages and clear them.");
                     return true;
                 }
@@ -82,7 +83,7 @@ public class CommandMail extends Command {
 
                     Player player = recipientFlp.getOnlinePlayer();
                     if (player != null) // Notify the player if online
-                        TextUtils.sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read," +
+                        sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read," +
                                 "{&(gray)Click to Run},&(yellow)/mail read)");
                 }
             }
@@ -90,7 +91,7 @@ public class CommandMail extends Command {
             case READ: {
                 // Empty mailbox
                 if (senderFlp.mail.isEmpty()) {
-                    TextUtils.sendFormatted(sender, "&(gold)You have no mail.");
+                    sendFormatted(sender, "&(gold)You have no mail.");
                     return true;
                 }
 
@@ -105,12 +106,12 @@ public class CommandMail extends Command {
 
                 // Bad page index
                 if (index < 0) {
-                    TextUtils.sendFormatted(sender, "&(red)Invalid page number: %0", args[1]);
+                    sendFormatted(sender, "&(red)Invalid page number: %0", args[1]);
                     return true;
                 }
                 // Too large of an index
                 else if (index >= senderFlp.mail.size()) {
-                    TextUtils.sendFormatted(sender, "&(red)You do not have enough mail to fill that page.");
+                    sendFormatted(sender, "&(red)You do not have enough mail to fill that page.");
                     return true;
                 }
 
@@ -120,12 +121,12 @@ public class CommandMail extends Command {
                     sendMailMessage(sender, "From", ChatColor.GOLD, message.getSender(), message.getMessage());
                 }
 
-                TextUtils.sendFormatted(sender, "&(gold)Clear your mail with $(hovercmd,/mail clear,{&(gray)Click to Run},&(yellow)/mail clear)");
+                sendFormatted(sender, "&(gold)Clear your mail with $(hovercmd,/mail clear,{&(gray)Click to Run},&(yellow)/mail clear)");
             }
 
             case CLEAR: {
                 senderFlp.mail.clear();
-                TextUtils.sendFormatted(sender, "&(green)Mail cleared.");
+                sendFormatted(sender, "&(green)Mail cleared.");
             }
         }
 
@@ -145,7 +146,7 @@ public class CommandMail extends Command {
     }
 
     private static void sendMailMessage(CommandSender recipient, String prefix, ChatColor color, String name, String message) {
-        TextUtils.sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, color, name, message);
+        sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, color, name, message);
     }
 
     private enum Action {

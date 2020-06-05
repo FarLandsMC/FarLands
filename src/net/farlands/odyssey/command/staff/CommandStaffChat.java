@@ -1,13 +1,16 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
+import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.discord.DiscordChannel;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -30,16 +33,15 @@ public class CommandStaffChat extends Command {
             return true;
         }
 
-        FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
-
         if ("staffchat".equals(args[0])) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(ChatColor.RED + "You must be online to manage staff chat settings.");
+                sendFormatted(sender, "&(red)You must be online to manage staff chat settings.");
                 return true;
             }
+            FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
 
             if (args.length == 1) {
-                TextUtils.sendFormatted(sender, "&(red)Usage: /staffchat <toggle-message|toggle-view|set-color>...");
+                sendFormatted(sender, "&(red)Usage: /staffchat <toggle-message|toggle-view|set-color>...");
                 return true;
             }
 
@@ -47,46 +49,47 @@ public class CommandStaffChat extends Command {
                 // Toggle on/off auto-messaging
                 case "toggle-message": {
                     session.autoSendStaffChat = toggledValue(sender, session.autoSendStaffChat, args, 2);
-                    TextUtils.sendFormatted(sender, "&(green)Staff chat auto-messaging toggled %0.",
-                            (session.autoSendStaffChat ? "on" : "off"));
+                    sendFormatted(sender, "&(green)Staff chat auto-messaging toggled %0.",
+                            session.autoSendStaffChat ? "on" : "off");
                     break;
                 }
 
                 case "toggle-view": {
                     session.showStaffChat = toggledValue(sender, session.showStaffChat, args, 2);
-                    TextUtils.sendFormatted(sender, "&(green)Staff chat toggled %0.", (session.showStaffChat ? "on" : "off"));
+                    sendFormatted(sender, "&(green)Staff chat toggled %0.", session.showStaffChat ? "on" : "off");
                     break;
                 }
 
                 case "set-color": {
                     if (args.length == 2) {
-                        TextUtils.sendFormatted(sender, "&(red)Usage: /staffchat set-color <color>");
+                        sendFormatted(sender, "&(red)Usage: /staffchat set-color <color>");
                         return true;
                     }
 
                     ChatColor color = Utils.valueOfFormattedName(args[2], ChatColor.class);
                     if (color == null || color.isFormat() || color == ChatColor.RESET) {
-                        TextUtils.sendFormatted(sender, "&(red)Invalid chat color \"%0\", must be a valid color and not a format.", args[2]);
+                        sendFormatted(sender, "&(red)Invalid chat color \"%0\", must be a valid color and not a format.", args[2]);
                         return true;
                     }
 
                     session.handle.staffChatColor = color;
-                    TextUtils.sendFormatted(sender, "&(green)Updated your staff chat color to %0%1", color, Utils.formattedName(color));
+                    sendFormatted(sender, "&(green)Updated your staff chat color to %0%1", color, Utils.formattedName(color));
                     break;
                 }
 
                 default:
-                    TextUtils.sendFormatted(sender, "&(red)Usage: /staffchat <toggle|set-color>...");
+                    sendFormatted(sender, "&(red)Usage: /staffchat <toggle|set-color>...");
                     return true;
             }
 
 
         } else {
+            OfflineFLPlayer handle = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             String message = joinArgsBeyond(0, " ", args);
             FarLands.getDataHandler().getSessions().stream().filter(s -> s.handle.rank.isStaff() && s.showStaffChat)
-                    .forEach(s -> TextUtils.sendFormatted(s.player, "%0[SC] %1: %2", s.handle.staffChatColor,
-                            session.handle.username, message));
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, session.handle.username + ": " + message);
+                    .forEach(s -> sendFormatted(s.player, "%0[SC] %1: %2", s.handle.staffChatColor,
+                            handle.username, message));
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, handle.username + ": " + message);
         }
 
         return true;
@@ -118,7 +121,7 @@ public class CommandStaffChat extends Command {
             else if ("off".equalsIgnoreCase(args[index]))
                 newValue = false;
             else
-                TextUtils.sendFormatted(sender, "&(red)Ignoring invalid toggle value \"%0\"", args[index]);
+                sendFormatted(sender, "&(red)Ignoring invalid toggle value \"%0\"", args[index]);
         }
 
         return newValue;

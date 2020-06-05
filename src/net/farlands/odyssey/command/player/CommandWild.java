@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Cooldown;
@@ -11,7 +12,6 @@ import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.FLUtils;
 import net.md_5.bungee.api.ChatMessageType;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,22 +33,22 @@ public class CommandWild extends PlayerCommand {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         long timeRemaining = session.commandCooldownTimeRemaining(this) * 50L;
         if (timeRemaining > 0L) {
-            sender.sendMessage(ChatColor.RED + "You can use the command again in " + TimeInterval.formatTime(timeRemaining, false) + ".");
+            sendFormatted(sender, "&(red)You can use the command again in " + TimeInterval.formatTime(timeRemaining, false) + ".");
             return true;
         }
 
         if (!"world".equals(sender.getWorld().getName())) { // rtpFindSafe is optimized for overworld and cannot be used if this changes
-            sender.sendMessage(ChatColor.RED + "You can only use this command in the overworld.");
+            sendFormatted(sender, "&(red)You can only use this command in the overworld.");
             return true;
         }
 
         if (FLUtils.serverMspt() > 80) {
-            sender.sendMessage(ChatColor.RED + "The server is too laggy right now to use this command.");
+            sendFormatted(sender, "&(red)The server is too laggy right now to use this command.");
             return true;
         }
 
         if (!globalCooldown.isComplete()) {
-            sender.sendMessage(ChatColor.RED + "You cannot use this command right now. Try again in a few seconds.");
+            sendFormatted(sender, "&(red)You cannot use this command right now. Try again in a few seconds.");
             return true;
         }
 
@@ -81,7 +81,7 @@ public class CommandWild extends PlayerCommand {
         }
         tpPlayer(player, temp);
         if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
-            TextUtils.sendFormatted(player, ChatMessageType.ACTION_BAR, "&(aqua)You have no homes, use /sethome [name] " +
+           sendFormatted(player, ChatMessageType.ACTION_BAR, "&(aqua)You have no homes, use /sethome [name] " +
                     "so you can safely return to your location!");
         }
     }

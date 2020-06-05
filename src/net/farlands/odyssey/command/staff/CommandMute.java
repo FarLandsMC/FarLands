@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -8,6 +10,7 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.TimeInterval;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -27,7 +30,7 @@ public class CommandMute extends Command {
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if(flp == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         if("mute".equals(args[0])) {
@@ -37,12 +40,12 @@ public class CommandMute extends Command {
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
                         (mutedRank.getPermissionLevel() == 2 || mutedRank.getPermissionLevel() == 3)) ||
                     (senderRank.getPermissionLevel() == 1 && mutedRank.getPermissionLevel() > 1))) {
-                sender.sendMessage(ChatColor.RED + "You do not have permission to mute this person.");
+                sendFormatted(sender, "&(red)You do not have permission to mute this person.");
                 return true;
             }
             int time = (int)TimeInterval.parseSeconds(args[2]);
             if(time <= 0) {
-                sender.sendMessage(ChatColor.RED + "Invalid time.");
+                sendFormatted(sender, "&(red)Invalid time.");
                 return true;
             }
             Mute mute;
@@ -51,7 +54,7 @@ public class CommandMute extends Command {
             else{
                 String reason = joinArgsBeyond(2, " ", args);
                 if(reason.length() > 256) {
-                    sender.sendMessage(ChatColor.RED + "A mute reason cannot be longer the 256 characters, it will be truncated.");
+                    sendFormatted(sender, "&(red)A mute reason cannot be longer the 256 characters, it will be truncated.");
                     reason = reason.substring(0, 256);
                 }
                 mute = new Mute(time, reason);
@@ -62,18 +65,18 @@ public class CommandMute extends Command {
             // Send formatted message to player and discord
             String message = "uted " + flp.username + " with reason `" + mute.getReason() + "`. Expires: " +
                     TimeInterval.formatTime(1000L * time, false);
-            sender.sendMessage(ChatColor.GOLD + "M" + message.replaceAll("`", "\""));
+            sendFormatted(sender, "&(gold)M%0", message.replaceAll("`", "\""));
             FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) + " m" +
                     Chat.removeColorCodes(message));
         }else{ // Un-mute
             if(!flp.isMuted()) {
-                sender.sendMessage(ChatColor.RED + "This player is not muted.");
+                sendFormatted(sender, "&(red)This player is not muted.");
                 return true;
             }
             flp.currentMute = null;
             if(flp.isOnline())
                 flp.getOnlinePlayer().sendMessage(ChatColor.GREEN + "Your mute has expired.");
-            sender.sendMessage(ChatColor.GREEN + "Unmuted " + flp.username + ".");
+            sendFormatted(sender, "&(green)Un-muted %0.", flp.username);
         }
         return true;
     }

@@ -1,11 +1,12 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.PlayerDeath;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,12 +26,12 @@ public class CommandRestoreDeath extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         Player player = args.length < 1 ? null : getPlayer(args[0], sender);
         if (player == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         List<PlayerDeath> deaths = FarLands.getDataHandler().getDeaths(player.getUniqueId());
         if(deaths.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "This player has no deaths on record.");
+            sendFormatted(sender, "&(red)This player has no deaths on record.");
             return true;
         }
         // newest deaths at tail of list
@@ -41,11 +42,11 @@ public class CommandRestoreDeath extends Command {
             try {
                 death = deaths.size() - Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                sender.sendMessage("2nd argument must be a number between 1 and " + deaths.size());
+                sendFormatted(sender, "&(red)Death number must be a number between 1 and " + deaths.size());
                 return true;
             }
             if (deaths.size() - 1 < death || death < 0) {
-                sender.sendMessage("Death number must be between 1 and " + deaths.size());
+                sendFormatted(sender, "&(red)Death number must be between 1 and " + deaths.size());
                 return true;
             }
         }

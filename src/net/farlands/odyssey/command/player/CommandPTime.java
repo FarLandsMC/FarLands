@@ -1,8 +1,9 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
+
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.util.FLUtils;
@@ -34,12 +35,12 @@ public class CommandPTime extends PlayerCommand {
             Time t = FLUtils.safeValueOf(Time::valueOf, args[0].toUpperCase());
 
             if (t == null) {
-                TextUtils.sendFormatted(sender, "&(red)Invalid time, valid times: %0",
+                sendFormatted(sender, "&(red)Invalid time, valid times: %0",
                         Arrays.stream(Time.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
                 return true;
             } else if (t == Time.RESET) {
                 sender.resetPlayerTime();
-                TextUtils.sendFormatted(sender, "&(green)Clock synchronized to world time.");
+                sendFormatted(sender, "&(green)Clock synchronized to world time.");
                 return true;
             }
 
@@ -47,7 +48,7 @@ public class CommandPTime extends PlayerCommand {
         }
 
         sender.setPlayerTime(time % 24000L, false);
-        TextUtils.sendFormatted(sender, "&(green)Personal time set. Use $(hovercmd,/ptime reset,{&(gray)Click to Run},&(aqua)/ptime reset) " +
+        sendFormatted(sender, "&(green)Personal time set. Use $(hovercmd,/ptime reset,{&(gray)Click to Run},&(aqua)/ptime reset) " +
                 "to synchronize your time to the world time.");
 
         return true;

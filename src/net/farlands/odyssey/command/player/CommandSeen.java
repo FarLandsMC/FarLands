@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
@@ -29,7 +30,7 @@ public class CommandSeen extends Command {
                 : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
 
         if (flp == null) {
-            TextUtils.sendFormatted(sender, "&(red)Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
 
@@ -51,7 +52,7 @@ public class CommandSeen extends Command {
             sb.append("\n&(gold)Last IP: &(aqua)").append(flp.lastIP);
         }
 
-        TextUtils.sendFormatted(sender, sb.toString());
+        sendFormatted(sender, sb.toString());
         return true;
     }
 

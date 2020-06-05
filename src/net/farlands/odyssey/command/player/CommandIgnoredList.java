@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
@@ -17,7 +18,7 @@ public class CommandIgnoredList extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         List<String> ignoreList = FarLands.getDataHandler().getOfflineFLPlayer(sender).getIgnoreList();
-        TextUtils.sendFormatted(
+        sendFormatted(
                 sender,
                 "&(green)%0", ignoreList.isEmpty()
                         ? "You are not ignoring any players."

@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
@@ -9,7 +11,7 @@ import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.mechanic.AFK;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.FLUtils;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -31,19 +33,19 @@ public class CommandSetRank extends Command {
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
-            sender.sendMessage(ChatColor.RED + "Could not find player: " + args[0]);
+            sendFormatted(sender, "&(red)Could not find player: " + args[0]);
             return true;
         }
         Rank rank = FLUtils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
         if (rank == null) {
-            sender.sendMessage(ChatColor.RED + "Invalid rank: " + args[1]);
+            sendFormatted(sender, "&(red)Invalid rank: " + args[1]);
             return true;
         }
         // You cannot modify someone of an equal rank, and you cannot set someone to a higher rank than yours
         if ((flp.rank.specialCompareTo(Rank.getRank(sender)) >= 0 || rank.specialCompareTo(Rank.getRank(sender)) > 0) &&
                 !(sender instanceof ConsoleCommandSender)) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to set " + ChatColor.WHITE + args[0] +
-                    ChatColor.RED + " to rank " + ChatColor.WHITE + rank.toString());
+            sendFormatted(sender, "&(red)You do not have permission to set {&(white)%0} to rank {&(white)%1}."
+                    , args[0], rank.toString());
             return true;
         }
 
@@ -58,10 +60,10 @@ public class CommandSetRank extends Command {
                 session.deactivateAFKChecks();
         }
 
-        sender.sendMessage(ChatColor.GREEN + "Updated " + ChatColor.AQUA + args[0] + "\'s" + ChatColor.GREEN + " rank to " + rank.getColor() + rank.toString());
+        sendFormatted(sender, "&(green)Updated {&(aqua)%0} rank to " + rank.getColor() + rank.toString(), args[0] + "\'s");
         Player player = flp.getOnlinePlayer();
         if (player != null) // Notify the player if they're online
-            player.sendMessage(ChatColor.GREEN + "Your rank has been updated to " + rank.getColor() + rank.toString());
+            sendFormatted(player, "&(green)Your rank has been updated to " + rank.getColor() + rank.toString());
         // Notify discord
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) +
                 " has updated " + Chat.applyDiscordFilters(flp.username) + "\'s rank to `" + rank.getName() +

@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
@@ -32,11 +33,11 @@ public class CommandJoined extends Command {
         OfflineFLPlayer flp = args.length <= 0 ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
                 : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if(flp == null) {
-            TextUtils.sendFormatted(sender, "&(gold)This player has never joined the server before.");
+            sendFormatted(sender, "&(gold)This player has never joined the server before.");
             return true;
         }
 
-        TextUtils.sendFormatted(sender, "&(gold)%0 joined on %1", flp.username,
+        sendFormatted(sender, "&(gold)%0 joined on %1", flp.username,
                 SDF.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed())));
         return true;
     }

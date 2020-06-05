@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
@@ -14,7 +15,7 @@ public class CommandReboot extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        TextUtils.sendFormatted(
+        sendFormatted(
                 sender,
                 "&(gold)Next reboot in %0",
                 TimeInterval.formatTime(

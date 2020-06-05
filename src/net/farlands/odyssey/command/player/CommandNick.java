@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -26,7 +27,7 @@ public class CommandNick extends PlayerCommand {
         if ("nick".equals(args[0])) {
             // Prevent whitespace and profanity
             if (args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(Chat.removeColorCodes(args[1]))) {
-                TextUtils.sendFormatted(sender, "&(red)You cannot set your nickname to this.");
+                sendFormatted(sender, "&(red)You cannot set your nickname to this.");
                 return true;
             }
 
@@ -35,16 +36,16 @@ public class CommandNick extends PlayerCommand {
             // Check length
             int rawLen = rawNick.length();
             if (rawLen > 16) {
-                TextUtils.sendFormatted(sender, "&(red)That username is too long.");
+                sendFormatted(sender, "&(red)That username is too long.");
                 return true;
             } else if (rawLen < 3) {
-                TextUtils.sendFormatted(sender, "&(red)Your nickname must be at least three characters long.");
+                sendFormatted(sender, "&(red)Your nickname must be at least three characters long.");
                 return true;
             }
 
             // Make sure there are three word characters in a row
             if (!rawNick.matches("(.+)?(\\w\\w\\w)(.+)?")) {
-                TextUtils.sendFormatted(sender, "&(red)Your nickname must have at least three word characters in a row in it.");
+                sendFormatted(sender, "&(red)Your nickname must have at least three word characters in a row in it.");
                 return true;
             }
 
@@ -58,12 +59,12 @@ public class CommandNick extends PlayerCommand {
 
             // Enforce 60% ASCII
             if (nonAscii / rawLen > 0.4) {
-                TextUtils.sendFormatted(sender, "&(red)Your nickname must be at least 60\\% ASCII characters.");
+                sendFormatted(sender, "&(red)Your nickname must be at least 60\\% ASCII characters.");
                 return true;
             }
 
             flp.nickname = Chat.applyColorCodes(Rank.getRank(sender), args[1]);
-            TextUtils.sendFormatted(sender, "&(green)Nickname set.");
+            sendFormatted(sender, "&(green)Nickname set.");
         }
         // Remove nickname
         else {
@@ -73,13 +74,13 @@ public class CommandNick extends PlayerCommand {
 
                 // Make sure the player exists
                 if (flp == null) {
-                    TextUtils.sendFormatted(sender, "&(red)Player not found.");
+                    sendFormatted(sender, "&(red)Player not found.");
                     return true;
                 }
 
                 // Make sure the player actually has a nickname to remove
                 if (flp.nickname == null || flp.nickname.isEmpty()) {
-                    TextUtils.sendFormatted(sender, "&(red)This person has no nickname to remove.");
+                    sendFormatted(sender, "&(red)This person has no nickname to remove.");
                     return true;
                 }
 
@@ -89,14 +90,14 @@ public class CommandNick extends PlayerCommand {
             else {
                 // Make sure the player actually has a nickname to remove
                 if (flp.nickname == null || flp.nickname.isEmpty()) {
-                    TextUtils.sendFormatted(sender, "&(red)You have no nickname to remove.");
+                    sendFormatted(sender, "&(red)You have no nickname to remove.");
                     return true;
                 }
 
                 flp.nickname = null;
             }
 
-            TextUtils.sendFormatted(sender, "&(green)Removed nickname.");
+            sendFormatted(sender, "&(green)Removed nickname.");
         }
 
         // Update their player's display name

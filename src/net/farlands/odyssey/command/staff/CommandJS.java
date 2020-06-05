@@ -1,10 +1,12 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.Command;
-import org.bukkit.ChatColor;
+
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -72,7 +74,7 @@ public class CommandJS extends Command {
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null || !FarLands.getFLConfig().jsUsers.contains(flp.uuid.toString())) {
-            sender.sendMessage(ChatColor.RED + "You cannot use this command.");
+            sendFormatted(sender, "&(red)You cannot use this command.");
             return false;
         }
         return super.canUse(sender);

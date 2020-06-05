@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -27,12 +28,12 @@ public class CommandRankup extends Command {
         // Rank-up failed so notify the player of the remaining time
         if (!flp.rank.equals(nextRank)) {
             if (!nextRank.isPlaytimeObtainable()) {
-                TextUtils.sendFormatted(sender, "&(gold)You can no longer rank up from playtime.");
+                sendFormatted(sender, "&(gold)You can no longer rank up from playtime.");
                 return true;
             }
 
             if (!nextRank.hasPlaytime(flp)) {
-                TextUtils.sendFormatted(
+                sendFormatted(
                         sender,
                         "&(gold)You will rank up to {%0%1} in %2",
                         nextRank.getColor(),
@@ -44,7 +45,7 @@ public class CommandRankup extends Command {
             if (sender instanceof Player && !nextRank.completedAdvancement((Player) sender)) {
                 AdvancementDisplay advancementDisplay = ((CraftAdvancement) nextRank.getAdvancement()).getHandle().c();
                 if (advancementDisplay != null) {
-                    TextUtils.sendFormatted(sender, "&(gold)You must complete the advancement {&(aqua)%0} to rankup.",
+                    sendFormatted(sender, "&(gold)You must complete the advancement {&(aqua)%0} to rankup.",
                             advancementDisplay.a().getText());
                 }
             }

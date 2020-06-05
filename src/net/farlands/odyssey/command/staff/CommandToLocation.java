@@ -1,9 +1,11 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
+
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
@@ -31,12 +33,12 @@ public class CommandToLocation extends PlayerCommand {
             yaw = args.length >= 4 ? Float.parseFloat(args[3]) : sender.getLocation().getYaw();
             pitch = args.length >= 5 ? Float.parseFloat(args[4]) : sender.getLocation().getPitch();
         }catch(NumberFormatException ex) {
-            sender.sendMessage(ChatColor.RED + "Could not find location: " + ex.getMessage());
+            sendFormatted(sender, "&(red)Could not find location: " + ex.getMessage());
             return true;
         }
         World world = args.length >= 6 ? Bukkit.getWorld(args[5]) : sender.getWorld();
         if(world == null) {
-            sender.sendMessage(ChatColor.RED + "Invalid world: " + args[5]);
+            sendFormatted(sender, "&(red)Invalid world: " + args[5]);
             return true;
         }
         Location newLocation = new Location(world, x, y, z, yaw, pitch);

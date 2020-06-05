@@ -1,12 +1,15 @@
 package net.farlands.odyssey.command.staff;
 
 import com.google.common.collect.ImmutableMap;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.FLUtils;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -57,22 +60,22 @@ public class CommandEdit extends Command {
         if (target == null) { // Send the error if no object was found
             if (!"player".equals(args[0]) && !"config".equals(args[0]))
                 return false;
-            sender.sendMessage(ChatColor.RED + FLUtils.capitalize(args[0]) + " not found.");
+            sendFormatted(sender, "&(red)%0 not found.", FLUtils.capitalize(args[0]));
             return true;
         }
         // Apply restrictions
         int restriction = getRestriction(args[2]);
         if (restriction == 1 && args.length > 3) {
-            sender.sendMessage(ChatColor.RED + "\"" + args[2] + "\" is read-only.");
+            sendFormatted(sender, "&(red)\"%0\" is read-only.", args[2]);
             return true;
         } else if (restriction == 2) {
-            sender.sendMessage(ChatColor.RED + "\"" + args[2] + "\" is restricted. Try searching for a specific sub-field.");
+            sendFormatted(sender, "&(red)\"%0\" is restricted. Try searching for a specific sub-field.", args[2]);
             return true;
         }
         try {
             if (args.length == 3) { // Value get requests
-                sender.sendMessage(ChatColor.GREEN + args[2] + ChatColor.GOLD + " is currently set to: " + ChatColor.WHITE +
-                        getValue(args[2], target));
+                sendFormatted(sender, "&(green)%0&(gold) is currently set to: &(white)%1",
+                        args[2], getValue(args[2], target));
             } else { // Value set requests
                 if (args[3].contains(",")) { // We're setting multiple fields in the target
                     final Object newTarget = getValue(args[2], target);
@@ -82,14 +85,14 @@ public class CommandEdit extends Command {
                     tokens.forEach((field, value) -> setValue(value, field, newTarget)); // Set the values
                 } else {
                     if (setValue(args[3], args[2], target) == null) { // Try to update the value
-                        sender.sendMessage(ChatColor.RED + "Could not decode the provided value, are you sure you spelt it correctly?");
+                        sendFormatted(sender, "&(red)Could not decode the provided value, are you sure you spelt it correctly?");
                         return true;
                     }
                 }
-                sender.sendMessage(ChatColor.GOLD + "Updated value" + (args[3].contains(",") ? "s." : "."));
+                sendFormatted(sender, "&(gold)Updated value%0", args[3].contains(",") ? "s." : ".");
             }
         } catch (InvalidFieldException ex) {
-            sender.sendMessage(ChatColor.RED + "Invalid field, field not found: " + ex.getField());
+            sendFormatted(sender, "&(red)Invalid field, field not found: %0", ex.getField());
         }
         return true;
     }

@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
@@ -8,7 +10,6 @@ import net.farlands.odyssey.util.TimeInterval;
 import net.farlands.odyssey.util.FLUtils;
 
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -32,7 +33,8 @@ public class CommandSkull extends PlayerCommand {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            sender.sendMessage(ChatColor.RED + "You can use this command again in " + TimeInterval.formatTime(cooldownTime * 50L, false) + ".");
+            sendFormatted(sender, "&(red)You can use this command again in %0.",
+                    TimeInterval.formatTime(cooldownTime * 50L, false));
             return true;
         }
         session.setCommandCooldown(this, 400L);
@@ -42,7 +44,7 @@ public class CommandSkull extends PlayerCommand {
             try {
                 amount = Integer.parseInt(args[1]);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Invalid amount");
+                sendFormatted(sender, "&(red)Invalid amount.");
                 return true;
             }
 

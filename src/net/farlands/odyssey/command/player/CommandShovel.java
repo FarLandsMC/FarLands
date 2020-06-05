@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
@@ -31,7 +32,7 @@ public class CommandShovel extends PlayerCommand {
         // Check cooldown
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            TextUtils.sendFormatted(sender, "&(red)You can use this command again in %0",
+            sendFormatted(sender, "&(red)You can use this command again in %0",
                     TimeInterval.formatTime(cooldownTime * 50L, false));
             return true;
         }

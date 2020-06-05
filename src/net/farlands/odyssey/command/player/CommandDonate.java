@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
@@ -18,7 +19,7 @@ public class CommandDonate extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         // Send the info
-        TextUtils.sendFormatted(
+        sendFormatted(
                 sender,
                 "&(gold)Donations are processed through Tebex. Donations are not required but truly appreciated! " +
                 "All donations go towards paying for server related bills. All donations are final, no refunds will be issued.\n" +
@@ -44,10 +45,10 @@ public class CommandDonate extends Command {
 
         // Provide the link (formatting depends on where the command was run from)
         if (sender instanceof Player)
-            TextUtils.sendFormatted(sender, "&(gold)Donate here: $(hoverlink,%0,{&(gray)Click to Follow},&(aqua,underline)%0)",
+            sendFormatted(sender, "&(gold)Donate here: $(hoverlink,%0,{&(gray)Click to Follow},&(aqua,underline)%0)",
                     FarLands.getFLConfig().donationLink);
         else
-            TextUtils.sendFormatted(sender, "&(gold)Donate here: &(aqua)%0", FarLands.getFLConfig().donationLink);
+            sendFormatted(sender, "&(gold)Donate here: &(aqua)%0", FarLands.getFLConfig().donationLink);
 
         return true;
     }

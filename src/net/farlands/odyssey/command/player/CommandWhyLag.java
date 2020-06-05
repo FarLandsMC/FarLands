@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.staff.CommandEntityCount;
 import net.farlands.odyssey.data.Rank;
@@ -38,8 +40,7 @@ public class CommandWhyLag extends Command {
             }
             CraftPlayer craftPlayer = args.length <= 1 ? (CraftPlayer) sender : (CraftPlayer) getPlayer(args[1], sender);
             if (craftPlayer == null) {
-                sender.sendMessage(ChatColor.RED + "Could not find player " + ChatColor.GRAY + args[1] +
-                        ChatColor.RED + " in game");
+                sendFormatted(sender, "&(red)Could not find player {&(gray)%0} in game", args[1]);
                 return true;
             }
             int ping = (craftPlayer).getHandle().ping;

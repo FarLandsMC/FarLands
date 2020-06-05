@@ -1,10 +1,12 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.PluginData;
 import net.farlands.odyssey.data.Rank;
-import org.bukkit.ChatColor;
+
 import org.bukkit.entity.Player;
 
 public class CommandSetWarp extends PlayerCommand {
@@ -18,11 +20,11 @@ public class CommandSetWarp extends PlayerCommand {
             return false;
         PluginData pd = FarLands.getDataHandler().getPluginData();
         if(pd.getWarpNames().stream().anyMatch(args[0]::equalsIgnoreCase)) {
-            sender.sendMessage(ChatColor.RED + "A warp with that name already exists.");
+            sendFormatted(sender, "&(red)A warp with that name already exists.");
             return true;
         }
         pd.addWarp(args[0], sender.getLocation());
-        sender.sendMessage(ChatColor.GREEN + "Warp set.");
+        sendFormatted(sender, "&(green)Warp set.");
         return true;
     }
 }

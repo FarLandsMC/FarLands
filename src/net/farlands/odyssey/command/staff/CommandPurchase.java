@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -7,8 +9,8 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.FLUtils;
+
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,7 +35,7 @@ public class CommandPurchase extends Command {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
             if (args.length < 3) {
-                sender.sendMessage(ChatColor.RED + "Player not found.");
+                sendFormatted(sender, "&(red)Player not found.");
                 return true;
             }
             UUID uuid;
@@ -73,7 +75,7 @@ public class CommandPurchase extends Command {
             flp.setRank(rank);
             Player player = flp.getOnlinePlayer();
             if (player != null) // Notify the player if they're online
-                player.sendMessage(ChatColor.GREEN + "Your rank has been updated to " + rank.getColor() + rank.toString());
+                sendFormatted(player, "&(green)Your rank has been updated to " + rank.getColor() + rank.toString());
         }
         if (price > 0)
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.NOTEBOOK, args[0] + " has donated " + price + " USD.");

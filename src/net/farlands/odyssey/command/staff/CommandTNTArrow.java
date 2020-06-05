@@ -1,12 +1,15 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.FLUtils;
+
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.NBTTagList;
 import net.minecraft.server.v1_15_R1.NBTTagString;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -53,7 +56,7 @@ public class CommandTNTArrow extends PlayerCommand {
             tntArrow.setInt("type", TYPES.indexOf(args[0]));
             float power = parseNumber(args[1], Float::parseFloat, 0.0F);
             if(power == 0.0) {
-                sender.sendMessage(ChatColor.RED + "The arrow power must be 1 or larger.");
+                sendFormatted(sender, "&(red)The arrow power must be 1 or larger.");
                 return true;
             }
             tntArrow.setFloat("strength", power);
@@ -62,14 +65,14 @@ public class CommandTNTArrow extends PlayerCommand {
             if(args.length >= 4) {
                 int duration = parseNumber(args[3], Integer::parseInt, 0);
                 if(duration < 5 || duration > 300) {
-                    sender.sendMessage(ChatColor.RED + "The duration must be between 5 and 300 inclusive.");
+                    sendFormatted(sender, "&(red)The duration must be between 5 and 300 inclusive.");
                     return true;
                 }
                 tntArrow.setInt("duration", duration);
             }
         }
         if(amount < 1 || amount > 64) {
-            sender.sendMessage(ChatColor.RED + "The amount must be between 1 and 64 inclusive.");
+            sendFormatted(sender, "&(red)The amount must be between 1 and 64 inclusive.");
             return true;
         }
         NBTTagCompound display = new NBTTagCompound();

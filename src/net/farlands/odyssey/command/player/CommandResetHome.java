@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.data.FlagContainer;
@@ -7,7 +8,6 @@ import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 
-import com.kicas.rp.util.TextUtils;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
@@ -36,21 +36,21 @@ public class CommandResetHome extends PlayerCommand {
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         if (flp == null) {
-            TextUtils.sendFormatted(sender, "&(red)Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
 
         // Check to make sure the location is in a valid world
         Location location = sender.getLocation();
         if (!("world".equals(location.getWorld().getName()) || "world_nether".equals(location.getWorld().getName()))) {
-            TextUtils.sendFormatted(sender, "&(red)You can only move homes to the overworld and nether. Reset cancelled");
+            sendFormatted(sender, "&(red)You can only move homes to the overworld and nether. Reset cancelled");
             return true;
         }
 
         // Check for claims
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(location);
         if (!(flp.rank.isStaff() || flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
-            TextUtils.sendFormatted(sender, "&(red)You do not have permission to move a home into this claim.");
+            sendFormatted(sender, "&(red)You do not have permission to move a home into this claim.");
             return true;
         }
 
@@ -60,7 +60,7 @@ public class CommandResetHome extends PlayerCommand {
             name = "home";
         else {
             if (args[0].equals("home")) {
-                TextUtils.sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/movhome home} by typing " +
+                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/movhome home} by typing " +
                         "$(hovercmd,/movhome,{&(gray)Click to Run},&(dark_aqua)/movhome)!");
             }
 
@@ -70,27 +70,27 @@ public class CommandResetHome extends PlayerCommand {
         // If the home already exists then move it
         if (flp.hasHome(name)) {
             flp.moveHome(name, location);
-            TextUtils.sendFormatted(sender, "&(green)Moved home with name {&(aqua)%0} to your location.", name);
+            sendFormatted(sender, "&(green)Moved home with name {&(aqua)%0} to your location.", name);
         }
         // If the home does not exist try to make a new one
         else {
             if (moveUnownedHome) {
-                TextUtils.sendFormatted(sender, "&(red)%0 does not have a home with this name.", args[1]);
+                sendFormatted(sender, "&(red)%0 does not have a home with this name.", args[1]);
                 return true;
             }
 
             // Create the home if it doesn't exist and the user has enough homes to set another
             if (flp.numHomes() >= flp.rank.getHomes()) {
-                TextUtils.sendFormatted(sender, "&(red)This home does not exist and you do not have enough homes to set another.");
+                sendFormatted(sender, "&(red)This home does not exist and you do not have enough homes to set another.");
                 return true;
             } else {
                 if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]))) {
-                    TextUtils.sendFormatted(sender, "&(red)This home does not exist. Unable to create home with that name.");
+                    sendFormatted(sender, "&(red)This home does not exist. Unable to create home with that name.");
                     return true;
                 }
 
                 flp.addHome(name, location);
-                TextUtils.sendFormatted(sender, "&(green)This home does not exist, created a new home with name " +
+                sendFormatted(sender, "&(green)This home does not exist, created a new home with name " +
                         "{&(aqua)%0} at your current location.", name);
             }
         }

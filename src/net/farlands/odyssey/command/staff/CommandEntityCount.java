@@ -1,9 +1,11 @@
 package net.farlands.odyssey.command.staff;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.FLUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -50,7 +52,7 @@ public class CommandEntityCount extends Command {
             Location center;
             if (bundle.player == null) {
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "You must be in-game to use this command without a player specified.");
+                    sendFormatted(sender, "&(red)You must be in-game to use this command without a player specified.");
                     return true;
                 }
                 center = ((Player) sender).getLocation();
@@ -60,9 +62,9 @@ public class CommandEntityCount extends Command {
                     !EntityType.PLAYER.equals(entity.getType()) && (bundle.type == null || bundle.type.equals(entity.getType())))
                     .filter(entity -> entity.getLocation().distanceSquared(center) < radiusSq).collect(Collectors.toList());
 
-            sender.sendMessage(ChatColor.GOLD + "Showing entity count" + (bundle.type == null ? "" : " of " +
-                    bundle.type.toString().replaceAll("_", "-").toLowerCase()) + (bundle.player == null ?
-                    "" : " near " + bundle.player.getName()) + " with radius " + bundle.radius + ":");
+            sendFormatted(sender, "&(gold)Showing entity count%0%1 with radius %2:",
+                    bundle.type == null ? "" : " of " + bundle.type.toString().replaceAll("_", "-").toLowerCase(),
+                    bundle.player == null ? "" : " near " + bundle.player.getName(), bundle.radius);
             sender.sendMessage(ChatColor.GOLD + "Total entities: " + FLUtils.color(entities.size(), TOTAL_EC_COLORING) +
                     entities.size());
             // density = cross section area approximation / # of entities
@@ -97,7 +99,7 @@ public class CommandEntityCount extends Command {
                 !FLUtils.isInSpawn(entity.getLocation()) && entity.isValid()).collect(Collectors.toList()));
         if (clusters.isEmpty())
             return;
-        sender.sendMessage(ChatColor.GOLD + "Entity Clusters:");
+        sendFormatted(sender, "&(gold)Entity Clusters:");
         clusters.forEach(cluster -> {
             double x = 0, y = 0, z = 0;
             for (Entity entity : cluster) {
@@ -121,7 +123,7 @@ public class CommandEntityCount extends Command {
                 totalDistSq += minDistSq;
             }
             double density = Math.PI * (totalDistSq / cluster.size());
-            TextUtils.sendFormatted(sender, "&(gold) - Size: {%0%1}, Density: {%2\u2265%3bk/e}, At: $(hovercmd," +
+            sendFormatted(sender, "&(gold) - Size: {%0%1}, Density: {%2\u2265%3bk/e}, At: $(hovercmd," +
                             "/chain {gm3} {tl %4 %5 %6},{&(aqua)Click to teleport to this location},{&(aqua)%4x %5y %6z})%7",
                     FLUtils.color(cluster.size(), CLUSTER_SIZE_COLORING), cluster.size(), FLUtils.color(1 / density,
                             CLUSTER_DENSITY_COLORING), FLUtils.toStringTruncated(density), center.getBlockX(), center.getBlockY(),
@@ -172,30 +174,30 @@ public class CommandEntityCount extends Command {
                 if (bundle.type == null)
                     bundle.type = (EntityType) argument;
                 else if (!strict) {
-                    sender.sendMessage(ChatColor.RED + "You cannot specify two argument types.");
+                    sendFormatted(sender, "&(red)You cannot specify two argument types.");
                     return null;
                 }
             } else if (argument instanceof Integer) {
                 if (bundle.radius == -1) {
                     int radius = (int) argument;
                     if ((radius < 1 || radius > 200) && !strict) {
-                        sender.sendMessage(ChatColor.RED + "The radius must be between 1 and 200 inclusive.");
+                        sendFormatted(sender, "&(red)The radius must be between 1 and 200 inclusive.");
                         return null;
                     }
                     bundle.radius = radius;
                 } else if (!strict) {
-                    sender.sendMessage(ChatColor.RED + "You cannot specify two radii.");
+                    sendFormatted(sender, "&(red)You cannot specify two radii.");
                     return null;
                 }
             } else if (argument instanceof Player) {
                 if (bundle.player == null)
                     bundle.player = (Player) argument;
                 else if (!strict) {
-                    sender.sendMessage(ChatColor.RED + "You cannot specify two players.");
+                    sendFormatted(sender, "&(red)You cannot specify two players.");
                     return null;
                 }
             } else if (!strict) {
-                sender.sendMessage(ChatColor.RED + "Invalid argument: " + arg);
+                sendFormatted(sender, "&(red)Invalid argument: " + arg);
                 return null;
             }
         }

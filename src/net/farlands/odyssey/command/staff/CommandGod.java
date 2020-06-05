@@ -1,10 +1,12 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
-import org.bukkit.ChatColor;
+
 import org.bukkit.entity.Player;
 
 public class CommandGod extends PlayerCommand {
@@ -15,7 +17,7 @@ public class CommandGod extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        sender.sendMessage(ChatColor.GOLD + "God mode " + ((flp.god = !flp.god) ? "enabled." : "disabled."));
+        sendFormatted(sender, "&(gold)God mode %0.", (flp.god = !flp.god) ? "enabled" : "disabled");
         return true;
     }
 }

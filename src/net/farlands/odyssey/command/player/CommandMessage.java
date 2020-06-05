@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+import static com.kicas.rp.util.TextUtils.format;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
@@ -61,11 +62,11 @@ public class CommandMessage extends PlayerCommand {
                 if (currentReplyToggle == null) {
                     // They do not have a recent conversation, so we don't know who to set the reply toggle to
                     if (lastMessageSender == null)
-                        TextUtils.sendFormatted(sender, "&(red)You do not have an active reply toggle currently.");
+                        sendFormatted(sender, "&(red)You do not have an active reply toggle currently.");
                     // Set the recipient to the person they were last chatting with
                     else {
                         senderSession.replyToggleRecipient = lastMessageSender;
-                        TextUtils.sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}. Type " +
+                        sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}. Type " +
                                 "$(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
                                 "or start your message with {&(aqua)!} to send it to public chat.",
                                 lastMessageSender.getName());
@@ -74,7 +75,7 @@ public class CommandMessage extends PlayerCommand {
                 // Disable auto-messaging since it's already active
                 else {
                     senderSession.replyToggleRecipient = null;
-                    TextUtils.sendFormatted(sender, "&(gold)You are no longer messaging %0", currentReplyToggle.getName());
+                    sendFormatted(sender, "&(gold)You are no longer messaging %0", currentReplyToggle.getName());
                 }
 
                 return true;
@@ -83,7 +84,7 @@ public class CommandMessage extends PlayerCommand {
             // Get the recipient and make sure they exist
             CommandSender recipient = getPlayer(args[1], sender);
             if (recipient == null) {
-                TextUtils.sendFormatted(sender, "&(red)Player not found.");
+                sendFormatted(sender, "&(red)Player not found.");
                 return true;
             }
 
@@ -94,12 +95,12 @@ public class CommandMessage extends PlayerCommand {
                 // The name the specified matches who they are currently replying to, so disable auto-reply
                 if (toggled != null && toggled.equals(recipient)) {
                     senderSession.replyToggleRecipient = null;
-                    TextUtils.sendFormatted(sender, "&(gold)You are no longer messaging %0", toggled.getName());
+                    sendFormatted(sender, "&(gold)You are no longer messaging %0", toggled.getName());
                 }
                 // They specified a different person so switch to the new player
                 else {
                     senderSession.replyToggleRecipient = recipient;
-                    TextUtils.sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}" +
+                    sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}" +
                             (toggled == null ? "" : " and no longer messaging {&(aqua)" + toggled.getName() + "}") +
                             ". Type $(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
                             "or start your message with {&(aqua)!} to send it to public chat.", recipient.getName());
@@ -167,12 +168,12 @@ public class CommandMessage extends PlayerCommand {
             FarLands.getDataHandler().getSession((Player) sender).lastMessageSender.setValue(recipient, 10L * 60L * 20L, null);
 
         // Notify staff of the message
-        Logging.broadcastStaff(TextUtils.format("&(red)[%0 -> %1]: &(gray)%2", Chat.removeColorCodes(sender.getName()),
+        Logging.broadcastStaff(format("&(red)[%0 -> %1]: &(gray)%2", Chat.removeColorCodes(sender.getName()),
                 Chat.removeColorCodes(recipient.getName()), message));
     }
 
     private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {
-        TextUtils.sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, rank.getNameColor(), name, message);
+        sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, rank.getNameColor(), name, message);
     }
 
     private static String getDisplayName(CommandSender sender) {

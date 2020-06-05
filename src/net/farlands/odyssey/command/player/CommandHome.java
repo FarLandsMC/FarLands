@@ -1,7 +1,8 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.Home;
 import net.farlands.odyssey.data.Rank;
@@ -30,7 +31,7 @@ public class CommandHome extends PlayerCommand {
         OfflineFLPlayer flp = gotoUnownedHome ? FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1])
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null) {
-            TextUtils.sendFormatted(sender, "&(red)Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
 
@@ -40,7 +41,7 @@ public class CommandHome extends PlayerCommand {
             name = "home";
         else {
             if (!gotoUnownedHome && args[0].equals("home")) {
-                TextUtils.sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/home home} by typing " +
+                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/home home} by typing " +
                         "$(hovercmd,/home,{&(gray)Click to Run},&(dark_aqua)/home)!");
             }
             name = args[0];
@@ -49,7 +50,7 @@ public class CommandHome extends PlayerCommand {
         // Make sure the home exists
         Location loc = flp.getHome(name);
         if(loc == null) {
-            TextUtils.sendFormatted(sender, "&(red)%0 not have a home named \"%1\"",
+            sendFormatted(sender, "&(red)%0 not have a home named \"%1\"",
                     gotoUnownedHome ? flp.username + " does" : "You do", name);
             return false;
         }

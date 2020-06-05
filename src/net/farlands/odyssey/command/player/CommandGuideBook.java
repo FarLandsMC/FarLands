@@ -1,8 +1,8 @@
 package net.farlands.odyssey.command.player;
 
-import static net.farlands.odyssey.util.FLUtils.giveItem;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
-import com.kicas.rp.util.TextUtils;
+import static net.farlands.odyssey.util.FLUtils.giveItem;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
@@ -35,7 +35,7 @@ public class CommandGuideBook extends PlayerCommand {
         // Check the cooldown
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            TextUtils.sendFormatted(sender, "&(red)You can use this command again in %0.",
+            sendFormatted(sender, "&(red)You can use this command again in %0.",
                     TimeInterval.formatTime(cooldownTime * 50L, false));
             return true;
         }

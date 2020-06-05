@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
@@ -25,7 +27,7 @@ public class CommandSit extends PlayerCommand {
     @Override
     public boolean canUse(Player sender) {
         if (sender.getVehicle() != null && FarLands.getDataHandler().getSession(sender).seatExit == null) {
-            sender.sendMessage("You are already sitting");
+            sendFormatted(sender, "&(red)You are already sitting");
             return false;
         }
         return super.canUse(sender);
@@ -41,7 +43,7 @@ public class CommandSit extends PlayerCommand {
             return true;
         }
         if (!sender.isOnGround()) { // can't go in canUse as it prevents /sit exit
-            sender.sendMessage(ChatColor.RED + "You must be on the ground to use this command.");
+            sendFormatted(sender, "&(red)You must be on the ground to use this command.");
             return true;
         }
         session.seatExit = sender.getLocation().clone();
@@ -52,6 +54,7 @@ public class CommandSit extends PlayerCommand {
         seat.setInvulnerable(true);
         seat.setAI(false);
         seat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
+        seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1));
         ReflectionHelper.setFieldValue("vehicle", net.minecraft.server.v1_15_R1.Entity.class,
                 ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
         ((CraftPig) seat).getHandle().passengers.add(((CraftPlayer) sender).getHandle());

@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.DiscordSender;
@@ -54,7 +55,7 @@ public class CommandList extends Command {
         }
 
         if (players.size() + staff.size() == 0) {
-            TextUtils.sendFormatted(sender, "&(gold)There are no players online currently.");
+            sendFormatted(sender, "&(gold)There are no players online currently.");
             return true;
         }
 
@@ -75,7 +76,7 @@ public class CommandList extends Command {
         if (listHasVanishedPlayer)
             sb.append("\n*These players are vanished.");
 
-        TextUtils.sendFormatted(sender, sb.toString().trim());
+        sendFormatted(sender, sb.toString().trim());
 
         return true;
     }

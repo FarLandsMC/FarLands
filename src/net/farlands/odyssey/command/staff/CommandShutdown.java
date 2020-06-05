@@ -1,15 +1,17 @@
 package net.farlands.odyssey.command.staff;
 
 import com.google.common.collect.ImmutableMap;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.command.FLShutdownEvent;
 import net.farlands.odyssey.data.Config;
 import net.farlands.odyssey.data.Rank;
-import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.Logging;
 import net.farlands.odyssey.util.TimeInterval;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -45,7 +47,7 @@ public class CommandShutdown extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if(FarLands.getFLConfig().isScreenSessionNotSet()) {
-            sender.sendMessage(ChatColor.RED + "The screen session for this server instance is not specified. " +
+            sendFormatted(sender, "&(red)The screen session for this server instance is not specified. " +
                     "This command requires that field to run.");
             return true;
         }
@@ -53,10 +55,10 @@ public class CommandShutdown extends Command {
             return false;
         final int seconds = (int)TimeInterval.parseSeconds(args[1]);
         if(seconds < 0) {
-            sender.sendMessage(ChatColor.RED + "Invalid time.");
+            sendFormatted(sender, "&(red)Invalid time.");
             return true;
         }else if(seconds > MAX_DELAY) {
-            sender.sendMessage(ChatColor.RED + "You cannot schedule a shutdown more that 8 hours in advance.");
+            sendFormatted(sender, "&(red)You cannot schedule a shutdown more that 8 hours in advance.");
             return true;
         }
         execute0(seconds, args[0]);

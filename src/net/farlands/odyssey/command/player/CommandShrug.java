@@ -1,12 +1,13 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.mechanic.Chat;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -43,7 +44,7 @@ public class CommandShrug extends PlayerCommand {
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
                 !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            sender.sendMessage(ChatColor.RED + "You cannot use this command while muted.");
+            sendFormatted(sender, "&(red)You cannot use this command while muted.");
             return false;
         }
         return super.canUse(sender);

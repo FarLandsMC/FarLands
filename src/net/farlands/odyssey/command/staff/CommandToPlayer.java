@@ -1,8 +1,10 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +23,7 @@ public class CommandToPlayer extends PlayerCommand {
             return false;
         Player player = getPlayer(args[0], sender);
         if(player == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         sender.teleport(player.getLocation());

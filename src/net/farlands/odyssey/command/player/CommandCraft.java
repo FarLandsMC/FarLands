@@ -1,8 +1,8 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Materials;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.odyssey.command.PlayerCommand;
@@ -38,7 +38,7 @@ public class CommandCraft extends PlayerCommand {
         // Craft a specific material
         Material item = Utils.valueOfFormattedName(args[0], Material.class);
         if (item == null) {
-            TextUtils.sendFormatted(sender, "&(red)Invalid item name: %0", args[0]);
+            sendFormatted(sender, "&(red)Invalid item name: %0", args[0]);
             return true;
         }
 
@@ -48,12 +48,12 @@ public class CommandCraft extends PlayerCommand {
             try {
                 amount = Integer.parseInt(args[1]);
             } catch (NumberFormatException ex) {
-                TextUtils.sendFormatted(sender, "&(red)Invalid amount: %0", args[1]);
+                sendFormatted(sender, "&(red)Invalid amount: %0", args[1]);
                 return true;
             }
 
             if (amount < 1) {
-                TextUtils.sendFormatted(sender, "&(red)The amount must be greater than or equal to one.");
+                sendFormatted(sender, "&(red)The amount must be greater than or equal to one.");
                 return true;
             }
         }
@@ -81,7 +81,7 @@ public class CommandCraft extends PlayerCommand {
         Recipe recipe = null;
         if (recipes.isEmpty()) {
             if (sendMessages)
-                TextUtils.sendFormatted(sender, "&(red)This item does not have a recipe.");
+                sendFormatted(sender, "&(red)This item does not have a recipe.");
             return 0;
         }
 
@@ -154,7 +154,7 @@ public class CommandCraft extends PlayerCommand {
         // Nothing could be crafted
         if (craftable == 0) {
             if (sendMessages) {
-                TextUtils.sendFormatted(sender, "&(red)You are missing the following materials: %0",
+                sendFormatted(sender, "&(red)You are missing the following materials: %0",
                         available.entrySet().stream()
                                 .filter(entry -> entry.getValue() < requirements.get(entry.getKey()))
                                 .map(entry -> Utils.formattedName(entry.getKey()) +
@@ -165,7 +165,7 @@ public class CommandCraft extends PlayerCommand {
 
             return 0;
         } else if (craftable < recipeCount && sendMessages)
-            TextUtils.sendFormatted(sender, "&(red)You only had enough resources in your inventory to craft %0 of this item.", craftable);
+            sendFormatted(sender, "&(red)You only had enough resources in your inventory to craft %0 of this item.", craftable);
         else
             craftable = recipeCount;
 

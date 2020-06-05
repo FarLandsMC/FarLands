@@ -1,6 +1,7 @@
 package net.farlands.odyssey.command.player;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.FLPlayerSession;
@@ -22,7 +23,7 @@ public class CommandAFK extends PlayerCommand {
 
         // Check the command cooldown
         if (!session.isCommandCooldownComplete(this)) {
-            TextUtils.sendFormatted(sender, "&(red)You can use this command again in %0.",
+            sendFormatted(sender, "&(red)You can use this command again in %0.",
                     TimeInterval.formatTime(session.commandCooldownTimeRemaining(this) * 50L, false));
             return true;
         }

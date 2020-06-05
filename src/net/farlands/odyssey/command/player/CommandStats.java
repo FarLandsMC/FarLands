@@ -1,5 +1,7 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.Command;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -7,7 +9,6 @@ import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,19 +27,24 @@ public class CommandStats extends Command {
         final OfflineFLPlayer flp = isPersonal ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
                 : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if(flp == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.update(); // Make sure our stats are fresh
-            sender.sendMessage(
-                ChatColor.GREEN + "Showing stats for " + ChatColor.GOLD + flp.username + ":\n" +
-                ChatColor.GREEN + "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + '\n' +
-                "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + '\n' +
+            sendFormatted(sender,
+                "&(green)Showing stats for {&(gold)%0:}\n" +
+                "Rank: {%1}\n" +
+                "Time Played: %2\n" +
                 (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
                         flp.amountDonated + "\n" : "") +
-                "Votes this Month: " + flp.monthVotes + '\n' +
-                "Total Votes: " + flp.totalVotes
+                "Votes this Month: %3\n" +
+                "Total Votes: %4",
+                    flp.username,
+                    "&(" + flp.rank.getColor().name().toLowerCase() + ")" + flp.rank.getName(),
+                    TimeInterval.formatTime(flp.secondsPlayed * 1000L, false),
+                    flp.monthVotes,
+                    flp.totalVotes
             );
         });
         return true;

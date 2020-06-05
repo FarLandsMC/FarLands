@@ -1,12 +1,13 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.TeleportRequest;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,16 +26,16 @@ public class CommandTPA extends PlayerCommand {
             return false;
         Player player = getPlayer(args[1], sender);
         if(player == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         if(sender.getUniqueId().equals(player.getUniqueId())) {
-            sender.sendMessage(ChatColor.RED + "You cannot teleport to yourself.");
+            sendFormatted(sender, "&(red)You cannot teleport to yourself.");
             return true;
         }
         FLPlayerSession playerSession = FarLands.getDataHandler().getSession(player);
         if(playerSession.afk)
-            sender.sendMessage(ChatColor.RED + "This player is AFK, so they may not receive your request.");
+            sendFormatted(sender, "&(red)This player is AFK, so they may not receive your request.");
         if(playerSession.handle.isIgnoring(sender))
             return true;
         // Everything else is handled here

@@ -1,11 +1,12 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.struct.TeleportRequest;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -23,14 +24,14 @@ public class CommandTPAccept extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         List<TeleportRequest> requests = FarLands.getDataHandler().getSession(sender).teleportRequests;
         if(requests == null || requests.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "You have no pending teleport requests.");
+            sendFormatted(sender, "&(red)You have no pending teleport requests.");
             return true;
         }
         TeleportRequest request = args.length == 2 // If a certain player's request was specified
                 ? requests.stream().filter(req -> req.getSender().getName().equals(args[1])).findAny().orElse(null)
                 : requests.remove(0); // First in, first out
         if(request == null) {
-            sender.sendMessage(ChatColor.RED + "This player has not sent you a teleport request.");
+            sendFormatted(sender, "&(red)This player has not sent you a teleport request.");
             return true;
         }
         if("tpaccept".equals(args[0]))

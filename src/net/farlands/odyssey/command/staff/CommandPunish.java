@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.staff;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.odyssey.FarLands;
@@ -32,11 +33,11 @@ public class CommandPunish extends Command {
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if (flp == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         if (flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender).uuid)) {
-            sender.sendMessage(ChatColor.RED + "That was close!");
+            sendFormatted(sender, "&(red)That was close!");
             return true;
         }
 
@@ -47,7 +48,7 @@ public class CommandPunish extends Command {
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
                             (flp.rank.getPermissionLevel() == 2 || flp.rank.getPermissionLevel() == 3)) ||
                     (senderRank.getPermissionLevel() == 1 && flp.rank.getPermissionLevel() > 1))) {
-                sender.sendMessage(ChatColor.RED + "You do not have permission to punish this person.");
+                sendFormatted(sender, "&(red)You do not have permission to punish this person.");
                 return true;
             }
         }
@@ -62,7 +63,7 @@ public class CommandPunish extends Command {
                 }
                 String punishMessage = args.length > 3 ? joinArgsBeyond(2, " ", args) : null;
                 if (punishMessage != null && punishMessage.length() > 256) {
-                    sender.sendMessage(ChatColor.RED + "Punishment messages are limited to 256 characters, it will be truncated.");
+                    sendFormatted(sender, "&(red)Punishment messages are limited to 256 characters, it will be truncated.");
                     punishMessage = punishMessage.substring(0, 256);
                 }
                 punish(sender, flp, pt, punishMessage);
@@ -82,22 +83,22 @@ public class CommandPunish extends Command {
                 if (args.length == 2) { // Remove latest punishment
                     Punishment punishment = flp.isBanned() ? flp.getCurrentPunishment() : flp.getMostRecentPunishment();
                     if (punishment == null) {
-                        sender.sendMessage(ChatColor.RED + "This player has no punishments on record.");
+                        sendFormatted(sender, "&(red)This player has no punishments on record.");
                         return true;
                     }
                     pt = punishment.getType();
                 } else { // Remove specific punishment
                     pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
                     if (pt == null) {
-                        sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
+                        sendFormatted(sender, "&(red)Invalid punishment type: " + args[2]);
                         return true;
                     }
                 }
                 if (flp.pardon(pt)) {
-                    sender.sendMessage(ChatColor.GOLD + "Pardoned " + ChatColor.AQUA + flp.username +
-                            ChatColor.GOLD + " from " + Utils.formattedName(pt));
+                    sendFormatted(sender, "&(gold)Pardoned {&(aqua)%0} from %1",
+                            flp.username, Utils.formattedName(pt));
                 } else
-                    sender.sendMessage(ChatColor.RED + "This player does not have that punishment on record.");
+                    sendFormatted(sender, "&(red)This player does not have that punishment on record.");
                 break;
             }
         }
@@ -125,7 +126,7 @@ public class CommandPunish extends Command {
         String message = "unished " + ChatColor.AQUA + flp.username + ChatColor.GOLD +
                 " for " + Utils.formattedName(pt) + (punishMessage == null ? "" : " with message `" + punishMessage + "`") +
                 ". Expires: " + (time < 0L ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE));
-        sender.sendMessage(ChatColor.GOLD + "P" + message.replaceAll("`", "\""));
+        sendFormatted(sender, "&(gold)P%0", message.replaceAll("`", "\""));
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) +
                 " has p" + Chat.removeColorCodes(message));
     }
