@@ -1,6 +1,7 @@
 package net.farlands.odyssey.mechanic;
 
-import com.kicas.rp.util.TextUtils;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+import static com.kicas.rp.util.TextUtils.format;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Cooldown;
@@ -75,7 +76,7 @@ public class GeneralMechanics extends Mechanic {
     @Override
     public void onStartup() {
         try {
-            joinMessage = TextUtils.format(FarLands.getDataHandler().getDataTextFile("join-message.txt"), FarLands.getFLConfig().discordInvite);
+            joinMessage = format(FarLands.getDataHandler().getDataTextFile("join-message.txt"), FarLands.getFLConfig().discordInvite);
         } catch (IOException ex) {
             Logging.error("Failed to load join message!");
         }
@@ -109,8 +110,8 @@ public class GeneralMechanics extends Mechanic {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.5F);
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
             if (!flp.viewedPatchnotes)
-                player.sendMessage(ChatColor.GOLD + "Patch " + ChatColor.AQUA + "#" + FarLands.getDataHandler().getCurrentPatch() +
-                        ChatColor.GOLD + " has been released! View changes with " + ChatColor.AQUA + "/patchnotes");
+                sendFormatted(player,"&(gold)Patch {&(aqua)#%0} has been released! View changes with " +
+                        "$(hovercmd,/patchnotes,{&(gray)Click to Run},&(aqua)/patchnotes)", FarLands.getDataHandler().getCurrentPatch());
         }, 125L);
 
         if (isNew) {
@@ -124,7 +125,7 @@ public class GeneralMechanics extends Mechanic {
                     return false;
             }, "&(gold){&(bold)>} Welcome {&(green)%0} to FarLands!", player.getName());
             player.chat("/chain {guidebook} {shovel}");
-            TextUtils.sendFormatted(player, "&(gold)Welcome to FarLands! Please read $(hovercmd,/rules,&(aqua)Click " +
+            sendFormatted(player, "&(gold)Welcome to FarLands! Please read $(hovercmd,/rules,&(aqua)Click " +
                     "to view the server rules.,&(aqua)our rules) before playing. To get started, you can use " +
                     "$(hovercmd,/wild,&(aqua)Click to go to a random location.,&(aqua)/wild) to teleport to a " +
                     "random location on the map. Also, feel free to join our community on discord by clicking " +
@@ -198,11 +199,11 @@ public class GeneralMechanics extends Mechanic {
 
         if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.NETHER_PORTAL) {
             Location location = event.getClickedBlock().getLocation();
-            player.sendMessage(ChatColor.DARK_PURPLE + "This portal best links to " +
-                    (location.getWorld().getName().equals("world") ?
-                            (location.getBlockX() >> 3) + " " + location.getBlockY() + " " + (location.getBlockZ() >> 3) :                  // x / 8
-                            (location.getBlockX() << 3) + "(+15) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+15)") +  // x * 8
-                    " in the " + (location.getWorld().getName().equals("world") ? "Nether" : "Overworld") + ".");
+            sendFormatted(player, "&(dark_purple)This portal best links to %0 in the %1.",
+                    location.getWorld().getName().equals("world") ?
+                    (location.getBlockX() >> 3) + " "      + location.getBlockY() + " " + (location.getBlockZ() >> 3) :           // x / 8
+                    (location.getBlockX() << 3) + "(+15) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+15)",  // x * 8
+                    location.getWorld().getName().equals("world") ? "Nether" : "Overworld");
             return;
         }
 
@@ -230,7 +231,7 @@ public class GeneralMechanics extends Mechanic {
             if (Action.RIGHT_CLICK_BLOCK == event.getAction()) {
                 if (FarLands.getDataHandler().getPluginData().itemDistributors.stream()
                         .anyMatch(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
-                    player.sendMessage(ChatColor.RED + "This chest is already a source for an item distributer.");
+                    sendFormatted(player, "&(red)This chest is already a source for an item distributer.");
                     event.setCancelled(true);
                     return;
                 }
@@ -248,35 +249,35 @@ public class GeneralMechanics extends Mechanic {
                     case 0:
                         if (Material.CHEST == event.getClickedBlock().getType()) {
                             stage.getSecond().setSource(event.getClickedBlock().getLocation());
-                            player.sendMessage(ChatColor.GREEN + "Source chest set.");
+                            sendFormatted(player, "&(green)Source chest set.");
                             stage.setFirst(1);
                         } else
-                            player.sendMessage(ChatColor.RED + "Please click a chest to set as the source.");
+                            sendFormatted(player, "&(red)Please click a chest to set as the source.");
                         break;
                     case 1:
                         if (Material.CHEST == event.getClickedBlock().getType()) {
                             stage.getSecond().setPublic(event.getClickedBlock().getLocation());
-                            player.sendMessage(ChatColor.GREEN + "Public chest set.");
+                            sendFormatted(player, "&(green)Public chest set.");
                             stage.setFirst(2);
                         } else
-                            player.sendMessage(ChatColor.RED + "Please click a chest to set as the public chest.");
+                            sendFormatted(player, "&(red)Please click a chest to set as the public chest.");
                         FarLands.getScheduler().resetTask(distributerMakers.get(player.getUniqueId()).getSecond());
                         break;
                     case 2:
                         if (Material.CHEST == event.getClickedBlock().getType()) {
                             stage.getSecond().setPrivate(event.getClickedBlock().getLocation());
-                            player.sendMessage(ChatColor.GREEN + "Private chest set, item distributor registered.");
+                            sendFormatted(player, "&(green)Private chest set, item distributor registered.");
                             FarLands.getScheduler().completeTask(distributerMakers.get(player.getUniqueId()).getSecond());
                             FarLands.getDataHandler().getPluginData().itemDistributors.add(stage.getSecond());
                         } else
-                            player.sendMessage(ChatColor.RED + "Please click a chest to set as the private chest.");
+                            sendFormatted(player, "&(red)Please click a chest to set as the private chest.");
                         break;
                 }
                 event.setCancelled(true);
             } else if (Action.LEFT_CLICK_BLOCK == event.getAction()) {
                 if (FarLands.getDataHandler().getPluginData().itemDistributors
                         .removeIf(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
-                    player.sendMessage(ChatColor.GREEN + "Removed item distributor.");
+                    sendFormatted(player, "&(green)Removed item distributor.");
                     event.setCancelled(true);
                 }
             }
@@ -422,7 +423,7 @@ public class GeneralMechanics extends Mechanic {
                     Block block = event.getEntity().getWorld().getBlockAt(0, 75, 0);
                     block.setType(Material.DRAGON_EGG);
                     block.getWorld().getNearbyEntities(block.getLocation(), 50, 50, 50)
-                            .forEach(e -> e.sendMessage(ChatColor.GRAY + "As the dragon dies, an egg forms below."));
+                            .forEach(e -> sendFormatted(e, "&(gray)As the dragon dies, an egg forms below."));
                 }, 15L * 20L);
                 break;
             case VILLAGER:
