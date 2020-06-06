@@ -38,6 +38,10 @@ public class CommandReport extends Command {
 
         StringBuilder sb = new StringBuilder();
 
+        // If we're reporting a player tag all staff
+        if (reportType == ReportType.PLAYER) {
+            sb.append("@here\n");
+        }
         // Append info about the reporter
         sb.append("New **").append(args[0]).append("** report from `").append(sender.getName()).append("`\n");
 
