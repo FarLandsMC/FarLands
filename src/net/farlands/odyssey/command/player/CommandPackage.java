@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.escapeExpression;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Materials;
 
@@ -61,7 +62,9 @@ public class CommandPackage extends PlayerCommand {
         }
 
         // If the package has a message then grab it and apply color codes if the sender has chat colors
-        final String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args));
+        final String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)),
+                     escapedMessage = escapeExpression(message);
+        final boolean useEscaped = !senderSession.handle.rank.isStaff();
 
         // Directly give it to the recipient if they're online
         if (recipientFlp.isOnline()) {
@@ -75,14 +78,21 @@ public class CommandPackage extends PlayerCommand {
             // Notify parties involved
             sendFormatted(player, "&(gold){&(aqua)%0} has sent you {&(aqua)%1}%2.",
                     senderSession.handle.getDisplayName(), FLUtils.itemName(item),
-                    message.equals("") ? "" : " with the following message: {&(aqua)" + message + "}");
+                    message.equals("")
+                            ? ""
+                            : " with the following message: {&(aqua)" + (useEscaped ? escapedMessage : message) + "}");
             sendFormatted(sender, "&(gold)Package sent to {&(aqua)%0}%1.",
-                    recipientFlp.getDisplayName(), message.isEmpty() ? "" : "with the following message: {&(aqua)" + message + "}");
+                    recipientFlp.getDisplayName(), message.isEmpty()
+                            ? ""
+                            : " with the following message: {&(aqua)" + (useEscaped ? escapedMessage : message) + "}");
         }
         // If the recipient is not online then queue it for when the log back in
         else {
             // Players can only queue one item at a time, so make sure this operation actually succeeds
-            if (FarLands.getDataHandler().addPackage(recipientFlp.uuid, senderSession.handle.getDisplayName(), item, message)) {
+            if (FarLands.getDataHandler().addPackage(
+                    recipientFlp.uuid, escapeExpression(senderSession.handle.getDisplayName()),
+                    item, useEscaped ? escapedMessage : message)
+            ) {
                 sender.getInventory().setItemInMainHand(null);
                 senderSession.setCommandCooldown(this, 10L * 60L * 20L);
 

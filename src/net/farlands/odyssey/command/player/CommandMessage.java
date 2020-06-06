@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.escapeExpression;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import static com.kicas.rp.util.TextUtils.format;
 
@@ -136,6 +137,11 @@ public class CommandMessage extends PlayerCommand {
     public static void sendMessages(CommandSender recipient, CommandSender sender, String message) {
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
 
+        if (sender instanceof Player) {
+            FLPlayerSession senderSession = FarLands.getDataHandler().getSession((Player) sender);
+            if (!senderSession.handle.rank.isStaff())
+                message = escapeExpression(message);
+        }
         // Censor the message if censoring
         String censored = message;
         if (recipientFlp != null && recipientFlp.censoring)
@@ -173,7 +179,7 @@ public class CommandMessage extends PlayerCommand {
     }
 
     private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {
-        sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, rank.getNameColor(), name, message);
+        sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, rank.getNameColor(), escapeExpression(name), message);
     }
 
     private static String getDisplayName(CommandSender sender) {

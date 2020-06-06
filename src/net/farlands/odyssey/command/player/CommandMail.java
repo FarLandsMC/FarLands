@@ -1,5 +1,6 @@
 package net.farlands.odyssey.command.player;
 
+import static com.kicas.rp.util.TextUtils.escapeExpression;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
 
@@ -15,7 +16,6 @@ import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,7 +75,9 @@ public class CommandMail extends Command {
 
                 // Apply formatting
                 String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args));
-                sendMailMessage(sender, "To", recipientFlp.rank.getNameColor(), recipientFlp.username, message);
+                if (!senderFlp.rank.isStaff())
+                    message = escapeExpression(message);
+                sendMailMessage(sender, "To", recipientFlp.rank.getNameColor(), escapeExpression(recipientFlp.getDisplayName()), message);
 
                 // Check for ignoring
                 if (!recipientFlp.isIgnoring(senderFlp))
