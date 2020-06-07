@@ -2,7 +2,7 @@ package net.farlands.odyssey.command.discord;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
@@ -44,7 +44,7 @@ public class CommandArtifact extends DiscordCommand {
 
         // Locate the attachment
         String channelId = args[0].substring(0, args[0].indexOf(':')), messageId = args[0].substring(args[0].indexOf(':') + 1);
-        Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).getMessageById(messageId).complete();
+        Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).retrieveMessageById(messageId).complete();
         List<Message.Attachment> attachments = message.getAttachments();
         if (attachments.isEmpty()) {
             sender.sendMessage("You must attach the jar to the command message.");
@@ -55,7 +55,7 @@ public class CommandArtifact extends DiscordCommand {
         if (dest.exists())
             dest.delete();
 
-        attachments.get(0).download(dest);
+        attachments.get(0).downloadToFile(dest);
         Config cfg = FarLands.getFLConfig();
         if (args.length > 1 && "true".equals(args[1])) {
             FarLands.executeScript("artifact.sh", cfg.screenSession, cfg.paperDownload, cfg.dedicatedMemory,

@@ -85,13 +85,13 @@ public class CommandStaffChat extends Command {
 
         } else {
             OfflineFLPlayer handle = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+            String username = handle == null ? "Console" : handle.username;
             String message = joinArgsBeyond(0, " ", args);
             if (message.isEmpty())
                 return true;
-            FarLands.getDataHandler().getSessions().stream().filter(s -> s.handle.rank.isStaff() && s.showStaffChat)
-                    .forEach(s -> sendFormatted(s.player, "%0[SC] %1: %2", s.handle.staffChatColor,
-                            handle.username, message));
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, handle.username + ": " + message);
+            FarLands.getDataHandler().getSessions().stream().filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+                    .forEach(session -> sendFormatted(session.player, "%0[SC] %1: %2", session.handle.staffChatColor, username, message));
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, username + ": " + message);
         }
 
         return true;

@@ -3,10 +3,10 @@ package net.farlands.odyssey.command.discord;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
 
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageHistory;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.requests.restaction.AuditableRestAction;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
@@ -109,7 +109,7 @@ public class CommandArchive extends DiscordCommand {
                     if ((m.getContentDisplay().trim().isEmpty() && m.getAttachments().isEmpty()) || m.getAuthor() == null)
                         continue;
 
-                    ofstream.print(m.getCreationTime().atZoneSameInstant(ZoneOffset.UTC).format(DATE_FORMATTER) + ' ');
+                    ofstream.print(m.getTimeCreated().atZoneSameInstant(ZoneOffset.UTC).format(DATE_FORMATTER) + ' ');
                     if (m.getContentDisplay().trim().isEmpty())
                         ofstream.println("Attachment(s) from: " + m.getAuthor().getName());
                     else

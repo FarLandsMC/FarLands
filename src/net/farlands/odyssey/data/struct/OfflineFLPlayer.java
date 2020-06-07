@@ -4,10 +4,9 @@ import com.google.common.collect.ImmutableMap;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
@@ -122,7 +121,7 @@ public class OfflineFLPlayer {
         if(member.isOwner()) // For Koneko :P
             return;
         if(!username.equals(member.getNickname()))
-            guild.getController().setNickname(member, username).queue();
+            guild.modifyNickname(member, username).queue();
         List<Role> roles = new ArrayList<>();
         roles.add(rank.isStaff() ? dh.getRole(DiscordHandler.STAFF_ROLE) : dh.getRole(DiscordHandler.VERIFIED_ROLE));
         if(rank.specialCompareTo(Rank.DONOR) >= 0)
@@ -131,7 +130,7 @@ public class OfflineFLPlayer {
             List<Role> add = new ArrayList<>(), remove = new ArrayList<>();
             roles.stream().filter(role -> !member.getRoles().contains(role)).forEach(add::add);
             member.getRoles().stream().filter(role -> !roles.contains(role) && DiscordHandler.isManagedRole(role)).forEach(remove::add);
-            guild.getController().modifyMemberRoles(member, add, remove).queue();
+            guild.modifyMemberRoles(member, add, remove).queue();
         }
     }
 

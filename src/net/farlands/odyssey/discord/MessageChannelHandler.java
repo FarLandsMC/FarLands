@@ -1,6 +1,6 @@
 package net.farlands.odyssey.discord;
 
-import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.util.FLUtils;
 

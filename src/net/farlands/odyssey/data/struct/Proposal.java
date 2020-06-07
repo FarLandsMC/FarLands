@@ -1,7 +1,7 @@
 package net.farlands.odyssey.data.struct;
 
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.discord.DiscordChannel;
 
@@ -35,7 +35,7 @@ public class Proposal {
     }
 
     public void update() {
-        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).getMessageById(messageID).complete();
+        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).retrieveMessageById(messageID).complete();
         if (messageObj == null || System.currentTimeMillis() > dateEnds) {
             resolve(2);
             return;
@@ -51,7 +51,7 @@ public class Proposal {
             yesVotes = 0;
         } else {
             yesVotes = yes.getCount();
-            if (yes.getUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
+            if (yes.retrieveUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
                 --yesVotes;
                 if (yesVotes > 0)
                     yes.removeReaction().queue();
@@ -62,7 +62,7 @@ public class Proposal {
             noVotes = 0;
         } else {
             noVotes = no.getCount();
-            if (no.getUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
+            if (no.retrieveUsers().complete().contains(FarLands.getDiscordHandler().getNativeBot().getSelfUser())) {
                 --noVotes;
                 if (noVotes > 0)
                     no.removeReaction().queue();
