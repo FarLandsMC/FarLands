@@ -2,6 +2,8 @@ package net.farlands.odyssey.mechanic;
 
 import com.kicas.rp.util.TextUtils;
 
+import com.kicasmads.cs.event.ShopCreateEvent;
+import com.kicasmads.cs.event.ShopRemoveEvent;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.struct.Punishment;
 import net.farlands.odyssey.data.Rank;
@@ -110,8 +112,8 @@ public class Restrictions extends Mechanic {
                 .map(PotionEffect::getType).forEach(player::removePotionEffect);
     }
 
-    /*@EventHandler(ignoreCancelled = true)
-    public void onShopCreation(PlayerCreateShopEvent event) {
+    @EventHandler(ignoreCancelled = true)
+    public void onShopCreation(ShopCreateEvent event) {
         Player player = event.getPlayer();
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
         if (!flp.canAddShop()) {
@@ -124,9 +126,9 @@ public class Restrictions extends Mechanic {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onShopDestroyed(PlayerDestroyShopEvent event) {
-        FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getOwnerUUID()).removeShop();
-    }*/
+    public void onShopDestroyed(ShopRemoveEvent event) {
+        FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getOwner()).removeShop();
+    }
 
     @EventHandler(ignoreCancelled = true) // Prevent players from teleporting using spectator mode
     public void onTeleport(PlayerTeleportEvent event) {

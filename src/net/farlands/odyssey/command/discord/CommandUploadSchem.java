@@ -3,8 +3,7 @@ package net.farlands.odyssey.command.discord;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
 
-import net.dv8tion.jda.core.entities.Message;
-
+import net.dv8tion.jda.api.entities.Message;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordCommand;
 import net.farlands.odyssey.command.DiscordSender;
@@ -40,7 +39,7 @@ public class CommandUploadSchem extends DiscordCommand {
 
         // Locate the attachment
         String channelId = args[0].substring(0, args[0].indexOf(':')), messageId = args[0].substring(args[0].indexOf(':') + 1);
-        Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).getMessageById(messageId).complete();
+        Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).retrieveMessageById(messageId).complete();
         List<Message.Attachment> attachments = message.getAttachments();
         if (attachments.isEmpty()) {
             sender.sendMessage("You must attach the schematic to the command message.");
@@ -56,7 +55,7 @@ public class CommandUploadSchem extends DiscordCommand {
             if (attachmentDest.exists())
                 attachmentDest.delete();
 
-            attachments.get(0).download(attachmentDest);
+            attachments.get(0).downloadToFile(attachmentDest);
 
             // Unpack the zip
             try {
@@ -93,7 +92,7 @@ public class CommandUploadSchem extends DiscordCommand {
             if (dest.exists())
                 dest.delete();
 
-            attachments.get(0).download(dest);
+            attachments.get(0).downloadToFile(dest);
             sender.sendMessage("Schematic uploaded.");
         }
 

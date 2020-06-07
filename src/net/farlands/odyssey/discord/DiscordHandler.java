@@ -1,16 +1,19 @@
 package net.farlands.odyssey.discord;
 
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.AccountType;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.DiscordSender;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
@@ -19,6 +22,7 @@ import net.farlands.odyssey.data.struct.Proposal;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.mechanic.Chat;
 import net.farlands.odyssey.util.Logging;
+import net.farlands.odyssey.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -56,15 +60,13 @@ public class DiscordHandler extends ListenerAdapter {
                 return;
             }
 
-            int online = (int) Bukkit.getOnlinePlayers().stream()
-                    .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished).count();
             jdaBot = (new JDABuilder(AccountType.BOT))
                     .setToken(config.token)
-                    .addEventListener(this)
                     .setAutoReconnect(true)
-                    .setGame(Game.of(Game.GameType.DEFAULT, "with " + online + " online player" + (online == 1 ? "" : "s")))
+                    .setActivity(getStats())
                     .setStatus(OnlineStatus.ONLINE)
-                    .buildAsync();
+                    .addEventListeners(this)
+                    .build();
         } catch (Exception ex) {
             Logging.error("Failed to setup discord jdaBot.");
             ex.printStackTrace(System.out);
@@ -98,10 +100,15 @@ public class DiscordHandler extends ListenerAdapter {
         if (!active)
             return;
 
-        int online = (int) Bukkit.getOnlinePlayers().stream()
-                .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished).count();
-        jdaBot.getPresence().setGame(Game.of(Game.GameType.DEFAULT, "with " + online + " online player" +
-                (online == 1 ? "" : "s")));
+        jdaBot.getPresence().setActivity(getStats());
+    }
+
+    private Activity getStats() {
+        long online = Bukkit.getOnlinePlayers().stream()
+                .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
+                .count();
+
+        return Activity.of(Activity.ActivityType.DEFAULT, "with " + online + " online player" + (online == 1 ? "" : "s"));
     }
 
     public void sendMessage(MessageChannel channel, String message) {

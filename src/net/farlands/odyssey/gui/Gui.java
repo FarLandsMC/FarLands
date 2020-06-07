@@ -125,16 +125,12 @@ public abstract class Gui {
 
     public void onInventoryClosed() {
         if(ignoreClose) {
-            onCurrentInventoryClosed();
             ignoreClose = false;
         }else{
-            onCurrentInventoryClosed();
             onClose();
             FarLands.getGuiHandler().removeActiveGui(this);
         }
     }
-
-    protected void onCurrentInventoryClosed() { }
 
     protected void onClose() { }
 

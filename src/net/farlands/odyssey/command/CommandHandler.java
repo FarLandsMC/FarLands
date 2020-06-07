@@ -4,7 +4,7 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.discord.*;
 import net.farlands.odyssey.command.player.*;
