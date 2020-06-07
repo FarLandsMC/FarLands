@@ -336,7 +336,7 @@ public class GeneralMechanics extends Mechanic {
                 return;
 
             Player petRecipient = FarLands.getDataHandler().getSession(event.getPlayer()).givePetRecipient.getValue();
-            FarLands.getDataHandler().getSession(event.getPlayer()).givePetRecipient = null;
+            FarLands.getDataHandler().getSession(event.getPlayer()).givePetRecipient.discard();
             if (petRecipient == null)
                 return;
             if (FarLands.getDataHandler().getOfflineFLPlayer(petRecipient).isIgnoring(event.getPlayer()))
