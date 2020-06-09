@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.*;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.potion.PotionEffect;
@@ -29,12 +30,13 @@ import java.util.stream.Collectors;
 
 public class Restrictions extends Mechanic {
 
+    //TODO: remove with 1.16 update - the vanilla game fixes this
     private static final List<int[]> PISTON_FILTER = Arrays.asList(
-            new int[]{-2, -2, 0}, new int[]{2, -2, 0}, new int[]{0, -2, -2}, new int[]{0, -2, 2},
-            new int[]{-1, -2, 0}, new int[]{1, -2, 0}, new int[]{0, -2, -1}, new int[]{0, -2, 1},
-            new int[]{-2, -1, 0}, new int[]{2, -1, 0}, new int[]{0, -1, -2}, new int[]{0, -1, 2},
-            new int[]{-1, -1, -1}, new int[]{1, -1, -1}, new int[]{-1, -1, 1}, new int[]{1, -1, 1},
-            new int[]{-1, 0, 0}, new int[]{1, 0, 0}, new int[]{0, 0, -1}, new int[]{0, 0, 1}
+            new int[]{-2, -2,  0}, new int[]{2, -2,  0}, new int[]{ 0, -2, -2}, new int[]{0, -2, 2},
+            new int[]{-1, -2,  0}, new int[]{1, -2,  0}, new int[]{ 0, -2, -1}, new int[]{0, -2, 1},
+            new int[]{-2, -1,  0}, new int[]{2, -1,  0}, new int[]{ 0, -1, -2}, new int[]{0, -1, 2},
+            new int[]{-1, -1, -1}, new int[]{1, -1, -1}, new int[]{-1, -1,  1}, new int[]{1, -1, 1},
+            new int[]{-1,  0,  0}, new int[]{1,  0,  0}, new int[]{ 0,  0, -1}, new int[]{0,  0, 1}
     );
 
     @Override
@@ -213,6 +215,17 @@ public class Restrictions extends Mechanic {
         if (Math.abs(to.getX()) > max || Math.abs(to.getZ()) > max) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot leave the world.");
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerCraft(PrepareItemCraftEvent event) {
+        if (event.getRecipe() == null)
+            return;
+        Material result = event.getInventory().getContents()[0].getType();
+
+        if (result == Material.SHIELD) {
+            event.getInventory().getContents()[0].setAmount(1);
         }
     }
 }
