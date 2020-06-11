@@ -1,24 +1,25 @@
 package net.farlands.odyssey.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
+import static com.kicas.rp.util.Utils.*;
 
+import static net.farlands.odyssey.util.FLUtils.RNG;
+import static net.farlands.odyssey.util.FLUtils.tpPlayer;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.command.PlayerCommand;
 import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.FLPlayerSession;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.util.TimeInterval;
-
 import net.farlands.odyssey.util.FLUtils;
+
 import net.md_5.bungee.api.ChatMessageType;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import static net.farlands.odyssey.util.FLUtils.RNG;
-import static net.farlands.odyssey.util.FLUtils.tpPlayer;
-import static com.kicas.rp.util.Utils.*;
 
 public class CommandWild extends PlayerCommand {
     private final Cooldown globalCooldown;
@@ -61,25 +62,44 @@ public class CommandWild extends PlayerCommand {
         return true;
     }
 
+    private static boolean isSea(Block block) {
+        return block.isLiquid() || block.isPassable() || block.getType() == Material.SEA_PICKLE;
+    }
+
     // in case we decide to make a portal so we can copy into utils
     public static void rtpPlayer(final Player player, final int range) {
-        Location rtp = new Location(player.getWorld(),
-                RNG.nextInt(2 * range) - range, 62, RNG.nextInt(2 * range) - range,
-                player.getLocation().getYaw(), player.getLocation().getPitch());
-        while (rtp.getBlock().isLiquid() || rtp.getBlock().isPassable() || rtp.getBlock().getType().equals(Material.SEA_PICKLE)) {
-            rtp.setX(RNG.nextInt(2 * range) - range);
-            if (rtp.getBlock().isLiquid())
-                rtp.setZ(RNG.nextInt(2 * range) - range);
+        int dx = 1 + RNG.nextInt(range << 1) - range,
+            zMax = 1 + (int) Math.sqrt(range * range - dx * dx),
+            dz = 1 + RNG.nextInt(zMax << 1) - zMax;
+        Location rtp = new Location(
+                player.getWorld(),
+                dx,
+                62,
+                dz,
+                player.getLocation().getYaw(),
+                player.getLocation().getPitch()
+        );
+        Location safe;
+        for (;;) {
+            if (isSea(rtp.getBlock())) {
+                dx = 1 + RNG.nextInt(range << 1) - range;
+                rtp.setX(dx);
+            } else {
+                safe = rtpFindSafe(rtp);
+                if (safe != null)
+                    break;
+            }
+            if (isSea(rtp.getBlock())) {
+                zMax = 1 + (int) Math.sqrt(range * range - dx * dx);
+                dz = 1 + RNG.nextInt(zMax << 1) - zMax;
+                rtp.setZ(dz);
+            } else {
+                safe = rtpFindSafe(rtp);
+                if (safe != null)
+                    break;
+            }
         }
-        final int x = rtp.getX() > 0 ? -4 : 4,
-                z = rtp.getZ() > 0 ? -4 : 4;
-        Location temp = rtpFindSafe(rtp);
-        while (temp == null) {
-            rtp.setX(rtp.getBlockX() + x);
-            rtp.setZ(rtp.getBlockZ() + z);
-            temp = rtpFindSafe(rtp);
-        }
-        tpPlayer(player, temp);
+        tpPlayer(player, safe);
         if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
            sendFormatted(player, ChatMessageType.ACTION_BAR, "&(aqua)You have no homes, use /sethome [name] " +
                     "so you can safely return to your location!");
