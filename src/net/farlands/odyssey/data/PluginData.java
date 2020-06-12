@@ -1,6 +1,5 @@
 package net.farlands.odyssey.data;
 
-import net.farlands.odyssey.data.struct.ItemDistributor;
 import net.farlands.odyssey.data.struct.Proposal;
 import net.farlands.odyssey.util.LocationWrapper;
 import net.farlands.odyssey.util.FLUtils;
@@ -15,10 +14,10 @@ public class PluginData {
     public int currentMonth;
     public int lastPatch;
     public int votesUntilParty;
+    public long seasonStartTime;
     public byte[] lastPatchnotesMD5;
     public LocationWrapper spawn;
     public LocationWrapper pvpIslandSpawn;
-    public List<ItemDistributor> itemDistributors;
     public Set<UUID> spawnTraders;
     public Map<String, LocationWrapper> warps;
     public List<Proposal> proposals;
@@ -27,10 +26,10 @@ public class PluginData {
         this.currentMonth = FLUtils.getMonthInYear();
         this.lastPatch = 0;
         this.votesUntilParty = 0;
+        this.seasonStartTime = System.currentTimeMillis();
         this.lastPatchnotesMD5 = new byte[0];
         this.spawn = null;
         this.pvpIslandSpawn = null;
-        this.itemDistributors = new ArrayList<>();
         this.spawnTraders = new HashSet<>();
         this.warps = new HashMap<>();
         this.proposals = new ArrayList<>();

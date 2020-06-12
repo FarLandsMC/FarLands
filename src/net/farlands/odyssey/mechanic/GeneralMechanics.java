@@ -6,13 +6,11 @@ import static com.kicas.rp.util.TextUtils.format;
 import net.farlands.odyssey.FarLands;
 import net.farlands.odyssey.data.Cooldown;
 import net.farlands.odyssey.data.FLPlayerSession;
-import net.farlands.odyssey.data.struct.ItemDistributor;
 import net.farlands.odyssey.data.struct.OfflineFLPlayer;
 import net.farlands.odyssey.data.Rank;
 import net.farlands.odyssey.discord.DiscordChannel;
 import net.farlands.odyssey.gui.GuiVillagerEditor;
 import net.farlands.odyssey.util.Logging;
-import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.ReflectionHelper;
 import net.farlands.odyssey.util.FLUtils;
 
@@ -63,8 +61,6 @@ public class GeneralMechanics extends Mechanic {
 
     private Cooldown nightSkip;
     private List<UUID> leashedEntities;
-
-    private Map<UUID, Pair<Pair<Integer, ItemDistributor>, Integer>> distributerMakers = new HashMap<>();
 
     public GeneralMechanics() {
         this.fireworkLaunches = new HashMap<>();
@@ -175,11 +171,6 @@ public class GeneralMechanics extends Mechanic {
             event.setLine(i, Chat.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onItemTransferred(InventoryMoveItemEvent event) {
-        FarLands.getDataHandler().getPluginData().itemDistributors.forEach(id -> id.accept(event));
-    }
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
@@ -223,64 +214,6 @@ public class GeneralMechanics extends Mechanic {
             Firework firework = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
             firework.addPassenger(player);
             fireworkLaunches.put(firework.getUniqueId(), player);
-            return;
-        }
-
-        if (GameMode.CREATIVE == player.getGameMode() && Rank.getRank(player).isStaff() &&
-                Material.IRON_NUGGET == event.getMaterial()) {
-            if (Action.RIGHT_CLICK_BLOCK == event.getAction()) {
-                if (FarLands.getDataHandler().getPluginData().itemDistributors.stream()
-                        .anyMatch(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
-                    sendFormatted(player, "&(red)This chest is already a source for an item distributer.");
-                    event.setCancelled(true);
-                    return;
-                }
-
-                Pair<Integer, ItemDistributor> stage;
-                if (distributerMakers.containsKey(player.getUniqueId())) {
-                    stage = distributerMakers.get(player.getUniqueId()).getFirst();
-                    FarLands.getScheduler().resetTask(distributerMakers.get(player.getUniqueId()).getSecond());
-                } else {
-                    stage = new Pair<>(0, new ItemDistributor());
-                    distributerMakers.put(player.getUniqueId(), new Pair<>(stage, FarLands.getScheduler()
-                            .scheduleSyncDelayedTask(() -> distributerMakers.remove(player.getUniqueId()), 30L * 20L)));
-                }
-                switch (stage.getFirst()) {
-                    case 0:
-                        if (Material.CHEST == event.getClickedBlock().getType()) {
-                            stage.getSecond().setSource(event.getClickedBlock().getLocation());
-                            sendFormatted(player, "&(green)Source chest set.");
-                            stage.setFirst(1);
-                        } else
-                            sendFormatted(player, "&(red)Please click a chest to set as the source.");
-                        break;
-                    case 1:
-                        if (Material.CHEST == event.getClickedBlock().getType()) {
-                            stage.getSecond().setPublic(event.getClickedBlock().getLocation());
-                            sendFormatted(player, "&(green)Public chest set.");
-                            stage.setFirst(2);
-                        } else
-                            sendFormatted(player, "&(red)Please click a chest to set as the public chest.");
-                        FarLands.getScheduler().resetTask(distributerMakers.get(player.getUniqueId()).getSecond());
-                        break;
-                    case 2:
-                        if (Material.CHEST == event.getClickedBlock().getType()) {
-                            stage.getSecond().setPrivate(event.getClickedBlock().getLocation());
-                            sendFormatted(player, "&(green)Private chest set, item distributor registered.");
-                            FarLands.getScheduler().completeTask(distributerMakers.get(player.getUniqueId()).getSecond());
-                            FarLands.getDataHandler().getPluginData().itemDistributors.add(stage.getSecond());
-                        } else
-                            sendFormatted(player, "&(red)Please click a chest to set as the private chest.");
-                        break;
-                }
-                event.setCancelled(true);
-            } else if (Action.LEFT_CLICK_BLOCK == event.getAction()) {
-                if (FarLands.getDataHandler().getPluginData().itemDistributors
-                        .removeIf(id -> id.hasSourceAt(event.getClickedBlock().getLocation()))) {
-                    sendFormatted(player, "&(green)Removed item distributor.");
-                    event.setCancelled(true);
-                }
-            }
         }
     }
 

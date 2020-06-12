@@ -163,7 +163,7 @@ public class FLPlayerSession {
             player.setDisplayName(player.getName());
         (handle.topVoter && !handle.rank.isStaff() ? Rank.VOTER : handle.rank).getTeam().addEntry(player.getName());
         player.setPlayerListName((handle.topVoter && !handle.rank.isStaff() ? Rank.VOTER : handle.rank).getNameColor() + handle.username);
-        handle.lastIP = player.getAddress().toString().split("/")[1].split(":")[0];
+        handle.lastIP = player.getAddress().getAddress().getHostAddress();
 
         flying = handle.flightPreference;
         if (!handle.rank.isStaff()) {
