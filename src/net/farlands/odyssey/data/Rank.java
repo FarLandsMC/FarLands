@@ -104,7 +104,7 @@ public enum Rank {
     }
 
     public boolean hasPlaytime(OfflineFLPlayer flp) {
-        return playTimeRequired >= 0 && flp.secondsPlayed >= (playTimeRequired - flp.totalVotes) * 3600;
+        return playTimeRequired >= 0 && flp.secondsPlayed >= (playTimeRequired - flp.totalSeasonVotes) * 3600;
     }
 
     public boolean hasOP() {

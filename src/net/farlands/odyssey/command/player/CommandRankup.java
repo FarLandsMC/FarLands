@@ -38,7 +38,7 @@ public class CommandRankup extends Command {
                         "&(gold)You will rank up to {%0%1} in %2",
                         nextRank.getColor(),
                         nextRank.getName(),
-                        TimeInterval.formatTime(((nextRank.getPlayTimeRequired() - flp.totalVotes) * 3600 - flp.secondsPlayed) * 1000L, false)
+                        TimeInterval.formatTime(((nextRank.getPlayTimeRequired() - flp.totalSeasonVotes) * 3600 - flp.secondsPlayed) * 1000L, false)
                 );
             }
 

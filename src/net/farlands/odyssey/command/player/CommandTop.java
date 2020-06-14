@@ -29,12 +29,12 @@ public class CommandTop extends Command {
         List<OfflineFLPlayer> flps = FarLands.getDataHandler().getOfflineFLPlayers();
         if ("votes".equals(args[0])) {
             if (args.length == 1 || "month".equals(args[1])) {
-                flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalVotes)));
+                flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalSeasonVotes)));
                 sendFormatted(sender, "&(gold)Showing the top voters for this month:");
                 for (int i = 0; i < Math.min(flps.size(), 10); ++i) {
                     sendFormatted(sender, "&(gold)%0: {&(aqua)%1} - %2 $(inflect,noun,2,vote) this month, %3 total " +
                                     "$(inflect,noun,3,vote)", i + 1, flps.get(i).username, flps.get(i).monthVotes,
-                            flps.get(i).totalVotes);
+                            flps.get(i).totalSeasonVotes);
                 }
             } else if ("all".equals(args[1])) {
                 flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.totalVotes)));

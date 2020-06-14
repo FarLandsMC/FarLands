@@ -56,7 +56,7 @@ public class Voting extends Mechanic {
         OfflineFLPlayer currentTop = FarLands.getDataHandler().getOfflineFLPlayers().stream()
                 .filter(flp -> flp.topVoter).findAny().orElse(null);
         OfflineFLPlayer actualTop = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                .max(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalVotes)).orElse(null);
+                .max(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalSeasonVotes)).orElse(null);
         if (actualTop.uuid != currentTop.uuid) {
             currentTop.topVoter = false;
             actualTop.topVoter = true;

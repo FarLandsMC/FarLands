@@ -19,7 +19,6 @@ import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +31,7 @@ public class OfflineFLPlayer {
     public String lastIP;
     public int secondsPlayed;
     public int totalVotes;
+    public int totalSeasonVotes;
     public int monthVotes;
     public int voteRewards;
     public int amountDonated;
@@ -70,6 +70,7 @@ public class OfflineFLPlayer {
         this.lastIP = "";
         this.secondsPlayed = 0;
         this.totalVotes = 0;
+        this.totalSeasonVotes = 0;
         this.monthVotes = 0;
         this.voteRewards = 0;
         this.amountDonated = 0;
@@ -173,6 +174,7 @@ public class OfflineFLPlayer {
 
     public void addVote() {
         ++ totalVotes;
+        ++ totalSeasonVotes;
         ++ monthVotes;
         FLPlayerSession session = getSession();
         if(session != null) {

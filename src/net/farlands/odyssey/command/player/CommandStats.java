@@ -26,24 +26,26 @@ public class CommandStats extends Command {
         final boolean isPersonal = args.length <= 0;
         final OfflineFLPlayer flp = isPersonal ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
                 : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
-        if(flp == null) {
+        if (flp == null) {
             sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.update(); // Make sure our stats are fresh
             sendFormatted(sender,
-                "&(green)Showing stats for {&(gold)%0:}\n" +
-                "Rank: {%1}\n" +
-                "Time Played: %2\n" +
-                (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
-                        flp.amountDonated + "\n" : "") +
-                "Votes this Month: %3\n" +
-                "Total Votes: %4",
+                    "&(green)Showing stats for {&(gold)%0:}\n" +
+                            "Rank: {%1}\n" +
+                            "Time Played: %2\n" +
+                            (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
+                                    flp.amountDonated + "\n" : "") +
+                            "Votes this Month: %3\n" +
+                            "Total Votes this Season: %4\n" +
+                            "Total Votes All Time: %5",
                     flp.username,
                     "&(" + flp.rank.getColor().name().toLowerCase() + ")" + flp.rank.getName(),
                     TimeInterval.formatTime(flp.secondsPlayed * 1000L, false),
                     flp.monthVotes,
+                    flp.totalSeasonVotes,
                     flp.totalVotes
             );
         });

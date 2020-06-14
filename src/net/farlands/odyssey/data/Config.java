@@ -14,8 +14,6 @@ import java.util.Map;
  */
 public class Config {
     public int fds; // Flight detection sensitivity, a number between 0 and 99 inclusive, 0 being least sensitive
-    public int publicItems;
-    public int totalItems;
     public int rotatingMessageGap;
     public int gcCycleTime;
     public long restartTime; // Time in ms since midnight UTC
@@ -34,8 +32,6 @@ public class Config {
 
     public Config() {
         this.fds = 80;
-        this.publicItems = 3;
-        this.totalItems = 4;
         this.rotatingMessageGap = 5;
         this.gcCycleTime = 5;
         this.restartTime = 14400000L;

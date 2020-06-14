@@ -71,7 +71,7 @@ public class MechanicHandler implements Listener {
     @EventHandler(priority=EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         mechanics.forEach(mechanic -> mechanic.onPlayerJoin(event.getPlayer(),
-                FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).secondsPlayed < 30));
+                FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).secondsPlayed < 10));
     }
 
     @EventHandler

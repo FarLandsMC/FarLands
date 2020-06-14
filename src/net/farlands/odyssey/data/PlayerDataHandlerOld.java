@@ -8,7 +8,6 @@ import net.farlands.odyssey.util.Pair;
 import net.farlands.odyssey.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -507,7 +506,7 @@ public class PlayerDataHandlerOld {
         }
     }
 
-    private OfflineFLPlayer loadFLPlayer(UUID uuid, String username) {
+    public OfflineFLPlayer loadFLPlayer(UUID uuid, String username) {
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getFlpByUuid"));
             byte[] serUuid = FLUtils.serializeUuid(uuid);
@@ -529,37 +528,32 @@ public class PlayerDataHandlerOld {
                 connection.commit();
                 return flp;
             }
+
+            int rankOrdinal = rs.getInt("rank");
+
             if(username == null)
                 flp.username = rs.getString("username");
             flp.discordID = rs.getLong("discordID");
             flp.lastLogin = rs.getLong("lastLogin");
-            flp.nickname = rs.getString("nickname");
+            flp.nickname = rankOrdinal < 8 ? "" : rs.getString("nickname");
             flp.lastIP = rs.getString("lastIP");
-            flp.secondsPlayed = rs.getInt("secondsPlayed");
+            flp.secondsPlayed = 0;
             flp.totalVotes = rs.getInt("totalVotes");
-            flp.monthVotes = rs.getInt("monthVotes");
-            flp.voteRewards = rs.getInt("voteRewards");
+            flp.monthVotes = 0;
+            flp.voteRewards = 0;
             flp.amountDonated = rs.getInt("amountDonated");
-            flp.shops = rs.getInt("shops");
+            flp.shops = 0;
             int flags = rs.getInt("flags");
-            flp.flightPreference = (flags & 0x80) != 0;
-            flp.god = (flags & 0x40) != 0;
-            flp.vanished = (flags & 0x20) != 0;
+            flp.flightPreference = false;
+            flp.god = false;
+            flp.vanished = false;
             flp.censoring = (flags & 0x10) != 0;
             flp.pvp = (flags & 0x8) != 0;
-            flp.topVoter = (flags & 0x4) != 0;
-            flp.viewedPatchnotes = (flags & 0x2) != 0;
+            flp.topVoter = false;
+            flp.viewedPatchnotes = true;
             flp.debugging = (flags & 0x1) != 0;
-            int particleType = rs.getInt("particles_type"), loc = rs.getInt("particles_location");
-            if(particleType >= 0 && loc >= 0)
-                flp.setParticles(Particle.values()[particleType], Particles.ParticleLocation.VALUES[loc]);
-            flp.rank = Rank.VALUES[rs.getInt("rank")];
-            flp.setLastLocation(Bukkit.getWorld(DataHandler.WORLDS.get(rs.getInt("lastLocation_world"))).getUID(),
-                    rs.getDouble("lastLocation_x"), rs.getDouble("lastLocation_y"), rs.getDouble("lastLocation_z"),
-                    rs.getFloat("lastLocation_yaw"), rs.getFloat("lastLocation_pitch"));
-            long muteDateEnds = rs.getLong("currentMute_dateEnds");
-            if(muteDateEnds > 0)
-                flp.currentMute = new Mute(muteDateEnds, rs.getString("currentMute_reason"));
+            flp.rank = rankOrdinal >= 8 ? Rank.VALUES[rankOrdinal] : Rank.INITIATE;
+            flp.setLastLocation(Bukkit.getWorld("world").getUID(), 0, 0, 0, 0, 0);
             byte[] ignoredPlayers = rs.getBytes("ignoredPlayers");
             if(ignoredPlayers != null) {
                 for (int i = 0; i + 15 < ignoredPlayers.length; i += 16)
@@ -567,8 +561,6 @@ public class PlayerDataHandlerOld {
             }
 
             flp.punishments = getPunishments(uuid);
-            flp.homes = getHomes(uuid);
-            flp.mail = getMail(uuid);
 
             rs.close();
             ps.close();
