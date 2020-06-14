@@ -5,7 +5,7 @@ var eval = function(exp) {
 /* Global Shortcuts */
 var org = Packages.org;
 var net = Packages.net;
-var fl = net.farlands.odyssey;
+var fl = net.farlands.sanctuary;
 var FL = fl.FarLands;
 var plugin = FL.getInstance();
 var Bukkit = org.bukkit.Bukkit;

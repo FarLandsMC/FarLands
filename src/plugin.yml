@@ -1,7 +1,7 @@
 api-version: 1.14
-main: net.farlands.odyssey.FarLands
+main: net.farlands.sanctuary.FarLands
 name: FarLands
-description: FarLands version 2 - Odyssey
+description: FarLands version 3 - Sanctuary
 authors: [xCassyx, Kishiko73, SuperAnimeBoi]
-version: 2
+version: 3
 depend: [ChestShops, ProtocolLib, RegionProtection, Votifier]
