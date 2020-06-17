@@ -29,6 +29,10 @@ public abstract class GameBase<T> extends Mechanic {
         playerData.put(player, data);
     }
 
+    protected boolean isPlaying(Player player) {
+        return playerData.containsKey(player);
+    }
+
     protected T getData(Player player) {
         return playerData.get(player);
     }
