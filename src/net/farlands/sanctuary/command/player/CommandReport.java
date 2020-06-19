@@ -5,6 +5,7 @@ import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
@@ -20,7 +21,7 @@ import java.util.List;
 
 public class CommandReport extends Command {
     public CommandReport() {
-        super(Rank.INITIATE, "Report a player, glitch, location, and more.", "/report <player|location|glitch|other> <description>",
+        super(Rank.INITIATE, Category.REPORTS, "Report a player, glitch, location, and more.", "/report <player|location|glitch|other> <description>",
                 "report");
     }
 

@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
@@ -10,7 +11,7 @@ import org.bukkit.entity.Player;
 
 public class CommandExtinguish extends PlayerCommand {
     public CommandExtinguish() {
-        super(Rank.PATRON, "Put yourself out if you are on fire.", "/extinguish", "extinguish", "ext");
+        super(Rank.PATRON, Category.UTILITY, "Put yourself out if you are on fire.", "/extinguish", "extinguish", "ext");
     }
 
     @Override

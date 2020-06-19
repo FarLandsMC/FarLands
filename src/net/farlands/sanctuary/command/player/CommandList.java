@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
@@ -17,7 +18,7 @@ import java.util.*;
 
 public class CommandList extends Command {
     public CommandList() {
-        super(Rank.INITIATE, "See the players currently online.", "/list", "list", "who");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "See the players currently online.", "/list", "list", "who");
     }
 
     @Override

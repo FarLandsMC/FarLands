@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -21,7 +22,7 @@ public class CommandShovel extends PlayerCommand {
     private final ItemStack shovel;
 
     public CommandShovel() {
-        super(Rank.INITIATE, "Get a claim shovel.", "/shovel", "shovel");
+        super(Rank.INITIATE, Category.UTILITY, "Get a claim shovel.", "/shovel", "shovel");
         this.shovel = genShovel();
     }
 

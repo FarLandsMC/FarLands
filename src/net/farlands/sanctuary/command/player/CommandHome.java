@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class CommandHome extends PlayerCommand {
     public CommandHome() {
-        super(Rank.INITIATE, "Go to a home that you have already set.", "/home [name=home]", "home");
+        super(Rank.INITIATE, Category.HOMES, "Go to a home that you have already set.", "/home [name=home]", "home");
     }
 
     @Override

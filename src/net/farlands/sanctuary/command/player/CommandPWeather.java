@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class CommandPWeather extends PlayerCommand {
     public CommandPWeather() {
-        super(Rank.SAGE, "Change your personal in-game weather.", "/pweather <clear|reset>", "pweather");
+        super(Rank.SAGE, Category.PLAYER_SETTINGS_AND_INFO, "Change your personal in-game weather.", "/pweather <clear|reset>", "pweather");
     }
 
     @Override

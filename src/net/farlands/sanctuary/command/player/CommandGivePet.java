@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -15,7 +16,8 @@ import java.util.*;
 
 public class CommandGivePet extends PlayerCommand {
     public CommandGivePet() {
-        super(Rank.INITIATE, "Transfer one of your pets to another player.", "/givepet <player|cancel>", "givepet");
+        super(Rank.INITIATE, Category.MISCELLANEOUS, "Transfer one of your pets to another player, or cancel a transfer.",
+                "/givepet <player|cancel>", "givepet");
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 
@@ -12,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class CommandVote extends Command {
     public CommandVote() {
-        super(Rank.INITIATE, "Get the link to vote for FarLands.", "/vote", "vote");
+        super(Rank.INITIATE, Category.MISCELLANEOUS, "Get the link to vote for FarLands.", "/vote", "vote");
     }
 
     @Override

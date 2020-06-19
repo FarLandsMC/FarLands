@@ -10,8 +10,18 @@ import org.bukkit.entity.Player;
  * the sender being an online player.
  */
 public abstract class PlayerCommand extends Command {
-    protected PlayerCommand(Rank minRank, String description, String usage, boolean requiresAlias, String name, String... aliases) {
-        super(minRank, description, usage, requiresAlias, name, aliases);
+    protected PlayerCommand(Rank minRank, Category category, String description, String usage, boolean requiresAlias,
+                            String name, String... aliases) {
+        super(minRank, category, description, usage, requiresAlias, name, aliases);
+    }
+
+    protected PlayerCommand(Rank minRank, Category category, String description, String usage, String name, String... aliases) {
+        this(minRank, category, description, usage, false, name, aliases);
+    }
+
+    protected PlayerCommand(Rank minRank, String description, String usage, boolean requiresAlias,
+                            String name, String... aliases) {
+        this(minRank, Category.STAFF, description, usage, requiresAlias, name, aliases);
     }
 
     protected PlayerCommand(Rank minRank, String description, String usage, String name, String... aliases) {

@@ -8,6 +8,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -19,7 +20,7 @@ import org.bukkit.entity.Player;
 
 public class CommandSetHome extends PlayerCommand {
     public CommandSetHome() {
-        super(Rank.INITIATE, "Set a home where you are standing. Access your homes later with /home.", "/sethome [name=home]", "sethome");
+        super(Rank.INITIATE, Category.HOMES, "Set a home where you are standing. Access your homes later with /home.", "/sethome [name=home]", "sethome");
     }
 
     @Override

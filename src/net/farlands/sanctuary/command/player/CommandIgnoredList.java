@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class CommandIgnoredList extends PlayerCommand {
     public CommandIgnoredList() {
-        super(Rank.INITIATE, "List the players you are ignoring.", "/ignoredlist", "ignoredlist", "ignorelist");
+        super(Rank.INITIATE, Category.CHAT, "List the players you are ignoring.", "/ignoredlist", "ignoredlist", "ignorelist");
     }
 
     @Override

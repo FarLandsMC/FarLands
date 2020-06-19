@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
@@ -17,7 +18,7 @@ public class CommandCensor extends PlayerCommand {
     private final Map<UUID, Integer> ranCommandOnce;
 
     public CommandCensor() {
-        super(Rank.INITIATE, "Toggle on or off chat censor.", "/censor", "censor");
+        super(Rank.INITIATE, Category.CHAT, "Toggle on or off chat censor.", "/censor", "censor");
         this.ranCommandOnce = new HashMap<>();
     }
 

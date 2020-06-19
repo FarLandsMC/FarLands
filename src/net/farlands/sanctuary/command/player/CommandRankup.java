@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
@@ -15,7 +16,7 @@ import org.bukkit.entity.Player;
 
 public class CommandRankup extends Command {
     public CommandRankup() {
-        super(Rank.INITIATE, "Check how long until you rank up.", "/rankup", "rankup");
+        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Check how long until you rank up.", "/rankup", "rankup");
     }
 
     @Override

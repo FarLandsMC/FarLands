@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.command.player;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
@@ -10,7 +11,8 @@ import org.bukkit.inventory.PlayerInventory;
 
 public class CommandHat extends PlayerCommand {
     public CommandHat() {
-        super(Rank.DONOR, "Place the current item in your main hand on your head.", "/hat|/nohat", true, "hat", "nohat");
+        super(Rank.DONOR, Category.COSMETIC, "Place the current item in your main hand on your head, or remove the current item.",
+                "/hat|nohat", true, "hat", "nohat");
     }
 
     @Override

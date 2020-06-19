@@ -5,6 +5,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import static com.kicas.rp.util.TextUtils.format;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -28,8 +29,8 @@ public class CommandMessage extends PlayerCommand {
     private static final String REPLY_ALIAS = "r";
 
     public CommandMessage() {
-        super(Rank.INITIATE, "Send a private message to another player.", "/msg <player> <message>", true, "msg",
-                "w", "m", REPLY_ALIAS, "tell", "whisper");
+        super(Rank.INITIATE, Category.CHAT, "Send a private message to another player, reply to a conversation (/r), or toggle auto-messaging (/m <player>).",
+                "/msg <player> <message>", true, "msg", "w", "m", REPLY_ALIAS, "tell", "whisper");
     }
 
     @Override

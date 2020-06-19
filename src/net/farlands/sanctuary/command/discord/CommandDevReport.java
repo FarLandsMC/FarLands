@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.discord;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.Rank;
@@ -15,8 +16,8 @@ public class CommandDevReport extends DiscordCommand {
     private final Cooldown globalCooldown;
 
     public CommandDevReport() {
-        super(Rank.INITIATE, "Issue a suggestion or bug report for staff to review.", "/suggest|bugreport <message>", true,
-                "suggest", "bugreport", "glitch");
+        super(Rank.INITIATE, Category.REPORTS, "Issue a suggestion or bug report for staff to review.",
+                "/suggest|bugreport <message>", true, "suggest", "bugreport", "glitch");
         this.globalCooldown = new Cooldown(10L * 60L * 20L);
     }
 

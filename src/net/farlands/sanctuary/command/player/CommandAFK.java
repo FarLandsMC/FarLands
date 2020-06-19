@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -14,7 +15,7 @@ import org.bukkit.entity.Player;
 
 public class CommandAFK extends PlayerCommand {
     public CommandAFK() {
-        super(Rank.INITIATE, "Place yourself in AFK mode.", "/afk", "afk");
+        super(Rank.INITIATE, Category.MISCELLANEOUS, "Place yourself in AFK mode.", "/afk", "afk");
     }
 
     @Override

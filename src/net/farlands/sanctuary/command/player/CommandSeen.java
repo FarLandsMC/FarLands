@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -20,7 +21,7 @@ import java.util.List;
 
 public class CommandSeen extends Command {
     public CommandSeen() {
-        super(Rank.INITIATE, "Check when a player was last online.", "/seen [player]", "seen");
+        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Check when a player was last online.", "/seen [player]", "seen");
     }
 
     @Override

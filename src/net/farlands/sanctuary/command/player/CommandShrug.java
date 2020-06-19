@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -19,8 +20,8 @@ public class CommandShrug extends PlayerCommand {
     private static final String UNFLIP = "┬─┬ ノ( ゜-゜ノ)";
 
     public CommandShrug() {
-        super(Rank.INITIATE, "Append [" + SHRUG + "|" + TABLEFLIP + "|" + UNFLIP + "] to the end of your message.",
-                "/shrug|tableflip|unflip [action]", true,"shrug", "tableflip", "unflip");
+        super(Rank.INITIATE, Category.CHAT, "Append text emojis to the end of your message.",
+                "/shrug|tableflip|unflip [action]", true, "shrug", "tableflip", "unflip");
     }
 
     @Override

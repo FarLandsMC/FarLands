@@ -6,6 +6,7 @@ import static com.kicas.rp.util.Utils.*;
 import static net.farlands.sanctuary.util.FLUtils.RNG;
 import static net.farlands.sanctuary.util.FLUtils.tpPlayer;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -25,7 +26,7 @@ public class CommandWild extends PlayerCommand {
     private final Cooldown globalCooldown;
 
     public CommandWild() {
-        super(Rank.INITIATE, "Teleport to a random location on the map.", "/wild", "wild", "rtp");
+        super(Rank.INITIATE, Category.TELEPORTING, "Teleport to a random location on the map.", "/wild", "wild", "rtp");
         this.globalCooldown = new Cooldown(200L);
     }
 

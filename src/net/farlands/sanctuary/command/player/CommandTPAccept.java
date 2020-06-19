@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class CommandTPAccept extends PlayerCommand {
     public CommandTPAccept() {
-        super(Rank.INITIATE, "Accept a teleport request.", "/tpaccept [player]", true, "tpaccept", "tpdecline");
+        super(Rank.INITIATE, Category.TELEPORTING, "Accept a teleport request.", "/tpaccept [player]", true, "tpaccept", "tpdecline");
     }
 
     @Override

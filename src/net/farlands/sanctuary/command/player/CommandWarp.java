@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class CommandWarp extends PlayerCommand {
     public CommandWarp() {
-        super(Rank.INITIATE, "Teleport to a server warp.", "/warp <warp>", "warp");
+        super(Rank.INITIATE, Category.TELEPORTING, "Teleport to a server warp.", "/warp <warp>", "warp");
     }
 
     @Override

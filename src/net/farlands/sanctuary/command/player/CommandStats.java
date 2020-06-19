@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class CommandStats extends Command {
     public CommandStats() {
-        super(Rank.INITIATE, "Show the stats of a player.", "/stats", "stats");
+        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Show the stats of a player.", "/stats", "stats");
     }
 
     @Override

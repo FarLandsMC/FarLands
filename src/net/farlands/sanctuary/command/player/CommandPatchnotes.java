@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
@@ -14,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class CommandPatchnotes extends Command {
     public CommandPatchnotes() {
-        super(Rank.INITIATE, "View the current patchnotes.", "/patchnotes", "patchnotes");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "View the current patchnotes.", "/patchnotes", "patchnotes");
     }
 
     @Override

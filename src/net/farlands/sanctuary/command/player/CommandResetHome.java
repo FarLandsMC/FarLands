@@ -9,6 +9,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -24,7 +25,7 @@ import java.util.List;
 
 public class CommandResetHome extends PlayerCommand {
     public CommandResetHome() {
-        super(Rank.INITIATE, "Move a home where you are standing.", "/resethome [name=home]", "resethome", "movehome", "movhome");
+        super(Rank.INITIATE, Category.HOMES, "Move a home to where you are standing.", "/resethome [name=home]", "resethome", "movehome", "movhome");
     }
 
     @Override

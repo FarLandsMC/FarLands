@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class CommandDonate extends Command {
     public CommandDonate() {
-        super(Rank.INITIATE, "List donation costs and perks.", "/donate", "donate");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "List donation costs and perks.", "/donate", "donate");
     }
 
     @Override

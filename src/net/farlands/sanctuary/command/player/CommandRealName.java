@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -14,7 +15,7 @@ import java.util.List;
 
 public class CommandRealName extends Command {
     public CommandRealName() {
-        super(Rank.INITIATE, "Get the real name of a player.", "/realname <nickname>", "realname", "rn");
+        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Get the real name of a player.", "/realname <nickname>", "realname", "rn");
     }
 
     @Override

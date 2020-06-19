@@ -24,12 +24,24 @@ public abstract class Command extends org.bukkit.command.Command {
     protected final List<String> aliases;
     protected final Rank minimumRankRequirement;
     protected final boolean requiresAlias; // Whether we should pass the alias in the arguments
+    protected final Category category;
 
-    protected Command(Rank minRank, String description, String usage, boolean requiresAlias, String name, String... aliases) {
+    protected Command(Rank minRank, Category category, String description, String usage, boolean requiresAlias,
+                      String name, String... aliases) {
         super(name, description, usage, Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList()));
         this.aliases = Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList());
         this.minimumRankRequirement = minRank;
         this.requiresAlias = requiresAlias;
+        this.category = category;
+    }
+
+    protected Command(Rank minRank, Category category, String description, String usage, String name, String... aliases) {
+        this(minRank, category, description, usage, false, name, aliases);
+    }
+
+    protected Command(Rank minRank, String description, String usage, boolean requiresAlias,
+                      String name, String... aliases) {
+        this(minRank, Category.STAFF, description, usage, requiresAlias, name, aliases);
     }
 
     protected Command(Rank minRank, String description, String usage, String name, String... aliases) {
@@ -105,6 +117,10 @@ public abstract class Command extends org.bukkit.command.Command {
 
     public Rank getMinRankRequirement() {
         return minimumRankRequirement;
+    }
+
+    public Category getCategory() {
+        return category;
     }
 
     protected void showUsage(CommandSender sender) {

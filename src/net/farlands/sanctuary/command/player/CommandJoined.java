@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -25,7 +26,7 @@ public class CommandJoined extends Command {
     }
 
     public CommandJoined() {
-        super(Rank.INITIATE, "See when a player first joined the server.", "/joined [player]", "joined");
+        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "See when a player first joined the server.", "/joined [player]", "joined");
     }
 
     @Override

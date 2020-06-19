@@ -5,6 +5,7 @@ import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Materials;
 import com.kicas.rp.util.Utils;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
@@ -24,7 +25,7 @@ public class CommandCraft extends PlayerCommand {
             .filter(Materials::hasRecipe).map(Utils::formattedName).collect(Collectors.toList());
 
     public CommandCraft() {
-        super(Rank.PATRON, "Open a crafting window.", "/craft [item] [amount]", "craft");
+        super(Rank.PATRON, Category.UTILITY, "Open a crafting window.", "/craft [item] [amount]", "craft");
     }
 
     @Override

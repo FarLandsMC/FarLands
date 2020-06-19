@@ -5,6 +5,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.MailMessage;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 public class CommandMail extends Command {
     public CommandMail() {
-        super(Rank.INITIATE, "Send a mail message to a player.", "/mail <send|read|clear> [player|pageNumber] [message]", "mail");
+        super(Rank.INITIATE, Category.CHAT, "Send a mail message to a player.", "/mail <send|read|clear> [player|pageNumber] [message]", "mail");
     }
 
     @Override

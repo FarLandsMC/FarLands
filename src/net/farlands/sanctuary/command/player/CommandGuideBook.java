@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import static net.farlands.sanctuary.util.FLUtils.giveItem;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -24,7 +25,7 @@ public class CommandGuideBook extends PlayerCommand {
     private final ItemStack book;
 
     public CommandGuideBook() {
-        super(Rank.INITIATE, "Get a guide book.", "/guidebook", "guidebook");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "Get a guide book.", "/guidebook", "guidebook");
         this.book = buildBook();
     }
 

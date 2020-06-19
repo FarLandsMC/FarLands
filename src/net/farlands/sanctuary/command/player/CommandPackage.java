@@ -5,6 +5,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Materials;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -24,7 +25,7 @@ import java.util.List;
 
 public class CommandPackage extends PlayerCommand {
     public CommandPackage() {
-        super(Rank.KNIGHT, "Send held item to other players.", "/package <player> [message]", "package");
+        super(Rank.KNIGHT, Category.MISCELLANEOUS, "Send held item to other players.", "/package <player> [message]", "package");
     }
 
     @Override

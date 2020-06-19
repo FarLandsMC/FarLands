@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class CommandSpawn extends Command {
     public CommandSpawn() {
-        super(Rank.INITIATE, "Teleport to the server spawn.", "/spawn", "spawn");
+        super(Rank.INITIATE, Category.TELEPORTING, "Teleport to the server spawn.", "/spawn", "spawn");
     }
 
     @Override

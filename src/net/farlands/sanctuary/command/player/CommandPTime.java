@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.util.FLUtils;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class CommandPTime extends PlayerCommand {
     public CommandPTime() {
-        super(Rank.KNIGHT, "Set the time of your personal clock.", "/ptime <time>", "ptime");
+        super(Rank.KNIGHT, Category.PLAYER_SETTINGS_AND_INFO, "Set the time of your personal clock.", "/ptime <time>", "ptime");
     }
 
     @Override

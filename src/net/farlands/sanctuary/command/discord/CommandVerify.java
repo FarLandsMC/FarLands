@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.discord;
 import com.kicas.rp.util.Pair;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -24,7 +25,7 @@ public class CommandVerify extends DiscordCommand {
     private static final long VERIFICATION_EXPIRATION_TIME = 2L * 60L * 1000L;
 
     public CommandVerify() {
-        super(Rank.INITIATE, "Verify and link your discord account to your Minecraft account.", "/verify <inGameName>", "verify");
+        super(Rank.INITIATE, Category.MISCELLANEOUS, "Links your discord account to your Minecraft account.", "/verify <inGameName>", "verify");
         this.verificationMap = new HashMap<>();
     }
 

@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.staff.CommandEntityCount;
 import net.farlands.sanctuary.data.Rank;
@@ -27,7 +28,7 @@ public class CommandWhyLag extends Command {
     private static final double[] CLUSTER_COLORING = {0, 2, 4, 6};
 
     public CommandWhyLag() {
-        super(Rank.INITIATE, "View any reasons for server or personal lag.", "/whylag", true,
+        super(Rank.INITIATE, Category.INFORMATIONAL, "View any reasons for server or personal lag.", "/whylag", true,
                 "whylag", "lag", "tps", "ping");
     }
 

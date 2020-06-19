@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
@@ -18,7 +19,7 @@ import java.util.List;
 
 public class CommandHomes extends Command {
     public CommandHomes() {
-        super(Rank.INITIATE, "List your homes.", "/homes", "homes");
+        super(Rank.INITIATE, Category.HOMES, "List your homes.", "/homes", "homes");
     }
 
     @Override

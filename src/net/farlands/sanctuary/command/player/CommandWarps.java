@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
@@ -10,7 +11,7 @@ import org.bukkit.entity.Player;
 
 public class CommandWarps extends PlayerCommand {
     public CommandWarps() {
-        super(Rank.INITIATE, "View the list of server warps.", "/warps", "warps", "warplist", "warpslist");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "View the list of server warps.", "/warps", "warps", "warplist", "warpslist");
     }
 
     @Override

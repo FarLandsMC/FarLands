@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.data.Rank;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class CommandRanks extends Command {
     public CommandRanks() {
-        super(Rank.INITIATE, "Show all player ranks.", "/ranks", "ranks");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "Show all player ranks.", "/ranks", "ranks");
     }
 
     @Override

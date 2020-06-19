@@ -8,6 +8,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Materials;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.LocationWrapper;
@@ -62,7 +63,8 @@ public class CommandStack extends PlayerCommand {
     }
 
     public CommandStack() {
-        super(Rank.ESQUIRE, "Stack all items of a similar type in your inventory.", "/stack [container]", "stack", "condense");
+        super(Rank.ESQUIRE, Category.UTILITY, "Stack all items of a similar type in your inventory, or use " +
+                "/stack container to stack a container's contents.", "/stack [container]", "stack", "condense");
     }
 
     @Override

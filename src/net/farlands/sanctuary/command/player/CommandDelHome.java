@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class CommandDelHome extends PlayerCommand {
     public CommandDelHome() {
-        super(Rank.INITIATE, "Delete a home you have already set.", "/delhome [name=home]", "delhome");
+        super(Rank.INITIATE, Category.HOMES, "Delete a home you have already set.", "/delhome [name=home]", "delhome");
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -22,7 +23,7 @@ import java.util.List;
 
 public class CommandSkull extends PlayerCommand {
     public CommandSkull() {
-        super(Rank.SAGE, "Give yourself a player's head.", "/skull <name> [amount]", "skull");
+        super(Rank.SAGE, Category.COSMETIC, "Give yourself a player's head.", "/skull <name> [amount]", "skull");
     }
 
     @Override

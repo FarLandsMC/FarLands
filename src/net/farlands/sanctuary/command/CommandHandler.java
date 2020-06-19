@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.discord.*;
 import net.farlands.sanctuary.command.player.*;
+import net.farlands.sanctuary.command.player.CommandHelp;
 import net.farlands.sanctuary.command.player.CommandList;
 import net.farlands.sanctuary.command.player.CommandMe;
 import net.farlands.sanctuary.command.staff.*;
@@ -79,6 +80,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandGivePet());          // Initiate
         registerCommand(new CommandGuideBook());        // Initiate
         registerCommand(new CommandHat());              // Donor
+        registerCommand(new CommandHelp());             // Initiate
         registerCommand(new CommandHome());             // Initiate
         registerCommand(new CommandHomes());            // Initiate
         registerCommand(new CommandIgnore());           // Initiate
@@ -166,6 +168,10 @@ public class CommandHandler extends Mechanic {
         return (T)commands.stream().filter(c -> clazz.equals(c.getClass())).findAny().orElse(null);
     }
 
+    public Command getCommand(String alias) {
+        return commands.stream().filter(cmd -> cmd.matches(alias)).findAny().orElse(null);
+    }
+
     public List<Command> getCommands() {
         return commands;
     }
@@ -178,7 +184,7 @@ public class CommandHandler extends Mechanic {
         Logging.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
         String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         final String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
-        Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
+        Command c = getCommand(command);
         if((!(c instanceof DiscordCommand)) && FarLands.getDiscordHandler().getChannel(DiscordChannel.IN_GAME).getIdLong() != message.getChannel().getIdLong() &&
                 FarLands.getDiscordHandler().getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() != message.getChannel().getIdLong()) {
             return false;
@@ -254,7 +260,7 @@ public class CommandHandler extends Mechanic {
         FarLands.getMechanicHandler().getMechanic(Chat.class).spamUpdate(player, fullCommand);
         String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
-        Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
+        Command c = getCommand(command);
         // Notify staff of usage
         if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))))
             Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
@@ -285,7 +291,7 @@ public class CommandHandler extends Mechanic {
 
         String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
         String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
-        Command c = commands.stream().filter(cmd -> cmd.matches(command)).findAny().orElse(null);
+        Command c = getCommand(command);
         // Notify staff of usage
         if(!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))) ||
                 sender instanceof BlockCommandSender))

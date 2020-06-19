@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -20,7 +21,7 @@ import org.bukkit.potion.PotionEffectType;
 public class CommandSit extends PlayerCommand {
 
     public CommandSit() {
-        super(Rank.KNIGHT, "Have a seat.", "/sit", "sit");
+        super(Rank.KNIGHT, Category.MISCELLANEOUS, "Have a seat.", "/sit", "sit");
     }
 
     @Override

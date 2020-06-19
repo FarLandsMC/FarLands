@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -19,7 +20,8 @@ import java.util.stream.Stream;
 
 public class CommandTop extends Command {
     public CommandTop() {
-        super(Rank.INITIATE, "View the people with the most votes or play time.", "/top <votes|playtime|donors> votes?[default:month|all]", "top");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "View the people with the most votes or play time.",
+                "/top <votes|playtime|donors> [month|all]", "top");
     }
 
     @Override

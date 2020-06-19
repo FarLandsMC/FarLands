@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class CommandColors extends PlayerCommand {
     public CommandColors() {
-        super(Rank.ADEPT, "Show available color codes.", "/colors", "colors", "colours");
+        super(Rank.ADEPT, Category.COSMETIC, "Show available color codes.", "/colors", "colors", "colours");
     }
 
     @Override

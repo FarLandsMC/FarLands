@@ -5,6 +5,7 @@ import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.Particles;
 import net.farlands.sanctuary.data.Rank;
@@ -25,7 +26,7 @@ public class CommandParticles extends PlayerCommand {
             Particle.REDSTONE, Particle.BLOCK_CRACK);
 
     public CommandParticles() {
-        super(Rank.DONOR, "Choose a particle to spawn around you.", "/particles <type> [location=above-head]", "particles");
+        super(Rank.DONOR, Category.COSMETIC, "Choose a particle to spawn around you.", "/particles <type> [location=above-head]", "particles");
     }
 
     @Override

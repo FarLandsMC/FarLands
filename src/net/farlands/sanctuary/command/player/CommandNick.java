@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
@@ -12,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class CommandNick extends PlayerCommand {
     public CommandNick() {
-        super(Rank.ADEPT, "Set your nickname. Use /nonick to remove your nickname.", "/nick <name>", true, "nick", "nonick");
+        super(Rank.ADEPT, Category.COSMETIC, "Set your nickname. Use /nonick to remove your nickname.", "/nick|nonick [name]", true, "nick", "nonick");
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -17,7 +18,8 @@ import java.util.List;
 
 public class CommandIgnore extends Command {
     public CommandIgnore() {
-        super(Rank.INITIATE, "Ignores a player so that you do not see any of their messages.", "/ignore <player>", true, "ignore", "unignore");
+        super(Rank.INITIATE, Category.CHAT, "Ignores a player so that you do not see any of their messages.", "/ignore <player>", true,
+                "ignore", "unignore");
     }
 
     @Override

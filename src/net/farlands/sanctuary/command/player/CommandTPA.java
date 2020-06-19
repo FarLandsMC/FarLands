@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class CommandTPA extends PlayerCommand {
     public CommandTPA() {
-        super(Rank.INITIATE, "Request to teleport to another player.", "/tpa <player>", true, "tpa", "tpahere");
+        super(Rank.INITIATE, Category.TELEPORTING, "Request to teleport to another player.", "/tpa <player>", true, "tpa", "tpahere");
     }
 
     @Override
