@@ -13,7 +13,8 @@ import org.bukkit.entity.Player;
 
 public class CommandNick extends PlayerCommand {
     public CommandNick() {
-        super(Rank.ADEPT, Category.COSMETIC, "Set your nickname. Use /nonick to remove your nickname.", "/nick|nonick [name]", true, "nick", "nonick");
+        super(Rank.ADEPT, Category.COSMETIC, "Set your nickname or remove your current nickname.", "/nick|/nonick [name]",
+                true, "nick", "nonick");
     }
 
     @Override

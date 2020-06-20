@@ -20,7 +20,7 @@ import java.util.List;
 
 public class CommandHome extends PlayerCommand {
     public CommandHome() {
-        super(Rank.INITIATE, Category.HOMES, "Go to a home that you have already set.", "/home [name=home]", "home");
+        super(Rank.INITIATE, Category.HOMES, "Go to a home that you have already set.", "/home [homeName]", "home");
     }
 
     @Override

@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 
 public class CommandMail extends Command {
     public CommandMail() {
-        super(Rank.INITIATE, Category.CHAT, "Send a mail message to a player.", "/mail <send|read|clear> [player|pageNumber] [message]", "mail");
+        super(Rank.INITIATE, Category.CHAT, "Send a mail message to a player. Offline players will receive your " +
+                "message when they log in.", "/mail <send|read|clear> [player|pageNumber] [message]", "mail");
     }
 
     @Override

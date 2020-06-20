@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
 
 public class CommandPTime extends PlayerCommand {
     public CommandPTime() {
-        super(Rank.KNIGHT, Category.PLAYER_SETTINGS_AND_INFO, "Set the time of your personal clock.", "/ptime <time>", "ptime");
+        super(Rank.KNIGHT, Category.PLAYER_SETTINGS_AND_INFO, "Set the time on your personal in-game clock. Note: " +
+                "this does not affect server time.", "/ptime <time>", "ptime");
     }
 
     @Override

@@ -25,7 +25,7 @@ public class CommandGuideBook extends PlayerCommand {
     private final ItemStack book;
 
     public CommandGuideBook() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "Get a guide book.", "/guidebook", "guidebook");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "Get a guidebook for the server.", "/guidebook", "guidebook");
         this.book = buildBook();
     }
 

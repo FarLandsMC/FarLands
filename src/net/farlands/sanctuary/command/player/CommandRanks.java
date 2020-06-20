@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class CommandRanks extends Command {
     public CommandRanks() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "Show all player ranks.", "/ranks", "ranks");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "Show all available player ranks.", "/ranks", "ranks");
     }
 
     @Override

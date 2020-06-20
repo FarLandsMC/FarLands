@@ -20,7 +20,7 @@ import java.util.List;
 
 public class CommandDelHome extends PlayerCommand {
     public CommandDelHome() {
-        super(Rank.INITIATE, Category.HOMES, "Delete a home you have already set.", "/delhome [name=home]", "delhome");
+        super(Rank.INITIATE, Category.HOMES, "Delete a home you have already set.", "/delhome [homeName]", "delhome");
     }
 
     @Override

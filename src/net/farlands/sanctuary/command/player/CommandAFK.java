@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 
 public class CommandAFK extends PlayerCommand {
     public CommandAFK() {
-        super(Rank.INITIATE, Category.MISCELLANEOUS, "Place yourself in AFK mode.", "/afk", "afk");
+        super(Rank.INITIATE, Category.MISCELLANEOUS, "Notify players that you are AFK.", "/afk", "afk");
     }
 
     @Override

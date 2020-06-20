@@ -25,7 +25,8 @@ public class CommandCraft extends PlayerCommand {
             .filter(Materials::hasRecipe).map(Utils::formattedName).collect(Collectors.toList());
 
     public CommandCraft() {
-        super(Rank.PATRON, Category.UTILITY, "Open a crafting window.", "/craft [item] [amount]", "craft");
+        super(Rank.PATRON, Category.UTILITY, "Open a crafting window or craft a specific item. Note: you will need " +
+                "the required item ingredients to craft it.", "/craft [item] [amount]", "craft");
     }
 
     @Override

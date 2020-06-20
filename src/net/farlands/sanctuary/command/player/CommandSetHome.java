@@ -20,7 +20,8 @@ import org.bukkit.entity.Player;
 
 public class CommandSetHome extends PlayerCommand {
     public CommandSetHome() {
-        super(Rank.INITIATE, Category.HOMES, "Set a home where you are standing. Access your homes later with /home.", "/sethome [name=home]", "sethome");
+        super(Rank.INITIATE, Category.HOMES, "Set a home where you are standing. Access your homes later with /home.",
+                "/sethome [homeName]", "sethome");
     }
 
     @Override

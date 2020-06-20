@@ -11,7 +11,8 @@ import org.bukkit.entity.Player;
 
 public class CommandExtinguish extends PlayerCommand {
     public CommandExtinguish() {
-        super(Rank.PATRON, Category.UTILITY, "Put yourself out if you are on fire.", "/extinguish", "extinguish", "ext");
+        super(Rank.PATRON, Category.UTILITY, "Extinguish the fire effect if you are currently on fire.", "/extinguish",
+                "extinguish", "ext");
     }
 
     @Override

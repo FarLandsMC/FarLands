@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class CommandPatchnotes extends Command {
     public CommandPatchnotes() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "View the current patchnotes.", "/patchnotes", "patchnotes");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "View the most recent patchnotes.", "/patchnotes", "patchnotes");
     }
 
     @Override

@@ -18,7 +18,7 @@ public class CommandCensor extends PlayerCommand {
     private final Map<UUID, Integer> ranCommandOnce;
 
     public CommandCensor() {
-        super(Rank.INITIATE, Category.CHAT, "Toggle on or off chat censor.", "/censor", "censor");
+        super(Rank.INITIATE, Category.CHAT, "Toggle chat censor (profanity filter).", "/censor", "censor");
         this.ranCommandOnce = new HashMap<>();
     }
 

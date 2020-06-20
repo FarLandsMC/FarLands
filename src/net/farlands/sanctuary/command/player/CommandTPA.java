@@ -18,7 +18,8 @@ import java.util.List;
 
 public class CommandTPA extends PlayerCommand {
     public CommandTPA() {
-        super(Rank.INITIATE, Category.TELEPORTING, "Request to teleport to another player.", "/tpa <player>", true, "tpa", "tpahere");
+        super(Rank.INITIATE, Category.TELEPORTING, "Request to teleport to another player or for another player to " +
+                "teleport to you.", "/tpa|/tpahere <player>", true, "tpa", "tpahere");
     }
 
     @Override

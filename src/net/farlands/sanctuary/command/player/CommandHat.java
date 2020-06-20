@@ -11,8 +11,8 @@ import org.bukkit.inventory.PlayerInventory;
 
 public class CommandHat extends PlayerCommand {
     public CommandHat() {
-        super(Rank.DONOR, Category.COSMETIC, "Place the current item in your main hand on your head, or remove the current item.",
-                "/hat|nohat", true, "hat", "nohat");
+        super(Rank.DONOR, Category.COSMETIC, "Place the current item in your main hand on your head, or remove your current equipped hat.",
+                "/hat|/nohat", true, "hat", "nohat");
     }
 
     @Override

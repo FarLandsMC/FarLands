@@ -13,7 +13,7 @@ import java.util.List;
 
 public class CommandIgnoredList extends PlayerCommand {
     public CommandIgnoredList() {
-        super(Rank.INITIATE, Category.CHAT, "List the players you are ignoring.", "/ignoredlist", "ignoredlist", "ignorelist");
+        super(Rank.INITIATE, Category.CHAT, "List ignored players.", "/ignoredlist", "ignoredlist", "ignorelist");
     }
 
     @Override

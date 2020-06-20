@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class CommandColors extends PlayerCommand {
     public CommandColors() {
-        super(Rank.ADEPT, Category.COSMETIC, "Show available color codes.", "/colors", "colors", "colours");
+        super(Rank.ADEPT, Category.COSMETIC, "Show available color codes for chat and signs.", "/colors", "colors", "colours");
     }
 
     @Override

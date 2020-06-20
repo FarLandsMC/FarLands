@@ -1,35 +1,41 @@
 package net.farlands.sanctuary.command.player;
 
+import com.kicas.rp.RegionProtection;
 import com.kicas.rp.util.TextUtils;
 import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ReflectionHelper;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CommandHelp extends Command {
+public class CommandHelp extends net.farlands.sanctuary.command.Command {
     private static final int COMMANDS_PER_PAGE = 8;
 
     public CommandHelp() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "View this help guide.", "/help [category|command] [page]", "help");
+        super(Rank.INITIATE, Category.INFORMATIONAL, "View information on available commands.",
+                "/help [category|command] [page]", "help");
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean execute(CommandSender sender, String[] args) {
         // Show list of categories
         if (args.length == 0) {
             TextUtils.sendFormatted(
                     sender,
                     "&(gold)Commands are organized by category:\n" + Stream.of(Category.VALUES)
-                            .sorted(Comparator.comparing(Category::name))
+                            .filter(category -> category != Category.STAFF)
                             .map(category -> "$(hovercmd,/help " + Utils.formattedName(category) + "," +
                                     "{&(gray)Click to view this category}," + category.getAlias() + "): " +
                                     "{&(white)" + category.getDescription() + "}")
@@ -56,10 +62,26 @@ public class CommandHelp extends Command {
                     command.getDescription()
             );
         } else {
-            List<Command> commands = FarLands.getCommandHandler().getCommands().stream()
-                    .filter(command -> command.getCategory().equals(category))
-                    .sorted(Comparator.comparing(Command::getUsage))
-                    .collect(Collectors.toList());
+            List<Command> commands;
+            if (category == Category.CLAIMS) {
+                Map<String, Command> knownCommands = (Map<String, org.bukkit.command.Command>) ReflectionHelper.getFieldValue(
+                        "knownCommands",
+                        SimpleCommandMap.class,
+                        ((CraftServer) Bukkit.getServer()).getCommandMap()
+                );
+                Set<Command> commandSet = knownCommands.values().stream()
+                        .filter(command -> command instanceof PluginCommand &&
+                                ((PluginCommand)command).getPlugin() == RegionProtection.getInstance())
+                        .collect(Collectors.toSet());
+                commands = commandSet.stream()
+                        .sorted(Comparator.comparing(Command::getUsage))
+                        .collect(Collectors.toList());
+            } else {
+                commands = FarLands.getCommandHandler().getCommands().stream()
+                        .filter(command -> command.getCategory().equals(category))
+                        .sorted(Comparator.comparing(Command::getUsage))
+                        .collect(Collectors.toList());
+            }
 
             int page = 0;
             if (args.length > 1) {
@@ -105,7 +127,7 @@ public class CommandHelp extends Command {
                 String inner = arg.substring(1, arg.length() - 1).replaceAll("\\|", "{&(gold)|}").replaceAll("=", "{&(gold)=}");
                 return arg.substring(0, 1) + "{&(white)" + inner + "}" + arg.substring(arg.length() - 1);
             } else
-                return arg;
+                return arg.replaceAll("\\|", "{&(gray)|}");
         }).collect(Collectors.joining(" "));
     }
 }

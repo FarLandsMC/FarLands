@@ -25,7 +25,8 @@ import java.util.List;
 
 public class CommandResetHome extends PlayerCommand {
     public CommandResetHome() {
-        super(Rank.INITIATE, Category.HOMES, "Move a home to where you are standing.", "/resethome [name=home]", "resethome", "movehome", "movhome");
+        super(Rank.INITIATE, Category.HOMES, "Move a home to where you are standing.", "/resethome [homeName]",
+                "resethome", "movehome", "movhome");
     }
 
     @Override

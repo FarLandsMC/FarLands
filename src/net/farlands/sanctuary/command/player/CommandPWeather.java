@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
 
 public class CommandPWeather extends PlayerCommand {
     public CommandPWeather() {
-        super(Rank.SAGE, Category.PLAYER_SETTINGS_AND_INFO, "Change your personal in-game weather.", "/pweather <clear|reset>", "pweather");
+        super(Rank.SAGE, Category.PLAYER_SETTINGS_AND_INFO, "Set your personal in-game weather. Note: this does not " +
+                "affect server weather.", "/pweather <clear|reset>", "pweather");
     }
 
     @Override

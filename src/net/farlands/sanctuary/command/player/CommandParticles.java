@@ -26,7 +26,8 @@ public class CommandParticles extends PlayerCommand {
             Particle.REDSTONE, Particle.BLOCK_CRACK);
 
     public CommandParticles() {
-        super(Rank.DONOR, Category.COSMETIC, "Choose a particle to spawn around you.", "/particles <type> [location=above-head]", "particles");
+        super(Rank.DONOR, Category.COSMETIC, "Choose a particle to spawn around you. Particles are visible to all players.",
+                "/particles <type> [location=above-head]", "particles");
     }
 
     @Override

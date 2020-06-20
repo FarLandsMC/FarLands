@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 
 public class CommandRankup extends Command {
     public CommandRankup() {
-        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Check how long until you rank up.", "/rankup", "rankup");
+        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Check the requirements for your next rank up.", "/rankup", "rankup");
     }
 
     @Override
