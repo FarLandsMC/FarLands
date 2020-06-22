@@ -143,11 +143,17 @@ public class AFK extends Mechanic {
 
                 if (session.handle.rank.isStaff()) {
                     // Put the player into vanish
-                    FarLands.getCommandHandler().getCommand(CommandVanish.class).execute(session.player, null);
-                    Logging.broadcastStaff(
-                            TextUtils.format("&(red)%0 has gone AFK and is now vanished.", session.handle.username),
-                            DiscordChannel.ALERTS
-                    );
+                    if (!session.handle.vanished) {
+                        FarLands.getCommandHandler().getCommand(CommandVanish.class).execute(session.player, null);
+                        Logging.broadcastStaff(
+                                TextUtils.format("&(red)%0 has gone AFK and is now vanished.", session.handle.username),
+                                DiscordChannel.ALERTS
+                        );
+                        session.handle.secondsPlayed -= session.handle.rank.getAfkCheckInterval() * 60L;
+                    }
+
+                    // Reset the timer
+                    setAFKCooldown(player);
                     return;
                 }
 
