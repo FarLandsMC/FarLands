@@ -170,7 +170,7 @@ public class GeneralMechanics extends Mechanic {
             event.setLine(i, Chat.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return; // Ignore offhand packet
