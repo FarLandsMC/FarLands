@@ -111,12 +111,13 @@ public enum Rank {
         return permissionLevel > 1;
     }
 
-    public boolean hasAfkChecks() {
-        return ordinal() < JR_BUILDER.ordinal();
-    }
-
     public int getAfkCheckInterval() {
-        return hasAfkChecks() ? (ordinal() >= PATRON.ordinal() ? 30 : 15) : 0;
+        if (isStaff())
+            return 20;
+        else if (this == PATRON || this == MEDIA)
+            return 30;
+        else
+            return 15;
     }
 
     public int getPermissionLevel() {

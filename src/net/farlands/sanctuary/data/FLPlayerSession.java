@@ -42,12 +42,16 @@ public class FLPlayerSession {
     public TransientField<String> lastDeletedHomeName;
 
     // Cooldowns
-    public Cooldown afkCheckInitializerCooldown, afkCheckCooldown, mailCooldown, spamCooldown, flyAlertCooldown,
-            flightDetectorMute;
+    public Cooldown afkCheckCooldown,
+            afkCheckInitializerCooldown,
+            flightDetectorMute,
+            flyAlertCooldown,
+            mailCooldown,
+            spamCooldown;
     private final Map<Class<? extends Command>, Integer> commandCooldowns;
 
     // Internally managed fields
-    private List<Location> backLocations;
+    private final List<Location> backLocations;
     private long lastBackLocationModification;
 
     public FLPlayerSession(Player player, OfflineFLPlayer handle) {

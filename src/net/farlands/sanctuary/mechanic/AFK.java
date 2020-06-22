@@ -2,11 +2,14 @@ package net.farlands.sanctuary.mechanic;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.FLCommandEvent;
 import net.farlands.sanctuary.command.player.CommandMessage;
+import net.farlands.sanctuary.command.staff.CommandVanish;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
+import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.Pair;
 import net.farlands.sanctuary.util.FLUtils;
@@ -115,7 +118,7 @@ public class AFK extends Mechanic {
             FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
             if (session.afk)
                 setNotAFK(session);
-            if (session.handle.rank.hasAfkChecks() && session.afkCheckCooldown.isComplete())
+            if (session.afkCheckCooldown != null && session.afkCheckCooldown.isComplete())
                 session.afkCheckInitializerCooldown.resetCurrentTask();
         }
     }
@@ -127,16 +130,24 @@ public class AFK extends Mechanic {
 
     public static void setAFKCooldown(Player player) {
         FLPlayerSession session = FarLands.getDataHandler().getSession(player);
-        if (!session.handle.rank.hasAfkChecks())
-            return;
 
         if (session.afkCheckInitializerCooldown == null)
             session.afkCheckInitializerCooldown = new Cooldown(session.handle.rank.getAfkCheckInterval() * 60L * 20L);
 
         session.afkCheckInitializerCooldown.reset(() -> {
-            if (player.isOnline() && player.isValid()) {
+            if (player.isOnline()) {
                 if ("farlands".equals(player.getWorld().getName()) || player.isGliding() || session.isInEvent) {
                     setAFKCooldown(player);
+                    return;
+                }
+
+                if (session.handle.rank.isStaff()) {
+                    // Put the player into vanish
+                    FarLands.getCommandHandler().getCommand(CommandVanish.class).execute(session.player, null);
+                    Logging.broadcastStaff(
+                            TextUtils.format("&(red)%0 has gone AFK and is now vanished.", session.handle.username),
+                            DiscordChannel.ALERTS
+                    );
                     return;
                 }
 
@@ -162,7 +173,7 @@ public class AFK extends Mechanic {
     }
 
     private static void resetInitializerCooldown(FLPlayerSession session) {
-        if (session.handle.rank.hasAfkChecks() && session.afkCheckCooldown.isComplete())
+        if (session.afkCheckCooldown != null && session.afkCheckCooldown.isComplete())
             session.afkCheckInitializerCooldown.resetCurrentTask();
     }
 

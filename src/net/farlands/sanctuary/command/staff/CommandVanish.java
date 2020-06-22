@@ -27,6 +27,7 @@ public class CommandVanish extends Command {
             if (online) {
                 Logging.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
                         ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has left.", true);
+                flp.lastLogin = System.currentTimeMillis();
             }
         } else {
             sendFormatted(sender, "&(gold)You are no longer vanished.");

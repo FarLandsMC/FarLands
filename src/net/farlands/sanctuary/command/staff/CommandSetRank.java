@@ -53,12 +53,8 @@ public class CommandSetRank extends Command {
 
         // Manage all the toggles and stuff that will change with rank
         FLPlayerSession session = flp.getSession();
-        if (session != null) {
-            if (rank.hasAfkChecks())
-                AFK.setAFKCooldown(session.player);
-            else
-                session.deactivateAFKChecks();
-        }
+        if (session != null)
+            AFK.setAFKCooldown(session.player);
 
         sendFormatted(sender, "&(green)Updated {&(aqua)%0} rank to " + rank.getColor() + rank.toString(), args[0] + "\'s");
         Player player = flp.getOnlinePlayer();
