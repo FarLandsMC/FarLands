@@ -9,9 +9,9 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.TimeInterval;
 
-import net.minecraft.server.v1_15_R1.AdvancementDisplay;
+import net.minecraft.server.v1_16_R1.AdvancementDisplay;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_15_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_16_R1.advancement.CraftAdvancement;
 import org.bukkit.entity.Player;
 
 public class CommandRankup extends Command {

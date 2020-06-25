@@ -14,7 +14,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Pair;
 
-import net.minecraft.server.v1_15_R1.TileEntity;
+import net.minecraft.server.v1_16_R1.TileEntity;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,7 +24,7 @@ import static org.bukkit.Material.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;

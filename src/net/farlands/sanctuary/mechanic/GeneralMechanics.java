@@ -16,19 +16,19 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
-import net.minecraft.server.v1_15_R1.AdvancementDisplay;
-import net.minecraft.server.v1_15_R1.EntityTypes;
-import net.minecraft.server.v1_15_R1.EntityVillager;
-import net.minecraft.server.v1_15_R1.EntityVillagerAbstract;
+import net.minecraft.server.v1_16_R1.AdvancementDisplay;
+import net.minecraft.server.v1_16_R1.EntityTypes;
+import net.minecraft.server.v1_16_R1.EntityVillager;
+import net.minecraft.server.v1_16_R1.EntityVillagerAbstract;
 
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_15_R1.advancement.CraftAdvancement;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;

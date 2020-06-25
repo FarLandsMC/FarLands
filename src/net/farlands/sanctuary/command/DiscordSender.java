@@ -8,9 +8,9 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.minecraft.server.v1_15_R1.CommandListenerWrapper;
-import net.minecraft.server.v1_15_R1.IChatBaseComponent;
-import net.minecraft.server.v1_15_R1.ICommandListener;
+import net.minecraft.server.v1_16_R1.CommandListenerWrapper;
+import net.minecraft.server.v1_16_R1.IChatBaseComponent;
+import net.minecraft.server.v1_16_R1.ICommandListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
@@ -20,6 +20,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -155,7 +156,7 @@ public class DiscordSender implements CommandSender, ICommandListener {
     public void setOp(boolean b) { }
 
     @Override
-    public void sendMessage(IChatBaseComponent component) {
+    public void sendMessage(IChatBaseComponent component, UUID unused) {
         sendMessage(component.getString());
     }
 

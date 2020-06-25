@@ -6,7 +6,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.FireworkBuilder;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R1.NBTTagCompound;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;

@@ -1,12 +1,12 @@
 package net.farlands.sanctuary.util;
 
-import net.minecraft.server.v1_15_R1.EntityFireworks;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import net.minecraft.server.v1_15_R1.NBTTagList;
+import net.minecraft.server.v1_16_R1.EntityFireworks;
+import net.minecraft.server.v1_16_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R1.NBTTagList;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftFirework;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftFirework;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.ItemStack;
@@ -108,11 +108,11 @@ public class FireworkBuilder {
     public void spawnEntity(Location loc) {
         Firework firework = (Firework)loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
         EntityFireworks entity = ((CraftFirework)firework).getHandle();
-        entity.a(toNBT());
+        entity.loadData(toNBT());
     }
 
     public ItemStack buildItemStack(int stackSize) {
-        net.minecraft.server.v1_15_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.FIREWORK_ROCKET, stackSize));
+        net.minecraft.server.v1_16_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.FIREWORK_ROCKET, stackSize));
         NBTTagCompound stackTag = toNBT().getCompound("FireworksItem").getCompound("tag");
         int flightRaw = (int)Math.ceil(((double)lifetime) / 20.0);
         int flight = flightRaw < 1 ? 1 : Math.min(flightRaw, 3);

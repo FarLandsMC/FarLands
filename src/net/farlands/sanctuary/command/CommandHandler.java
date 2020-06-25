@@ -22,14 +22,14 @@ import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
-import net.minecraft.server.v1_15_R1.*;
+import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_15_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -205,9 +205,9 @@ public class CommandHandler extends Mechanic {
                 Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
                     MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
                     CommandListenerWrapper wrapper = new CommandListenerWrapper(sender,
-                            server.getWorldServer(DimensionManager.OVERWORLD) == null ? Vec3D.a
-                                    : new Vec3D(server.getWorldServer(DimensionManager.OVERWORLD).getSpawn()), Vec2F.a,
-                            server.getWorldServer(DimensionManager.OVERWORLD), sender.isOp() ? 4 : 0, sender.getName(),
+                            server.getWorldServer(World.OVERWORLD) == null ? Vec3D.a
+                                    : Vec3D.b(server.getWorldServer(World.OVERWORLD).getSpawn()), Vec2F.a,
+                            server.getWorldServer(World.OVERWORLD), sender.isOp() ? 4 : 0, sender.getName(),
                             new ChatComponentText(sender.getName()), server, null);
                     Object dispatcher = ReflectionHelper.getFieldValue("dispatcher", VanillaCommandWrapper.class,
                             bukkitCommand);

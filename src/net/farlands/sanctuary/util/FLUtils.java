@@ -9,15 +9,15 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 
 import net.farlands.sanctuary.FarLands;
 
-import net.minecraft.server.v1_15_R1.MerchantRecipe;
-import net.minecraft.server.v1_15_R1.MerchantRecipeList;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R1.MerchantRecipe;
+import net.minecraft.server.v1_16_R1.MerchantRecipeList;
+import net.minecraft.server.v1_16_R1.NBTTagCompound;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -55,7 +55,7 @@ public final class FLUtils {
 
     public static double serverMspt() {
         long totalMspt = 0;
-        long[] mspts = ((CraftServer)Bukkit.getServer()).getServer().f;
+        long[] mspts = ((CraftServer)Bukkit.getServer()).getServer().h;
         for(long v : mspts)
             totalMspt += v;
         return totalMspt / (mspts.length * 1000000.0);
@@ -226,7 +226,7 @@ public final class FLUtils {
     }
 
     public static ItemStack applyTag(NBTTagCompound nbt, ItemStack stack) {
-        net.minecraft.server.v1_15_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
+        net.minecraft.server.v1_16_R1.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
         nmsStack.setTag(nbt);
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
@@ -320,7 +320,7 @@ public final class FLUtils {
 
     public static ItemStack itemStackFromNBT(NBTTagCompound nbt) {
         return nbt == null || nbt.isEmpty() ? null: CraftItemStack.asBukkitCopy(ReflectionHelper
-                .instantiate(net.minecraft.server.v1_15_R1.ItemStack.class, nbt));
+                .instantiate(net.minecraft.server.v1_16_R1.ItemStack.class, nbt));
     }
 
     public static NBTTagCompound itemStackToNBT(ItemStack stack) {

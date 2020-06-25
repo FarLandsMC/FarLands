@@ -3,19 +3,17 @@ package net.farlands.sanctuary.gui;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.Pair;
 import net.farlands.sanctuary.util.FLUtils;
-import net.minecraft.server.v1_15_R1.NBTTagCompound;
-import net.minecraft.server.v1_15_R1.NBTTagList;
-import net.minecraft.server.v1_15_R1.NBTTagString;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,31 +50,19 @@ public abstract class Gui {
     }
 
     protected void setItem(int slot, Material material, String name, String... lore) {
-        net.minecraft.server.v1_15_R1.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(material));
-        NBTTagCompound nbt = new NBTTagCompound(), display = new NBTTagCompound();
-        display.setString("Name", "{\"text\":\"" + ChatColor.RESET + name + ChatColor.RESET + "\"}");
-        if(lore.length > 0) {
-            NBTTagList l = new NBTTagList();
-            for(String lr : lore)
-                l.add(NBTTagString.a("\"" + lr + "\""));
-            display.set("Lore", l);
-        }
-        nbt.set("display", display);
-        stack.setTag(nbt);
-        inv.setItem(slot, CraftItemStack.asBukkitCopy(stack));
+        ItemStack stack = new ItemStack(material);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setDisplayName(ChatColor.RESET + name + ChatColor.RESET);
+        meta.setLore(Arrays.asList(lore));
+        stack.setItemMeta(meta);
+        inv.setItem(slot, stack);
     }
 
     protected void setLore(int slot, String... lore) {
-        net.minecraft.server.v1_15_R1.ItemStack stack = CraftItemStack.asNMSCopy(inv.getItem(slot));
-        NBTTagCompound tag = stack.getTag();
-        if(lore.length > 0) {
-            NBTTagList l = new NBTTagList();
-            for(String lr : lore)
-                l.add(NBTTagString.a("\"" + lr + "\""));
-            tag.getCompound("display").set("Lore", l);
-        }
-        stack.setTag(tag);
-        inv.setItem(slot, CraftItemStack.asBukkitCopy(stack));
+        ItemStack stack = inv.getItem(slot);
+        ItemMeta meta = stack.getItemMeta();
+        meta.setLore(Arrays.asList(lore));
+        stack.setItemMeta(meta);
     }
 
     protected void addActionItem(int slot, Material material, String name, Runnable action, boolean rightClickOnly, String... lore) {
