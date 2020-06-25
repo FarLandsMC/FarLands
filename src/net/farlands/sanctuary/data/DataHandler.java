@@ -54,10 +54,10 @@ public class DataHandler extends Mechanic {
     private byte[] currentPatchnotesMD5;
     private Config config;
     private PluginData pluginData;
-    private Map<UUID, EvidenceLocker> evidenceLockers;
-    private Map<UUID, List<PlayerDeath>> deathDatabase;
-    private List<UUID> openEvidenceLockers;
-    private Map<UUID, Map<String, Pair<org.bukkit.inventory.ItemStack, String>>> packages;
+    private final Map<UUID, EvidenceLocker> evidenceLockers;
+    private final Map<UUID, List<PlayerDeath>> deathDatabase;
+    private final List<UUID> openEvidenceLockers;
+    private final Map<UUID, Map<String, Pair<org.bukkit.inventory.ItemStack, String>>> packages;
     private Map<String, ItemCollection> itemData;
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
@@ -283,6 +283,8 @@ public class DataHandler extends Mechanic {
             proposal.update();
             return proposal.isResolved();
         });
+        long currentTime = System.currentTimeMillis();
+        pluginData.playerTrades.entrySet().removeIf(entry -> currentTime > entry.getValue().expirationDate);
     }
 
     public Config getConfig() {

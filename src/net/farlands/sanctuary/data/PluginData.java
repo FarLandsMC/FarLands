@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.data;
 
+import net.farlands.sanctuary.data.struct.PlayerTrade;
 import net.farlands.sanctuary.data.struct.Proposal;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.FLUtils;
@@ -21,6 +22,7 @@ public class PluginData {
     public Set<UUID> spawnTraders;
     public Map<String, LocationWrapper> warps;
     public List<Proposal> proposals;
+    public Map<UUID, PlayerTrade> playerTrades;
 
     public PluginData() {
         this.currentMonth = FLUtils.getMonthInYear();
@@ -33,6 +35,7 @@ public class PluginData {
         this.spawnTraders = new HashSet<>();
         this.warps = new HashMap<>();
         this.proposals = new ArrayList<>();
+        this.playerTrades = new HashMap<>();
     }
 
     public void setSpawn(Location spawn) {
@@ -82,5 +85,13 @@ public class PluginData {
 
     public Proposal getProposal(long messageID) {
         return proposals.stream().filter(proposal -> proposal.getMessageID() == messageID).findAny().orElse(null);
+    }
+
+    public void setTrade(UUID player, String tradeMessage) {
+        playerTrades.put(player, new PlayerTrade(player, tradeMessage));
+    }
+
+    public void clearTrade(UUID player) {
+        playerTrades.remove(player);
     }
 }
