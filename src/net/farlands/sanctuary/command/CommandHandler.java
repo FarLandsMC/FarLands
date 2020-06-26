@@ -117,6 +117,8 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandTop());              // Initiate
         registerCommand(new CommandTPA());              // Initiate
         registerCommand(new CommandTPAccept());         // Initiate
+        registerCommand(new CommandTrade());            // Bard
+        registerCommand(new CommandTradepost());        // Initiate
         registerCommand(new CommandVote());             // Initiate
         registerCommand(new CommandVoteParty());        // Initiate
         registerCommand(new CommandWarp());             // Initiate

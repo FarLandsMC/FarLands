@@ -181,7 +181,7 @@ public class Chat extends Mechanic {
         }
     }
 
-    private static String limitFlood(String message) {
+    public static String limitFlood(String message) {
         int row = 0;
         char last = ' ';
         StringBuilder output = new StringBuilder();
@@ -198,7 +198,7 @@ public class Chat extends Mechanic {
         return output.toString();
     }
 
-    private static String limitCaps(String message) {
+    public static String limitCaps(String message) {
         if (message.length() < 6)
             return message;
         float uppers = 0;

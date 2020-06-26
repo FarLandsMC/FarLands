@@ -4,8 +4,14 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Collections;
+import java.util.List;
 
 public class CommandTrade extends PlayerCommand {
     public CommandTrade() {
@@ -25,5 +31,10 @@ public class CommandTrade extends PlayerCommand {
         }
 
         return true;
+    }
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        return args.length <= 1 && "clear".startsWith(args.length == 0 ? "" : args[0])
+                ? Collections.singletonList("clear") : Collections.emptyList();
     }
 }

@@ -26,7 +26,7 @@ public class GuiTradepost extends Gui {
         List<PlayerTrade> trades = new ArrayList<>(FarLands.getDataHandler().getPluginData().playerTrades.values());
         // Most clicks first
         trades.sort((a, b) -> Integer.compare(b.clicks, a.clicks));
-        for (int i = 0;i < 45 && i + page * 45 < trades.size();++ i) {
+        for (int i = 0; i < 45 && i + page * 45 < trades.size(); ++i) {
             PlayerTrade trade = trades.get(i + page * 45);
             addActionItem(i, trade.generateHead(), () -> trade.notifyOwner(user));
         }

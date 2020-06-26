@@ -1,15 +1,13 @@
 package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.mechanic.Chat;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerTrade {
     public UUID owner;
@@ -20,7 +18,7 @@ public class PlayerTrade {
     private final transient HashSet<UUID> clickers;
     private final transient HashSet<UUID> mailSenders;
 
-    public PlayerTrade(UUID owner, String message) {
+    public PlayerTrade(UUID owner, String tradeMessage) {
         this.owner = owner;
         this.clicks = 0;
         this.message = new ArrayList<>();
@@ -30,35 +28,35 @@ public class PlayerTrade {
         this.mailSenders = new HashSet<>();
 
         // Enforce length limit
-        if (message.length() > 253)
-            message = message.substring(0, 253) + "...";
+        if (tradeMessage.length() > 253)
+            tradeMessage = tradeMessage.substring(0, 253) + "...";
 
-        // Standardize all whitespace to one space
-        message = message.replaceAll("\\w+", " ");
+        // Remove additional spaces and limit caps and character flood
+        tradeMessage = Chat.limitCaps(Chat.limitFlood(tradeMessage.replaceAll(" +", " ").trim()));
 
-        while (!message.isEmpty()) {
-            if (message.length() <= 40) {
-                this.message.add(message);
-                message = "";
+        while (!tradeMessage.isEmpty()) {
+            if (tradeMessage.length() <= 40) {
+                this.message.add(tradeMessage);
+                break;
             }
 
             // Try to find a space to break at
             int index = 40;
-            for (;index < 48 && index < message.length(); ++index) {
-                if (message.charAt(index) == ' ')
+            for (;index < 48 && index < tradeMessage.length(); ++index) {
+                if (tradeMessage.charAt(index) == ' ')
                     break;
             }
 
             // Add the next section of the message
-            if (index == message.length()) {
-                this.message.add(message);
-                message = "";
+            if (index == tradeMessage.length()) {
+                this.message.add(tradeMessage);
+                tradeMessage = "";
             } else if (index == 48) {
-                this.message.add(message.substring(0, 40) + "-");
-                message = message.substring(40);
+                this.message.add(tradeMessage.substring(0, 40) + "-");
+                tradeMessage = tradeMessage.substring(40);
             } else {
-                this.message.add(message.substring(0, index));
-                message = message.substring(index + 1);
+                this.message.add(tradeMessage.substring(0, index));
+                tradeMessage = tradeMessage.substring(index + 1);
             }
         }
     }
