@@ -38,7 +38,8 @@ public class CommandStack extends PlayerCommand {
      */
     private final static List<Material> UNSTACKABLES = Arrays.asList(
             MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP, LAVA_BUCKET, WATER_BUCKET,
-            PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET
+            PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET,
+            ENCHANTED_BOOK
     );
 
     /**

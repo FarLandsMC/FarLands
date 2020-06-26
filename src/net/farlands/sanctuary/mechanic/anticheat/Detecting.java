@@ -6,7 +6,7 @@ import org.bukkit.block.Block;
 
 public enum Detecting {
 
-    ANCIENT_DEBRIS("nether", 128, Material.ANCIENT_DEBRIS, ChatColor.LIGHT_PURPLE),
+    ANCIENT_DEBRIS("world_nether", 128, Material.ANCIENT_DEBRIS, ChatColor.LIGHT_PURPLE),
     DIAMOND("world", 16, Material.DIAMOND_ORE, ChatColor.AQUA),
     EMERALD("world", 32, Material.EMERALD_ORE, ChatColor.GREEN);
 
