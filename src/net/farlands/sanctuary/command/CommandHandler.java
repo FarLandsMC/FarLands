@@ -156,6 +156,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandToPlayer());         // Jr_Builder
         registerCommand(new CommandToLocation());       // Jr_Builder
         registerCommand(new CommandVanish());           // Media
+        registerCommand(new CommandViewNodes());        // Jr_Builder
     }
 
     private void registerCommand(Command command) {

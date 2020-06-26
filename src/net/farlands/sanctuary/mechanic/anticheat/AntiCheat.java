@@ -1,13 +1,17 @@
 package net.farlands.sanctuary.mechanic.anticheat;
 
 import com.kicas.rp.util.TextUtils;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
+
+import net.farlands.sanctuary.util.Pair;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +20,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,7 +48,13 @@ public class AntiCheat extends Mechanic {
         xray.remove(player.getUniqueId());
         flight.remove(player.getUniqueId());
     }
-    
+
+    public List<Pair<Detecting, Location>> getXrayNodes(UUID playerUUID) {
+        if (xray.containsKey(playerUUID))
+            return xray.get(playerUUID).getNodes();
+        return null;
+    }
+
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
         if (Rank.getRank(player).specialCompareTo(Rank.MEDIA) >= 0 && !FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
