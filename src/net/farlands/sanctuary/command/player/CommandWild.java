@@ -72,6 +72,7 @@ public class CommandWild extends PlayerCommand {
         int dx = 1 + RNG.nextInt(range << 1) - range,
             zMax = 1 + (int) Math.sqrt(range * range - dx * dx),
             dz = 1 + RNG.nextInt(zMax << 1) - zMax;
+
         Location rtp = new Location(
                 player.getWorld(),
                 dx,
@@ -80,13 +81,18 @@ public class CommandWild extends PlayerCommand {
                 player.getLocation().getYaw(),
                 player.getLocation().getPitch()
         );
+
+        StringBuilder debugMessage = new StringBuilder();
+        final String debugPre = "unsafe rtp @";
+        debugMessage.append(debugPre);
+
         Location safe;
         for (;;) {
             if (isSea(rtp.getBlock())) {
                 dx = 1 + RNG.nextInt(range << 1) - range;
                 rtp.setX(dx);
             } else {
-                safe = rtpFindSafe(rtp);
+                safe = rtpFindSafe(rtp, debugMessage);
                 if (safe != null)
                     break;
             }
@@ -95,25 +101,30 @@ public class CommandWild extends PlayerCommand {
                 dz = 1 + RNG.nextInt(zMax << 1) - zMax;
                 rtp.setZ(dz);
             } else {
-                safe = rtpFindSafe(rtp);
+                safe = rtpFindSafe(rtp, debugMessage);
                 if (safe != null)
                     break;
             }
         }
+        if (debugMessage.length() > debugPre.length())
+            FarLands.getDebugger().echo(debugMessage.toString());
         tpPlayer(player, safe);
+
         if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
            sendFormatted(player, ChatMessageType.ACTION_BAR, "&(aqua)You have no homes, use /sethome [name] " +
                     "so you can safely return to your location!");
         }
     }
 
-    private static Location rtpFindSafe(final Location origin) {
+    private static Location rtpFindSafe(final Location origin, StringBuilder debugMessage) {
         Location safe = origin.clone();
         safe.setX(safe.getBlockX() + .5);
         safe.setZ(safe.getBlockZ() + .5);
         safe.getChunk().load();
+
         if (canStand(safe.getBlock()) && isSafe(safe.clone()))
             return safe.add(0, .5, 0);
+
         int s = 62, e = 254;
         do {
             safe.setY((s + e + 1) >> 1);
@@ -123,10 +134,14 @@ public class CommandWild extends PlayerCommand {
                 e = safe.getBlockY();
         } while (e - s > 1);
         safe.setY((s + e - 1) >> 1);
+
         if (canStand(safe.getBlock()) && isSafe(safe.clone()))
             return safe.add(0, 1.5, 0);
-        FarLands.getDebugger().echo("unsafe rtp @ " +
-                safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ());
+
+        debugMessage.append("\n")
+                .append(safe.getBlockX()).append(" ")
+                .append(safe.getBlockY()).append(" ")
+                .append(safe.getBlockZ());
         return null;
     }
 }

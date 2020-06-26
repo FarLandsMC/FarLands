@@ -64,8 +64,8 @@ public class AntiCheat extends Mechanic {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if(GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && xray.containsKey(event.getPlayer().getUniqueId()))
-            xray.get(event.getPlayer().getUniqueId()).onBlockBreak(event.getBlock());
+        if (GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && xray.containsKey(event.getPlayer().getUniqueId()))
+            xray.get(event.getPlayer().getUniqueId()).onBlockBreak(event);
     }
 
     @EventHandler
@@ -91,6 +91,13 @@ public class AntiCheat extends Mechanic {
 
     public static void broadcast(String playerName, String message) {
         broadcast(playerName + " " + message, true);
-        Logging.broadcastStaff(TextUtils.format("&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])", playerName));
+        promptToSpec(playerName);
+    }
+
+    public static void promptToSpec(String playerName) {
+        Logging.broadcastStaff(TextUtils.format(
+                "&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])",
+                playerName
+        ));
     }
 }

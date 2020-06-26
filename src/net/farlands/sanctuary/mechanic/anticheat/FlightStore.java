@@ -49,8 +49,8 @@ public class FlightStore {
             if (vy > vyMax && !FLUtils.checkNearby(session.player.getLocation(), Material.SLIME_BLOCK, Material.BUBBLE_COLUMN)) {
                 if (sendAlerts)
                     AntiCheat.broadcast(session.player.getName(), "jumped too high.");
-                FarLands.getDebugger().echo("vy", vy);
-                FarLands.getDebugger().echo("vyMax", vyMax);
+                FarLands.getDebugger().echo("vy: " + vy +
+                                            "\nvyMax: " +  vyMax);
             }
             lastVy = vy;
             return;
@@ -79,9 +79,11 @@ public class FlightStore {
             if (strikes > MAX_STRIKES && session.flyAlertCooldown.isComplete()) {
                 if (sendAlerts)
                     AntiCheat.broadcast(session.handle.username, "might be flying.");
-                FarLands.getDebugger().echo("pdiff", pdiff);
-                FarLands.getDebugger().echo("loc", (int) session.player.getLocation().getX() + ", " + (int) session.player.getLocation().getY() +
-                        ", " + (int) session.player.getLocation().getZ() + ", " + session.player.getLocation().getWorld().getName());
+                FarLands.getDebugger().echo("pdiff: " + pdiff + "\nloc: " +
+                        session.player.getLocation().getBlockX() + ", " +
+                        session.player.getLocation().getBlockY() + ", " +
+                        session.player.getLocation().getBlockZ() + ", " +
+                        session.player.getWorld().getName());
                 session.flyAlertCooldown.reset();
             }
         } else
@@ -96,10 +98,11 @@ public class FlightStore {
                 session.player.isRiptiding() ||
                 session.player.hasPotionEffect(PotionEffectType.LEVITATION) ||
                 session.player.hasPotionEffect(PotionEffectType.SLOW_FALLING) ||
-                !Material.AIR.equals(session.player.getWorld().getBlockAt(session.player.getLocation()).getType()) ||
+                Material.AIR != session.player.getWorld().getBlockAt(session.player.getLocation()).getType() ||
                 FLUtils.checkNearby(session.player.getLocation(),
-                        // TODO: add nether vines for 1.16 update
-                        Material.WATER, Material.LAVA, Material.LADDER, Material.VINE, Material.COBWEB
+                        Material.WATER, Material.LAVA, Material.LADDER, Material.VINE, Material.COBWEB,
+                        Material.WEEPING_VINES, Material.WEEPING_VINES_PLANT,
+                        Material.TWISTING_VINES, Material.TWISTING_VINES_PLANT
                 ) ||
                 !session.flightDetectorMute.isComplete() ||
                 session.flying;

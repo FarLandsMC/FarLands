@@ -54,7 +54,7 @@ public class CommandSit extends PlayerCommand {
         seat.setInvulnerable(true);
         seat.setAI(false);
         seat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
-        seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, Integer.MAX_VALUE, 1));
+        seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,         Integer.MAX_VALUE, 1));
         ReflectionHelper.setFieldValue("vehicle", net.minecraft.server.v1_16_R1.Entity.class,
                 ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
         ((CraftPig) seat).getHandle().passengers.add(((CraftPlayer) sender).getHandle());

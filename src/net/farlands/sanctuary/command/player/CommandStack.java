@@ -8,7 +8,6 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Materials;
 
-import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.LocationWrapper;
@@ -39,8 +38,7 @@ public class CommandStack extends PlayerCommand {
      */
     private final static List<Material> UNSTACKABLES = Arrays.asList(
             MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP, LAVA_BUCKET, WATER_BUCKET,
-            PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET,
-            ENCHANTED_BOOK
+            PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET
     );
 
     /**
@@ -63,8 +61,7 @@ public class CommandStack extends PlayerCommand {
     }
 
     public CommandStack() {
-        super(Rank.ESQUIRE, Category.UTILITY, "Stack all items of a similar type in your inventory, or use " +
-                "/stack container to stack a container's contents.", "/stack [container]", "stack", "condense");
+        super(Rank.ESQUIRE, "Stack all items of a similar type in your inventory.", "/stack [container]", "stack", "condense");
     }
 
     @Override
@@ -118,7 +115,7 @@ public class CommandStack extends PlayerCommand {
         Map<Material, List<Integer>> returns = new HashMap<>(); // list of inventory indexes items can be returned to
 
         Pair<ItemStack, Integer> item1, // the item we're looking at to stack
-                item2; // the item we check to see if it stacks with item1
+                                 item2; // the item we check to see if it stacks with item1
         List<ItemStack> items; // the item stacks returned after stacking item1
 
         boolean warnFullInventory = false; // if items are caused to drop due to full inventory
@@ -128,8 +125,11 @@ public class CommandStack extends PlayerCommand {
 
         int i, j;
         for (i = storageContents.length; --i >= 0; ) {
+            if (storageContents[i] == null) // Skip empty slots
+                continue;
+
             // if it's a shulker, stack the contents of the shulker
-            if (storageContents[i]!= null && storageContents[i].getType().name().endsWith("SHULKER_BOX")) {
+            if (storageContents[i].getType().name().endsWith("SHULKER_BOX")) {
                 BlockStateMeta blockStateMeta = (BlockStateMeta) storageContents[i].getItemMeta();
                 ShulkerBox blockState = (ShulkerBox) blockStateMeta.getBlockState();
                 blockState.getInventory().setStorageContents(
@@ -143,6 +143,7 @@ public class CommandStack extends PlayerCommand {
         for (i = 0; i < storageContents.length; ++i) {
             if (storageContents[i] == null) // Skip empty slots
                 continue;
+
             rKey = returnsKey(storageContents[i].getType());
             if (!storageContents[i].hasItemMeta() && returns.containsKey(rKey)) // Skip already stacked items
                 continue;

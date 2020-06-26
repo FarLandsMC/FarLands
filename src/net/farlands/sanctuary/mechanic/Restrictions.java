@@ -4,6 +4,7 @@ import com.kicas.rp.util.TextUtils;
 
 import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.data.Rank;
@@ -29,15 +30,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Restrictions extends Mechanic {
-
-    //TODO: remove with 1.16 update - the vanilla game fixes this
-    private static final List<int[]> PISTON_FILTER = Arrays.asList(
-            new int[]{-2, -2,  0}, new int[]{2, -2,  0}, new int[]{ 0, -2, -2}, new int[]{0, -2, 2},
-            new int[]{-1, -2,  0}, new int[]{1, -2,  0}, new int[]{ 0, -2, -1}, new int[]{0, -2, 1},
-            new int[]{-2, -1,  0}, new int[]{2, -1,  0}, new int[]{ 0, -1, -2}, new int[]{0, -1, 2},
-            new int[]{-1, -1, -1}, new int[]{1, -1, -1}, new int[]{-1, -1,  1}, new int[]{1, -1, 1},
-            new int[]{-1,  0,  0}, new int[]{1,  0,  0}, new int[]{ 0,  0, -1}, new int[]{0,  0, 1}
-    );
 
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
@@ -89,11 +81,13 @@ public class Restrictions extends Mechanic {
     @EventHandler
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) { // Handles bans
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getUniqueId());
-        flp.lastIP = event.getAddress().getHostAddress();
         if (flp == null && !FarLands.getDataHandler().allowNewPlayers())
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "You cannot join the server right now. Try again in 5-10 minutes.");
-        if (flp != null && flp.isBanned())
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
+        if (flp != null) {
+            flp.lastIP = event.getAddress().getHostAddress();
+            if (flp.isBanned())
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -147,12 +141,6 @@ public class Restrictions extends Mechanic {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onBlockGrow(BlockGrowEvent event) { // Block 0 tick farms
-        event.setCancelled(PISTON_FILTER.stream().map(off -> event.getBlock().getRelative(off[0], off[1], off[2]))
-                .anyMatch(block -> block.getType() == Material.MOVING_PISTON));
-    }
-
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         StringBuilder sb = new StringBuilder();
@@ -169,20 +157,9 @@ public class Restrictions extends Mechanic {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
-    // Prevent players from igniting TNT or opening shulker boxes inside claims via right-clicking
-    @SuppressWarnings("unchecked")
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (Action.RIGHT_CLICK_BLOCK == event.getAction()) {
-            if (event.getClickedBlock().getRelative(event.getBlockFace()).getType() == Material.END_PORTAL &&
-                    event.getMaterial().name().endsWith("_BUCKET")) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
+        // TODO: Add honey to check or warn players flying machines are unsafe
         if ("world_the_end".equals(event.getBlock().getWorld().getName()) &&
                 event.getBlockPlaced().getType() == Material.SLIME_BLOCK) {
             event.getPlayer().sendMessage(ChatColor.RED + "You can't place slime blocks in the end.");
@@ -207,12 +184,12 @@ public class Restrictions extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
         Location to = event.getTo();
-        if (to.getY() >= 128 && "world_nether".equals(to.getWorld().getName()) && !Rank.getRank(event.getPlayer()).isStaff()) {
+        /*if (to.getY() >= 128 && "world_nether".equals(to.getWorld().getName()) && !Rank.getRank(event.getPlayer()).isStaff()) {
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot go on top of the nether. This is in the rules.");
             event.setCancelled(true);
             return;
-        }
-        int max = (int)event.getTo().getWorld().getWorldBorder().getSize() >> 1; // size / 2 (rounded down)
+        }*/
+        int max = (int)to.getWorld().getWorldBorder().getSize() >> 1; // size / 2 (rounded down)
         if (Math.abs(to.getX()) > max || Math.abs(to.getZ()) > max) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot leave the world.");
