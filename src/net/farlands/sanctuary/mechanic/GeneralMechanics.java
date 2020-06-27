@@ -8,7 +8,6 @@ import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.gui.GuiVillagerEditor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
@@ -16,7 +15,6 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
-import net.minecraft.server.v1_16_R1.AdvancementDisplay;
 import net.minecraft.server.v1_16_R1.EntityTypes;
 import net.minecraft.server.v1_16_R1.EntityVillager;
 import net.minecraft.server.v1_16_R1.EntityVillagerAbstract;
@@ -27,7 +25,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R1.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
@@ -277,16 +274,6 @@ public class GeneralMechanics extends Mechanic {
             pet.setOwner(petRecipient);
             event.getPlayer().sendMessage("Successfully transferred pet to " + petRecipient.getName());
             event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onAdvancementCompleted(PlayerAdvancementDoneEvent event) {
-        FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).updateSessionIfOnline(true);
-        AdvancementDisplay ad = ((CraftAdvancement) event.getAdvancement()).getHandle().c();
-        if (ad != null && !FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getPlayer().getDisplayName() +
-                    " has made the advancement [" + ad.a().getText() + "]");
         }
     }
 

@@ -11,15 +11,15 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.farlands.sanctuary.util.FLUtils;
 
+import net.minecraft.server.v1_16_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class CommandSkull extends PlayerCommand {
     public CommandSkull() {
@@ -53,19 +53,12 @@ public class CommandSkull extends PlayerCommand {
                 amount = 1;
         }
 
-        UUID ownerId = RegionProtection.getDataManager().uuidForUsername(args[0]);
-        if (ownerId == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
-            return true;
-        }
-
-        ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) skull.getItemMeta();
-        OfflinePlayer player = Bukkit.getOfflinePlayer(ownerId);
-        meta.setOwningPlayer(player);
-        meta.setDisplayName(ChatColor.RESET + player.getName());
-        skull.setItemMeta(meta);
-        FLUtils.giveItem(sender, skull, true);
+        net.minecraft.server.v1_16_R1.ItemStack skull = CraftItemStack.asNMSCopy(new ItemStack(Material.PLAYER_HEAD,
+                args.length > 1 ? Math.min(8, amount) : 1));
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setString("SkullOwner", args[0]);
+        skull.setTag(nbt);
+        FLUtils.giveItem(sender, CraftItemStack.asBukkitCopy(skull), true);
         return true;
     }
 

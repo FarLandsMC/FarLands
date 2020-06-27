@@ -32,14 +32,9 @@ public class PlayerTrade {
             tradeMessage = tradeMessage.substring(0, 253) + "...";
 
         // Remove additional spaces and limit caps and character flood
-        tradeMessage = Chat.limitCaps(Chat.limitFlood(tradeMessage.replaceAll(" +", " ").trim()));
+        tradeMessage = Chat.limitCaps(Chat.limitFlood(tradeMessage.replaceAll("\\s+", " ").trim()));
 
         while (!tradeMessage.isEmpty()) {
-            if (tradeMessage.length() <= 40) {
-                this.message.add(tradeMessage);
-                break;
-            }
-
             // Try to find a space to break at
             int index = 40;
             for (;index < 48 && index < tradeMessage.length(); ++index) {
@@ -48,7 +43,7 @@ public class PlayerTrade {
             }
 
             // Add the next section of the message
-            if (index == tradeMessage.length()) {
+            if (index >= tradeMessage.length()) {
                 this.message.add(tradeMessage);
                 tradeMessage = "";
             } else if (index == 48) {
@@ -59,6 +54,16 @@ public class PlayerTrade {
                 tradeMessage = tradeMessage.substring(index + 1);
             }
         }
+    }
+
+    PlayerTrade() {
+        this.owner = null;
+        this.clicks = 0;
+        this.message = Collections.emptyList();
+        this.expirationDate = 0;
+        this.lastClickTime = 0;
+        this.clickers = new HashSet<>();
+        this.mailSenders = new HashSet<>();
     }
 
     public ItemStack generateHead() {
