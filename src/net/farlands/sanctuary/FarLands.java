@@ -70,7 +70,7 @@ public class FarLands extends JavaPlugin {
                 instance.getDescription().getVersion() + "."), 50L);
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            double theta = 410.93331542209773;
+            double theta = 443.5318421266648;
             Player player = null;
 
             static final double VELOCITY = 0.1;

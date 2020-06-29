@@ -140,7 +140,7 @@ public class CommandMail extends Command {
             return Arrays.stream(Action.VALUES).map(Utils::formattedName)
                     .filter(action -> action.startsWith(args.length == 0 ? "" : args[0]))
                     .collect(Collectors.toList());
-        } else if (Utils.valueOfFormattedName(args[0], Action.class) == Action.SEND)
+        } else if (Utils.valueOfFormattedName(args[0], Action.class) == Action.SEND && args.length <= 2)
             return getOnlinePlayers(args[1], sender);
         else
             return Collections.emptyList();

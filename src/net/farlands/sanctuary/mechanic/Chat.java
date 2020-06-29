@@ -151,7 +151,7 @@ public class Chat extends Mechanic {
             }
         }
         final String lmessage = limitCaps(limitFlood(message)),
-                fmessage = displayPrefix + lmessage,
+                     fmessage = displayPrefix + lmessage,
                 censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
                 .filter(session -> !session.handle.isIgnoring(senderFlp))

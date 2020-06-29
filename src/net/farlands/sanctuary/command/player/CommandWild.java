@@ -18,11 +18,16 @@ import net.md_5.bungee.api.ChatMessageType;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 
 public class CommandWild extends PlayerCommand {
+    private static final int INNER_RAD =  1500,
+                         MIN_OUTER_RAD =  7500,
+                         MAX_OUTER_RAD = 20000;
+
     private final Cooldown globalCooldown;
 
     public CommandWild() {
@@ -39,9 +44,15 @@ public class CommandWild extends PlayerCommand {
             return true;
         }
 
-        if (!"world".equals(sender.getWorld().getName())) { // rtpFindSafe is optimized for overworld and cannot be used if this changes
-            sendFormatted(sender, "&(red)You can only use this command in the overworld.");
-            return true;
+        if (!"world".equals(sender.getWorld().getName())) {
+            if (session.handle.rank.specialCompareTo(Rank.DONOR) < 0) {
+                sendFormatted(sender, "&(red)You can only use this command in the overworld.");
+                return true;
+            }
+            if (!"world_nether".equals(sender.getWorld().getName())) {
+                sendFormatted(sender, "&(red)You can only use this command in the overworld and nether.");
+                return true;
+            }
         }
 
         if (FLUtils.serverMspt() > 80) {
@@ -59,55 +70,75 @@ public class CommandWild extends PlayerCommand {
         int wildCooldown = Rank.getRank(sender).getWildCooldown();
         if (wildCooldown > 0)
             session.setCommandCooldown(this, wildCooldown * 60L * 20L);
-        rtpPlayer(sender, 15000);
+
+        int time = (int)(System.currentTimeMillis() - FarLands.getDataHandler().getPluginData().seasonStartTime);
+        rtpPlayer(sender, INNER_RAD, MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD,
+                time / 180000)); // 3 * 60 * 1000 // 3 minutes per block of rtp
         return true;
     }
 
-    private static boolean isSea(Block block) {
-        return block.isLiquid() || block.isPassable() || block.getType() == Material.SEA_PICKLE;
+    private static boolean quickCheck(Block block) {
+        return !(block.isLiquid() || block.isPassable() || block.getType() == Material.SEA_PICKLE);
+    }
+
+    private static int getRandom(int min, int max) {
+        return RNG.nextBoolean() ?
+                min + RNG.nextInt(max - min) :
+               -min - RNG.nextInt(max - min);
     }
 
     // in case we decide to make a portal so we can copy into utils
-    public static void rtpPlayer(final Player player, final int range) {
-        int dx = 1 + RNG.nextInt(range << 1) - range,
-            zMax = 1 + (int) Math.sqrt(range * range - dx * dx),
-            dz = 1 + RNG.nextInt(zMax << 1) - zMax;
-
+    public static void rtpPlayer(Player player, int minRange, int maxRange) {
+        boolean overworld = player.getWorld().getName().equals("world");
+        int dx = getRandom(minRange, maxRange),
+            dz = getRandom(
+                    dx >= minRange ? 0 : (int)Math.sqrt(minRange * minRange - dx * dx),
+                    (int)Math.sqrt(maxRange * maxRange - dx * dx)
+            );
         Location rtp = new Location(
                 player.getWorld(),
                 dx,
-                62,
+                overworld ? 62 : 31,
                 dz,
                 player.getLocation().getYaw(),
                 player.getLocation().getPitch()
         );
 
-        StringBuilder debugMessage = new StringBuilder();
-        final String debugPre = "unsafe rtp @";
-        debugMessage.append(debugPre);
+        Location safe = null;
+        int death = 64;
+        for (; --death >= 0;) {
+            if (quickCheck(rtp.getBlock())) {
+                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 128);
+                if (safe != null)
+                    break;
+            }
+            rtp.setX(dx = getRandom(
+                    dz >= minRange ? 0 : (int) Math.sqrt(minRange * minRange - dz * dz),
+                    (int) Math.sqrt(maxRange * maxRange - dz * dz)
+            ));
 
-        Location safe;
-        for (;;) {
-            if (isSea(rtp.getBlock())) {
-                dx = 1 + RNG.nextInt(range << 1) - range;
-                rtp.setX(dx);
-            } else {
-                safe = rtpFindSafe(rtp, debugMessage);
+            if (quickCheck(rtp.getBlock())) {
+                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 128);
                 if (safe != null)
                     break;
             }
-            if (isSea(rtp.getBlock())) {
-                zMax = 1 + (int) Math.sqrt(range * range - dx * dx);
-                dz = 1 + RNG.nextInt(zMax << 1) - zMax;
-                rtp.setZ(dz);
-            } else {
-                safe = rtpFindSafe(rtp, debugMessage);
-                if (safe != null)
-                    break;
-            }
+            rtp.setZ(dz = getRandom(
+                    dx >= minRange ? 0 : (int) Math.sqrt(minRange * minRange - dx * dx),
+                    (int) Math.sqrt(maxRange * maxRange - dx * dx)
+            ));
         }
-        if (debugMessage.length() > debugPre.length())
-            FarLands.getDebugger().echo(debugMessage.toString());
+        if (safe == null) {
+            // Pretty much never happens in practice
+            player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
+            sendFormatted(player, "&(red)Your random teleport randomly failed :(");
+            return;
+        }
+        FarLands.getDebugger().echo(player.getName() + " /rtp -> " +
+                safe.getWorld().getName() + " " +
+                safe.getBlockX() + " " +
+                safe.getBlockY() + " " +
+                safe.getBlockZ() + " : " + (64 - death)
+        );
         tpPlayer(player, safe);
 
         if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
@@ -116,32 +147,27 @@ public class CommandWild extends PlayerCommand {
         }
     }
 
-    private static Location rtpFindSafe(final Location origin, StringBuilder debugMessage) {
+    private static Location rtpFindSafe(Location origin) {
         Location safe = origin.clone();
         safe.setX(safe.getBlockX() + .5);
         safe.setZ(safe.getBlockZ() + .5);
         safe.getChunk().load();
+        int bottom = 62, top = 1 + safe.getChunk().getChunkSnapshot().getHighestBlockYAt(safe.getBlockX() & 15, safe.getBlockZ() & 15);
 
         if (canStand(safe.getBlock()) && isSafe(safe.clone()))
             return safe.add(0, .5, 0);
 
-        int s = 62, e = 254;
         do {
-            safe.setY((s + e + 1) >> 1);
+            safe.setY((bottom + top + 1) >> 1);
             if (safe.getBlock().getLightFromSky() <= 8)
-                s = safe.getBlockY();
+                bottom = safe.getBlockY();
             else
-                e = safe.getBlockY();
-        } while (e - s > 1);
-        safe.setY((s + e - 1) >> 1);
+                top = safe.getBlockY();
+        } while (top - bottom > 1);
+        safe.setY((bottom + top - 1) >> 1);
 
         if (canStand(safe.getBlock()) && isSafe(safe.clone()))
             return safe.add(0, 1.5, 0);
-
-        debugMessage.append("\n")
-                .append(safe.getBlockX()).append(" ")
-                .append(safe.getBlockY()).append(" ")
-                .append(safe.getBlockZ());
         return null;
     }
 }
