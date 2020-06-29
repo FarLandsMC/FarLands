@@ -23,16 +23,19 @@ public class JsonItemStack {
     public ItemStack getStack() {
         if (stack == null)
             genStack();
+
         return stack;
     }
 
     private void genStack() {
         net.minecraft.server.v1_16_R1.ItemStack tmp = CraftItemStack.asNMSCopy(new ItemStack(Material.valueOf(itemName.toUpperCase()), count));
-        try {
-            tmp.setTag(MojangsonParser.parse(nbt));
-        } catch (CommandSyntaxException ex) {
-            Logging.error("Invalid item JSON detected.");
-            return;
+        if (nbt != null && !nbt.isEmpty()) {
+            try {
+                tmp.setTag(MojangsonParser.parse(nbt));
+            } catch (CommandSyntaxException ex) {
+                Logging.error("Invalid item JSON detected.");
+                return;
+            }
         }
         stack = CraftItemStack.asBukkitCopy(tmp);
     }

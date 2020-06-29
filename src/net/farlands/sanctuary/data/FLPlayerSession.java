@@ -12,9 +12,12 @@ import net.farlands.sanctuary.mechanic.Toggles;
 import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -186,6 +189,12 @@ public class FLPlayerSession {
             flying = true;
         player.setAllowFlight(flying || GameMode.CREATIVE.equals(player.getGameMode()) ||
                 GameMode.SPECTATOR.equals(player.getGameMode()));
+        player.setHealthScaled(false);
+        if (player.hasPotionEffect(PotionEffectType.HEALTH_BOOST)) {
+            PotionEffect effect = player.getPotionEffect(PotionEffectType.HEALTH_BOOST);
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(Math.max(1.0, 20.0 + 4.0 * (effect.getAmplifier() + 1)));
+        } else
+            player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20.0);
 
         Toggles.hidePlayers(player);
         if (!handle.mail.isEmpty() && sendMessages && mailCooldown.isComplete()) {

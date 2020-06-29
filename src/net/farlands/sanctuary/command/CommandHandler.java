@@ -14,6 +14,7 @@ import net.farlands.sanctuary.command.player.CommandMe;
 import net.farlands.sanctuary.command.staff.*;
 import net.farlands.sanctuary.command.staff.CommandDebug;
 import net.farlands.sanctuary.command.staff.CommandKick;
+import net.farlands.sanctuary.command.staff.CommandTrigger;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
@@ -157,6 +158,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandTNTArrow());         // Builder
         registerCommand(new CommandToPlayer());         // Jr_Builder
         registerCommand(new CommandToLocation());       // Jr_Builder
+        registerCommand(new CommandTrigger());          // Admin
         registerCommand(new CommandVanish());           // Media
         registerCommand(new CommandViewNodes());        // Jr_Builder
     }

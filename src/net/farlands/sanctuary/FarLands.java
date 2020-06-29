@@ -14,8 +14,10 @@ import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -67,12 +69,12 @@ public class FarLands extends JavaPlugin {
         Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
                 instance.getDescription().getVersion() + "."), 50L);
 
-        /*Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            double theta = 0;
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+            double theta = 410.93331542209773;
             Player player = null;
 
-            static final double VELOCITY = 1;
-            static final double PERIOD = 16;
+            static final double VELOCITY = 0.1;
+            static final double PERIOD = 8;
 
             double thetaStep() {
                 double a = 1 + (PERIOD * theta) / (2 * Math.PI);
@@ -84,11 +86,6 @@ public class FarLands extends JavaPlugin {
                 return 16 * (1 + (PERIOD * theta) / (2 * Math.PI));
             }
 
-            Pair<Double, Double> position() {
-                double radius = radius();
-                return new Pair<>(radius * Math.cos(theta), radius * Math.sin(theta));
-            }
-
             @Override
             public void run() {
                 if (player == null) {
@@ -98,6 +95,7 @@ public class FarLands extends JavaPlugin {
 
                 if (!player.isOnline() || !player.isValid()) {
                     player = null;
+                    System.out.println("Theta: " + theta);
                     return;
                 }
 
@@ -105,16 +103,16 @@ public class FarLands extends JavaPlugin {
                     return;
 
                 // Teleport the player to the desired location
-                Pair<Double, Double> position = position();
+                double radius = radius();
                 Location location = player.getLocation().clone();
-                location.setX(position.getFirst());
-                location.setZ(position.getSecond());
+                location.setX(radius * Math.cos(theta));
+                location.setZ(radius * Math.sin(theta));
                 player.teleport(location);
 
                 // Increase position around the spiral
                 theta += thetaStep();
             }
-        }, 1L, 1L);*/
+        }, 1L, 1L);
     }
 
     @Override
