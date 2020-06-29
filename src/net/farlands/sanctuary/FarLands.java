@@ -60,10 +60,10 @@ public class FarLands extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
         dataHandler.preStartup();
         Rank.createTeams();
         scheduler.start();
-        farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
         mechanicHandler.registerMechanics();
         discordHandler.startBot();
         Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
