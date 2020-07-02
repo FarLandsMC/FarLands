@@ -213,7 +213,7 @@ public class GeneralMechanics extends Mechanic {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         Entity ent = event.getRightClicked();
         ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
