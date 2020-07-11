@@ -37,7 +37,7 @@ public class CommandStats extends Command {
                     "&(green)Showing stats for {&(gold)%0:}\n" +
                             "Rank: {%1}\n" +
                             "Time Played: %2\n" +
-                            (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
+                            (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: \\$" +
                                     flp.amountDonated + "\n" : "") +
                             "Votes this Month: %3\n" +
                             "Total Votes this Season: %4\n" +

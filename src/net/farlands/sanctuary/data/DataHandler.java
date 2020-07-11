@@ -177,6 +177,8 @@ public class DataHandler extends Mechanic {
         int gcCycleTime = FarLands.getFLConfig().gcCycleTime;
         if (gcCycleTime > 0)
             Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), System::gc, 20L * 60L * 5L, 20L * 60L * gcCycleTime);
+
+        System.out.println("Offline FLP Count: " + getOfflineFLPlayers().size());
     }
 
     @Override

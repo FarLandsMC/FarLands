@@ -118,8 +118,7 @@ public class AFK extends Mechanic {
             FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
             if (session.afk)
                 setNotAFK(session);
-            if (session.afkCheckCooldown != null && session.afkCheckCooldown.isComplete())
-                session.afkCheckInitializerCooldown.resetCurrentTask();
+            resetInitializerCooldown(session);
         }
     }
 
@@ -180,8 +179,10 @@ public class AFK extends Mechanic {
     }
 
     private static void resetInitializerCooldown(FLPlayerSession session) {
-        if (session.afkCheckCooldown != null && session.afkCheckCooldown.isComplete())
+        if (session.afkCheckCooldown != null && session.afkCheckCooldown.isComplete() &&
+                session.afkCheckInitializerCooldown != null) {
             session.afkCheckInitializerCooldown.resetCurrentTask();
+        }
     }
 
     private static void kickAFK(Player player) {
