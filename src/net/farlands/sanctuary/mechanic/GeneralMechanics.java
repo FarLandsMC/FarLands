@@ -122,6 +122,9 @@ public class GeneralMechanics extends Mechanic {
                     "$(hovercmd,/wild,&(aqua)Click to go to a random location.,&(aqua)/wild) to teleport to a " +
                     "random location on the map. Also, feel free to join our community on discord by clicking " +
                     "$(link,%0,&(aqua)here.)", FarLands.getFLConfig().discordInvite);
+
+            if (Rank.getRank(player) == Rank.PATRON)
+                FLUtils.giveItem(player, FarLands.getFLConfig().patronCollectable.getStack(), false);
         }
 
         if ("world".equals(player.getWorld().getName()))

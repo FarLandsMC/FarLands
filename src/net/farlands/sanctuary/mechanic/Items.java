@@ -49,7 +49,7 @@ public class Items extends Mechanic {
         PlayerInventory inv = ((Player) event.getEntity()).getInventory();
         ItemStack arrow = null;
         int arrowIndex = -1;
-        if (Material.ARROW != inv.getItemInOffHand().getType()) {
+        if (Material.ARROW == inv.getItemInOffHand().getType()) {
             arrow = inv.getItemInOffHand();
             arrowIndex = 0;
         } else {

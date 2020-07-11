@@ -17,8 +17,14 @@ public class CommandRules extends Command {
             new Pair<>("No hacking, cheating, or exploits of any kind.", "This includes, but is not limited to: " +
                     "x-ray clients (including texture packs), fly hacks, PvP hacks, aim-bots, and item duplication. " +
                     "If a game mechanic is exploited to gain an unfair advantage, then it is up to staff discretion " +
-                    "on whether or not to act on such an offense."),
-            new Pair<>("Slurs, hate speech, sexual and/or NSFW (not safe for work) content is prohibited.", "\n- " +
+                    "on whether or not to act on such an offense.  Note that the exploitation of known bugs, such as " +
+                    "exceeding data limits, that pose a risk of crashing the server or other players, or that could " +
+                    "potentially corrupt chunk data is strictly prohibited and may result in a ban. Also note that " +
+                    "if you report a game-breaking bug, you will not be punished or warned as long as you stop " +
+                    "exploiting the bug after the initial report, and as long as your exploration of the bug did not " +
+                    "cause damage to the server or other players. Continuing to probe such bugs after reporting them " +
+                    "will result in a warning and then a ban."),
+            new Pair<>("Slurs, hate speech, sexual and/or NSFW (not safe for work) content are prohibited.", "\n- " +
                     "Speech that derides particular ethnic, religious, or sexual minorities will result in a " +
                     "punishment and potentially a permanent ban from both in-game and discord.\n- Links to " +
                     "pornography, or otherwise sexually-charged content, is strictly prohibited since a large " +
@@ -56,7 +62,7 @@ public class CommandRules extends Command {
                     "are not in the area."),
             new Pair<>("You are responsible for managing your own account.", "We will not pardon a punishment if a " +
                     "sibling or co-user of an account breaks the rules and causes the account to get banned. It is " +
-                    "your responsibility to ensure that all users of an account comply with the rules."),
+                    "your responsibility to ensure that all users of your account comply with the rules."),
             new Pair<>("Using an alternate account to evade a ban will result in a permanent ban of both accounts.",
                     "In other words: ban evasion results in an IP ban. This is only applicable to new accounts: if " +
                             "you and a sibling have both joined the server before, and the sibling gets banned, then " +

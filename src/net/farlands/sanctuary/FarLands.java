@@ -13,6 +13,7 @@ import net.farlands.sanctuary.mechanic.MechanicHandler;
 import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
 
+import net.minecraft.server.v1_16_R1.CommandExecute;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -68,51 +69,6 @@ public class FarLands extends JavaPlugin {
         discordHandler.startBot();
         Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
                 instance.getDescription().getVersion() + "."), 50L);
-
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            double theta = 443.5318421266648;
-            Player player = null;
-
-            static final double VELOCITY = 0.1;
-            static final double PERIOD = 8;
-
-            double thetaStep() {
-                double a = 1 + (PERIOD * theta) / (2 * Math.PI);
-                a = (4 * Math.PI / PERIOD) * (VELOCITY + (Math.PI / PERIOD) * (a * a));
-                return Math.sqrt(a) - (2 * Math.PI) / PERIOD - theta;
-            }
-
-            double radius() {
-                return 16 * (1 + (PERIOD * theta) / (2 * Math.PI));
-            }
-
-            @Override
-            public void run() {
-                if (player == null) {
-                    player = Bukkit.getPlayer("xCassyx");
-                    return;
-                }
-
-                if (!player.isOnline() || !player.isValid()) {
-                    player = null;
-                    System.out.println("Theta: " + theta);
-                    return;
-                }
-
-                if (player.getLocation().getY() < 128)
-                    return;
-
-                // Teleport the player to the desired location
-                double radius = radius();
-                Location location = player.getLocation().clone();
-                location.setX(radius * Math.cos(theta));
-                location.setZ(radius * Math.sin(theta));
-                player.teleport(location);
-
-                // Increase position around the spiral
-                theta += thetaStep();
-            }
-        }, 1L, 1L);
     }
 
     @Override

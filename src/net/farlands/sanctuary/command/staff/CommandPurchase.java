@@ -66,9 +66,10 @@ public class CommandPurchase extends Command {
             else if (rank == Rank.PATRON) {
                 if (flp.isOnline()) {
                     FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
-                } else
+                } else {
                     FarLands.getDataHandler().addPackage(flp.uuid, "FarLands Staff",
                             FarLands.getFLConfig().patronCollectable.getStack(), "");
+                }
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "claimblocks add " + flp.username + " " +
                         (flp.rank == Rank.DONOR ? "45000" : "60000"));
             }

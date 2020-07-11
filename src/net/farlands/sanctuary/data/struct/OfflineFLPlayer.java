@@ -58,7 +58,7 @@ public class OfflineFLPlayer {
     public static final Map<String, List<String>> SQL_SER_INFO = (new ImmutableMap.Builder<String, List<String>>())
             .put("constants", Arrays.asList("uuid", "username"))
             .put("objects", Arrays.asList("particles", "lastLocation", "currentMute"))
-            .put("ignored", Arrays.asList("punishments", "homes", "mail", "notes", "staffChatColor"))
+            .put("ignored", Arrays.asList("punishments", "homes", "mail", "notes", "staffChatColor", "totalSeasonVotes"))
             .build();
 
     public OfflineFLPlayer(UUID uuid, String username) {

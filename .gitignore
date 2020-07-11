@@ -37,6 +37,4 @@ test/
 
 # Other
 .vscode/
-arch/docker/
-arch/scripts/
-arch/.dockerignore
+arch/
