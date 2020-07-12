@@ -11,6 +11,8 @@ import net.farlands.sanctuary.util.TimeInterval;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -31,6 +33,7 @@ public class CommandStats extends Command {
             sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.update(); // Make sure our stats are fresh
             sendFormatted(sender,
@@ -39,12 +42,14 @@ public class CommandStats extends Command {
                             "Time Played: %2\n" +
                             (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: \\$" +
                                     flp.amountDonated + "\n" : "") +
-                            "Votes this Month: %3\n" +
-                            "Total Votes this Season: %4\n" +
-                            "Total Votes All Time: %5",
+                            "Deaths: %3\n" +
+                            "Votes this Month: %4\n" +
+                            "Total Votes this Season: %5\n" +
+                            "Total Votes All Time: %6",
                     flp.username,
                     "&(" + flp.rank.getColor().name().toLowerCase() + ")" + flp.rank.getName(),
                     TimeInterval.formatTime(flp.secondsPlayed * 1000L, false),
+                    offlinePlayer.getStatistic(Statistic.DEATHS),
                     flp.monthVotes,
                     flp.totalSeasonVotes,
                     flp.totalVotes

@@ -1,5 +1,7 @@
 package net.farlands.sanctuary.mechanic;
 
+import com.kicas.rp.RegionProtection;
+import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
 import com.kicasmads.cs.event.ShopCreateEvent;
@@ -30,6 +32,20 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Restrictions extends Mechanic {
+    @Override
+    public void onStartup() {
+        // Fix nether claim heights
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+            RegionProtection.getDataManager().getRegionsInWorld(Bukkit.getWorld("world_nether")).forEach(region -> {
+                if (region.isAdminOwned())
+                    return;
+
+                Pair<Location, Location> bounds = region.getBounds();
+                bounds.getSecond().setY(128);
+                region.setBounds(bounds);
+            });
+        }, 100L);
+    }
 
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
@@ -41,33 +57,40 @@ public class Restrictions extends Mechanic {
                 Logging.broadcastStaff(TextUtils.format("&(red)%0 has notes. Hover $(hover,{&(gray){%1}}," +
                         "{&(aqua,underline)here}) to view them.", player.getName(), String.join("\n", notes)));
             }
-            List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                    .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
-                    .collect(Collectors.toList());
-            List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
-                    unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
-            if (!banned.isEmpty()) {
-                Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + banned.size() + " banned player" +
-                        (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? DiscordChannel.ALERTS : null);
-            }
-            if (!unbanned.isEmpty()) {
-                Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + unbanned.size() + " player" +
-                        (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? DiscordChannel.ALERTS : null);
-            }
-            if (isNew) {
-                flp.lastLocation = FarLands.getDataHandler().getPluginData().spawn;
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                        .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
+                        .collect(Collectors.toList());
+                List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
+                        unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
                 if (!banned.isEmpty()) {
-                    Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.username,
-                            unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)),
-                            DiscordChannel.NOTEBOOK);
-                    flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
-                    alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
-                    return;
+                    Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + banned.size() + " banned player" +
+                            (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? DiscordChannel.ALERTS : null);
                 }
-            }
+                if (!unbanned.isEmpty()) {
+                    Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + unbanned.size() + " player" +
+                            (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? DiscordChannel.ALERTS : null);
+                }
+                if (isNew && flp.lastIP != null && !flp.lastIP.trim().isEmpty()) {
+                    flp.lastLocation = FarLands.getDataHandler().getPluginData().spawn;
+                    if (!banned.isEmpty()) {
+                        Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.username,
+                                unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)),
+                                DiscordChannel.NOTEBOOK);
+                        flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
+                        alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
+                    }
+                }
+            }, 60L);
         }
 
-        if (isNew) {
+        if (isNew ||
+            (
+                player.getWorld().getEnvironment() == World.Environment.NETHER &&
+                    (Math.abs(player.getLocation().getX()) > 5000 ||
+                    Math.abs(player.getLocation().getZ()) > 5000)
+            )
+        ) {
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
                 if (spawn != null)
@@ -189,6 +212,13 @@ public class Restrictions extends Mechanic {
             event.setCancelled(true);
             return;
         }*/
+        if ((Math.abs(to.getX()) > 5000 || Math.abs(to.getZ()) > 5000) && to.getWorld().getEnvironment() == World.Environment.NETHER
+                && !Rank.getRank(event.getPlayer()).isStaff()) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(ChatColor.RED + "The nether border has temporarily been restricted due to world gen changes in 1.16.2");
+            return;
+        }
+
         int max = (int)to.getWorld().getWorldBorder().getSize() >> 1; // size / 2 (rounded down)
         if (Math.abs(to.getX()) > max || Math.abs(to.getZ()) > max) {
             event.setCancelled(true);

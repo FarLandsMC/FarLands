@@ -86,7 +86,11 @@ public final class TeleportRequest implements Runnable {
         }
 
         // Execute the teleport and wrap up
-        FLUtils.tpPlayer(teleporter, toLocation);
+        Location safe = Utils.findSafe(toLocation, 0, 256);
+        if (safe == null)
+            teleporter.sendMessage(ChatColor.RED + "The location you were teleporting to is no longer safe.");
+        else
+            FLUtils.tpPlayer(teleporter, safe);
         endTask();
     }
 

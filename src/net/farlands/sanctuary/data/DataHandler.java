@@ -596,6 +596,11 @@ public class DataHandler extends Mechanic {
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
+            //sqlUuids.forEach(uuid -> {
+            //    OfflineFLPlayer flp = pdh.loadFLPlayer(uuid, null);
+            //    if (flPlayerMap.containsKey(uuid))
+            //        flPlayerMap.get(uuid).discordID = flp.discordID;
+            //});
             sqlUuids.stream().filter(uuid -> !flPlayerMap.containsKey(uuid)).forEach(uuid -> {
                 OfflineFLPlayer flp = pdh.loadFLPlayer(uuid, null);
                 flp.notes.addAll(pdh.getNotes(uuid));

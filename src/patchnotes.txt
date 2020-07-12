@@ -1,0 +1,9 @@
+&7Additions:
+ - A message is now broadcasted in-game when someone donates
+ - Added deaths counter to /stats
+ - Created temporary nether border limit of 5k (will be removed for 1.16.2)
+Changes:
+ - Updated vote party items
+ - It now takes 15 votes to trigger a vote party
+ - Fixed false ban evasion punishments
+ - Fixed claim/region issues

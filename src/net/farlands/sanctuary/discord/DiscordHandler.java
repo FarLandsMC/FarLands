@@ -30,6 +30,8 @@ import org.bukkit.ChatColor;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 public class DiscordHandler extends ListenerAdapter {
     private DiscordBotConfig config;
     private final MessageChannelHandler channelHandler;
@@ -216,8 +218,21 @@ public class DiscordHandler extends ListenerAdapter {
             return;
         message = Chat.removeColorCodes(message.replaceAll("\\s+", " "));
         final String fmessage = message.substring(0, Math.min(256, message.length()));
-        if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong())
-            Logging.broadcastStaff(ChatColor.RED + "[SC] " + sender.getName() + ": " + fmessage);
+
+        if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
+            if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
+                FarLands.getDataHandler().getSessions().stream()
+                        .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+                        .forEach(session -> sendFormatted(
+                                session.player,
+                                "%0[SC] %1: %2",
+                                session.handle.staffChatColor,
+                                session.handle.username,
+                                fmessage
+                        ));
+            }
+        }
+
         else if (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong()) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             if (flp != null) {

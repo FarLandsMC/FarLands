@@ -7,11 +7,13 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -64,7 +66,7 @@ public class CommandEdit extends Command {
             return true;
         }
         // Apply restrictions
-        int restriction = getRestriction(args[2]);
+        int restriction = getRestriction(sender, args[2]);
         if (restriction == 1 && args.length > 3) {
             sendFormatted(sender, "&(red)\"%0\" is read-only.", args[2]);
             return true;
@@ -224,14 +226,23 @@ public class CommandEdit extends Command {
         return casted == null ? obj : casted;
     }
 
-    private static int getRestriction(String field) {
+    private static int getRestriction(CommandSender sender, String field) {
+        if (sender instanceof ConsoleCommandSender)
+            return 0;
+
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        if (flp != null && FarLands.getFLConfig().jsUsers.contains(flp.uuid.toString()))
+            return 0;
+
         if (RESTRICTED_FIELDS.containsKey(field))
             return RESTRICTED_FIELDS.get(field);
+
         for (Map.Entry<String, Integer> entry : RESTRICTED_FIELDS.entrySet()) {
             // Ensures that, for example, field=ab will not match entry.key=abc.d
             if (entry.getKey().startsWith(field) && entry.getKey().charAt(field.length()) == '.' || field.startsWith(entry.getKey()))
                 return entry.getValue();
         }
+
         return 0;
     }
 
