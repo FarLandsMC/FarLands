@@ -1,9 +1,13 @@
 &7Additions:
- - A message is now broadcasted in-game when someone donates
- - Added deaths counter to /stats
- - Created temporary nether border limit of 5k (will be removed for 1.16.2)
+ - Fixed chest shop GUI and added the ability to trade through the GUI
+ - Reworked /top
+   - Added /top deaths
+   - /top now has pages, examples: /top deaths 3, /top votes month 4
+   - Added the ability to exclude staff from /top playtime (/top playtime no-staff)
+ - If a player with no claims places a chest, they will now be prompted to make a claim
 Changes:
- - Updated vote party items
- - It now takes 15 votes to trigger a vote party
- - Fixed false ban evasion punishments
- - Fixed claim/region issues
+ - Lowered entity limits to reduce server lag
+ - Changed rank colors for Jr. Builder and Builder
+Fixes:
+ - Fixed error with /craft
+ - Fixed advancement not displaying with /rankup

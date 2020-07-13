@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.staff;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
+import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.sanctuary.FarLands;
@@ -11,6 +12,7 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -89,6 +91,12 @@ public class CommandStaffChat extends Command {
             String message = joinArgsBeyond(0, " ", args);
             if (message.isEmpty())
                 return true;
+            TextUtils.sendFormatted(
+                    Bukkit.getConsoleSender(),
+                    "&(red)[SC] %0: %1",
+                    username,
+                    message
+            );
             FarLands.getDataHandler().getSessions().stream().filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
                     .forEach(session -> sendFormatted(session.player, "%0[SC] %1: %2", session.handle.staffChatColor, username, message));
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, username + ": " + message);

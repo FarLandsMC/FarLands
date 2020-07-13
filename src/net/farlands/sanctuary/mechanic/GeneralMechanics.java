@@ -13,6 +13,7 @@ import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.server.v1_16_R1.EntityTypes;

@@ -113,7 +113,7 @@ public class Chat extends Mechanic {
         Rank rank = senderFlp.rank,
                 displayedRank = senderFlp.topVoter && !rank.isStaff() ? Rank.VOTER : rank;
         chat(senderFlp, sender, displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
-                displayedRank.getName() + displayedRank.getNameColor() + " " + senderFlp.getDisplayName() + ": " +
+                displayedRank.getName() + ChatColor.RESET + displayedRank.getNameColor() + " " + senderFlp.getDisplayName() + ": " +
                 ChatColor.WHITE, message.trim());
     }
 
@@ -129,7 +129,7 @@ public class Chat extends Mechanic {
             message = applyColorCodes(senderFlp.rank, message);
 
 
-        if (message.substring(0, 1).equals("!")) {
+        if (message.startsWith("!")) {
             if (message.length() <= 1)
                 return;
             message = message.substring(1);

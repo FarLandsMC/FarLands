@@ -23,8 +23,8 @@ public class CommandMined extends PlayerCommand {
         if (args.length == 0)
             return false;
         if (args.length == 1 || "preview".equals(args[1])) {
-            sender.chat("/co rollback u:" + args[0] +
-                    " r:50 b:redstone_ore,diamond_ore,iron_ore,emerald_ore,gold_ore,lapis_ore,coal_ore t:14d #preview");
+            sender.chat("/co rollback u:" + args[0] + " r:50 b:redstone_ore,diamond_ore,iron_ore,emerald_ore,gold_ore," +
+                    "lapis_ore,coal_ore,ancient_debris,nether_gold_ore t:14d #preview");
             sendFormatted(sender, "&(green)Type $(hovercmd,/co cancel,{&(gray)Cancel Preview},&(aqua)/co cancel) when done.");
         } else if ("rollback".equals(args[1]))
             sender.chat("/co rollback u:" + args[0] + " r:50 t:14d");

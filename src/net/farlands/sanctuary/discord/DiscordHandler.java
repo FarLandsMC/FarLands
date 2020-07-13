@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.discord;
 
+import com.kicas.rp.util.TextUtils;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -221,13 +222,20 @@ public class DiscordHandler extends ListenerAdapter {
 
         if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
             if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
+                TextUtils.sendFormatted(
+                        Bukkit.getConsoleSender(),
+                        "&(red)[SC] %0: %1",
+                        sender.getName(),
+                        fmessage
+                );
+
                 FarLands.getDataHandler().getSessions().stream()
                         .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
                         .forEach(session -> sendFormatted(
                                 session.player,
                                 "%0[SC] %1: %2",
                                 session.handle.staffChatColor,
-                                session.handle.username,
+                                sender.getName(),
                                 fmessage
                         ));
             }

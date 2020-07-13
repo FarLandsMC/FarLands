@@ -4,23 +4,26 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.TimeInterval;
 
-import net.minecraft.server.v1_16_R1.AdvancementDisplay;
-import org.bukkit.command.CommandSender;
+import net.minecraft.server.v1_16_R1.*;
 import org.bukkit.craftbukkit.v1_16_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-public class CommandRankup extends Command {
+import java.lang.reflect.Constructor;
+import java.util.UUID;
+
+public class CommandRankup extends PlayerCommand {
     public CommandRankup() {
         super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Check the requirements for your next rank up.", "/rankup", "rankup");
     }
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(Player sender, String[] args) {
         // Trigger the rank-up if possible
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         Rank nextRank = flp.rank.getNextRank();
@@ -43,15 +46,38 @@ public class CommandRankup extends Command {
                 );
             }
 
-            if (sender instanceof Player && !nextRank.completedAdvancement((Player) sender)) {
-                AdvancementDisplay advancementDisplay = ((CraftAdvancement) nextRank.getAdvancement()).getHandle().c();
-                if (advancementDisplay != null) {
-                    sendFormatted(sender, "&(gold)You must complete the advancement {&(aqua)%0} to rankup.",
-                            advancementDisplay.a().getText());
-                }
+            if (!nextRank.completedAdvancement(sender)) {
+                ((CraftPlayer) sender).getHandle().sendMessage(
+                        new ChatComponentText("You must complete the advancement ").setChatModifier(gold())
+                                .addSibling(((CraftAdvancement) nextRank.getAdvancement()).getHandle().j())
+                                .addSibling(new ChatComponentText(" to rankup.").setChatModifier(gold())),
+                        new UUID(0L, 0L)
+                );
             }
         }
 
         return true;
+    }
+
+    private static ChatModifier gold() {
+        try {
+            Constructor<ChatModifier> constructor = ChatModifier.class.getDeclaredConstructor(
+                    ChatHexColor.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    ChatClickable.class,
+                    ChatHoverable.class,
+                    String.class,
+                    MinecraftKey.class
+            );
+
+            constructor.setAccessible(true);
+            return constructor.newInstance(ChatHexColor.a("gold"), null, null, null, null, null, null, null, null, null);
+        } catch (Throwable t) {
+            return null;
+        }
     }
 }

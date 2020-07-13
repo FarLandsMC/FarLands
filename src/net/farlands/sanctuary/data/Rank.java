@@ -4,8 +4,8 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.command.BlockCommandSender;
@@ -37,10 +37,10 @@ public enum Rank {
 
     /* Staff Ranks */
     // permissionLevel symbol color
-    JR_BUILDER(1, "Jr. Builder", ChatColor.LIGHT_PURPLE),
+    JR_BUILDER(1, "Jr. Builder", ChatColor.of("#bf6bff"), org.bukkit.ChatColor.AQUA),
     JR_MOD    (1, "Jr. Mod",     ChatColor.RED),
-    JR_DEV    (1, "Jr. Dev",     ChatColor.AQUA),
-    BUILDER   (2, "Builder",     ChatColor.DARK_PURPLE),
+    JR_DEV    (1, "Jr. Dev",     ChatColor.DARK_AQUA),
+    BUILDER   (2, "Builder",     ChatColor.of("#9000ff"), org.bukkit.ChatColor.BLUE),
     MOD       (2, "Mod",         ChatColor.DARK_RED),
     ADMIN     (3, "Admin",       ChatColor.DARK_GREEN),
     DEV       (3, "Dev",         ChatColor.DARK_AQUA),
@@ -49,6 +49,7 @@ public enum Rank {
     private final int permissionLevel; // 0: players, 1+: staff
     private final String name;
     private final ChatColor color;
+    private final org.bukkit.ChatColor teamColor;
     private final String advancement;
     private final int playTimeRequired; // Hours
     private final int homes;
@@ -63,11 +64,12 @@ public enum Rank {
     public static final String DONOR_COST_STR = DONOR_COST_USD + " USD";
     public static final String PATRON_COST_STR = PATRON_COST_USD + " USD";
 
-    Rank(int permissionLevel, String name, ChatColor color, String advancement, int playTimeRequired, int homes,
-         int tpDelay, int shops, int wildCooldown) {
+    Rank(int permissionLevel, String name, ChatColor color, org.bukkit.ChatColor teamColor, String advancement,
+         int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
         this.permissionLevel = permissionLevel;
         this.name = name;
         this.color = color;
+        this.teamColor = teamColor;
         this.advancement = advancement;
         this.playTimeRequired = playTimeRequired;
         this.homes = homes;
@@ -77,15 +79,22 @@ public enum Rank {
     }
 
     Rank(String name, ChatColor color, String advancement, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, name, color, advancement, playTimeRequired, homes, tpDelay, shops, wildCooldown);
+        this(0, name, color, org.bukkit.ChatColor.valueOf(color.getName().toUpperCase()), advancement, playTimeRequired,
+                homes, tpDelay, shops, wildCooldown);
     }
 
     Rank(String name, ChatColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, name, color, null, playTimeRequired, homes, tpDelay, shops, wildCooldown);
+        this(0, name, color, org.bukkit.ChatColor.valueOf(color.getName().toUpperCase()), null, playTimeRequired, homes,
+                tpDelay, shops, wildCooldown);
+    }
+
+    Rank(int permissionLevel, String name, ChatColor color, org.bukkit.ChatColor teamColor) {
+        this(permissionLevel, name, color, teamColor, null, -1, Integer.MAX_VALUE, 0, 60, 0);
     }
 
     Rank(int permissionLevel, String name, ChatColor color) {
-        this(permissionLevel, name, color, null, -1, Integer.MAX_VALUE, 0, 60, 0);
+        this(permissionLevel, name, color, org.bukkit.ChatColor.valueOf(color.getName().toUpperCase()), null, -1,
+                Integer.MAX_VALUE, 0, 60, 0);
     }
 
     public int specialCompareTo(Rank other) {
@@ -198,7 +207,7 @@ public enum Rank {
         sc.getTeams().forEach(Team::unregister); // Remove old teams
         Arrays.stream(VALUES).filter(rank -> rank.getTeam() == null).forEach(rank -> { // Add teams
             Team team = sc.registerNewTeam(rank.getTeamName());
-            team.setColor(rank.getNameColor());
+            team.setColor(rank.teamColor);
             team.setPrefix(rank.getNameColor().toString());
         });
     }
