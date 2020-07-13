@@ -23,29 +23,38 @@ public class CommandSpawn extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (args.length == 0 && !(sender instanceof Player)) {
-            sendFormatted(sender, "&(red)You must be in-game to use this command.");
-            return true;
-        }
         LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
         if (spawn == null) {
             sendFormatted(sender, "&(red)Server spawn not set! Please contact an owner, administrator, or developer and notify them of this problem.");
             return true;
         }
-        if (args.length > 0 && Rank.getRank(sender).specialCompareTo(Rank.BUILDER) >= 0) { // Force another player to spawn
+
+        if (Rank.getRank(sender).specialCompareTo(Rank.BUILDER) < 0)
+            args = new String[0];
+
+        // Force another player to spawn
+        if (args.length > 0) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
             if (flp == null) {
                 sendFormatted(sender, "&(red)Player not found.");
                 return true;
             }
+
             Player player = flp.getOnlinePlayer();
             if (player == null)
                 flp.lastLocation = spawn;
             else
                 player.teleport(spawn.asLocation());
+
             sendFormatted(sender, "&(green)Moved player to spawn.");
-        } else
+        } else {
+            if (!(sender instanceof Player)) {
+                sendFormatted(sender, "&(red)You must be in-game to use this command.");
+                return true;
+            }
+
             ((Player) sender).teleport(spawn.asLocation());
+        }
         return true;
     }
 

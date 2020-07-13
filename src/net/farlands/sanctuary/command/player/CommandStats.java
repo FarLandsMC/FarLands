@@ -47,7 +47,7 @@ public class CommandStats extends Command {
                             "Total Votes this Season: %5\n" +
                             "Total Votes All Time: %6",
                     flp.username,
-                    "&(" + flp.rank.getColor().name().toLowerCase() + ")" + flp.rank.getName(),
+                    flp.rank.getColor() + flp.rank.getName(),
                     TimeInterval.formatTime(flp.secondsPlayed * 1000L, false),
                     offlinePlayer.getStatistic(Statistic.DEATHS),
                     flp.monthVotes,

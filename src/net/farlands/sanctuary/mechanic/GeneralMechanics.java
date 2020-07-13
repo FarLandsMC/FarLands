@@ -129,7 +129,7 @@ public class GeneralMechanics extends Mechanic {
         }
 
         if ("world".equals(player.getWorld().getName()))
-            FarLands.getScheduler().scheduleSyncDelayedTask(() -> updateNightSkip(true), 1);
+            updateNightSkip(true);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class GeneralMechanics extends Mechanic {
             player.teleport(exit);
             FarLands.getDataHandler().getSession(player).seatExit = null;
         }
-        FarLands.getScheduler().scheduleSyncDelayedTask(() -> updateNightSkip(true), 1);
+        updateNightSkip(true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -356,32 +356,34 @@ public class GeneralMechanics extends Mechanic {
     }
 
     private void updateNightSkip(boolean sendBroadcast) {
-        int dayTime = (int) (Bukkit.getWorld("world").getTime() % 24000);
-        if (12541 > dayTime || dayTime > 23458)
-            return;
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+            int dayTime = (int) (Bukkit.getWorld("world").getTime() % 24000);
+            if (12541 > dayTime || dayTime > 23458)
+                return;
 
-        List<Player> online = Bukkit.getOnlinePlayers().stream()
-                .filter(player -> "world".equals(player.getWorld().getName())).map(player -> (Player) player)
-                .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
-                .collect(Collectors.toList());
-        int sleeping = (int) online.stream().filter(Player::isSleeping).count();
-        if (sleeping <= 0)
-            return;
+            List<Player> online = Bukkit.getOnlinePlayers().stream()
+                    .filter(player -> "world".equals(player.getWorld().getName())).map(player -> (Player) player)
+                    .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
+                    .collect(Collectors.toList());
+            int sleeping = (int) online.stream().filter(Player::isSleeping).count();
+            if (sleeping <= 0)
+                return;
 
-        int required = (online.size() + 1) / 2;
-        if (sleeping < required) {
-            if (sendBroadcast && nightSkip.isComplete()) {
-                nightSkip.reset();
-                Logging.broadcastFormatted("%0 &(gold)more $(inflect,noun,0,player) $(inflect,verb,0,need) " +
-                        "to sleep to skip the night.", false, required - sleeping);
+            int required = (online.size() + 1) / 2;
+            if (sleeping < required) {
+                if (sendBroadcast && nightSkip.isComplete()) {
+                    nightSkip.reset();
+                    Logging.broadcastFormatted("%0 &(gold)more $(inflect,noun,0,player) $(inflect,verb,0,need) " +
+                            "to sleep to skip the night.", false, required - sleeping);
+                }
+            } else if (required == sleeping) {
+                Logging.broadcastFormatted("&(gold)Skipping the night...", false);
+                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                    World world = Bukkit.getWorld("world");
+                    world.setTime(1000L);
+                    world.setStorm(false);
+                }, 30L);
             }
-        } else if (required == sleeping) {
-            Logging.broadcastFormatted("&(gold)Skipping the night...", false);
-            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                World world = Bukkit.getWorld("world");
-                world.setTime(1000L);
-                world.setStorm(false);
-            }, 30L);
-        }
+        }, 2L);
     }
 }

@@ -59,7 +59,7 @@ public class CommandPurchase extends Command {
 
         Rank rank = FLUtils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
         int price = args.length >= 4 ? Integer.parseInt(args[3]) : 0;
-        flp.addDonation(price);
+        flp.amountDonated += price;
 
         if (args[1].equalsIgnoreCase("none")) {
             if (flp.amountDonated >= Rank.PATRON_COST_USD)

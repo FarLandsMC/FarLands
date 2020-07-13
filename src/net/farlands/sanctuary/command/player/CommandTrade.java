@@ -5,6 +5,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
+import net.farlands.sanctuary.mechanic.Chat;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -26,7 +27,8 @@ public class CommandTrade extends PlayerCommand {
             FarLands.getDataHandler().getPluginData().clearTrade(sender.getUniqueId());
             sender.sendMessage(ChatColor.GREEN + "Your current trade for the day has been cleared.");
         } else {
-            FarLands.getDataHandler().getPluginData().setTrade(sender.getUniqueId(), String.join(" ", args));
+            FarLands.getDataHandler().getPluginData().setTrade(sender.getUniqueId(),
+                    Chat.applyColorCodes(Rank.getRank(sender), String.join(" ", args)));
             sender.sendMessage(ChatColor.GREEN + "Your current trade for the day has been updated.");
         }
 

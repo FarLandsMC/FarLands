@@ -49,7 +49,7 @@ public class CommandTop extends Command {
                     return true;
 
                 // Month votes
-                if (args.length == 1 || !"all".equals(args[0])) {
+                if (args.length == 1 || !"all".equals(args[1])) {
                     flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalSeasonVotes)));
 
                     sendFormatted(sender, "&(gold)Showing the top voters for this month (page %0/%1):", offset / 10 + 1, pageMax);

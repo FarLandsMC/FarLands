@@ -188,10 +188,6 @@ public class OfflineFLPlayer {
         monthVotes = 0;
     }
 
-    public void addDonation(int amount) {
-        amountDonated += amount;
-    }
-
     public void addShop() {
         ++ shops;
     }
