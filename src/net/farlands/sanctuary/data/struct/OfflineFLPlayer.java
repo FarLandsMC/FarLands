@@ -34,7 +34,7 @@ public class OfflineFLPlayer {
     public int totalSeasonVotes;
     public int monthVotes;
     public int voteRewards;
-    public int amountDonated;
+    public double amountDonated;
     public int shops;
     public boolean flightPreference;
     public boolean god;

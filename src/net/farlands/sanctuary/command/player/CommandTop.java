@@ -114,7 +114,7 @@ public class CommandTop extends Command {
                 flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
                         .filter(flp -> flp.amountDonated > 0)
                         .collect(Collectors.toList());
-                flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.amountDonated)));
+                flps.sort(Collections.reverseOrder(Comparator.comparingDouble(flp -> flp.amountDonated)));
 
                 pageMax = flps.size() / 10 + 1;
                 int offset = getOffset(sender, pageMax, args);

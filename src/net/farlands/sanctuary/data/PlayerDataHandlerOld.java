@@ -459,7 +459,7 @@ public class PlayerDataHandlerOld {
             saveFlp.setInt(7, flp.totalVotes);
             saveFlp.setInt(8, flp.monthVotes);
             saveFlp.setInt(9, flp.voteRewards);
-            saveFlp.setInt(10, flp.amountDonated);
+            saveFlp.setDouble(10, flp.amountDonated);
             saveFlp.setInt(11, flp.shops);
             int flags = (flp.flightPreference ? 1 : 0) << 7 | (flp.god ? 1 : 0) << 6 | (flp.vanished ? 1 : 0) << 5 |
                     (flp.censoring ? 1 : 0) << 4 | (flp.pvp ? 1 : 0) << 3 | (flp.topVoter ? 1 : 0) << 2 |
@@ -541,7 +541,7 @@ public class PlayerDataHandlerOld {
             flp.totalVotes = rs.getInt("totalVotes");
             flp.monthVotes = 0;
             flp.voteRewards = 0;
-            flp.amountDonated = rs.getInt("amountDonated");
+            flp.amountDonated = rs.getDouble("amountDonated");
             flp.shops = 0;
             int flags = rs.getInt("flags");
             flp.flightPreference = false;

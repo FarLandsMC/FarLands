@@ -35,7 +35,7 @@ public class CommandPurchase extends Command {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
-            if (args.length < 3) {
+            if (args.length <3) { // love donates
                 sendFormatted(sender, "&(red)Player not found.");
                 return true;
             }
@@ -58,7 +58,7 @@ public class CommandPurchase extends Command {
                 true, flp.username, FarLands.getFLConfig().donationLink);
 
         Rank rank = FLUtils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
-        int price = args.length >= 4 ? Integer.parseInt(args[3]) : 0;
+        double price = args.length >= 4 ? Double.parseDouble(args[3]) : 0;
         flp.amountDonated += price;
 
         if (args[1].equalsIgnoreCase("none")) {
