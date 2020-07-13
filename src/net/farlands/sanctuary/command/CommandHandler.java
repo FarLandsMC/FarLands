@@ -92,6 +92,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandMe());               // Initiate
         registerCommand(new CommandMessage());          // Initiate
         registerCommand(new CommandNick());             // Adept
+        registerCommand(new CommandNightSkip());        // Initiate
         registerCommand(new CommandPackage());          // Knight
         registerCommand(new CommandParticles());        // Donor
         registerCommand(new CommandPatchnotes());       // Initiate
