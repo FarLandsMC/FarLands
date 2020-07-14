@@ -1,13 +1,14 @@
 &7Additions:
- - Fixed chest shop GUI and added the ability to trade through the GUI
- - Reworked /top
-   - Added /top deaths
-   - /top now has pages, examples: /top deaths 3, /top votes month 4
-   - Added the ability to exclude staff from /top playtime (/top playtime no-staff)
- - If a player with no claims places a chest, they will now be prompted to make a claim
+ - Colour codes are now applied to /tradepost messages
+ - Added /nightskip
+    - Displays how many people are sleeping and how many players are required to sleep in order to skip the night
 Changes:
- - Lowered entity limits to reduce server lag
- - Changed rank colors for Jr. Builder and Builder
+ - Players with /managementtrust now have permission to use /claimheight
 Fixes:
- - Fixed error with /craft
- - Fixed advancement not displaying with /rankup
+ - Fixed display error in /top
+ - Fixed errors in chest shops
+    - Double chests are now compatible as shops
+    - Expiration messages have been corrected when creating shops
+    - Fixed save error
+ - Fixed donation error
+ - Fixed other back-end errors
