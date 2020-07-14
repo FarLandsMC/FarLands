@@ -12,18 +12,17 @@ import com.mojang.authlib.GameProfile;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.ReflectionHelper;
 
 import net.md_5.bungee.api.ChatMessageType;
 
-import net.minecraft.server.v1_16_R1.EnumGamemode;
-import net.minecraft.server.v1_16_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_16_R1.PacketStatusOutServerInfo;
-import net.minecraft.server.v1_16_R1.ServerPing;
+import net.minecraft.server.v1_16_R1.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.craftbukkit.v1_16_R1.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -34,6 +33,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
@@ -42,6 +42,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Toggles extends Mechanic {
     @Override
@@ -122,6 +123,24 @@ public class Toggles extends Mechanic {
                 !FarLands.getDataHandler().getSession(event.getPlayer()).autoSendStaffChat) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You are vanished, you cannot chat in-game.");
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onAdvancementGet(PlayerAdvancementDoneEvent event) {
+        if (!FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
+            Bukkit.getOnlinePlayers().stream()
+                    .map(player -> ((CraftPlayer) player).getHandle())
+                    .forEach(player -> {
+                        player.sendMessage(
+                                ((CraftPlayer) event.getPlayer()).getHandle().getScoreboardDisplayName().mutableCopy()
+                                        // Clear chat modifiers
+                                        .addSibling(new ChatComponentText(" has made the advancement ")
+                                                .setChatModifier(FLUtils.chatModifier("white")))
+                                        .addSibling(((CraftAdvancement) event.getAdvancement()).getHandle().j()),
+                                new UUID(0L, 0L)
+                        );
+                    });
         }
     }
 

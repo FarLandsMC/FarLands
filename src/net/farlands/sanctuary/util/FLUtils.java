@@ -9,11 +9,11 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 
 import net.farlands.sanctuary.FarLands;
 
-import net.minecraft.server.v1_16_R1.MerchantRecipe;
-import net.minecraft.server.v1_16_R1.MerchantRecipeList;
-import net.minecraft.server.v1_16_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R1.*;
 
 import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
@@ -25,6 +25,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.security.MessageDigest;
@@ -40,6 +41,28 @@ public final class FLUtils {
     private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED, ChatColor.DARK_RED};
 
     private FLUtils() { }
+
+    public static ChatModifier chatModifier(String color) {
+        try {
+            Constructor<ChatModifier> constructor = ChatModifier.class.getDeclaredConstructor(
+                    ChatHexColor.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    Boolean.class,
+                    ChatClickable.class,
+                    ChatHoverable.class,
+                    String.class,
+                    MinecraftKey.class
+            );
+
+            constructor.setAccessible(true);
+            return constructor.newInstance(ChatHexColor.a(color), null, null, null, null, null, null, null, null, null);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
 
     public static MerchantRecipeList copyRecipeList(MerchantRecipeList list) {
         MerchantRecipeList copy = new MerchantRecipeList();

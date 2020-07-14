@@ -8,6 +8,7 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
+import net.farlands.sanctuary.mechanic.Chat;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class CommandRealName extends Command {
         args[0] = args[0].toLowerCase();
         List<String> matches = new ArrayList<>();
         for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
-            String nickname = flp.nickname.toLowerCase();
+            String nickname = Chat.removeColorCodes(flp.nickname.toLowerCase());
 
             // Match ignoring case
             if (args[0].equals(nickname)) {

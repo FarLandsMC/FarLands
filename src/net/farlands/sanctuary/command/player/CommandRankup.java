@@ -7,6 +7,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 
 import net.minecraft.server.v1_16_R1.*;
@@ -14,7 +15,6 @@ import org.bukkit.craftbukkit.v1_16_R1.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Constructor;
 import java.util.UUID;
 
 public class CommandRankup extends PlayerCommand {
@@ -48,36 +48,14 @@ public class CommandRankup extends PlayerCommand {
 
             if (!nextRank.completedAdvancement(sender)) {
                 ((CraftPlayer) sender).getHandle().sendMessage(
-                        new ChatComponentText("You must complete the advancement ").setChatModifier(gold())
+                        new ChatComponentText("You must complete the advancement ").setChatModifier(FLUtils.chatModifier("gold"))
                                 .addSibling(((CraftAdvancement) nextRank.getAdvancement()).getHandle().j())
-                                .addSibling(new ChatComponentText(" to rankup.").setChatModifier(gold())),
+                                .addSibling(new ChatComponentText(" to rankup.").setChatModifier(FLUtils.chatModifier("gold"))),
                         new UUID(0L, 0L)
                 );
             }
         }
 
         return true;
-    }
-
-    private static ChatModifier gold() {
-        try {
-            Constructor<ChatModifier> constructor = ChatModifier.class.getDeclaredConstructor(
-                    ChatHexColor.class,
-                    Boolean.class,
-                    Boolean.class,
-                    Boolean.class,
-                    Boolean.class,
-                    Boolean.class,
-                    ChatClickable.class,
-                    ChatHoverable.class,
-                    String.class,
-                    MinecraftKey.class
-            );
-
-            constructor.setAccessible(true);
-            return constructor.newInstance(ChatHexColor.a("gold"), null, null, null, null, null, null, null, null, null);
-        } catch (Throwable t) {
-            return null;
-        }
     }
 }
