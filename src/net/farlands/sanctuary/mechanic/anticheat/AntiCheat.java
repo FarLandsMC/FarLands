@@ -20,6 +20,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,8 +31,8 @@ public class AntiCheat extends Mechanic {
     private final Map<UUID, FlightStore> flight;
 
     public AntiCheat() {
-        this.xray = new ConcurrentHashMap<>();
-        this.flight = new ConcurrentHashMap<>();
+        this.xray = new HashMap<>();
+        this.flight = new HashMap<>();
     }
 
     public void muteFlightDetector(Player player, long ticks) {
