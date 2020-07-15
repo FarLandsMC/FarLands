@@ -345,6 +345,8 @@ public class DataHandler extends Mechanic {
         if (session == null) {
             session = new FLPlayerSession(player, getOfflineFLPlayer(player));
             sessionMap.put(player.getUniqueId(), session);
+        } else {
+            session.update(false);
         }
 
         return session;

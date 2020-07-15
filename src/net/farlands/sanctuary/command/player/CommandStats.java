@@ -9,10 +9,7 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.TimeInterval;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Statistic;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -36,23 +33,16 @@ public class CommandStats extends Command {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.update(); // Make sure our stats are fresh
-            sendFormatted(sender,
-                    "&(green)Showing stats for {&(gold)%0:}\n" +
-                            "Rank: {%1}\n" +
-                            "Time Played: %2\n" +
-                            (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: \\$" +
-                                    flp.amountDonated + "\n" : "") +
-                            "Deaths: %3\n" +
-                            "Votes this Month: %4\n" +
-                            "Total Votes this Season: %5\n" +
-                            "Total Votes All Time: %6",
-                    flp.username,
-                    flp.rank.getColor() + flp.rank.getName(),
-                    TimeInterval.formatTime(flp.secondsPlayed * 1000L, false),
-                    offlinePlayer.getStatistic(Statistic.DEATHS),
-                    flp.monthVotes,
-                    flp.totalSeasonVotes,
-                    flp.totalVotes
+            sender.sendMessage(ChatColor.GREEN +
+                    "Showing stats for " + ChatColor.GOLD + flp.username + ":" + ChatColor.GREEN + "\n" +
+                    "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
+                    "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
+                    (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: \\$" +
+                            flp.amountDonated + "\n" : "") +
+                    "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
+                    "Votes this Month: " + flp.monthVotes + "\n" +
+                    "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
+                    "Total Votes All Time: " + flp.totalVotes
             );
         });
         return true;
