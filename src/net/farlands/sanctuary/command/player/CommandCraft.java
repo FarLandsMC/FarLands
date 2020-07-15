@@ -78,10 +78,12 @@ public class CommandCraft extends PlayerCommand {
     }
 
     private void craft(Player sender, Material item, int amount) {
-        craft(sender, item, item, amount, true);
+        craft(sender, new HashSet<>(), item, amount, true);
     }
 
-    private int craft(Player sender, Material firstItem, Material item, int amount, boolean sendMessages) {
+    private int craft(Player sender, Set<Material> crafted, Material item, int amount, boolean sendMessages) {
+        crafted.add(item);
+
         // Try to find recipes for the item
         List<Recipe> recipes = Bukkit.getRecipesFor(new ItemStack(item, 1));
         Recipe recipe = null;
@@ -126,8 +128,10 @@ public class CommandCraft extends PlayerCommand {
                 requirements.put(mat, requirements.getOrDefault(mat, 0) + 1);
             });
 
-            if (requirements.containsKey(firstItem))
-                return 0;
+            if (requirements.keySet().stream().anyMatch(crafted::contains)) {
+                recipeCount = 0;
+                continue;
+            }
 
             // Find out how many of the required items the sender actually has
             requirements.keySet().forEach(key -> available.put(key, 0));
@@ -155,7 +159,7 @@ public class CommandCraft extends PlayerCommand {
         // If we can't craft enough to meet the desired amount try crafting some of the ingredients
         if (craftable < recipeCount) {
             requirements.forEach((key, amt) -> available.put(key, available.get(key) +
-                    craft(sender, firstItem, key, amt * finalRecipeCount - available.get(key), false)));
+                    craft(sender, crafted, key, amt * finalRecipeCount - available.get(key), false)));
             craftable = available.entrySet().stream().map(entry -> entry.getValue() /
                     requirements.get(entry.getKey())).min(Integer::compare).orElse(0);
         }

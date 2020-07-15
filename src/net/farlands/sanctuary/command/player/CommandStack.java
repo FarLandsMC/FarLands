@@ -62,7 +62,8 @@ public class CommandStack extends PlayerCommand {
     }
 
     public CommandStack() {
-        super(Rank.ESQUIRE, "Stack all items of a similar type in your inventory.", "/stack [container]", "stack", "condense");
+        super(Rank.ESQUIRE, "Stack all items of a similar type in your inventory.", "/stack [container|echest]",
+                "stack", "condense");
     }
 
     @Override
@@ -70,13 +71,14 @@ public class CommandStack extends PlayerCommand {
         // warning lists so they can be displayed in a compact manor at the end
         List<Material> warningsUnstack = new ArrayList<>();
 
-        if (args.length <= 0) {
+        if (args.length == 0) {
             player.getInventory().setStorageContents(
                     stack(player, player.getInventory(), player.getLocation(), warningsUnstack)
             );
             sendWarnings(player, warningsUnstack);
             return true;
         }
+
         if (args[0].equalsIgnoreCase("container")) {
             Block block = player.getTargetBlockExact(5);
             TileEntity tileEntity;
@@ -101,6 +103,14 @@ public class CommandStack extends PlayerCommand {
             );
             if (sendWarnings(player, warningsUnstack))
                 player.sendMessage(ChatColor.GREEN + "Container contents stacked!");
+            return true;
+        } else if (args[0].equalsIgnoreCase("echest")) {
+            player.getEnderChest().setStorageContents(
+                    stack(player, player.getEnderChest(), player.getLocation(), warningsUnstack)
+            );
+
+            if (sendWarnings(player, warningsUnstack))
+                player.sendMessage(ChatColor.GREEN + "Ender chest contents stacked!");
             return true;
         }
 

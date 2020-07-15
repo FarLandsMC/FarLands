@@ -42,7 +42,7 @@ public class CommandEdit extends Command {
             .put(Boolean.class, Boolean::parseBoolean)
             .put(Byte.class, Byte::parseByte)
             .put(Character.class, str -> str.charAt(0))
-            .put(String.class, str -> str)
+            .put(String.class, Function.identity())
             .build();
     private static final Map<String, Supplier<?>> CONFIGS = (new ImmutableMap.Builder<String, Supplier<?>>())
             .put("main", FarLands::getFLConfig)

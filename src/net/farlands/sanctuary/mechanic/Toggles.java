@@ -129,6 +129,9 @@ public class Toggles extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onAdvancementGet(PlayerAdvancementDoneEvent event) {
         if (!FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
+            if (((CraftAdvancement) event.getAdvancement()).getHandle().c() == null)
+                return;
+
             Bukkit.getOnlinePlayers().stream()
                     .map(player -> ((CraftPlayer) player).getHandle())
                     .forEach(player -> {

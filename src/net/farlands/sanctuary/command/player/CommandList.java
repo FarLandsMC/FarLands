@@ -11,6 +11,7 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
 import net.farlands.sanctuary.discord.DiscordChannel;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -61,23 +62,26 @@ public class CommandList extends Command {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("&(gold)- ").append(total).append(" Player").append(total != 1 ? "s" : "").append(" Online -\n");
+        sb.append(ChatColor.GOLD).append("- ").append(total).append(" Player").append(total != 1 ? "s" : "")
+                .append(" Online -\n");
         if (!players.isEmpty()) {
             players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                    .append(rank.getName()).append(": &(gold)").append(String.join(", ", players.get(rank))).append('\n'));
+                    .append(rank.getName()).append(": ").append(ChatColor.GOLD)
+                    .append(String.join(", ", players.get(rank))).append('\n'));
         }
         if (!staff.isEmpty()) {
             if (!players.isEmpty())
-                sb.append("&(gold)- Staff -\n");
+                sb.append(ChatColor.GOLD).append("- Staff -\n");
 
             staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                    .append(rank.getName()).append(": &(gold)").append(String.join(", ", staff.get(rank))).append('\n'));
+                    .append(rank.getName()).append(": ").append(ChatColor.GOLD)
+                    .append(String.join(", ", staff.get(rank))).append('\n'));
         }
 
         if (listHasVanishedPlayer)
             sb.append("\n*These players are vanished.");
 
-        sendFormatted(sender, sb.toString().trim());
+        sender.sendMessage(sb.toString().trim());
 
         return true;
     }

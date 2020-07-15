@@ -20,8 +20,10 @@ import java.util.List;
 
 public enum Rank {
     /* Player Ranks */
+
     // symbol color playTimeRequired homes tpDelay shops wildCooldown
     INITIATE("Initiate", ChatColor.GRAY,                                        0,  1, 7,  0,  3),
+
     // symbol color advancement playTimeRequired totalVotesRequired homes tpDelay shops wildCooldown
     BARD    ("Bard",     ChatColor.YELLOW,     "story/mine_diamond",            3,  3, 6,  2, 18),
     ESQUIRE ("Esquire",  ChatColor.DARK_GREEN, "story/enchant_item",           12,  5, 6,  5, 15),
@@ -29,6 +31,7 @@ public enum Rank {
     SAGE    ("Sage",     ChatColor.AQUA,       "end/find_end_city",            72, 10, 5, 15,  9),
     ADEPT   ("Adept",    ChatColor.GREEN,      "adventure/totem_of_undying",  144, 12, 4, 20,  8),
     SCHOLAR ("Scholar",  ChatColor.BLUE,       "adventure/adventuring_time",  240, 16, 3, 30,  7),
+
     // symbol color playTimeRequired homes tpDelay shops wildCooldown
     VOTER   ("Voter",    ChatColor.LIGHT_PURPLE,                               -1, 16, 3, 30,  7), // Same as Scholar
     DONOR   ("Donor",    ChatColor.LIGHT_PURPLE,                               -1, 24, 2, 40,  6),
@@ -36,14 +39,15 @@ public enum Rank {
     MEDIA   ("Media",    ChatColor.YELLOW,                                     -1, 32, 0, 50,  3), // Same as Patron
 
     /* Staff Ranks */
+
     // permissionLevel symbol color
     JR_BUILDER(1, "Jr. Builder", ChatColor.of("#bf6bff"), org.bukkit.ChatColor.AQUA),
-    JR_MOD    (1, "Jr. Mod",     ChatColor.RED),
-    JR_DEV    (1, "Jr. Dev",     ChatColor.DARK_AQUA),
+    JR_MOD    (1, "Jr. Mod",     ChatColor.of("#d7493d"), org.bukkit.ChatColor.RED),
+    JR_DEV    (1, "Jr. Dev",     ChatColor.of("#0bbd9e"), org.bukkit.ChatColor.DARK_AQUA),
     BUILDER   (2, "Builder",     ChatColor.of("#9000ff"), org.bukkit.ChatColor.BLUE),
-    MOD       (2, "Mod",         ChatColor.DARK_RED),
+    MOD       (2, "Mod",         ChatColor.of("#db1100"), org.bukkit.ChatColor.DARK_RED),
     ADMIN     (3, "Admin",       ChatColor.DARK_GREEN),
-    DEV       (3, "Dev",         ChatColor.DARK_AQUA),
+    DEV       (3, "Dev",         ChatColor.of("#09816b"), org.bukkit.ChatColor.DARK_AQUA),
     OWNER     (4, "Owner",       ChatColor.GOLD);
 
     private final int permissionLevel; // 0: players, 1+: staff

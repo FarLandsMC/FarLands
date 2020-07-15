@@ -13,10 +13,8 @@ import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,33 +46,57 @@ public class CommandTop extends Command {
                 if (offset == -1)
                     return true;
 
+                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+
                 // Month votes
                 if (args.length == 1 || !"all".equals(args[1])) {
                     flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalSeasonVotes)));
+                    int position = position(senderFlp, flps, flp -> flp.uuid);
 
                     sendFormatted(sender, "&(gold)Showing the top voters for this month (page %0/%1):", offset / 10 + 1, pageMax);
                     for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
                         sendFormatted(
                                 sender,
-                                "&(gold)%0: {&(aqua)%1} - %2 $(inflect,noun,2,vote) this month, %3 total $(inflect,noun,3,vote)",
-                                i + 1, flps.get(i).username,
+                                "&(gold){&(%0)%1:} {&(aqua)%2} - %3 $(inflect,noun,3,vote) this month, %4 total $(inflect,noun,4,vote)",
+                                i == position ? "green" : "gold",
+                                i + 1,
+                                flps.get(i).username,
                                 flps.get(i).monthVotes,
                                 flps.get(i).totalSeasonVotes
+                        );
+                    }
+                    if (position != -1) {
+                        sendFormatted(
+                                sender,
+                                "&(gold)You are {&(aqua)#%0} - %1 $(inflect,noun,1,vote) this month, %2 total $(inflect,noun,2,vote)",
+                                position + 1,
+                                senderFlp.monthVotes,
+                                senderFlp.totalSeasonVotes
                         );
                     }
                 }
                 // All votes
                 else {
                     flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.totalVotes)));
+                    int position = position(senderFlp, flps, flp -> flp.uuid);
 
                     sendFormatted(sender, "&(gold)Showing the top voters of all time (page %0/%1):", offset / 10 + 1, pageMax);
                     for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
                         sendFormatted(
                                 sender,
-                                "&(gold)%0: {&(aqua)%1} - %2 $(inflect,noun,2,vote)",
+                                "&(gold){&(%0)%1:} {&(aqua)%2} - %3 $(inflect,noun,3,vote)",
+                                i == position ? "green" : "gold",
                                 i + 1,
                                 flps.get(i).username,
                                 flps.get(i).totalVotes
+                        );
+                    }
+                    if (position != -1) {
+                        sendFormatted(
+                                sender,
+                                "&(gold)You are {&(green)#%0} - %1 $(inflect,noun,1,vote)",
+                                position + 1,
+                                senderFlp.totalVotes
                         );
                     }
                 }
@@ -82,29 +104,36 @@ public class CommandTop extends Command {
             }
 
             case PLAYTIME: {
-                if (args.length > 1 && "no-staff".equals(args[1])) {
-                    flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                            .filter(flp -> !flp.rank.isStaff())
-                            .sorted(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.secondsPlayed)))
-                            .collect(Collectors.toList());
-                } else {
-                    flps = FarLands.getDataHandler().getOfflineFLPlayers();
-                    flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.secondsPlayed)));
-                }
+                flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                        .filter(flp -> (args.length <= 1 || !"no-staff".equals(args[1]) || !flp.rank.isStaff()) && flp.secondsPlayed > 0)
+                        .sorted(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.secondsPlayed)))
+                        .collect(Collectors.toList());
 
                 pageMax = flps.size() / 10 + 1;
                 int offset = getOffset(sender, pageMax, args);
                 if (offset == -1)
                     return true;
 
+                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+                int position = position(senderFlp, flps, flp -> flp.uuid);
+
                 sendFormatted(sender, "&(gold)Showing the top players with the longest play time (page %0/%1):", offset / 10 + 1, pageMax);
                 for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
                     sendFormatted(
                             sender,
-                            "&(gold)%0: {&(aqua)%1} - %2",
+                            "&(gold){&(%0)%1:} {&(aqua)%2} - %3",
+                            i == position ? "green" : "gold",
                             i + 1,
                             flps.get(i).username,
                             TimeInterval.formatTime(1000L * flps.get(i).secondsPlayed, true)
+                    );
+                }
+                if (position != -1) {
+                    sendFormatted(
+                            sender,
+                            "&(gold)You are {&(green)#%0} - %1",
+                            position + 1,
+                            TimeInterval.formatTime(1000L * senderFlp.secondsPlayed, true)
                     );
                 }
                 break;
@@ -113,17 +142,29 @@ public class CommandTop extends Command {
             case DONORS: {
                 flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
                         .filter(flp -> flp.amountDonated > 0)
+                        .sorted(Collections.reverseOrder(Comparator.comparingDouble(flp -> flp.amountDonated)))
                         .collect(Collectors.toList());
-                flps.sort(Collections.reverseOrder(Comparator.comparingDouble(flp -> flp.amountDonated)));
 
                 pageMax = flps.size() / 10 + 1;
                 int offset = getOffset(sender, pageMax, args);
                 if (offset == -1)
                     return true;
 
+                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+                int position = position(senderFlp, flps, flp -> flp.uuid);
+
                 sendFormatted(sender, "&(gold)Showing the top server donors (page %0/%1):", offset / 10 + 1, pageMax);
-                for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i)
-                    sendFormatted(sender, "&(gold)%0: &(aqua)%1", i + 1, flps.get(i).username);
+                for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
+                    sendFormatted(
+                            sender,
+                            "&(gold){&(%0)%1:} &(aqua)%2",
+                            i == position ? "green" : "gold",
+                            i + 1,
+                            flps.get(i).username
+                    );
+                }
+                if (position != -1)
+                    sendFormatted(sender, "&(gold)You are {&(green)#%0}", position + 1);
                 break;
             }
 
@@ -138,14 +179,26 @@ public class CommandTop extends Command {
                 if (offset == -1)
                     return true;
 
+                OfflinePlayer senderOfflinePlayer = Bukkit.getOfflinePlayer(FarLands.getDataHandler().getOfflineFLPlayer(sender).uuid);
+                int position = position(senderOfflinePlayer, topDeaths, OfflinePlayer::getUniqueId);
+
                 sendFormatted(sender, "&(gold)Showing the players with the most deaths (page %0/%1):", offset / 10 + 1, pageMax);
                 for (int i = offset; i < Math.min(topDeaths.size(), offset + 10); ++i) {
                     sendFormatted(
                             sender,
-                            "&(gold)%0: &(aqua)%1 - %2 $(inflect,noun,2,death)",
+                            "&(gold){&(%0)%1:} &(aqua)%2 - %3 $(inflect,noun,3,death)",
+                            i == position ? "green" : "gold",
                             i + 1,
                             topDeaths.get(i).getName(),
                             topDeaths.get(i).getStatistic(Statistic.DEATHS)
+                    );
+                }
+                if (position != -1) {
+                    sendFormatted(
+                            sender,
+                            "&(gold)You are {&(green)#%0} - %1 $(inflect,noun,1,death)",
+                            position + 1,
+                            senderOfflinePlayer.getStatistic(Statistic.DEATHS)
                     );
                 }
                 break;
@@ -194,6 +247,18 @@ public class CommandTop extends Command {
             }
         }
         return (offset - 1) * 10;
+    }
+
+    private static <T> int position(T object, Collection<T> collection, Function<T, UUID> toUuid) {
+        int pos = 0;
+        UUID uuid = toUuid.apply(object);
+        for (T other : collection) {
+            if (uuid.equals(toUuid.apply(other)))
+                return pos;
+            pos += 1;
+        }
+
+        return -1;
     }
 
     enum TopCategory {

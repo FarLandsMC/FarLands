@@ -13,7 +13,6 @@ import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.server.v1_16_R1.EntityTypes;
@@ -44,6 +43,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.util.*;
@@ -58,12 +58,14 @@ public class GeneralMechanics extends Mechanic {
 
     private Cooldown nightSkip;
     private List<UUID> leashedEntities;
+    private BukkitTask nightSkipTask;
 
     public GeneralMechanics() {
         this.fireworkLaunches = new HashMap<>();
         this.joinMessage = new BaseComponent[0];
         this.nightSkip = new Cooldown(200L);
-        leashedEntities = new ArrayList<>();
+        this.leashedEntities = new ArrayList<>();
+        this.nightSkipTask = null;
     }
 
     @Override
@@ -361,12 +363,16 @@ public class GeneralMechanics extends Mechanic {
             if (12541 > dayTime || dayTime > 23458)
                 return;
 
+            if (nightSkipTask != null && !Bukkit.getScheduler().isCurrentlyRunning(nightSkipTask.getTaskId()))
+                nightSkipTask = null;
+
             List<Player> online = Bukkit.getOnlinePlayers().stream()
-                    .filter(player -> "world".equals(player.getWorld().getName())).map(player -> (Player) player)
+                    .filter(player -> "world".equals(player.getWorld().getName()))
+                    .map(player -> (Player) player)
                     .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
                     .collect(Collectors.toList());
             int sleeping = (int) online.stream().filter(Player::isSleeping).count();
-            if (sleeping <= 0)
+            if (sleeping == 0)
                 return;
 
             int required = (online.size() + 1) / 2;
@@ -376,9 +382,9 @@ public class GeneralMechanics extends Mechanic {
                     Logging.broadcastFormatted("%0 &(gold)more $(inflect,noun,0,player) $(inflect,verb,0,need) " +
                             "to sleep to skip the night.", false, required - sleeping);
                 }
-            } else if (required == sleeping) {
+            } else if (nightSkipTask == null) {
                 Logging.broadcastFormatted("&(gold)Skipping the night...", false);
-                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                nightSkipTask = Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     World world = Bukkit.getWorld("world");
                     world.setTime(1000L);
                     world.setStorm(false);

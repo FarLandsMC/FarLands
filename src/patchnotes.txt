@@ -1,14 +1,14 @@
 &7Additions:
  - Colour codes are now applied to /tradepost messages
  - Added /nightskip
-    - Displays how many people are sleeping and how many players are required to sleep in order to skip the night
+   - Displays how many people are sleeping and how many players are required to sleep in order to skip the night
 Changes:
  - Players with /managementtrust now have permission to use /claimheight
 Fixes:
  - Fixed display error in /top
  - Fixed errors in chest shops
-    - Double chests are now compatible as shops
-    - Expiration messages have been corrected when creating shops
-    - Fixed save error
+   - Double chests are now compatible as shops
+   - Expiration messages have been corrected when creating shops
+   - Fixed save error
  - Fixed donation error
  - Fixed other back-end errors

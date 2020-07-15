@@ -49,6 +49,7 @@ public class CompassMechanic extends Mechanic {
         if (death >= deaths.size())
             return;
         Location location = deaths.get(deaths.size() - death - 1).getLocation();
+        System.out.println(location);
         if (location != null)
             Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> player.setCompassTarget(location));
     }

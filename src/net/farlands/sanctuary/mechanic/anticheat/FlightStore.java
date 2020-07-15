@@ -1,5 +1,7 @@
 package net.farlands.sanctuary.mechanic.anticheat;
 
+import com.kicas.rp.RegionProtection;
+import com.kicas.rp.data.RegionFlag;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.util.FLUtils;
@@ -115,6 +117,7 @@ public class FlightStore {
                         Material.TWISTING_VINES, Material.TWISTING_VINES_PLANT
                 ) ||
                 !session.flightDetectorMute.isComplete() ||
-                session.flying;
+                session.flying ||
+                RegionProtection.getDataManager().getFlagsAt(player.getLocation()).isAllowed(RegionFlag.FLIGHT);
     }
 }
