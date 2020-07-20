@@ -36,6 +36,7 @@ public class OfflineFLPlayer {
     public int voteRewards;
     public double amountDonated;
     public int shops;
+    public int bonusClaimBlocksReceived;
     public boolean flightPreference;
     public boolean god;
     public boolean vanished;
@@ -75,6 +76,7 @@ public class OfflineFLPlayer {
         this.voteRewards = 0;
         this.amountDonated = 0;
         this.shops = 0;
+        this.bonusClaimBlocksReceived = 0;
         this.flightPreference = false;
         this.god = false;
         this.vanished = false;
@@ -116,8 +118,8 @@ public class OfflineFLPlayer {
         Member member;
         try {
             member = guild.getMember(dh.getNativeBot().getUserById(discordID));
-        }catch(NullPointerException ex) {
-            discordID = 0;
+        }catch(NullPointerException | IllegalArgumentException ex) {
+            // We used to set the discord ID to zero, but that may have been causing issues so we just return instead now
             return;
         }
         if(member.isOwner()) // For Koneko :P

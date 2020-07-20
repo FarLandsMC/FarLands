@@ -218,7 +218,14 @@ public class DiscordHandler extends ListenerAdapter {
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
         message = Chat.removeColorCodes(message.replaceAll("\\s+", " "));
-        final String fmessage = message.substring(0, Math.min(256, message.length()));
+        message = message.substring(0, Math.min(256, message.length())).trim();
+        if (!event.getMessage().getAttachments().isEmpty()) {
+            if (message.isEmpty())
+                message = "[Image]";
+            else
+                message += " [Image]";
+        }
+        final String fmessage = message;
 
         if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
             if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
@@ -263,10 +270,17 @@ public class DiscordHandler extends ListenerAdapter {
 
                 Bukkit.getOnlinePlayers().stream().filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).isIgnoring(flp)).forEach(p -> {
                     boolean censor = FarLands.getDataHandler().getOfflineFLPlayer(p).censoring;
-                    p.sendMessage(String.format(ChatColor.DARK_GRAY + "DISCORD" +
-                            (rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor().toString() : "") + " %s: " +
-                            ChatColor.WHITE + "%s", flp.username, censor ? Chat.getMessageFilter().censor(fmessage) : fmessage));
+                    p.sendMessage(String.format(
+                            ChatColor.DARK_GRAY + "DISCORD" +
+                                    (rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor().toString() : "") +
+                                    " %s: " + ChatColor.WHITE + "%s",
+                            flp.username,
+                            censor
+                                    ? Chat.getMessageFilter().censor(fmessage)
+                                    : fmessage
+                    ));
                 });
+
                 Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.DARK_GRAY + "DISCORD" +
                         (rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor().toString() : "") + " %s: " +
                         ChatColor.WHITE + "%s", flp.username, fmessage));

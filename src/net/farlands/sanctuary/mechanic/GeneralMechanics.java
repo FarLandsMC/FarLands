@@ -22,6 +22,7 @@ import net.minecraft.server.v1_16_R1.EntityVillagerAbstract;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
@@ -173,7 +174,7 @@ public class GeneralMechanics extends Mechanic {
             event.setLine(i, Chat.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return; // Ignore offhand packet
@@ -181,6 +182,7 @@ public class GeneralMechanics extends Mechanic {
         if (event.getClickedBlock() == null)
             return;
 
+        // Pick up dragon egg
         Player player = event.getPlayer();
         if (Material.DRAGON_EGG == event.getClickedBlock().getType()) {
             event.setCancelled(true);
@@ -190,6 +192,7 @@ public class GeneralMechanics extends Mechanic {
             return;
         }
 
+        // Tell players where a portal links
         if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.NETHER_PORTAL) {
             Location location = event.getClickedBlock().getLocation();
             sendFormatted(player, "&(dark_purple)This portal best links to %0 in the %1.",
@@ -200,6 +203,8 @@ public class GeneralMechanics extends Mechanic {
             return;
         }
 
+        // If a player right-clicks the ground with a rocket and is wearing an elytra, use the rocket to launch them
+        // into the air
         ItemStack chestplate = player.getInventory().getChestplate();
         if (GameMode.SPECTATOR != player.getGameMode() &&
                 Material.FIREWORK_ROCKET == event.getMaterial() && Action.RIGHT_CLICK_BLOCK == event.getAction() &&
@@ -216,6 +221,18 @@ public class GeneralMechanics extends Mechanic {
             Firework firework = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
             firework.addPassenger(player);
             fireworkLaunches.put(firework.getUniqueId(), player);
+            return;
+        }
+
+        // Tell players how many bees are in a hive
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getState() instanceof Beehive) {
+            int beeCount = ((Beehive) event.getClickedBlock().getState()).getEntityCount();
+            sendFormatted(
+                    player,
+                    "&(gold)There %0 {&(aqua)%1} $(inflect,noun,1,bee) in this hive.",
+                    beeCount == 1 ? "is" : "are",
+                    beeCount
+            );
         }
     }
 

@@ -133,6 +133,17 @@ public enum Rank {
             return 15;
     }
 
+    public int getClaimBlockBonus() {
+        switch (this) {
+            case DONOR:
+                return 15000;
+            case PATRON:
+                return 60000;
+            default:
+                return 0;
+        }
+    }
+
     public int getPermissionLevel() {
         return permissionLevel;
     }

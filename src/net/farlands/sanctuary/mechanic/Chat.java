@@ -17,6 +17,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -65,26 +66,30 @@ public class Chat extends Mechanic {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
-        if (flp.vanished) {
-            event.setJoinMessage(null);
-            Logging.broadcastStaff(ChatColor.GRAY + event.getPlayer().getName() + " joined silently.");
-        } else {
-            event.setJoinMessage(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                    ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has joined.");
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getJoinMessage());
-        }
+        event.setJoinMessage(null);
+        if (flp.vanished)
+            Logging.broadcastStaff(ChatColor.YELLOW + event.getPlayer().getName() + " joined silently.");
+        else
+            playerTransition(flp, true);
     }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
-        if (flp.vanished)
-            event.setQuitMessage(null);
-        else {
-            event.setQuitMessage(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                    ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has left.");
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.getQuitMessage());
-        }
+        event.setQuitMessage(null);
+        if (!flp.vanished)
+            playerTransition(flp, false);
+    }
+
+    public static void playerTransition(OfflineFLPlayer flp, boolean joinMessage) {
+        String joinOrLeave = joinMessage ? "joined." : "left.";
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.YELLOW +ChatColor.BOLD.toString() +
+                " > " + ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has " +
+                joinOrLeave));
+        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW +ChatColor.BOLD.toString() +
+                " > " + ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has " +
+                joinOrLeave);
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, "> " + flp.username + " has " + joinOrLeave);
     }
 
     @EventHandler

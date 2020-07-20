@@ -16,10 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FLPlayerSession {
     public final Player player;
@@ -34,7 +31,8 @@ public class FLPlayerSession {
     public boolean isInEvent;
     public CommandSender replyToggleRecipient;
     public Location seatExit;
-    public List<TeleportRequest> teleportRequests;
+    public TeleportRequest outgoingTeleportRequest;
+    public List<TeleportRequest> incomingTeleportRequests;
 
     // Transient fields
     public TransientField<Player> givePetRecipient;
@@ -67,7 +65,8 @@ public class FLPlayerSession {
         this.isInEvent = false;
         this.replyToggleRecipient = null;
         this.seatExit = null;
-        this.teleportRequests = new ArrayList<>();
+        this.outgoingTeleportRequest = null;
+        this.incomingTeleportRequests = new ArrayList<>();
 
         this.givePetRecipient = new TransientField<>();
         this.lastMessageSender = new TransientField<>();
@@ -98,7 +97,7 @@ public class FLPlayerSession {
         this.isInEvent = cached.isInEvent;
         this.replyToggleRecipient = cached.replyToggleRecipient;
         this.seatExit = null;
-        this.teleportRequests = new ArrayList<>();
+        this.incomingTeleportRequests = new ArrayList<>();
 
         this.givePetRecipient = new TransientField<>();
         this.lastMessageSender = new TransientField<>();
@@ -141,6 +140,15 @@ public class FLPlayerSession {
 
         updatePlaytime();
         permissionAttachment.setPermission("headdb.open", handle.rank.specialCompareTo(Rank.DONOR) >= 0);
+
+        // Give donors their claim blocks
+        if (handle.bonusClaimBlocksReceived < handle.rank.getClaimBlockBonus()) {
+            RegionProtection.getDataManager().modifyClaimBlocks(
+                    handle.uuid,
+                    handle.rank.getClaimBlockBonus() - handle.bonusClaimBlocksReceived
+            );
+            handle.bonusClaimBlocksReceived = handle.rank.getClaimBlockBonus();
+        }
 
         // Update rank
         for (int i = handle.rank.ordinal() + 1; i < Rank.VALUES.length - 1; ++i) {
@@ -206,12 +214,6 @@ public class FLPlayerSession {
         for (int i = 0; i < amount; ++i)
             FarLands.getFLConfig().voteConfig.voteRewards.forEach(reward -> FLUtils.giveItem(player, reward.getStack(), false));
         player.giveExpLevels(FarLands.getFLConfig().voteConfig.voteXPBoost * amount);
-    }
-
-    public void sendTeleportRequest(Player sender, TeleportRequest.TeleportType type) {
-        TeleportRequest request = new TeleportRequest(type, sender, player);
-        if (request.open())
-            teleportRequests.add(request);
     }
 
     public void setCommandCooldown(Command command, long delay) {

@@ -106,7 +106,7 @@ public class CommandCraft extends PlayerCommand {
             available.clear();
 
             recipe = r;
-            recipeCount = amount == 0 ? 1 : Math.max(amount / r.getResult().getAmount(), 1);
+            recipeCount = amount == 0 ? 1 : (int) Math.max(Math.ceil((double) amount / r.getResult().getAmount()), 1.0);
 
             (r instanceof ShapedRecipe
                     ? ((ShapedRecipe) r).getChoiceMap().values()
@@ -158,8 +158,22 @@ public class CommandCraft extends PlayerCommand {
 
         // If we can't craft enough to meet the desired amount try crafting some of the ingredients
         if (craftable < recipeCount) {
-            requirements.forEach((key, amt) -> available.put(key, available.get(key) +
-                    craft(sender, crafted, key, amt * finalRecipeCount - available.get(key), false)));
+            requirements.entrySet().stream()
+                    // Order it so that the items they have the least of are created first, handles items like anvils
+                    // which require both ingots and blocks
+                    .sorted(Comparator.comparing(entry -> available.get(entry.getKey())))
+                    .forEach(entry -> {
+                        available.put(
+                                entry.getKey(),
+                                available.get(entry.getKey()) + craft(
+                                        sender,
+                                        crafted,
+                                        entry.getKey(),
+                                        entry.getValue() * finalRecipeCount - available.get(entry.getKey()),
+                                        false
+                                )
+                        );
+                    });
             craftable = available.entrySet().stream().map(entry -> entry.getValue() /
                     requirements.get(entry.getKey())).min(Integer::compare).orElse(0);
         }

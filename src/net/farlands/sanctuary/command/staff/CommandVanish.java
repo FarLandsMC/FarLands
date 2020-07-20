@@ -6,9 +6,8 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.mechanic.Chat;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 public class CommandVanish extends Command {
@@ -25,16 +24,13 @@ public class CommandVanish extends Command {
         if (flp.vanished) {
             sendFormatted(sender, "&(gold)You are now vanished.");
             if (online) {
-                Logging.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                        ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has left.", true);
+                Chat.playerTransition(flp, false);
                 flp.lastLogin = System.currentTimeMillis();
             }
         } else {
             sendFormatted(sender, "&(gold)You are no longer vanished.");
-            if (online) {
-                Logging.broadcast(ChatColor.YELLOW + ChatColor.BOLD.toString() + " > " +
-                        ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has joined.", true);
-            }
+            if (online)
+                Chat.playerTransition(flp, true);
         }
         if (online)
             FarLands.getDiscordHandler().updateStats();

@@ -9,6 +9,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,25 +25,40 @@ public class CommandTPA extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length == 1)
+        if (args.length == 1)
             return false;
-        Player player = getPlayer(args[1], sender);
-        if(player == null) {
+
+        if (FarLands.getDataHandler().getSession(sender).outgoingTeleportRequest != null) {
+            sender.sendMessage(ChatColor.RED + "You already have an outgoing teleport request.");
+            return true;
+        }
+
+        Player recipient = getPlayer(args[1], sender);
+        if (recipient == null) {
             sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
-        if(sender.getUniqueId().equals(player.getUniqueId())) {
+
+        if (sender.getUniqueId().equals(recipient.getUniqueId())) {
             sendFormatted(sender, "&(red)You cannot teleport to yourself.");
             return true;
         }
-        FLPlayerSession playerSession = FarLands.getDataHandler().getSession(player);
-        if(playerSession.afk)
+
+        FLPlayerSession recipientSession = FarLands.getDataHandler().getSession(recipient);
+        if (recipientSession.afk)
             sendFormatted(sender, "&(red)This player is AFK, so they may not receive your request.");
-        if(playerSession.handle.isIgnoring(sender))
+
+        if (recipientSession.handle.isIgnoring(sender))
             return true;
+
         // Everything else is handled here
-        playerSession.sendTeleportRequest(sender, "tpa".equals(args[0]) ? TeleportRequest.TeleportType.SENDER_TO_RECIPIENT
-                : TeleportRequest.TeleportType.RECIPIENT_TO_SENDER);
+        TeleportRequest.open(
+                "tpa".equals(args[0])
+                        ? TeleportRequest.TeleportType.SENDER_TO_RECIPIENT
+                        : TeleportRequest.TeleportType.RECIPIENT_TO_SENDER,
+                sender,
+                recipient
+        );
         return true;
     }
 

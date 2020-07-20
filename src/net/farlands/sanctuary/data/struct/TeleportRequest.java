@@ -3,12 +3,8 @@ package net.farlands.sanctuary.data.struct;
 import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.util.FLUtils;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.minecraft.server.v1_16_R1.CommandAdvancement;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -22,7 +18,7 @@ public final class TeleportRequest implements Runnable {
     private Location startLocationTeleporter; // This is to keep track of whether the teleporter has moved
     private Location toLocation; // Where we're going
 
-    public TeleportRequest(TeleportType type, Player sender, Player recipient) {
+    private TeleportRequest(TeleportType type, Player sender, Player recipient) {
         this.type = type;
         this.sender = sender;
         this.recipient = recipient;
@@ -31,14 +27,12 @@ public final class TeleportRequest implements Runnable {
         this.delay = FarLands.getDataHandler().getOfflineFLPlayer(teleporter).rank.getTpDelay() * 20;
     }
 
-    public boolean open() {
-        // Make sure no duplicate requests are sent
-        FLPlayerSession recipientSession = FarLands.getDataHandler().getSession(recipient);
-        if (recipientSession.teleportRequests.stream().anyMatch(request -> request.sender.equals(sender))) {
-            sender.sendMessage(ChatColor.RED + "You already have a pending teleport request with this player.");
-            return false;
-        }
+    public static void open(TeleportType type, Player sender, Player recipient) {
+        TeleportRequest tpRequest = new TeleportRequest(type, sender, recipient);
+        tpRequest.open();
+    }
 
+    private void open() {
         // Register the task with the session and setup expiration
         expirationTaskUid = FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
             if (sender.isOnline())
@@ -56,7 +50,8 @@ public final class TeleportRequest implements Runnable {
         recipient.playSound(recipient.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
         sender.sendMessage(ChatColor.GOLD + "Request sent." + (isSenderToRecipient ? " Move to cancel the teleport." : ""));
 
-        return true;
+        FarLands.getDataHandler().getSession(sender).outgoingTeleportRequest = this;
+        FarLands.getDataHandler().getSession(recipient).incomingTeleportRequests.add(this);
     }
 
     @Override
@@ -97,7 +92,8 @@ public final class TeleportRequest implements Runnable {
         endTask();
     }
 
-    public void accept() { // Called by recipient
+    // Called by recipient
+    public void accept() {
         removeData();
 
         // Make sure the sender didn't log off
@@ -128,7 +124,8 @@ public final class TeleportRequest implements Runnable {
         sender.playSound(sender.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
     }
 
-    public void decline() { // Called by recipient
+    // Called by recipient
+    public void decline() {
         removeData();
 
         // Send messages
@@ -137,12 +134,24 @@ public final class TeleportRequest implements Runnable {
             sender.sendMessage(ChatColor.AQUA + recipient.getName() + ChatColor.RED + " did not accept your teleport request.");
     }
 
+    // Called by sender
+    public void cancel() {
+        removeData();
+
+        // Send messages
+        sender.sendMessage(ChatColor.GOLD + "Your outgoing teleport request to " + ChatColor.AQUA +
+                recipient.getName() + ChatColor.GOLD + " has been cancelled.");
+        if (recipient.isOnline())
+            recipient.sendMessage(ChatColor.AQUA + sender.getName() + ChatColor.GOLD + " cancelled their teleport request with you.");
+    }
+
     public Player getSender() {
         return sender;
     }
 
     private void removeData() {
-        FarLands.getDataHandler().getSession(recipient).teleportRequests.remove(this);
+        FarLands.getDataHandler().getSession(sender).outgoingTeleportRequest = null;
+        FarLands.getDataHandler().getSession(recipient).incomingTeleportRequests.remove(this);
         FarLands.getScheduler().cancelTask(expirationTaskUid);
     }
 

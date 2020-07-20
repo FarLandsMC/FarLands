@@ -75,7 +75,8 @@ public abstract class Command extends org.bukkit.command.Command {
                 error.append("    ").append(ste.toString()).append('\n');
             String errorString = error.toString();
             if(showErrorsOnDiscord()) {
-                Logging.error("Error executing command " + getName() + " from " + sender.getName());
+                Logging.error("Error executing command " + getName() + " from " + sender.getName() + ": `" +
+                        alias.toLowerCase() + " " + String.join(" ", args0) + "`");
                 FarLands.getDebugger().echo(errorString.length() > 1994 ? errorString.substring(0, 1991) + "..." : errorString);
             }
             ex.printStackTrace(System.out);

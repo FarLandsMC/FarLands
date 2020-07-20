@@ -45,6 +45,12 @@ import java.util.List;
 import java.util.UUID;
 
 public class Toggles extends Mechanic {
+    private long lastAdvancementMessage;
+
+    public Toggles() {
+        this.lastAdvancementMessage = 0L;
+    }
+
     @Override
     public void onStartup() {
         FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
@@ -130,6 +136,12 @@ public class Toggles extends Mechanic {
     public void onAdvancementGet(PlayerAdvancementDoneEvent event) {
         if (!FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
             if (((CraftAdvancement) event.getAdvancement()).getHandle().c() == null)
+                return;
+
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastAdvancementMessage > 40L)
+                lastAdvancementMessage = currentTime;
+            else
                 return;
 
             Bukkit.getOnlinePlayers().stream()

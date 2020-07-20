@@ -10,6 +10,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -52,13 +53,20 @@ public class CommandHomes extends Command {
         else {
             List<Home> homes = FarLands.getDataHandler().getOfflineFLPlayer(sender).homes;
             if (homes.isEmpty()) {
-                sendFormatted(sender, "&(green)You don\'t have any homes! Set one with &(aqua)/sethome");
+                sendFormatted(sender, "&(green)You don't have any homes! Set one with &(aqua)/sethome");
                 return true;
             }
             homes.forEach(home -> {
                 Location location = home.getLocation();
-                sendFormatted(sender, "&(gold)$(hovercmd,/home %0,Go to home {&(aqua)%0},%0: {&(aqua)%1 %2 %3})",
-                        home.getName(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+                sendFormatted(
+                        sender,
+                        "$(hovercmd,/home %0,{&(gold)Go to home {&(%0)%1}},{{&(%0)%1:} {&(aqua)%2 %3 %4}})",
+                        home.getLocation().getWorld().getEnvironment() == World.Environment.NORMAL ? "green" : "red",
+                        home.getName(),
+                        location.getBlockX(),
+                        location.getBlockY(),
+                        location.getBlockZ()
+                );
             });
         }
 

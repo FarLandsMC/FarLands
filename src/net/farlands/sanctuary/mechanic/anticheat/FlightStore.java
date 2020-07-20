@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.mechanic.anticheat;
 
 import com.kicas.rp.RegionProtection;
+import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -102,8 +103,7 @@ public class FlightStore {
     }
 
     private boolean isImmune() {
-        FLPlayerSession session = FarLands.getDataHandler().getSession(player);
-        return  player.isOnGround() ||
+        boolean immune = player.isOnGround() ||
                 player.isSwimming() ||
                 player.isGliding() ||
                 player.getVehicle() != null ||
@@ -115,9 +115,19 @@ public class FlightStore {
                         Material.WATER, Material.LAVA, Material.LADDER, Material.VINE, Material.COBWEB,
                         Material.WEEPING_VINES, Material.WEEPING_VINES_PLANT,
                         Material.TWISTING_VINES, Material.TWISTING_VINES_PLANT
-                ) ||
-                !session.flightDetectorMute.isComplete() ||
-                session.flying ||
-                RegionProtection.getDataManager().getFlagsAt(player.getLocation()).isAllowed(RegionFlag.FLIGHT);
+                );
+
+        if (immune)
+            return true;
+
+        FLPlayerSession session = FarLands.getDataHandler().getSession(player);
+        immune = immune || !session.flightDetectorMute.isComplete() ||
+                session.flying;
+
+        if (immune)
+            return true;
+
+        FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(player.getLocation());
+        return flags != null && flags.isAllowed(RegionFlag.FLIGHT);
     }
 }

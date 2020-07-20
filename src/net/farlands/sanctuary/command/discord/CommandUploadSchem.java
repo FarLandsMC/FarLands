@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -55,7 +56,14 @@ public class CommandUploadSchem extends DiscordCommand {
             if (attachmentDest.exists())
                 attachmentDest.delete();
 
-            attachments.get(0).downloadToFile(attachmentDest);
+            try {
+                attachmentDest = attachments.get(0).downloadToFile(attachmentDest).get();
+            } catch (InterruptedException | ExecutionException ex) {
+                Logging.error(ex);
+                ex.printStackTrace(System.out);
+                sender.sendMessage("Failed to upload schematics.");
+                return true;
+            }
 
             // Unpack the zip
             try {
@@ -79,6 +87,7 @@ public class CommandUploadSchem extends DiscordCommand {
                 Logging.error(ex);
                 ex.printStackTrace(System.out);
                 sender.sendMessage("Failed to upload schematics.");
+                return true;
             }
 
             attachmentDest.delete();
