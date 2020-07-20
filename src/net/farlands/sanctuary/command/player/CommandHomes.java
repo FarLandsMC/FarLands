@@ -60,7 +60,7 @@ public class CommandHomes extends Command {
                 Location location = home.getLocation();
                 sendFormatted(
                         sender,
-                        "$(hovercmd,/home %0,{&(gold)Go to home {&(%0)%1}},{{&(%0)%1:} {&(aqua)%2 %3 %4}})",
+                        "$(hovercmd,/home %1,{&(gold)Go to home {&(%0)%1}},{{&(%0)%1:} {&(aqua)%2 %3 %4}})",
                         home.getLocation().getWorld().getEnvironment() == World.Environment.NORMAL ? "green" : "red",
                         home.getName(),
                         location.getBlockX(),
