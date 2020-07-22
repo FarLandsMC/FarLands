@@ -38,7 +38,7 @@ public class MechanicHandler implements Listener {
         registerMechanic(new CompassMechanic());
         registerMechanic(new GeneralMechanics());
         registerMechanic(new Restrictions());
-        registerMechanic(new Spawn());
+        //registerMechanic(new Spawn());
         registerMechanic(new Toggles());
         registerMechanic(new Voting());
         registerMechanic(new Items());
