@@ -206,17 +206,19 @@ public class Toggles extends Mechanic {
 
     @SuppressWarnings("deprecation")
     public static void hidePlayers(Player player) {
-        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
-        if (flp.vanished)
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-        else if (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.getPotionEffect(PotionEffectType.INVISIBILITY).getDuration() > 8 * 60 * 20)
-            player.removePotionEffect(PotionEffectType.INVISIBILITY);
+        Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+            if (flp.vanished)
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
+            else if (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.getPotionEffect(PotionEffectType.INVISIBILITY).getDuration() > 8 * 60 * 20)
+                player.removePotionEffect(PotionEffectType.INVISIBILITY);
 
-        Bukkit.getOnlinePlayers().stream().filter(pl -> pl != player).forEach(pl -> {
-            if (!flp.vanished)
-                pl.showPlayer(player);
-            else
-                pl.hidePlayer(player);
+            Bukkit.getOnlinePlayers().stream().filter(pl -> pl != player).forEach(pl -> {
+                if (!flp.vanished)
+                    pl.showPlayer(player);
+                else
+                    pl.hidePlayer(player);
+            });
         });
     }
 
