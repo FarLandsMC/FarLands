@@ -104,7 +104,7 @@ public class CommandCraft extends PlayerCommand {
     }
 
     private int takeRequirements(Player sender, Inventory inv, Stack<Material> materialStack, Material material, boolean sendMessages) {
-        // Prevent recursion for items like
+        // Prevent recursion for items like iron ingots and wheat
         if (materialStack.contains(material))
             return 0;
         materialStack.push(material);
