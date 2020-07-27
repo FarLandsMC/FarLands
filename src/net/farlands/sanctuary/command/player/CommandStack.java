@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
+import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
@@ -30,6 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class CommandStack extends PlayerCommand {
 
@@ -39,7 +41,7 @@ public class CommandStack extends PlayerCommand {
     private final static List<Material> UNSTACKABLES = Arrays.asList(
             MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP, LAVA_BUCKET, WATER_BUCKET,
             PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET,
-            ENCHANTED_BOOK
+            ENCHANTED_BOOK, POTION
     );
 
     /**
@@ -306,6 +308,8 @@ public class CommandStack extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? Collections.singletonList("container") : Collections.emptyList();
+        return args.length <= 1
+                ? TabCompleterBase.filterStartingWith(args[0], Stream.of("container", "echest"))
+                : Collections.emptyList();
     }
 }

@@ -37,7 +37,7 @@ public class CommandStats extends Command {
                     "Showing stats for " + ChatColor.GOLD + flp.username + ":" + ChatColor.GREEN + "\n" +
                     "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
                     "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
-                    (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: \\$" +
+                    (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
                             flp.amountDonated + "\n" : "") +
                     "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
                     "Votes this Month: " + flp.monthVotes + "\n" +

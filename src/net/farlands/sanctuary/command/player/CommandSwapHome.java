@@ -1,13 +1,19 @@
 package net.farlands.sanctuary.command.player;
 
+import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Collections;
+import java.util.List;
 
 public class CommandSwapHome extends PlayerCommand {
     public CommandSwapHome() {
@@ -40,5 +46,29 @@ public class CommandSwapHome extends PlayerCommand {
 
         sender.sendMessage(ChatColor.GREEN + "Successfully swapped home locations.");
         return true;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        switch (args.length) {
+            // All home names
+            case 1:
+                return TabCompleterBase.filterStartingWith(
+                        args[0],
+                        FarLands.getDataHandler().getOfflineFLPlayer(sender).homes.stream().map(Home::getName)
+                );
+
+            // All home names excluding the first home provided
+            case 2:
+                return TabCompleterBase.filterStartingWith(
+                        args[1],
+                        FarLands.getDataHandler().getOfflineFLPlayer(sender).homes.stream()
+                                .map(Home::getName)
+                                .filter(homeName -> !args[0].equals(homeName))
+                );
+
+            default:
+                return Collections.emptyList();
+        }
     }
 }

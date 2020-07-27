@@ -34,6 +34,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
@@ -44,6 +45,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
@@ -164,6 +166,21 @@ public class GeneralMechanics extends Mechanic {
             blockStateMeta.setBlockState(blockState);
             stack.setItemMeta(blockStateMeta);
             event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), stack);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onBlockDropItems(BlockDropItemEvent event) {
+        if (event.getBlockState() instanceof Beehive && !event.getItems().isEmpty()) {
+            int beeCount = ((Beehive) event.getBlockState()).getEntityCount();
+            Item itemEntity = event.getItems().get(0);
+            ItemStack hiveStack = itemEntity.getItemStack();
+            ItemMeta meta = hiveStack.getItemMeta();
+            List<String> lore = new ArrayList<>();
+            lore.add("Bee count: " + beeCount);
+            meta.setLore(lore);
+            hiveStack.setItemMeta(meta);
+            itemEntity.setItemStack(hiveStack);
         }
     }
 

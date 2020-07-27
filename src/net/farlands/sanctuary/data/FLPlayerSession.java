@@ -137,6 +137,8 @@ public class FLPlayerSession {
 
     public void update(boolean sendMessages) {
         handle.update();
+        if (!handle.username.equals(player.getName()))
+            handle.username = player.getName();
 
         updatePlaytime();
         permissionAttachment.setPermission("headdb.open", handle.rank.specialCompareTo(Rank.DONOR) >= 0);
@@ -203,10 +205,15 @@ public class FLPlayerSession {
     }
 
     public void updatePlaytime() {
-        long ctmillis = System.currentTimeMillis();
-        if (!(handle.vanished || player.isDead()))
-            handle.secondsPlayed += (ctmillis - lastTimeRecorded) / 1000L;
-        lastTimeRecorded = ctmillis;
+        if (handle.rank.isStaff()) {
+            long ctmillis = System.currentTimeMillis();
+            if (!handle.vanished && !player.isDead())
+                handle.secondsPlayed += (ctmillis - lastTimeRecorded) / 1000L;
+            lastTimeRecorded = ctmillis;
+        } else {
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUniqueId());
+            handle.secondsPlayed = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20;
+        }
     }
 
     public void giveVoteRewards(int amount) {

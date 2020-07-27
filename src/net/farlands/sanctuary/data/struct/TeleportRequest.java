@@ -28,6 +28,13 @@ public final class TeleportRequest implements Runnable {
     }
 
     public static void open(TeleportType type, Player sender, Player recipient) {
+        // If A requests A -> B, and B requests A -> B, then accept the request
+        TeleportRequest recipientReqToSender = FarLands.getDataHandler().getSession(recipient).outgoingTeleportRequest;
+        if (recipientReqToSender != null && sender.getUniqueId().equals(recipientReqToSender.teleporter.getUniqueId())) {
+            recipientReqToSender.accept();
+            return;
+        }
+
         TeleportRequest tpRequest = new TeleportRequest(type, sender, recipient);
         tpRequest.open();
     }

@@ -81,8 +81,10 @@ public class CommandCraft extends PlayerCommand {
         craft(sender, new HashSet<>(), item, amount, true);
     }
 
-    private int craft(Player sender, Set<Material> crafted, Material item, int amount, boolean sendMessages) {
+    private void craft(Player sender, Set<Material> crafted, Material item, int amount, boolean sendMessages) {
         crafted.add(item);
+        if (amount <= 0)
+            return;
 
         // Try to find recipes for the item
         List<Recipe> recipes = Bukkit.getRecipesFor(new ItemStack(item, 1));
@@ -90,7 +92,7 @@ public class CommandCraft extends PlayerCommand {
         if (recipes.isEmpty()) {
             if (sendMessages)
                 sendFormatted(sender, "&(red)This item does not have a recipe.");
-            return 0;
+            return;
         }
 
         // Look for a recipe variant that we have the necessary items for
@@ -128,7 +130,9 @@ public class CommandCraft extends PlayerCommand {
                 requirements.put(mat, requirements.getOrDefault(mat, 0) + 1);
             });
 
-            if (requirements.keySet().stream().anyMatch(crafted::contains)) {
+            if (requirements.keySet().stream().anyMatch(
+                    mat -> !mat.name().contains("PLANKS") && mat != Material.STICK && crafted.contains(mat)
+            )) {
                 recipeCount = 0;
                 continue;
             }
@@ -151,29 +155,35 @@ public class CommandCraft extends PlayerCommand {
 
         // This happens if the recipe crafts more of an item than the player asked for
         if (recipeCount == 0)
-            return 0;
+            return;
 
         // This is how many times we need to call the recipe to meet the desired item count
         final int finalRecipeCount = recipeCount;
 
         // If we can't craft enough to meet the desired amount try crafting some of the ingredients
-        if (craftable < recipeCount) {
+        for (int i = 0; i < 3 && craftable < recipeCount; ++i) {
             requirements.entrySet().stream()
                     // Order it so that the items they have the least of are created first, handles items like anvils
                     // which require both ingots and blocks
                     .sorted(Comparator.comparing(entry -> available.get(entry.getKey())))
                     .forEach(entry -> {
-                        available.put(
+                        craft(
+                                sender,
+                                crafted,
                                 entry.getKey(),
-                                available.get(entry.getKey()) + craft(
-                                        sender,
-                                        crafted,
-                                        entry.getKey(),
-                                        entry.getValue() * finalRecipeCount - available.get(entry.getKey()),
-                                        false
-                                )
+                                entry.getValue() * finalRecipeCount - available.get(entry.getKey()),
+                                false
                         );
                     });
+
+            // Recalculate shit to make sure there aren't errors
+            available.clear();
+            requirements.keySet().forEach(key -> available.put(key, 0));
+            sender.getInventory().forEach(stack -> {
+                if (stack != null && requirements.containsKey(stack.getType()))
+                    available.put(stack.getType(), available.get(stack.getType()) + stack.getAmount());
+            });
+
             craftable = available.entrySet().stream().map(entry -> entry.getValue() /
                     requirements.get(entry.getKey())).min(Integer::compare).orElse(0);
         }
@@ -190,23 +200,33 @@ public class CommandCraft extends PlayerCommand {
                 );
             }
 
-            return 0;
-        } else if (craftable < recipeCount && sendMessages)
-            sendFormatted(sender, "&(red)You only had enough resources in your inventory to craft %0 of this item.", craftable);
-        else
+            return;
+        } else if (craftable < recipeCount) {
+            // Do NOT combine this with the clause above with a `&&`
+            if (sendMessages)
+                sendFormatted(sender, "&(red)You only had enough resources in your inventory to craft %0 of this item's recipe.", craftable);
+        } else
             craftable = recipeCount;
 
+        if (item == Material.SPRUCE_SIGN)
+            return;
+
         // Remove the required items
-        final int finalCraftable = craftable;
-        requirements.forEach((mat, amt) -> {
-            int total = 0, required = amt * finalCraftable, first;
+        Inventory inv = sender.getInventory();
+        for (Map.Entry<Material, Integer> entry : requirements.entrySet()) {
+            Material mat = entry.getKey();
+            Integer amt = entry.getValue();
+
+            int total = 0, required = amt * craftable, first;
             while (total < required) {
-                ItemStack stack = sender.getInventory().getItem(first = sender.getInventory().first(mat));
+                first = inv.first(mat);
+
+                ItemStack stack = inv.getItem(first);
 
                 // Use all of a stack
                 if (stack.getAmount() < required - total) {
                     total += stack.getAmount();
-                    sender.getInventory().setItem(first, null);
+                    inv.setItem(first, null);
                 }
                 // Use part of a stack
                 else {
@@ -214,11 +234,10 @@ public class CommandCraft extends PlayerCommand {
                     break;
                 }
             }
-        });
+        }
 
         // Give them the crafted item
         FLUtils.giveItem(sender, new ItemStack(item, craftable * recipe.getResult().getAmount()), sendMessages);
-
-        return craftable * recipe.getResult().getAmount();
+        sender.updateInventory();
     }
 }

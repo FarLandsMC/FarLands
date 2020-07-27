@@ -12,6 +12,7 @@ import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
+import net.farlands.sanctuary.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -55,7 +56,15 @@ public class CommandArtifact extends DiscordCommand {
         if (dest.exists())
             dest.delete();
 
-        attachments.get(0).downloadToFile(dest);
+        try {
+            attachments.get(0).downloadToFile(dest).get();
+        } catch (Exception ex) {
+            sender.sendMessage(ChatColor.RED + "Failed to upload artifact due to an internal error.");
+            Logging.error(ex.getMessage());
+            ex.printStackTrace(System.out);
+            return true;
+        }
+
         Config cfg = FarLands.getFLConfig();
         if (args.length > 1 && "true".equals(args[1])) {
             FarLands.executeScript("artifact.sh", cfg.screenSession, cfg.paperDownload, cfg.dedicatedMemory,
