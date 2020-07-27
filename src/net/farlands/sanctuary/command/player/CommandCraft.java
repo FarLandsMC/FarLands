@@ -11,6 +11,7 @@ import net.farlands.sanctuary.data.Rank;
 
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -44,8 +45,8 @@ public class CommandCraft extends PlayerCommand {
             return true;
         }
 
-        // Parse the amount, defaulting to 0 means that the amount of the item given by the recipe will be the actual amount
-        int amount = 0;
+        // Parse the amount, defaulting to one
+        int amount = 1;
         if (args.length > 1) {
             try {
                 amount = Integer.parseInt(args[1]);
@@ -60,7 +61,24 @@ public class CommandCraft extends PlayerCommand {
             }
         }
 
-        craft(sender, item, amount);
+        Inventory inventory = sender.getInventory();
+
+        // Try to craft the requested amount
+        int crafted = 0;
+        while (crafted < amount) {
+            int additional = takeRequirements(sender, inventory, new Stack<>(), item, true);
+            if (additional == 0)
+                break;
+            crafted += additional;
+        }
+
+        give(item, crafted, sender, inventory, true);
+        sender.updateInventory();
+
+        if (crafted == 0)
+            sender.sendMessage(ChatColor.RED + "You do not have enough resources to craft any of this item.");
+        else if (crafted < amount)
+            sender.sendMessage(ChatColor.RED + "You only had enough resources to craft " + crafted + " of this item.");
 
         return true;
     }
@@ -77,167 +95,93 @@ public class CommandCraft extends PlayerCommand {
         }
     }
 
-    private void craft(Player sender, Material item, int amount) {
-        craft(sender, new HashSet<>(), item, amount, true);
+    private void give(Material material, int amount, Player recipient, Inventory inventory, boolean sendMessages) {
+        while (amount > 0) {
+            int stackSize = Math.min(amount, material.getMaxStackSize());
+            FLUtils.giveItem(recipient, inventory, recipient.getLocation(), new ItemStack(material, stackSize), sendMessages);
+            amount -= stackSize;
+        }
     }
 
-    private void craft(Player sender, Set<Material> crafted, Material item, int amount, boolean sendMessages) {
-        crafted.add(item);
-        if (amount <= 0)
-            return;
+    private int takeRequirements(Player sender, Inventory inv, Stack<Material> materialStack, Material material, boolean sendMessages) {
+        // Prevent recursion for items like
+        if (materialStack.contains(material))
+            return 0;
+        materialStack.push(material);
 
         // Try to find recipes for the item
-        List<Recipe> recipes = Bukkit.getRecipesFor(new ItemStack(item, 1));
-        Recipe recipe = null;
+        List<Recipe> recipes = Bukkit.getRecipesFor(new ItemStack(material, 1));
         if (recipes.isEmpty()) {
             if (sendMessages)
                 sendFormatted(sender, "&(red)This item does not have a recipe.");
-            return;
+            materialStack.pop();
+            return 0;
         }
+
+        // Copy the contents so we can restore if the take fails
+        ItemStack[] originalContents = clonedContents(inv);
 
         // Look for a recipe variant that we have the necessary items for
-        Map<Material, Integer> requirements = new HashMap<>();
-        Map<Material, Integer> available = new HashMap<>();
-        int craftable = 0; // How many times we can use the chosen recipe
-        int recipeCount = 0; // How many times we need to use the recipe to meet the desired item count
-        for (Recipe r : recipes) {
-            if (!(r instanceof ShapedRecipe || r instanceof ShapelessRecipe))
+        recipeIter:
+        for (Recipe recipe : recipes) {
+            if (!(recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe))
                 continue;
 
-            requirements.clear();
-            available.clear();
+            // Figure out the requirements for this recipe
+            Collection<RecipeChoice> requirements = recipe instanceof ShapedRecipe
+                    ? ((ShapedRecipe) recipe).getChoiceMap().values()
+                    : ((ShapelessRecipe) recipe).getChoiceList();
 
-            recipe = r;
-            recipeCount = amount == 0 ? 1 : (int) Math.max(Math.ceil((double) amount / r.getResult().getAmount()), 1.0);
+            // Take items for each choice
+            requirementIter:
+            for (RecipeChoice requirement : requirements) {
+                if (requirement == null)
+                    continue;
 
-            (r instanceof ShapedRecipe
-                    ? ((ShapedRecipe) r).getChoiceMap().values()
-                    : ((ShapelessRecipe) r).getChoiceList()).stream().filter(Objects::nonNull).forEach(choice -> {
-                // If there are multiple options for a material, find one that the sender has in their inventory
-                Material mat = null;
-                for (Material material : ((RecipeChoice.MaterialChoice) choice).getChoices()) {
-                    mat = material;
-                    String matName = mat.name();
-                    if (sender.getInventory().first(mat) > -1 || ((matName.endsWith("_PLANKS") || (matName.endsWith("_LOG") &&
-                            !matName.startsWith("STRIPPED"))) && Arrays.stream(sender.getInventory().getContents())
-                            .filter(Objects::nonNull).map(ItemStack::getType).map(Material::name)
-                            .anyMatch(name -> name.startsWith(matName.substring(0, matName.lastIndexOf('_')))))) {
-                        break;
-                    }
+                for (Material choice : ((RecipeChoice.MaterialChoice) requirement).getChoices()) {
+                    if (takeOne(sender, inv, materialStack, choice))
+                        continue requirementIter;
                 }
 
-                // Add the requirement
-                requirements.put(mat, requirements.getOrDefault(mat, 0) + 1);
-            });
-
-            if (requirements.keySet().stream().anyMatch(
-                    mat -> !mat.name().contains("PLANKS") && mat != Material.STICK && crafted.contains(mat)
-            )) {
-                recipeCount = 0;
-                continue;
+                // We could not find an item choice that we could satisfy
+                inv.setContents(originalContents);
+                continue recipeIter;
             }
 
-            // Find out how many of the required items the sender actually has
-            requirements.keySet().forEach(key -> available.put(key, 0));
-            sender.getInventory().forEach(stack -> {
-                if (stack != null && requirements.containsKey(stack.getType()))
-                    available.put(stack.getType(), available.get(stack.getType()) + stack.getAmount());
-            });
-
-            // Calculate how many of the item we can craft
-            craftable = available.entrySet().stream().map(entry -> entry.getValue() /
-                    requirements.get(entry.getKey())).min(Integer::compare).orElse(0);
-
-            // If we can craft at least one then use this recipe
-            if (craftable > 0)
-                break;
+            // We have fulfilled every requirement
+            materialStack.pop();
+            return recipe.getResult().getAmount();
         }
 
-        // This happens if the recipe crafts more of an item than the player asked for
-        if (recipeCount == 0)
-            return;
+        // We could not find a recipe where we could fulfill every requirement
+        materialStack.pop();
+        return 0;
+    }
 
-        // This is how many times we need to call the recipe to meet the desired item count
-        final int finalRecipeCount = recipeCount;
+    private boolean takeOne(Player sender, Inventory inv, Stack<Material> materialStack, Material material) {
+        int first = inv.first(material);
+        if (first > -1) {
+            ItemStack stack = inv.getItem(first);
+            stack.setAmount(stack.getAmount() - 1);
 
-        // If we can't craft enough to meet the desired amount try crafting some of the ingredients
-        for (int i = 0; i < 3 && craftable < recipeCount; ++i) {
-            requirements.entrySet().stream()
-                    // Order it so that the items they have the least of are created first, handles items like anvils
-                    // which require both ingots and blocks
-                    .sorted(Comparator.comparing(entry -> available.get(entry.getKey())))
-                    .forEach(entry -> {
-                        craft(
-                                sender,
-                                crafted,
-                                entry.getKey(),
-                                entry.getValue() * finalRecipeCount - available.get(entry.getKey()),
-                                false
-                        );
-                    });
+            if (stack.getAmount() == 0)
+                inv.remove(stack);
 
-            // Recalculate shit to make sure there aren't errors
-            available.clear();
-            requirements.keySet().forEach(key -> available.put(key, 0));
-            sender.getInventory().forEach(stack -> {
-                if (stack != null && requirements.containsKey(stack.getType()))
-                    available.put(stack.getType(), available.get(stack.getType()) + stack.getAmount());
-            });
-
-            craftable = available.entrySet().stream().map(entry -> entry.getValue() /
-                    requirements.get(entry.getKey())).min(Integer::compare).orElse(0);
+            return true;
         }
 
-        // Nothing could be crafted
-        if (craftable == 0) {
-            if (sendMessages) {
-                sendFormatted(sender, "&(red)You are missing the following materials: %0",
-                        available.entrySet().stream()
-                                .filter(entry -> entry.getValue() < requirements.get(entry.getKey()))
-                                .map(entry -> Utils.formattedName(entry.getKey()) +
-                                        " (" + (requirements.get(entry.getKey()) - entry.getValue()) + ")")
-                                .collect(Collectors.joining(", "))
-                );
-            }
+        int crafted = takeRequirements(sender, inv, materialStack, material, false);
+        give(material, crafted - 1, sender, inv, false);
+        return crafted > 0;
+    }
 
-            return;
-        } else if (craftable < recipeCount) {
-            // Do NOT combine this with the clause above with a `&&`
-            if (sendMessages)
-                sendFormatted(sender, "&(red)You only had enough resources in your inventory to craft %0 of this item's recipe.", craftable);
-        } else
-            craftable = recipeCount;
-
-        if (item == Material.SPRUCE_SIGN)
-            return;
-
-        // Remove the required items
-        Inventory inv = sender.getInventory();
-        for (Map.Entry<Material, Integer> entry : requirements.entrySet()) {
-            Material mat = entry.getKey();
-            Integer amt = entry.getValue();
-
-            int total = 0, required = amt * craftable, first;
-            while (total < required) {
-                first = inv.first(mat);
-
-                ItemStack stack = inv.getItem(first);
-
-                // Use all of a stack
-                if (stack.getAmount() < required - total) {
-                    total += stack.getAmount();
-                    inv.setItem(first, null);
-                }
-                // Use part of a stack
-                else {
-                    stack.setAmount(stack.getAmount() - (required - total));
-                    break;
-                }
-            }
+    private static ItemStack[] clonedContents(Inventory inv) {
+        ItemStack[] contents = inv.getContents();
+        ItemStack[] clone = new ItemStack[contents.length];
+        for (int i = 0;i < contents.length;++ i) {
+            ItemStack original = contents[i];
+            clone[i] = original == null ? null : original.clone();
         }
-
-        // Give them the crafted item
-        FLUtils.giveItem(sender, new ItemStack(item, craftable * recipe.getResult().getAmount()), sendMessages);
-        sender.updateInventory();
+        return clone;
     }
 }

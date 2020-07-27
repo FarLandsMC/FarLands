@@ -16,10 +16,12 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -369,12 +371,16 @@ public final class FLUtils {
     }
 
     public static void giveItem(Player player, ItemStack stack, boolean sendMessage) {
-        if(player.getInventory().firstEmpty() > -1)
-            player.getInventory().addItem(stack.clone());
+        giveItem(player, player.getInventory(), player.getLocation(), stack, sendMessage);
+    }
+
+    public static void giveItem(CommandSender recipient, Inventory inv, Location location, ItemStack stack, boolean sendMessage) {
+        if(inv.firstEmpty() > -1)
+            inv.addItem(stack.clone());
         else{
-            player.getWorld().dropItem(player.getLocation(), stack);
+            location.getWorld().dropItem(location, stack);
             if(sendMessage)
-                player.sendMessage(ChatColor.RED + "Your inventory was full, so you dropped the item.");
+                recipient.sendMessage(ChatColor.RED + "Your inventory was full, so you dropped the item.");
         }
     }
 
