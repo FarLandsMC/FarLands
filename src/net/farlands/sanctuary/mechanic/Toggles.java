@@ -40,15 +40,13 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Toggles extends Mechanic {
-    private long lastAdvancementMessage;
+    private Map<UUID, List<Advancement>> lastAdvancementMessage;
 
     public Toggles() {
-        this.lastAdvancementMessage = 0L;
+        this.lastAdvancementMessage = new HashMap<>();
     }
 
     @Override
@@ -134,29 +132,33 @@ public class Toggles extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onAdvancementGet(PlayerAdvancementDoneEvent event) {
-        if (!FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished) {
-            if (((CraftAdvancement) event.getAdvancement()).getHandle().c() == null)
-                return;
+        if (FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished)
+            return;
 
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - lastAdvancementMessage > 40L)
-                lastAdvancementMessage = currentTime;
-            else
-                return;
+        Advancement handle = ((CraftAdvancement) event.getAdvancement()).getHandle();
+        if (handle.c() == null)
+            return;
 
-            Bukkit.getOnlinePlayers().stream()
-                    .map(player -> ((CraftPlayer) player).getHandle())
-                    .forEach(player -> {
-                        player.sendMessage(
-                                ((CraftPlayer) event.getPlayer()).getHandle().getScoreboardDisplayName().mutableCopy()
-                                        // Clear chat modifiers
-                                        .addSibling(new ChatComponentText(" has made the advancement ")
-                                                .setChatModifier(FLUtils.chatModifier("white")))
-                                        .addSibling(((CraftAdvancement) event.getAdvancement()).getHandle().j()),
-                                new UUID(0L, 0L)
-                        );
-                    });
-        }
+        List<Advancement> playerCache = lastAdvancementMessage.get(event.getPlayer().getUniqueId());
+        if (playerCache == null) {
+            playerCache = new ArrayList<>();
+        } else if (playerCache.contains(handle))
+            return;
+        playerCache.add(handle);
+        lastAdvancementMessage.put(event.getPlayer().getUniqueId(), playerCache);
+
+        FarLands.getScheduler().scheduleSyncDelayedTask(() ->
+                        lastAdvancementMessage.get(event.getPlayer().getUniqueId()).remove(handle),
+                20);
+
+        IChatBaseComponent message = ((CraftPlayer) event.getPlayer()).getHandle().getScoreboardDisplayName().mutableCopy()
+                // Clear chat modifiers
+                .addSibling(new ChatComponentText(" has made the advancement ")
+                        .setChatModifier(FLUtils.chatModifier("white")))
+                .addSibling(((CraftAdvancement) event.getAdvancement()).getHandle().j());
+        Bukkit.getOnlinePlayers().stream()
+                .map(player -> ((CraftPlayer) player).getHandle())
+                .forEach(player -> player.sendMessage(message, new UUID(0L, 0L)));
     }
 
     @EventHandler(ignoreCancelled = true)
