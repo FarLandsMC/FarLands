@@ -335,14 +335,23 @@ public class CommandHandler extends Mechanic {
         String fullCommand = event.getMessage();
 
         FarLands.getMechanicHandler().getMechanic(Chat.class).spamUpdate(player, fullCommand);
-        String command = fullCommand.substring(fullCommand.startsWith("/") ? 1 : 0, FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())).trim();
-        String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
+        String command = fullCommand.substring(
+                fullCommand.startsWith("/") ? 1 : 0,
+                FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())
+        ).trim();
+        String[] args = fullCommand.contains(" ")
+                ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ")
+                : new String[0];
         Command c = getCommand(command);
         // Notify staff of usage
         if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))))
             Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
-        if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c))
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, event.getPlayer().getName() + ": " + fullCommand);
+        if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
+                !(command.equalsIgnoreCase("hdb") || command.equalsIgnoreCase("headdb") ||
+                        command.equalsIgnoreCase("heads")))
+            FarLands.getDiscordHandler().sendMessage(
+                    DiscordChannel.COMMAND_LOG, event.getPlayer().getName() + ": " + fullCommand
+            );
         if(c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
