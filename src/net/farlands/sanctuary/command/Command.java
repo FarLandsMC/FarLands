@@ -100,7 +100,7 @@ public abstract class Command extends org.bukkit.command.Command {
     }
 
     public boolean canUse(CommandSender sender) {
-        if(Rank.getRank(sender).specialCompareTo(minimumRankRequirement) < 0) {
+        if (Rank.getRank(sender).specialCompareTo(minimumRankRequirement) < 0) {
             sender.sendMessage(ChatColor.RED + "You must be at least rank " + FLUtils.capitalize(minimumRankRequirement.toString()) +
                     " to use this command.");
             return false;

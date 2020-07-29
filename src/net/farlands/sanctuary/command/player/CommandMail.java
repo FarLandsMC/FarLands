@@ -13,6 +13,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
 
 import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -53,6 +54,11 @@ public class CommandMail extends Command {
                 // Check arg count
                 if (args.length == 1) {
                     sendFormatted(sender, "&(red)Usage: /mail send <player> [message]");
+                    return true;
+                }
+
+                if (FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted()) {
+                    sendFormatted(sender, "&(red)You cannot send mail while muted");
                     return true;
                 }
 
