@@ -22,7 +22,7 @@ public class CommandGameMode extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if (!("spec".equals(args[0]) || "gm3".equals(args[0])) && Rank.BUILDER.specialCompareTo(Rank.getRank(sender)) > 0) {
+        if ("gmc".equals(args[0]) && Rank.BUILDER.specialCompareTo(Rank.getRank(sender)) > 0) {
             sendFormatted(sender, "&(red)You do not have permission to use this command.");
             return true;
         }

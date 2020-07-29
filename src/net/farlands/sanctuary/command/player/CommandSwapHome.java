@@ -28,19 +28,19 @@ public class CommandSwapHome extends PlayerCommand {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
-        if (!flp.hasHome(args[0])) {
+        Location firstHome = flp.getHome(args[0]);
+        if (firstHome == null) {
             sender.sendMessage(ChatColor.RED + "You do not have a home named " + args[0]);
             return true;
         }
 
-        if (!flp.hasHome(args[1])) {
+        Location secondHome = flp.getHome(args[1]);
+        if (secondHome == null) {
             sender.sendMessage(ChatColor.RED + "You do not have a home named " + args[1]);
             return true;
         }
 
         // I'm sure kish will come back to optimize this travesty at some point
-        Location firstHome = flp.getHome(args[0]);
-        Location secondHome = flp.getHome(args[1]);
         flp.moveHome(args[0], secondHome);
         flp.moveHome(args[1], firstHome);
 
