@@ -65,6 +65,8 @@ public class CommandNotes extends DiscordCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         if (args.length <= 1) {
             return Arrays.stream(Action.VALUES)
                     .map(Utils::formattedName)

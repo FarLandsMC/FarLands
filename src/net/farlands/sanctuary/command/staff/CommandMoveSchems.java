@@ -85,6 +85,8 @@ public class CommandMoveSchems extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         switch (args.length) {
             case 1:
                 return Collections.singletonList("from");

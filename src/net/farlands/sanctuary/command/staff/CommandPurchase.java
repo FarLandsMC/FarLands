@@ -93,10 +93,13 @@ public class CommandPurchase extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         switch (args.length) {
             case 0:
+                return getOnlinePlayers("", sender);
             case 1:
-                return getOnlinePlayers(args.length == 0 ? "" : args[0], sender);
+                return getOnlinePlayers(args[0], sender);
             case 2:
                 return Rank.PURCHASED_RANKS.stream().map(Rank::toString).collect(Collectors.toList());
             default:

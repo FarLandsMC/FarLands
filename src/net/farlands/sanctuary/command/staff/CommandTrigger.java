@@ -67,6 +67,8 @@ public class CommandTrigger extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         if (args.length == 1)
             return TabCompleterBase.filterStartingWith(args[0], Arrays.stream(Event.VALUES).map(Utils::formattedName));
         else {

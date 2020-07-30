@@ -49,6 +49,8 @@ public class CommandToLocation extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         return args.length == 6 ? Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()) : Collections.emptyList();
     }
 }

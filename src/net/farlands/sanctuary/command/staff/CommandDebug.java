@@ -48,6 +48,8 @@ public class CommandDebug extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         return args.length <= 1
                 ? new ArrayList<>(FarLands.getDebugger().getPosts())
                 : Collections.emptyList();

@@ -80,6 +80,8 @@ public class CommandEntityCount extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         ArgumentBundle bundle = bundleArguments(args, sender, true);
         if (bundle == null)
             return Collections.emptyList();

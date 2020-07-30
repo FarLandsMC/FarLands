@@ -60,7 +60,17 @@ public class CommandRestoreDeath extends Command {
     
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) :
-                args.length <= 2 ? Arrays.asList("1", "2", "3") : Collections.emptyList();
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
+        switch (args.length) {
+            case 0:
+                return getOnlinePlayers("", sender);
+            case 1:
+                return getOnlinePlayers(args[0], sender);
+            case 2:
+                return Arrays.asList("1", "2", "3");
+            default:
+                return Collections.emptyList();
+        }
     }
 }

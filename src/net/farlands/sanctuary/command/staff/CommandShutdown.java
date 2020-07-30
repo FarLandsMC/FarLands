@@ -67,7 +67,11 @@ public class CommandShutdown extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length == 1 ? TYPES.stream().filter(o -> o.startsWith(args[0])).collect(Collectors.toList()) : Collections.emptyList();
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
+        return args.length == 1
+                ? TYPES.stream().filter(o -> o.startsWith(args[0])).collect(Collectors.toList())
+                : Collections.emptyList();
     }
 
     private static void execute0(final int seconds, final String mode) {

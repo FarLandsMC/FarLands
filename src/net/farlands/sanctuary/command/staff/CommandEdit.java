@@ -101,6 +101,8 @@ public class CommandEdit extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
         switch (args.length) {
             // Give them the options of player or config
             case 0:

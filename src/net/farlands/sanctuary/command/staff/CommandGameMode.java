@@ -63,6 +63,10 @@ public class CommandGameMode extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
+        if (!Rank.getRank(sender).isStaff())
+            return Collections.emptyList();
+        return args.length <= 1
+                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender)
+                : Collections.emptyList();
     }
 }
