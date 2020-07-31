@@ -22,28 +22,27 @@ public class CommandToLocation extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length < 3)
+        if (args.length < 3)
             return false;
         double x, y, z;
         float yaw, pitch;
         try {
-            x = Double.parseDouble(args[0]);
-            y = Double.parseDouble(args[1]);
-            z = Double.parseDouble(args[2]);
-            yaw = args.length >= 4 ? Float.parseFloat(args[3]) : sender.getLocation().getYaw();
-            pitch = args.length >= 5 ? Float.parseFloat(args[4]) : sender.getLocation().getPitch();
-        }catch(NumberFormatException ex) {
+            x = args[0].equals("~") ? sender.getLocation().getX() : Double.parseDouble(args[0]);
+            y = args[1].equals("~") ? sender.getLocation().getY() : Double.parseDouble(args[1]);
+            z = args[2].equals("~") ? sender.getLocation().getZ() : Double.parseDouble(args[2]);
+            yaw   = args.length <= 3 || args[3].equals("~") ? sender.getLocation().getYaw()   : Float.parseFloat(args[3]);
+            pitch = args.length <= 4 || args[4].equals("~") ? sender.getLocation().getPitch() : Float.parseFloat(args[4]);
+        } catch (NumberFormatException ex) {
             sendFormatted(sender, "&(red)Could not find location: " + ex.getMessage());
             return true;
         }
         World world = args.length >= 6 ? Bukkit.getWorld(args[5]) : sender.getWorld();
-        if(world == null) {
+        if (world == null) {
             sendFormatted(sender, "&(red)Invalid world: " + args[5]);
             return true;
         }
         Location newLocation = new Location(world, x, y, z, yaw, pitch);
         sender.teleport(newLocation);
-        sender.teleport(newLocation); // Required to fix a spigot glitch
         return true;
     }
 
@@ -51,6 +50,8 @@ public class CommandToLocation extends PlayerCommand {
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         if (!Rank.getRank(sender).isStaff())
             return Collections.emptyList();
-        return args.length == 6 ? Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()) : Collections.emptyList();
+        return args.length == 6
+                ? Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList())
+                : Collections.emptyList();
     }
 }

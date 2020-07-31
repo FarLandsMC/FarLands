@@ -43,7 +43,7 @@ public class CommandPunish extends Command {
 
         Rank senderRank = Rank.getRank(sender);
         if (!"pardon".equals(args[0])) {
-            // Staff can mute players, Non-Jr. staff can mute Jr. staff, Owners can mute all staff except owners.
+            // Staff can punish players, Full staff can punish Jr. staff, Owners can punish all staff except owners.
             if (!(sender instanceof ConsoleCommandSender) && ((senderRank.specialCompareTo(flp.rank) == 0) ||
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
                             (flp.rank.getPermissionLevel() == 2 || flp.rank.getPermissionLevel() == 3)) ||

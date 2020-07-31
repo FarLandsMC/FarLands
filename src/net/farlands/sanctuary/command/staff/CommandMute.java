@@ -35,7 +35,7 @@ public class CommandMute extends Command {
         }
         if("mute".equals(args[0])) {
             Rank senderRank = Rank.getRank(sender), mutedRank = flp.rank;
-            // Staff can mute players, Non-Jr. staff can mute Jr. staff, Owners can mute all staff except owners.
+            // Staff can mute players, Full staff can mute Jr. staff, Owners can mute all staff except owners.
             if(!(sender instanceof ConsoleCommandSender) && ((senderRank.specialCompareTo(mutedRank) == 0) ||
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
                         (mutedRank.getPermissionLevel() == 2 || mutedRank.getPermissionLevel() == 3)) ||

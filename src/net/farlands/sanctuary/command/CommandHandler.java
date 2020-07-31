@@ -158,8 +158,8 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandSmite());            // Admin
         registerCommand(new CommandStaffChat());        // Jr_Builder (has initiate to send false command)
         registerCommand(new CommandTNTArrow());         // Builder
-        registerCommand(new CommandToPlayer());         // Jr_Builder
         registerCommand(new CommandToLocation());       // Jr_Builder
+        registerCommand(new CommandToPlayer());         // Jr_Builder
         registerCommand(new CommandTrigger());          // Admin
         registerCommand(new CommandVanish());           // Media
         registerCommand(new CommandViewNodes());        // Jr_Builder
