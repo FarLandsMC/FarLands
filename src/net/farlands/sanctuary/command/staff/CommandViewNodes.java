@@ -65,10 +65,11 @@ public class CommandViewNodes extends Command {
         Pair<Detecting, Location> node;
         for (int i = page * NODES_PER_PAGE, e = Math.min(i + NODES_PER_PAGE, nodes.size()); i < e; ++i) {
             node = nodes.get(i);
-            message.append("$(hovercmd,/chain {gm3} {tp ")
+            message.append("$(hovercmd,/chain {gm3} {tl ")
                    .append(node.getSecond().getBlockX()).append(" ")
                    .append(node.getSecond().getBlockY()).append(" ")
-                   .append(node.getSecond().getBlockZ()).append("},{&(gray)Click to tp},&(")
+                   .append(node.getSecond().getBlockZ()).append(" ~ ~ ")
+                   .append(node.getSecond().getWorld().getName()).append("},{&(gray)Click to tp},&(")
                    .append(node.getFirst().getColor().name().toLowerCase()).append(")")
                    .append(node.getFirst().toString()).append(" @ ")
                    .append(node.getSecond().getBlockX()).append(" ")
