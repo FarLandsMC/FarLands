@@ -29,7 +29,7 @@ public class CommandSmite extends Command {
             sendFormatted(sender, "&(red)This peasant does not exist.");
             return true;
         }
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "execute at " + player.getName() + " run summon lightning_bolt ~ ~ ~");
+        player.getWorld().strikeLightning(player.getLocation());
         return true;
     }
 

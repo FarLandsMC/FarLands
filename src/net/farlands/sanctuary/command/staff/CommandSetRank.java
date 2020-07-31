@@ -44,8 +44,8 @@ public class CommandSetRank extends Command {
         // You cannot modify someone of an equal rank, and you cannot set someone to a higher rank than yours
         if ((flp.rank.specialCompareTo(Rank.getRank(sender)) >= 0 || rank.specialCompareTo(Rank.getRank(sender)) > 0) &&
                 !(sender instanceof ConsoleCommandSender)) {
-            sendFormatted(sender, "&(red)You do not have permission to set {&(white)%0} to rank {&(white)%1}."
-                    , args[0], rank.toString());
+            sendFormatted(sender, "&(red)You do not have permission to set {&(white)%0} to rank {&(white)%1}.",
+                    args[0], rank.toString());
             return true;
         }
 

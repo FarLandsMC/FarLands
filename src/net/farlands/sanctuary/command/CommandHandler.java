@@ -4,7 +4,9 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
+
 import net.dv8tion.jda.api.entities.Message;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.discord.*;
 import net.farlands.sanctuary.command.player.*;
@@ -23,7 +25,9 @@ import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
+
 import net.minecraft.server.v1_16_R1.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
@@ -37,6 +41,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -60,7 +65,7 @@ public class CommandHandler extends Mechanic {
         // Discord Commands
         registerCommand(new CommandAlts());             // Jr Builder
         registerCommand(new CommandArchive());          // Admin
-        registerCommand(new CommandArtifact());         // Admin
+        registerCommand(new CommandArtifact());         // Admin (Requires JS Permission)
         registerCommand(new CommandDevReport());        // Initiate
         registerCommand(new CommandGetLog());           // Admin
         registerCommand(new CommandNotes());            // Jr Builder
@@ -143,13 +148,13 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandFly());              // Media
         registerCommand(new CommandGameMode());         // Jr_Builder
         registerCommand(new CommandGod());              // Jr_Builder
-        //registerCommand(new CommandJS());               // Admin (must be js user)
+        //registerCommand(new CommandJS());               // Admin (Requires JS Permission)
         registerCommand(new CommandKick());             // Jr_Builder
         registerCommand(new CommandMined());            // Builder
         registerCommand(new CommandMoveSchems());       // Builder
         registerCommand(new CommandMute());             // Jr_Builder
         registerCommand(new CommandPunish());           // Jr_Builder
-        registerCommand(new CommandPurchase());         // Mod
+        registerCommand(new CommandPurchase());         // Builder
         registerCommand(new CommandRestoreDeath());     // Builder
         registerCommand(new CommandSetRank());          // Builder
         registerCommand(new CommandSetSpawn());         // Admin
@@ -157,7 +162,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandShutdown());         // Admin
         registerCommand(new CommandSmite());            // Admin
         registerCommand(new CommandStaffChat());        // Jr_Builder (has initiate to send false command)
-        registerCommand(new CommandTNTArrow());         // Builder
+        registerCommand(new CommandTNTArrow());         // Admin
         registerCommand(new CommandToLocation());       // Jr_Builder
         registerCommand(new CommandToPlayer());         // Jr_Builder
         registerCommand(new CommandTrigger());          // Admin

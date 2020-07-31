@@ -34,7 +34,7 @@ public class CommandTNTArrow extends PlayerCommand {
     );
 
     public CommandTNTArrow() {
-        super(Rank.BUILDER, "Give yourself some tnt arrows.", "/tntarrow [nerfed|standard|amount] [power] [amount] [fakeExplosionDuration]", "tntarrow");
+        super(Rank.ADMIN, "Give yourself some tnt arrows.", "/tntarrow [nerfed|standard|amount] [power] [amount] [fakeExplosionDuration]", "tntarrow");
     }
 
     @Override

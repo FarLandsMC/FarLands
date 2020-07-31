@@ -23,7 +23,7 @@ public class CommandPurchase extends Command {
     private static final long PURCHASE_COMMAND_COOLDOWN = 5000L;
 
     public CommandPurchase() {
-        super(Rank.MOD, "Command for Tebex (BuyCraft)", "/purchase <name> <rank> [uuid] [price]", "purchase");
+        super(Rank.BUILDER, "Command for Tebex (BuyCraft)", "/purchase <name> <rank> [uuid] [price]", "purchase");
         this.commandCooldowns = new HashMap<>();
     }
 
