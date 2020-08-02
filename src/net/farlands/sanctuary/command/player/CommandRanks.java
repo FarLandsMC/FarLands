@@ -36,14 +36,25 @@ public class CommandRanks extends Command {
             sb.append(rank.getColor()).append(rank.getName()).append(ChatColor.BLUE);
 
             // For donor ranks, show the cost
-            if(Rank.DONOR.equals(rank) || Rank.PATRON.equals(rank))
-                sb.append(" - ").append(Rank.DONOR.equals(rank) ? Rank.DONOR_COST_STR : Rank.PATRON_COST_STR);
-            // Show play time requirements
-            else{
-                int playTimeRequired = rank.getPlayTimeRequired();
-                // Ignore the initiate rank
-                if(playTimeRequired > 0)
-                    sb.append(" - ").append(TimeInterval.formatTime(playTimeRequired * 60L * 60L * 1000L, false)).append(" play-time");
+            switch (rank) {
+                case DONOR:
+                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[0]).append(" USD");
+                    break;
+
+                case PATRON:
+                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[1]).append(" USD");
+                    break;
+
+                case SPONSOR:
+                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[2]).append(" USD");
+                    break;
+
+                default: {
+                    int playTimeRequired = rank.getPlayTimeRequired();
+                    // Ignore the initiate rank
+                    if(playTimeRequired > 0)
+                        sb.append(" - ").append(TimeInterval.formatTime(playTimeRequired * 60L * 60L * 1000L, false)).append(" play-time");
+                }
             }
 
             // Show homes

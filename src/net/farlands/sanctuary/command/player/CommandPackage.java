@@ -74,7 +74,7 @@ public class CommandPackage extends PlayerCommand {
             // Modify necessary data
             FLUtils.giveItem(player, item, true);
             sender.getInventory().setItemInMainHand(null);
-            senderSession.setCommandCooldown(this, 10L * 60L * 20L);
+            senderSession.setCommandCooldown(this, senderSession.handle.rank.getPackageCooldown() * 60L * 20L);
 
             // Notify parties involved
             sendFormatted(player, "&(gold){&(aqua)%0} has sent you {&(aqua)%1}%2.",
@@ -95,7 +95,7 @@ public class CommandPackage extends PlayerCommand {
                     item, useEscaped ? escapedMessage : message)
             ) {
                 sender.getInventory().setItemInMainHand(null);
-                senderSession.setCommandCooldown(this, 10L * 60L * 20L);
+                senderSession.setCommandCooldown(this, senderSession.handle.rank.getPackageCooldown() * 60L * 20L);
 
                 sendFormatted(sender, "&(green)Package sent.");
             }

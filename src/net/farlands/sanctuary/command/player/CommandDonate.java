@@ -7,6 +7,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -19,30 +20,37 @@ public class CommandDonate extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
+        String info = ChatColor.GOLD + "Donations are processed through Tebex. Donations are not required but truly appreciated! " +
+                "All donations go towards paying for server related bills. All donations are final, no refunds will be issued.\n";
+
+        info += Rank.DONOR.getColor() + Rank.DONOR.getName() + ":\n" +
+                ChatColor.BLUE + " - Cost: " + Rank.DONOR_RANK_COSTS[0] + " USD\n" +
+                " - " + Rank.DONOR.getHomes() + " homes\n" +
+                " - Commands: " + FarLands.getCommandHandler().getCommands().stream()
+                    .filter(cmd -> Rank.DONOR.equals(cmd.getMinRankRequirement()))
+                    .map(cmd -> "/" + cmd.getName().toLowerCase())
+                    .collect(Collectors.joining(", "));
+
+        info += "\n" + Rank.PATRON.getColor() + Rank.PATRON.getName() + ":\n" +
+                ChatColor.BLUE + " - Cost: " + Rank.DONOR_RANK_COSTS[1] + " USD\n" +
+                " - " + Rank.PATRON.getHomes() + " homes\n" +
+                " - 30 minute AFK cooldown\n" +
+                " - Special collectible\n" +
+                " - Commands: " + FarLands.getCommandHandler().getCommands().stream()
+                    .filter(cmd -> Rank.PATRON.equals(cmd.getMinRankRequirement()))
+                    .map(cmd -> "/" + cmd.getName().toLowerCase())
+                    .collect(Collectors.joining(", "));
+
+        info += "\n" + Rank.SPONSOR.getColor() + Rank.SPONSOR.getName() + ":\n" +
+                ChatColor.BLUE + " - Cost: " + Rank.DONOR_RANK_COSTS[2] + " USD\n" +
+                " - " + Rank.SPONSOR.getHomes() + " homes\n" +
+                " - Commands: " + FarLands.getCommandHandler().getCommands().stream()
+                    .filter(cmd -> Rank.SPONSOR.equals(cmd.getMinRankRequirement()))
+                    .map(cmd -> "/" + cmd.getName().toLowerCase())
+                    .collect(Collectors.joining(", "));
+
         // Send the info
-        sendFormatted(
-                sender,
-                "&(gold)Donations are processed through Tebex. Donations are not required but truly appreciated! " +
-                "All donations go towards paying for server related bills. All donations are final, no refunds will be issued.\n" +
-                "%0%1:\n&(blue) - Cost: %2\n - %3 homes\n - Commands: %4\n" +
-                "%5%6:\n&(blue) - Cost: %7\n - %8 homes\n - 30 minute AFK cooldown\n - Special collectible\n - Commands: %9",
-                Rank.DONOR.getColor(),
-                Rank.DONOR.getName(),
-                Rank.DONOR_COST_STR,
-                Rank.DONOR.getHomes(),
-                FarLands.getCommandHandler().getCommands().stream()
-                        .filter(cmd -> Rank.DONOR.equals(cmd.getMinRankRequirement()))
-                        .map(cmd -> "/" + cmd.getName().toLowerCase())
-                        .collect(Collectors.joining(", ")),
-                Rank.PATRON.getColor(),
-                Rank.PATRON.getName(),
-                Rank.PATRON_COST_STR,
-                Rank.PATRON.getHomes(),
-                FarLands.getCommandHandler().getCommands().stream()
-                        .filter(cmd -> Rank.PATRON.equals(cmd.getMinRankRequirement()))
-                        .map(cmd -> "/" + cmd.getName().toLowerCase())
-                        .collect(Collectors.joining(", "))
-        );
+        sender.sendMessage(info);
 
         // Provide the link (formatting depends on where the command was run from)
         if (sender instanceof Player)

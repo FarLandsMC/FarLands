@@ -135,6 +135,9 @@ public class Toggles extends Mechanic {
         if (FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished)
             return;
 
+        if (!"minecraft".equalsIgnoreCase(event.getAdvancement().getKey().getNamespace()))
+            return;
+
         Advancement handle = ((CraftAdvancement) event.getAdvancement()).getHandle();
         if (handle.c() == null)
             return;

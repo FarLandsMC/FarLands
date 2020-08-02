@@ -16,9 +16,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CommandTrigger extends Command {
-    public CommandTrigger() {
-        super(Rank.ADMIN, "Trigger a code event.", "/trigger <event> [args]", "trigger");
+public class CommandFLTrigger extends Command {
+    public CommandFLTrigger() {
+        super(Rank.ADMIN, "Trigger a code event.", "/fltrigger <event> [args]", "fltrigger");
     }
 
     @Override

@@ -32,11 +32,12 @@ public enum Rank {
     ADEPT   ("Adept",    ChatColor.GREEN,      "adventure/totem_of_undying",  144, 12, 4, 20,  8),
     SCHOLAR ("Scholar",  ChatColor.BLUE,       "adventure/adventuring_time",  240, 16, 3, 30,  7),
 
-    // symbol color playTimeRequired homes tpDelay shops wildCooldown
+    // symbol color [teamColor=color] playTimeRequired homes tpDelay shops wildCooldown
     VOTER   ("Voter",    ChatColor.LIGHT_PURPLE,                               -1, 16, 3, 30,  7), // Same as Scholar
     DONOR   ("Donor",    ChatColor.LIGHT_PURPLE,                               -1, 24, 2, 40,  6),
     PATRON  ("Patron",   ChatColor.DARK_PURPLE,                                -1, 32, 0, 50,  3),
-    MEDIA   ("Media",    ChatColor.YELLOW,                                     -1, 32, 0, 50,  3), // Same as Patron
+    SPONSOR ("Sponsor",  ChatColor.of("#32a4ea"), org.bukkit.ChatColor.BLUE,   -1, 40, 0, 50,  1),
+    MEDIA   ("Media",    ChatColor.YELLOW,                                     -1, 40, 0, 50,  1), // Same as Sponsor
 
     /* Staff Ranks */
 
@@ -63,10 +64,8 @@ public enum Rank {
 
     public static final Rank[] VALUES = values();
     public static final List<Rank> PURCHASED_RANKS = Arrays.asList(DONOR, PATRON);
-    public static final int DONOR_COST_USD = 10;
-    public static final int PATRON_COST_USD = 30;
-    public static final String DONOR_COST_STR = DONOR_COST_USD + " USD";
-    public static final String PATRON_COST_STR = PATRON_COST_USD + " USD";
+    public static final int[] DONOR_RANK_COSTS = {10, 30, 60};
+    public static final Rank[] DONOR_RANKS = {DONOR, PATRON, SPONSOR};
 
     Rank(int permissionLevel, String name, ChatColor color, org.bukkit.ChatColor teamColor, String advancement,
          int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
@@ -90,6 +89,11 @@ public enum Rank {
     Rank(String name, ChatColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
         this(0, name, color, org.bukkit.ChatColor.valueOf(color.getName().toUpperCase()), null, playTimeRequired, homes,
                 tpDelay, shops, wildCooldown);
+    }
+
+    Rank(String name, ChatColor color, org.bukkit.ChatColor teamColor, int playTimeRequired, int homes, int tpDelay,
+         int shops, int wildCooldown) {
+        this(0, name, color, teamColor, null, playTimeRequired, homes, tpDelay, shops, wildCooldown);
     }
 
     Rank(int permissionLevel, String name, ChatColor color, org.bukkit.ChatColor teamColor) {
@@ -127,7 +131,7 @@ public enum Rank {
     public int getAfkCheckInterval() {
         if (isStaff())
             return 20;
-        else if (this == PATRON || this == MEDIA)
+        else if (this == PATRON || this == SPONSOR || this == MEDIA)
             return 30;
         else
             return 15;
@@ -139,9 +143,15 @@ public enum Rank {
                 return 15000;
             case PATRON:
                 return 60000;
+            case SPONSOR:
+                return 100000;
             default:
                 return 0;
         }
+    }
+
+    public int getPackageCooldown() {
+        return this.specialCompareTo(Rank.SPONSOR) >= 0 ? 5 : 10;
     }
 
     public int getPermissionLevel() {

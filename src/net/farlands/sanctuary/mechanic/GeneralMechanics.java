@@ -3,6 +3,8 @@ package net.farlands.sanctuary.mechanic;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import static com.kicas.rp.util.TextUtils.format;
 
+import com.kicas.rp.RegionProtection;
+import com.kicas.rp.data.FlagContainer;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -39,6 +41,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -129,7 +132,8 @@ public class GeneralMechanics extends Mechanic {
                     "random location on the map. Also, feel free to join our community on discord by clicking " +
                     "$(link,%0,&(aqua)here.)", FarLands.getFLConfig().discordInvite);
 
-            if (Rank.getRank(player) == Rank.PATRON)
+            Rank rank = Rank.getRank(player);
+            if (rank == Rank.PATRON || rank == Rank.SPONSOR)
                 FLUtils.giveItem(player, FarLands.getFLConfig().patronCollectable.getStack(), false);
         }
 
@@ -388,6 +392,16 @@ public class GeneralMechanics extends Mechanic {
             case VILLAGER:
                 FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
                 break;
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getEntity().getLocation());
+        if (flags.isAdminOwned()) {
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                Bukkit.getOfflinePlayer(event.getEntity().getUniqueId()).decrementStatistic(Statistic.DEATHS);
+            }, 5L);
         }
     }
 

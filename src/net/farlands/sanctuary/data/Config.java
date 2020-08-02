@@ -24,6 +24,7 @@ public class Config {
     public String donationLink;
     public String paperDownload;
     public JsonItemStack patronCollectable;
+    public JsonItemStack armorStandBook;
     public List<String> rotatingMessages;
     public List<String> jsUsers; // UUIDs of the people who may use /js
     public Map<DataHandler.Server, String> serverRoots;

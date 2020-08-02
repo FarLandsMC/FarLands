@@ -9,6 +9,7 @@ import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.BlockCommandSender;
@@ -43,6 +44,7 @@ public class CommandHomes extends Command {
                 return true;
             }
 
+            sender.sendMessage(ChatColor.GOLD + "You have " + flp.homes.size() + " home" + (flp.homes.size() == 1 ? "" : "s"));
             flp.homes.forEach(home -> {
                 Location location = home.getLocation();
                 sendFormatted(sender, "&(gold)$(hovercmd,/home %0 %1,Go to home {&(aqua)%0},%0: {&(aqua)%2 %3 %4})",

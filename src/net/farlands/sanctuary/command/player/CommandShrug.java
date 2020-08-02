@@ -18,10 +18,11 @@ public class CommandShrug extends PlayerCommand {
     private static final String SHRUG = "\u00AF\\_(\u30C4)_/\u00AF";
     private static final String TABLEFLIP = "(╯°□°）╯︵ ┻━┻";
     private static final String UNFLIP = "┬─┬ ノ( ゜-゜ノ)";
+    private static final String DAB = "ㄥ(⸝ ، ⸍ )‾‾‾‾‾";
 
     public CommandShrug() {
         super(Rank.INITIATE, Category.CHAT, "Append text emojis to the end of your message.",
-                "/shrug|tableflip|unflip [action]", true, "shrug", "tableflip", "unflip");
+                "/shrug|tableflip|unflip|dab [action]", true, "shrug", "tableflip", "unflip", "dab");
     }
 
     @Override
@@ -36,6 +37,9 @@ public class CommandShrug extends PlayerCommand {
                 return true;
             case "unflip":
                 Chat.chat(flp, sender, args.length == 1 ? UNFLIP : joinArgsBeyond(0, " ", args).trim() + " " + UNFLIP);
+                return true;
+            case "dab":
+                Chat.chat(flp, sender, args.length == 1 ? DAB : joinArgsBeyond(0, " ", args).trim() + " " + DAB);
                 return true;
         }
         return false;

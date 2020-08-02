@@ -10,7 +10,6 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -61,15 +60,13 @@ public class CommandPurchase extends Command {
         double price = args.length >= 4 ? Double.parseDouble(args[3]) : 0;
         flp.amountDonated += price;
 
-        if (args[1].equalsIgnoreCase("none")) {
-            if (flp.amountDonated >= Rank.PATRON_COST_USD)
-                rank = Rank.PATRON;
-            else if (flp.amountDonated >= Rank.DONOR_COST_USD)
-                rank = Rank.DONOR;
+        for (int i = 0; i < Rank.DONOR_RANK_COSTS.length; ++ i) {
+            if (flp.amountDonated > Rank.DONOR_RANK_COSTS[i])
+                rank = Rank.DONOR_RANKS[i];
         }
 
         if (rank != null && rank.specialCompareTo(flp.rank) > 0) {
-            if (rank == Rank.PATRON) {
+            if (rank == Rank.PATRON || (flp.rank != Rank.PATRON && rank == Rank.SPONSOR)) {
                 if (flp.isOnline()) {
                     FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
                 } else {

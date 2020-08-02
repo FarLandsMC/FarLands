@@ -16,7 +16,7 @@ import net.farlands.sanctuary.command.player.CommandMe;
 import net.farlands.sanctuary.command.staff.*;
 import net.farlands.sanctuary.command.staff.CommandDebug;
 import net.farlands.sanctuary.command.staff.CommandKick;
-import net.farlands.sanctuary.command.staff.CommandTrigger;
+import net.farlands.sanctuary.command.staff.CommandFLTrigger;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
@@ -81,7 +81,9 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandDelHome());          // Initiate
         registerCommand(new CommandDiscord());          // Initiate
         registerCommand(new CommandDonate());           // Initiate
+        registerCommand(new CommandEat());              // Sponsor
         registerCommand(new CommandEchest());           // Donor
+        registerCommand(new CommandEditArmorStand());
         registerCommand(new CommandExtinguish());       // Patron
         registerCommand(new CommandGivePet());          // Initiate
         registerCommand(new CommandGuideBook());        // Initiate
@@ -145,6 +147,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandEdit());             // Builder
         registerCommand(new CommandEntityCount());      // Jr_Builder
         registerCommand(new CommandEvidenceLocker());   // Jr_Builder
+        registerCommand(new CommandFLTrigger());        // Admin
         registerCommand(new CommandFly());              // Media
         registerCommand(new CommandGameMode());         // Jr_Builder
         registerCommand(new CommandGod());              // Jr_Builder
@@ -165,7 +168,6 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandTNTArrow());         // Admin
         registerCommand(new CommandToLocation());       // Jr_Builder
         registerCommand(new CommandToPlayer());         // Jr_Builder
-        registerCommand(new CommandTrigger());          // Admin
         registerCommand(new CommandVanish());           // Media
         registerCommand(new CommandViewNodes());        // Jr_Builder
     }
@@ -349,7 +351,8 @@ public class CommandHandler extends Mechanic {
                 : new String[0];
         Command c = getCommand(command);
         // Notify staff of usage
-        if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))))
+        if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
+                CommandEditArmorStand.class.equals(c.getClass()))))
             Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
         if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
                 !(command.equalsIgnoreCase("hdb") || command.equalsIgnoreCase("headdb") ||
@@ -384,8 +387,8 @@ public class CommandHandler extends Mechanic {
         String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
         Command c = getCommand(command);
         // Notify staff of usage
-        if(!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()))) ||
-                sender instanceof BlockCommandSender))
+        if(!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
+                CommandEditArmorStand.class.equals(c.getClass()))) || sender instanceof BlockCommandSender))
             Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
         if(c == null)
             return;

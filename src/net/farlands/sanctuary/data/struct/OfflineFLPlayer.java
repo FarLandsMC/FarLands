@@ -111,31 +111,28 @@ public class OfflineFLPlayer {
     }
 
     public synchronized void updateDiscord() {
-        if(!isDiscordVerified() || !FarLands.getDiscordHandler().isActive())
+        if (!isDiscordVerified() || !FarLands.getDiscordHandler().isActive())
             return;
-        DiscordHandler dh = FarLands.getDiscordHandler();
-        Guild guild = dh.getGuild();
-        Member member;
-        try {
-            member = guild.getMember(dh.getNativeBot().getUserById(discordID));
-        }catch(NullPointerException | IllegalArgumentException ex) {
-            // We used to set the discord ID to zero, but that may have been causing issues so we just return instead now
-            return;
-        }
-        if(member.isOwner()) // For Koneko :P
-            return;
-        if(!username.equals(member.getNickname()))
-            guild.modifyNickname(member, username).queue();
-        List<Role> roles = new ArrayList<>();
-        roles.add(rank.isStaff() ? dh.getRole(DiscordHandler.STAFF_ROLE) : dh.getRole(DiscordHandler.VERIFIED_ROLE));
-        if(rank.specialCompareTo(Rank.DONOR) >= 0)
-            roles.add(dh.getRole(rank.getName()));
-        if(!member.getRoles().containsAll(roles)) {
-            List<Role> add = new ArrayList<>(), remove = new ArrayList<>();
-            roles.stream().filter(role -> !member.getRoles().contains(role)).forEach(add::add);
-            member.getRoles().stream().filter(role -> !roles.contains(role) && DiscordHandler.isManagedRole(role)).forEach(remove::add);
-            guild.modifyMemberRoles(member, add, remove).queue();
-        }
+
+        final DiscordHandler dh = FarLands.getDiscordHandler();
+        final Guild guild = dh.getGuild();
+        guild.retrieveMemberById(discordID).queue(member -> {
+            if (member == null || member.isOwner())
+                return;
+
+            if (!username.equals(member.getNickname()))
+                member.modifyNickname(username).queue();
+
+            List<Role> roles = new ArrayList<>();
+            roles.add(rank.isStaff() ? dh.getRole(DiscordHandler.STAFF_ROLE) : dh.getRole(DiscordHandler.VERIFIED_ROLE));
+            if (rank.specialCompareTo(Rank.DONOR) >= 0)
+                roles.add(dh.getRole(rank.getName()));
+
+            if (!member.getRoles().containsAll(roles)) {
+                roles.removeIf(Objects::isNull);
+                guild.modifyMemberRoles(member, roles).queue();
+            }
+        });
     }
 
     public Player getOnlinePlayer() {

@@ -236,4 +236,13 @@ public class Restrictions extends Mechanic {
             event.getInventory().getContents()[0].setAmount(1);
         }
     }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBookEdit(PlayerEditBookEvent event) {
+        if (event.isSigning() && "Statues".equals(event.getNewBookMeta().getTitle())) {
+            event.getPlayer().sendMessage(ChatColor.RED + "You are not allowed to manually create the armor stand " +
+                    "editor book, use /editarmorstand instead.");
+            event.setCancelled(true);
+        }
+    }
 }
