@@ -71,9 +71,12 @@ public class CommandWild extends PlayerCommand {
         if (wildCooldown > 0)
             session.setCommandCooldown(this, wildCooldown * 60L * 20L);
 
-        int time = (int)(System.currentTimeMillis() - FarLands.getDataHandler().getPluginData().seasonStartTime);
-        rtpPlayer(sender, INNER_RAD, MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD,
-                time / 180000)); // 3 * 60 * 1000 // 3 minutes per block of rtp
+        long time = System.currentTimeMillis() - FarLands.getDataHandler().getPluginData().seasonStartTime;
+        rtpPlayer(
+                sender,
+                INNER_RAD,
+                MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD, (int) (time / 180000L)) // 3 * 60 * 1000, 3 minutes per block of rtp
+        );
         return true;
     }
 

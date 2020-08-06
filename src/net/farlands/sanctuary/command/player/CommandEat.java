@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class CommandEat extends PlayerCommand {
     public CommandEat() {
-        super(Rank.SPONSOR, Category.UTILITY, "Eat up food in your inventory instantly to fill your hunger.", "/eat", "eat");
+        super(Rank.SPONSOR, Category.UTILITY, "Eat up food in your inventory instantly to fill your hunger.", "/eat", "eat", "feed");
     }
 
     @Override

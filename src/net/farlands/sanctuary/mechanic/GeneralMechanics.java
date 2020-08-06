@@ -6,6 +6,7 @@ import static com.kicas.rp.util.TextUtils.format;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -42,6 +43,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -195,12 +197,19 @@ public class GeneralMechanics extends Mechanic {
             event.setLine(i, Chat.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return; // Ignore offhand packet
 
-        if (event.getClickedBlock() == null)
+        if (Rank.getRank(event.getPlayer()).specialCompareTo(Rank.SPONSOR) >= 0 && (event.getAction() == Action.RIGHT_CLICK_BLOCK ||
+                event.getAction() == Action.RIGHT_CLICK_AIR)) {
+            ItemStack stack = event.getPlayer().getInventory().getItemInMainHand();
+            if (CommandKittyCannon.CANNON.isSimilar(stack))
+                CommandKittyCannon.fireCannon(event.getPlayer());
+        }
+
+        if (event.getClickedBlock() == null || event.isCancelled())
             return;
 
         // Pick up dragon egg
@@ -398,10 +407,23 @@ public class GeneralMechanics extends Mechanic {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getEntity().getLocation());
-        if (flags.isAdminOwned()) {
+        if (flags != null && flags.isAdminOwned()) {
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 Bukkit.getOfflinePlayer(event.getEntity().getUniqueId()).decrementStatistic(Statistic.DEATHS);
             }, 5L);
+        }
+    }
+
+    @EventHandler
+    public void onAnvilPrepared(PrepareAnvilEvent event) {
+        Rank rank = Rank.getRank(event.getView().getPlayer());
+        if (rank.specialCompareTo(Rank.SPONSOR) >= 0) {
+            ItemStack result = event.getResult();
+            if (result != null) {
+                ItemMeta meta = result.getItemMeta();
+                meta.setDisplayName(Chat.applyColorCodes(rank, meta.getDisplayName()));
+                result.setItemMeta(meta);
+            }
         }
     }
 

@@ -3,6 +3,7 @@ package net.farlands.sanctuary.mechanic;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.util.FireworkBuilder;
 import net.farlands.sanctuary.util.FLUtils;
 
@@ -11,10 +12,7 @@ import net.minecraft.server.v1_16_R1.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
@@ -98,6 +96,20 @@ public class Items extends Mechanic {
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
+        if (CommandKittyCannon.LIVE_ROUNDS.containsKey(event.getEntity().getUniqueId())) {
+            CommandKittyCannon.LIVE_ROUNDS.get(event.getEntity().getUniqueId()).setHealth(0.0);
+            Location loc = event.getEntity().getLocation();
+            event.getEntity().getWorld().createExplosion(loc.clone(), 0.0f);
+            event.getEntity().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, loc, 15, 4.0, 4.0, 4.0);
+            event.getEntity().remove();
+            Bukkit.getScheduler().runTaskLater(
+                    FarLands.getInstance(),
+                    () -> CommandKittyCannon.LIVE_ROUNDS.remove(event.getEntity().getUniqueId()),
+                    1L
+            );
+            return;
+        }
+
         if (tntArrows.containsKey(event.getEntity().getUniqueId())) {
             TNTArrow data = tntArrows.get(event.getEntity().getUniqueId());
             switch (data.type) {
@@ -160,8 +172,12 @@ public class Items extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
-        if (tntArrows.containsKey(event.getDamager().getUniqueId()) && tntArrows.get(event.getDamager().getUniqueId()).type == 2)
+        if (
+                (tntArrows.containsKey(event.getDamager().getUniqueId()) && tntArrows.get(event.getDamager().getUniqueId()).type == 2) ||
+                CommandKittyCannon.LIVE_ROUNDS.containsKey(event.getDamager().getUniqueId())
+        ) {
             event.setCancelled(true);
+        }
     }
 
     private void fakeExplosion(Location location, double radius, int duration) {
