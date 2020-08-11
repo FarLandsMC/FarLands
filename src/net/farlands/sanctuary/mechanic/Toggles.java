@@ -10,6 +10,8 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.mojang.authlib.GameProfile;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.staff.CommandStaffChat;
+import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
@@ -123,9 +125,14 @@ public class Toggles extends Mechanic {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent event) {
-        if (FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished &&
-                !FarLands.getDataHandler().getSession(event.getPlayer()).autoSendStaffChat) {
+        FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
+        if (session.handle.vanished && !session.autoSendStaffChat) {
             event.setCancelled(true);
+            if (session.handle.rank.isStaff()) {
+                FarLands.getCommandHandler().getCommand(CommandStaffChat.class)
+                        .execute(event.getPlayer(), new String[]{"c", event.getMessage()});
+                return;
+            }
             event.getPlayer().sendMessage(ChatColor.RED + "You are vanished, you cannot chat in-game.");
         }
     }
