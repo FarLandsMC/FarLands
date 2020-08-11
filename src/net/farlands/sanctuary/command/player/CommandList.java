@@ -30,7 +30,7 @@ public class CommandList extends Command {
                 : Rank.getRank(sender).isStaff();
 
         Map<Rank, List<String>> players = new HashMap<>(), staff = new HashMap<>(), bucket;
-        int total = 0;
+        int total = 0, overworld = 0, nether = 0, end = 0;
         boolean listHasVanishedPlayer = false;
         OfflineFLPlayer flp;
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -51,6 +51,21 @@ public class CommandList extends Command {
 
             if (!bucket.containsKey(flp.rank))
                 bucket.put(flp.rank, new ArrayList<>());
+
+            switch (player.getWorld().getName()) {
+                case "world": {
+                    ++overworld;
+                    break;
+                }
+                case "world_nether": {
+                    ++nether;
+                    break;
+                }
+                case "world_the_end": {
+                    ++end;
+                    break;
+                }
+            }
 
             bucket.get(flp.rank).add(name);
             ++total;
@@ -78,6 +93,19 @@ public class CommandList extends Command {
                     .append(String.join(", ", staff.get(rank))).append('\n'));
         }
 
+        boolean applyColour = overworld > 0 || nether > 0 || end > 0;
+        if (applyColour)
+            sb.append(ChatColor.AQUA);
+
+        if (overworld > 0)
+            sb.append("\nOverworld: ").append(overworld);
+        if (nether > 0)
+            sb.append("\nNether: ")   .append(nether);
+        if (end > 0)
+            sb.append("\nEnd: ")      .append(end);
+
+        if (applyColour)
+            sb.append(ChatColor.GOLD);
         if (listHasVanishedPlayer)
             sb.append("\n*These players are vanished.");
 

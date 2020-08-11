@@ -390,7 +390,7 @@ public final class FLUtils {
     }
 
     public static void tpPlayer(final Player player, final Location location) {
-        player.addPotionEffect((new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 140, 7)));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 140, 7));
         player.teleport(location);
         player.setFallDistance(0);
         player.setVelocity(new Vector(0, 0.3, 0));
