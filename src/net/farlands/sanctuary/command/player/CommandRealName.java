@@ -9,10 +9,13 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
 import net.farlands.sanctuary.mechanic.Chat;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandRealName extends Command {
     public CommandRealName() {
@@ -41,5 +44,14 @@ public class CommandRealName extends Command {
 
         sendFormatted(sender, "&(green)Matches: %0", matches.isEmpty() ? "&(red)None" : "&(gold)" + String.join(", ", matches));
         return true;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        return args.length <= 1
+                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender).stream()
+                    .map(p -> FarLands.getDataHandler().getOfflineFLPlayer(p).nickname)
+                    .collect(Collectors.toList())
+                : Collections.emptyList();
     }
 }
