@@ -6,6 +6,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 
 import org.bukkit.command.CommandSender;
@@ -34,6 +35,8 @@ public class CommandVanish extends Command {
         }
         if (online)
             FarLands.getDiscordHandler().updateStats();
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, flp.username + " toggled vanish " +
+                (flp.vanished ? "on" : "off"));
         return true;
     }
 }

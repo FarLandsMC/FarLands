@@ -83,7 +83,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandDonate());           // Initiate
         registerCommand(new CommandEat());              // Sponsor
         registerCommand(new CommandEchest());           // Donor
-        registerCommand(new CommandEditArmorStand());
+        registerCommand(new CommandEditArmorStand());   // Sponsor
         registerCommand(new CommandExtinguish());       // Patron
         registerCommand(new CommandGivePet());          // Initiate
         registerCommand(new CommandGuideBook());        // Initiate
@@ -153,7 +153,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandFly());              // Media
         registerCommand(new CommandGameMode());         // Jr_Builder
         registerCommand(new CommandGod());              // Jr_Builder
-        //registerCommand(new CommandJS());               // Admin (Requires JS Permission)
+        //registerCommand(new CommandJS());             // Admin (Requires JS Permission)
         registerCommand(new CommandKick());             // Jr_Builder
         registerCommand(new CommandMined());            // Builder
         registerCommand(new CommandMoveSchems());       // Builder
@@ -337,8 +337,26 @@ public class CommandHandler extends Mechanic {
             event.setCancelled(true);
             return;
         }
+
+        if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && Chat.getMessageFilter().isProfane(event.getMessage())) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(ChatColor.RED + "You cannot set your pet's name to that.");
+            return;
+        }
+
         if(event.getMessage().startsWith("/trust"))
             event.getPlayer().sendMessage(ChatColor.GOLD + "Be careful trusting player on your claim as they are your responsibility.");
+
+        if (event.getMessage().trim().equalsIgnoreCase("/co cancel")) {
+            FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
+            if (!session.canCoRollback()) {
+                session.allowCoRollback();
+                event.getPlayer().chat("/co cancel");
+                session.resetCoRollback();
+                event.setCancelled(true);
+                return;
+            }
+        }
 
         Player player = event.getPlayer();
         String fullCommand = event.getMessage();

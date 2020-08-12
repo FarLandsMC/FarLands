@@ -116,12 +116,13 @@ public class OfflineFLPlayer {
 
         final DiscordHandler dh = FarLands.getDiscordHandler();
         final Guild guild = dh.getGuild();
-        guild.retrieveMemberById(discordID).queue(member -> {
+        FarLands.getScheduler().scheduleAsyncDelayedTask(() -> {
+            Member member = guild.retrieveMemberById(discordID).complete();
             if (member == null || member.isOwner())
                 return;
 
             if (!username.equals(member.getNickname()))
-                member.modifyNickname(username).queue();
+                member.modifyNickname(username).complete();
 
             List<Role> roles = new ArrayList<>();
             roles.add(rank.isStaff() ? dh.getRole(DiscordHandler.STAFF_ROLE) : dh.getRole(DiscordHandler.VERIFIED_ROLE));
@@ -130,9 +131,9 @@ public class OfflineFLPlayer {
 
             if (!member.getRoles().containsAll(roles)) {
                 roles.removeIf(Objects::isNull);
-                guild.modifyMemberRoles(member, roles).queue();
+                guild.modifyMemberRoles(member, roles).complete();
             }
-        });
+        }, 1L);
     }
 
     public Player getOnlinePlayer() {
@@ -148,10 +149,13 @@ public class OfflineFLPlayer {
         return getOnlinePlayer() != null;
     }
 
-    public void updateSessionIfOnline(boolean sendMessages) {
+    public boolean updateSessionIfOnline(boolean sendMessages) {
         Player player = getOnlinePlayer();
-        if(player != null)
+        if(player != null) {
             FarLands.getDataHandler().getSession(player).update(sendMessages);
+            return true;
+        }
+        return false;
     }
 
     public void setDiscordID(long discordID) {
@@ -225,7 +229,8 @@ public class OfflineFLPlayer {
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
         }
         this.rank = rank;
-        updateSessionIfOnline(false);
+        if (!updateSessionIfOnline(false))
+            updateDiscord();
     }
 
     public Location getLastLocation() {

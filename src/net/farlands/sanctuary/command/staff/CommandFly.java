@@ -7,6 +7,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 
+import net.farlands.sanctuary.discord.DiscordChannel;
 import org.bukkit.entity.Player;
 
 public class CommandFly extends PlayerCommand {
@@ -20,6 +21,8 @@ public class CommandFly extends PlayerCommand {
         flp.flightPreference = !flp.flightPreference;
         flp.updateSessionIfOnline(false);
         sendFormatted(sender, "&(gold)Flying %0.", flp.flightPreference ? "enabled" : "disabled");
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, flp.username + " toggled flight " +
+                (flp.flightPreference ? "on" : "off"));
         return true;
     }
 }

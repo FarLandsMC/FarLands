@@ -141,7 +141,7 @@ public class FLPlayerSession {
             handle.username = player.getName();
 
         updatePlaytime();
-        permissionAttachment.setPermission("headdb.open", handle.rank.specialCompareTo(Rank.DONOR) >= 0);
+        updatePermissions();
 
         // Give donors their claim blocks
         if (handle.bonusClaimBlocksReceived < handle.rank.getClaimBlockBonus()) {
@@ -204,6 +204,25 @@ public class FLPlayerSession {
         }
     }
 
+    private void updatePermissions() {
+        // Head Database
+        permissionAttachment.setPermission("headdb.open", handle.rank.specialCompareTo(Rank.DONOR) >= 0);
+
+        // Core Protect
+        permissionAttachment.setPermission("coreprotect.inspect", handle.rank.isStaff());
+        permissionAttachment.setPermission("coreprotect.lookup", handle.rank.isStaff());
+
+        // PetBlock stuff
+        permissionAttachment.setPermission("petblocks.admin.command.pets", handle.rank.specialCompareTo(Rank.MOD) >= 0);
+        permissionAttachment.setPermission("petblocks.admin.command.reload", handle.rank.specialCompareTo(Rank.ADMIN) >= 0);
+
+        boolean isSponsor = handle.rank.specialCompareTo(Rank.SPONSOR) >= 0;
+        permissionAttachment.setPermission("petblocks.command.use", isSponsor);
+        permissionAttachment.setPermission("petblocks.command.rename", isSponsor);
+        permissionAttachment.setPermission("petblocks.command.toggle", isSponsor);
+        permissionAttachment.setPermission("petblocks.command.call", isSponsor);
+    }
+
     public void updatePlaytime() {
         if (handle.rank.isStaff()) {
             long ctmillis = System.currentTimeMillis();
@@ -214,6 +233,18 @@ public class FLPlayerSession {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUniqueId());
             handle.secondsPlayed = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20;
         }
+    }
+
+    public void allowCoRollback() {
+        permissionAttachment.setPermission("coreprotect.rollback", true);
+    }
+
+    public boolean canCoRollback() {
+        return player.hasPermission("coreprotect.rollback");
+    }
+
+    public void resetCoRollback() {
+        permissionAttachment.setPermission("coreprotect.rollback", player.isOp());
     }
 
     public void giveVoteRewards(int amount) {

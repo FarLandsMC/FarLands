@@ -7,6 +7,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 
+import net.farlands.sanctuary.discord.DiscordChannel;
 import org.bukkit.entity.Player;
 
 public class CommandGod extends PlayerCommand {
@@ -18,6 +19,8 @@ public class CommandGod extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         sendFormatted(sender, "&(gold)God mode %0.", (flp.god = !flp.god) ? "enabled" : "disabled");
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, flp.username + " toggled god " +
+                (flp.god ? "on" : "off"));
         return true;
     }
 }
