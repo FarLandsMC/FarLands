@@ -159,7 +159,7 @@ public class CommandStack extends PlayerCommand {
                 continue;
 
             rKey = returnsKey(storageContents[i].getType());
-            if (!storageContents[i].hasItemMeta() && returns.containsKey(rKey)) // Skip already stacked items
+            if (returns.containsKey(rKey)) // Skip already stacked items
                 continue;
 
             // Unstack similar items
@@ -207,6 +207,10 @@ public class CommandStack extends PlayerCommand {
                 } else
                     storageContents[firstNull(storageContents)] = items.get(j).clone();
             }
+
+            // remove items with nbt so we can attempt to stack other items of the same type that may differ in nbt
+            if (item1.getFirst().hasItemMeta())
+                returns.remove(rKey);
         }
 
         if (warnFullInventory)
