@@ -76,68 +76,78 @@ public class CommandStack extends PlayerCommand {
 
         if (args.length == 0) {
             player.getInventory().setStorageContents(
-                    stack(player, player.getInventory(), player.getLocation(), warningsUnstack)
+                    stack(player, player.getInventory().getStorageContents(), player.getLocation(), warningsUnstack)
             );
             sendWarnings(player, warningsUnstack);
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("container")) {
-            Block block = player.getTargetBlockExact(5);
-            TileEntity tileEntity;
-            if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
-                    .getTileEntity(new LocationWrapper(block.getLocation()).asBlockPosition())) == null ||
-                    !ACCEPTED_CONTAINERS.contains(block.getType())) {
-                player.sendMessage(ChatColor.RED + "Target block must be a chest or barrel");
-                return true;
-            }
-
-            FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(block.getLocation());
-            if (!(flags == null || flags.isEffectiveOwner(player))) {
-                if (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.CONTAINER, flags)) {
-                    player.sendMessage(ChatColor.RED + "This belongs to " + flags.getOwnerName() + ".");
+        switch (args[0].toLowerCase()) {
+            case "container": {
+                Block block = player.getTargetBlockExact(5);
+                TileEntity tileEntity;
+                if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
+                        .getTileEntity(new LocationWrapper(block.getLocation()).asBlockPosition())) == null ||
+                        !ACCEPTED_CONTAINERS.contains(block.getType())) {
+                    player.sendMessage(ChatColor.RED + "Target block must be a chest or barrel");
                     return true;
                 }
+
+                FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(block.getLocation());
+                if (!(flags == null || flags.isEffectiveOwner(player))) {
+                    if (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.CONTAINER, flags)) {
+                        player.sendMessage(ChatColor.RED + "This belongs to " + flags.getOwnerName() + ".");
+                        return true;
+                    }
+                }
+
+                tileEntity.getOwner().getInventory().setStorageContents(
+                        stack(player, tileEntity.getOwner().getInventory().getStorageContents(),
+                                block.getLocation().add(0.5, 1.5, 0.5), warningsUnstack)
+                );
+                if (sendWarnings(player, warningsUnstack))
+                    player.sendMessage(ChatColor.GREEN + "Container contents stacked!");
+                return true;
             }
+            case "echest": {
+                player.getEnderChest().setStorageContents(
+                        stack(player, player.getEnderChest().getStorageContents(), player.getLocation(), warningsUnstack)
+                );
 
-            tileEntity.getOwner().getInventory().setStorageContents(
-                    stack(player, tileEntity.getOwner().getInventory(), block.getLocation().add(0.5, 1.5, 0.5),
-                            warningsUnstack)
-            );
-            if (sendWarnings(player, warningsUnstack))
-                player.sendMessage(ChatColor.GREEN + "Container contents stacked!");
-            return true;
-        } else if (args[0].equalsIgnoreCase("echest")) {
-            player.getEnderChest().setStorageContents(
-                    stack(player, player.getEnderChest(), player.getLocation(), warningsUnstack)
-            );
+                if (sendWarnings(player, warningsUnstack))
+                    player.sendMessage(ChatColor.GREEN + "Ender chest contents stacked!");
+                return true;
+            }
+            case "hand": {
+                ItemStack[] storageContents = player.getInventory().getStorageContents();
+                stackType(player.getInventory().getHeldItemSlot(), storageContents, player.getLocation(), new ArrayList<>(), new HashMap<>());
+                player.getInventory().setStorageContents(storageContents);
 
-            if (sendWarnings(player, warningsUnstack))
-                player.sendMessage(ChatColor.GREEN + "Ender chest contents stacked!");
-            return true;
+                sendWarnings(player, warningsUnstack);
+                return true;
+            }
         }
 
         return false;
     }
 
-    private ItemStack[] stack(Player player, Inventory inventory, Location dropLocation,
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        return args.length <= 1
+                ? TabCompleterBase.filterStartingWith(args[0], Stream.of("container", "echest", "hand"))
+                : Collections.emptyList();
+    }
+
+    private ItemStack[] stack(Player player, ItemStack[] storageContents, Location dropLocation,
                               List<Material> warningsUnstack) {
-
-        ItemStack[] storageContents = inventory.getStorageContents(); // copy of inventory
-
-        Material rKey; // key for stacking material
         Map<Material, List<Integer>> returns = new HashMap<>(); // list of inventory indexes items can be returned to
-
-        Pair<ItemStack, Integer> item1, // the item we're looking at to stack
-                                 item2; // the item we check to see if it stacks with item1
-        List<ItemStack> items; // the item stacks returned after stacking item1
 
         boolean warnFullInventory = false; // if items are caused to drop due to full inventory
 
         if (dropLocation.getWorld() == null)
             dropLocation.setWorld(player.getWorld());
 
-        int i, j;
+        int i;
         for (i = storageContents.length; --i >= 0; ) {
             if (storageContents[i] == null) // Skip empty slots
                 continue;
@@ -147,7 +157,7 @@ public class CommandStack extends PlayerCommand {
                 BlockStateMeta blockStateMeta = (BlockStateMeta) storageContents[i].getItemMeta();
                 ShulkerBox blockState = (ShulkerBox) blockStateMeta.getBlockState();
                 blockState.getInventory().setStorageContents(
-                        stack(player, blockState.getInventory(), dropLocation, warningsUnstack)
+                        stack(player, blockState.getInventory().getStorageContents(), dropLocation, warningsUnstack)
                 );
                 blockStateMeta.setBlockState(blockState);
                 storageContents[i].setItemMeta(blockStateMeta);
@@ -155,68 +165,85 @@ public class CommandStack extends PlayerCommand {
         }
 
         for (i = 0; i < storageContents.length; ++i) {
-            if (storageContents[i] == null) // Skip empty slots
-                continue;
 
-            rKey = returnsKey(storageContents[i].getType());
-            if (returns.containsKey(rKey)) // Skip already stacked items
-                continue;
 
-            // Unstack similar items
-            item1 = unstack(storageContents[i].clone());
-
-            returns.put(rKey, new ArrayList<>());
-            storageContents[i] = null;
-
-            for (j = i; ++j < storageContents.length; ) {
-                if (storageContents[j] == null) // Skip empty slots
-                    continue;
-
-                item2 = unstack(storageContents[j].clone());
-                if (item1.getFirst().isSimilar(item2.getFirst())) {
-                    item1.setSecond(item1.getSecond() + item2.getSecond());
-                    returns.get(rKey).add(j);
-                    storageContents[j] = null;
-                }
-            }
-
-            // Stack items
-            items = stack(item1);
-            if (items.size() <= 0)
-                continue;
-
-            // add warnings
-            j = items.size() - 1;
-            if (UNSTACKABLES.contains(items.get(j).getType()) && items.get(j).getAmount() > 1 &&
-                    !warningsUnstack.contains(items.get(j).getType()))
-                warningsUnstack.add(items.get(j).getType());
-
-            // put items back
-            storageContents[i] = items.get(j).clone();
-            for (; --j >= 0; ) {
-                if (firstNull(storageContents) < 0) { // drop everything if the inventory is "full"
-                    warnFullInventory = true;
-                    for (; j >= 0; --j)
-                        dropLocation.getWorld().dropItem(dropLocation, items.get(j).clone());
-                    break;
-                }
-
-                if (returns.get(rKey).size() > 0) { // if there's a slot to return the item to put it there
-                    storageContents[returns.get(rKey).get(0)] = items.get(j).clone();
-                    returns.get(rKey).remove(0);
-                } else
-                    storageContents[firstNull(storageContents)] = items.get(j).clone();
-            }
-
-            // remove items with nbt so we can attempt to stack other items of the same type that may differ in nbt
-            if (item1.getFirst().hasItemMeta())
-                returns.remove(rKey);
+            if (stackType(i, storageContents, dropLocation, warningsUnstack, returns))
+                warnFullInventory = true;
         }
 
         if (warnFullInventory)
             sendFormatted(player, "&(red)Some items were dropped as the inventory was full");
 
         return storageContents;
+    }
+
+    private boolean stackType(int i, ItemStack[] storageContents, Location dropLocation, List<Material> warningsUnstack, Map<Material, List<Integer>> returns) {
+        if (storageContents[i] == null) // Skip empty slots
+            return false;
+
+        Material rKey = returnsKey(storageContents[i].getType()); // key for stacking material
+        if (returns.containsKey(rKey)) // Skip already stacked items
+            return false;
+
+        Pair<ItemStack, Integer> item1, // the item we're looking at to stack
+                                 item2; // the item we check to see if it stacks with item1
+        List<ItemStack> items; // the item stacks returned after stacking item1
+
+        boolean warnFullInventory = false; // if items are caused to drop due to full inventory
+        int j;
+
+
+        // Unstack similar items
+        item1 = unstack(storageContents[i].clone());
+
+        returns.put(rKey, new ArrayList<>());
+        storageContents[i] = null;
+
+        for (j = i; ++j < storageContents.length; ) {
+            if (storageContents[j] == null) // Skip empty slots
+                continue;
+
+            item2 = unstack(storageContents[j].clone());
+            if (item1.getFirst().isSimilar(item2.getFirst())) {
+                item1.setSecond(item1.getSecond() + item2.getSecond());
+                returns.get(rKey).add(j);
+                storageContents[j] = null;
+            }
+        }
+
+        // Stack items
+        items = stack(item1);
+        if (items.size() <= 0)
+            return false;
+
+        // add warnings
+        j = items.size() - 1;
+        if (UNSTACKABLES.contains(items.get(j).getType()) && items.get(j).getAmount() > 1 &&
+                !warningsUnstack.contains(items.get(j).getType()))
+            warningsUnstack.add(items.get(j).getType());
+
+        // put items back
+        storageContents[i] = items.get(j).clone();
+        for (; --j >= 0; ) {
+            if (firstNull(storageContents) < 0) { // drop everything if the inventory is "full"
+                warnFullInventory = true;
+                for (; j >= 0; --j)
+                    dropLocation.getWorld().dropItem(dropLocation, items.get(j).clone());
+                break;
+            }
+
+            if (returns.get(rKey).size() > 0) { // if there's a slot to return the item to put it there
+                storageContents[returns.get(rKey).get(0)] = items.get(j).clone();
+                returns.get(rKey).remove(0);
+            } else
+                storageContents[firstNull(storageContents)] = items.get(j).clone();
+        }
+
+        // remove items with nbt so we can attempt to stack other items of the same type that may differ in nbt
+        if (item1.getFirst().hasItemMeta())
+            returns.remove(rKey);
+
+        return warnFullInventory;
     }
 
     private boolean sendWarnings(Player player, List<Material> warningsUnstack) {
@@ -311,10 +338,4 @@ public class CommandStack extends PlayerCommand {
         return items;
     }
 
-    @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1
-                ? TabCompleterBase.filterStartingWith(args[0], Stream.of("container", "echest"))
-                : Collections.emptyList();
-    }
 }
