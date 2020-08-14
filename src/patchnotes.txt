@@ -19,6 +19,7 @@ Changes:
  - Teleport requests can be accepted through a corresponding /tpa(here)
  - Muted players can no longer /mail send
  - Changed /abandonallclaims to /abandonclaim all
+ - /stack hand can now be used to stack items that match the held item
 Fixes:
  - Reworked /craft, the command now returns empty bottles and buckets
  - Added tab completion to some commands
