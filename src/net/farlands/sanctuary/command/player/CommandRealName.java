@@ -32,13 +32,8 @@ public class CommandRealName extends Command {
         for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
             String nickname = Chat.removeColorCodes(flp.nickname.toLowerCase());
 
-            // Match ignoring case
-            if (args[0].equals(nickname)) {
-                sendFormatted(sender, "&(green)Matches: &(gold)%0", flp.username);
-                return true;
-            }
-            // Match via containment (ignoring case)
-            else if (nickname.contains(args[0]) || flp.username.toLowerCase().contains(args[0]))
+            // Match ignoring case, via containment, +(ignoring case)
+            if (args[0].equals(nickname) || nickname.contains(args[0]) || flp.username.toLowerCase().contains(args[0]))
                 matches.add(flp.username);
         }
 
@@ -49,8 +44,9 @@ public class CommandRealName extends Command {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
-                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender).stream()
-                    .map(p -> Chat.removeColorCodes(FarLands.getDataHandler().getOfflineFLPlayer(p).nickname))
+                ? getOnlinePlayers("", sender).stream()
+                    .map(p -> Chat.removeColorCodes(FarLands.getDataHandler().getOfflineFLPlayer(p).getDisplayName()))
+                    .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList())
                 : Collections.emptyList();
     }

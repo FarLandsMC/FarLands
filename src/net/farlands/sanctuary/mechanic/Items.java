@@ -188,7 +188,8 @@ public class Items extends Mechanic {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (CommandKittyCannon.LIVE_ROUNDS.containsValue((Cat)event.getEntity())) // says case is redundant - warns without it
+        if (event.getEntity() instanceof Cat &&
+                CommandKittyCannon.LIVE_ROUNDS.containsValue((Cat)event.getEntity())) // says cast is redundant - warns without it
             event.getDrops().clear();
         // else
         //     it's a pretty good string farm
