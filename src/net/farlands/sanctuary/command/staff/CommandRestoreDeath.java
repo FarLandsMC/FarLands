@@ -7,9 +7,12 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.PlayerDeath;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -17,9 +20,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class CommandRestoreDeath extends Command {
-    
     public CommandRestoreDeath() {
-        super(Rank.BUILDER, "Restore the players previous deaths.", "/restoredeath <player> [death]", "restoredeath");
+        super(Rank.BUILDER, "Restore the players previous deaths.", "/restoredeath <player> [death] [preview]", "restoredeath");
     }
     
     @Override
@@ -29,14 +31,18 @@ public class CommandRestoreDeath extends Command {
             sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
+
         List<PlayerDeath> deaths = FarLands.getDataHandler().getDeaths(player.getUniqueId());
         if(deaths.isEmpty()) {
             sendFormatted(sender, "&(red)This player has no deaths on record.");
             return true;
         }
+
+        boolean preview = "preview".equalsIgnoreCase(args[args.length - 1]);
+
         // newest deaths at tail of list
         int death;
-        if (args.length < 2) {
+        if (args.length < 2 || (args.length == 2 && preview)) {
             death = deaths.size() - 1;
         } else {
             try {
@@ -50,11 +56,30 @@ public class CommandRestoreDeath extends Command {
                 return true;
             }
         }
-        player.setLevel(deaths.get(death).getXpLevels());
-        player.setExp(deaths.get(death).getXpPoints());
-        List<ItemStack> deathInv = deaths.get(death).getInventory();
+
+        PlayerDeath deathData = deaths.get(death);
+        List<ItemStack> deathInv = deathData.getInventory();
+
+        if (preview) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "You must be in-game to preview a death.");
+                return true;
+            }
+
+            Inventory inv = Bukkit.createInventory(null, 45, "Death Inventory Preview");
+            for (int i = deathInv.size(); --i >= 0;) {
+                int index = (4 - i / 9) * 9 + i % 9;
+                inv.setItem(index, deathInv.get(i));
+            }
+            ((Player) sender).openInventory(inv);
+            return true;
+        }
+
+        player.setLevel(deathData.getXpLevels());
+        player.setExp(deathData.getXpPoints());
         for (int i = deathInv.size(); --i >= 0;)
             player.getInventory().setItem(i, deathInv.get(i));
+
         return true;
     }
     
@@ -68,7 +93,9 @@ public class CommandRestoreDeath extends Command {
             case 1:
                 return getOnlinePlayers(args[0], sender);
             case 2:
-                return Arrays.asList("1", "2", "3");
+                return Arrays.asList("1", "2", "3", "preview");
+            case 3:
+                return Collections.singletonList("preview");
             default:
                 return Collections.emptyList();
         }

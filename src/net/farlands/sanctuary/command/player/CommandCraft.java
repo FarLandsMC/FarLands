@@ -200,6 +200,11 @@ public class CommandCraft extends PlayerCommand {
             if (stack.getAmount() <= 0)
                 cache.inventory.remove(stack);
 
+            if (stack.getType() == Material.POTION)
+                cache.give(Material.GLASS_BOTTLE, 1, false);
+            else if (stack.getType() == Material.MILK_BUCKET)
+                cache.give(Material.BUCKET, 1, false);
+
             return true;
         }
 

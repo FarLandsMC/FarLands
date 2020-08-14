@@ -18,7 +18,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
@@ -43,6 +45,19 @@ public final class FLUtils {
     private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED, ChatColor.DARK_RED};
 
     private FLUtils() { }
+
+    public static boolean isPersistent(Entity entity) {
+        net.minecraft.server.v1_16_R1.Entity handle = ((CraftEntity) entity).getHandle();
+        if (handle instanceof EntityInsentient)
+            return ((EntityInsentient) handle).persistent;
+        return false;
+    }
+
+    public static void setPersistent(Entity entity, boolean persistent) {
+        net.minecraft.server.v1_16_R1.Entity handle = ((CraftEntity) entity).getHandle();
+        if (handle instanceof EntityInsentient)
+            ((EntityInsentient) handle).persistent = persistent;
+    }
 
     public static ChatModifier chatModifier(String color) {
         try {

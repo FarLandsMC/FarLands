@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
@@ -101,6 +102,10 @@ public class OfflineFLPlayer {
         this(null, null);
     }
 
+    /*
+    * WARNING: DO NOT PUT ANY CALLS TO THE FARLANDS SCHEDULER IN THESE UPDATE METHODS OR IT WILL CAUSE SERVER CRASHES
+    */
+
     public synchronized void update() {
         if(currentMute != null && currentMute.hasExpired()) {
             currentMute = null;
@@ -116,13 +121,12 @@ public class OfflineFLPlayer {
 
         final DiscordHandler dh = FarLands.getDiscordHandler();
         final Guild guild = dh.getGuild();
-        FarLands.getScheduler().scheduleAsyncDelayedTask(() -> {
-            Member member = guild.retrieveMemberById(discordID).complete();
+        guild.retrieveMemberById(discordID).queue(member -> {
             if (member == null || member.isOwner())
                 return;
 
             if (!username.equals(member.getNickname()))
-                member.modifyNickname(username).complete();
+                member.modifyNickname(username).queue();
 
             List<Role> roles = new ArrayList<>();
             roles.add(rank.isStaff() ? dh.getRole(DiscordHandler.STAFF_ROLE) : dh.getRole(DiscordHandler.VERIFIED_ROLE));
@@ -131,9 +135,15 @@ public class OfflineFLPlayer {
 
             if (!member.getRoles().containsAll(roles)) {
                 roles.removeIf(Objects::isNull);
-                guild.modifyMemberRoles(member, roles).complete();
+                guild.modifyMemberRoles(member, roles).queue();
             }
-        }, 1L);
+        }, error -> {
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.DEBUG, error.getMessage());
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.DEBUG, "De-verifying " + username);
+            setDiscordID(0);
+            System.out.println(error.getMessage());
+            error.printStackTrace(System.out);
+        });
     }
 
     public Player getOnlinePlayer() {
@@ -159,8 +169,8 @@ public class OfflineFLPlayer {
     }
 
     public void setDiscordID(long discordID) {
+        FarLands.getDataHandler().updateDiscordMap(this.discordID, discordID, this);
         this.discordID = discordID;
-        FarLands.getDataHandler().updateDiscordMap(discordID, this);
     }
 
     public boolean isDiscordVerified() {

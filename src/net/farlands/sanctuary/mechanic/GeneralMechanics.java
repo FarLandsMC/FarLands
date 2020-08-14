@@ -18,17 +18,18 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
-import net.minecraft.server.v1_16_R1.EntityTypes;
-import net.minecraft.server.v1_16_R1.EntityVillager;
-import net.minecraft.server.v1_16_R1.EntityVillagerAbstract;
+import net.minecraft.server.v1_16_R1.*;
 
 import org.bukkit.*;
 import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
@@ -333,14 +334,20 @@ public class GeneralMechanics extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) { // Allow teleporting with leashed entities
         if (event.getFrom().getWorld().equals(event.getTo().getWorld())) {
-            event.getPlayer().getNearbyEntities(10.0, 10.0, 10.0).stream().filter(e -> e instanceof LivingEntity)
-                    .map(e -> (LivingEntity) e).filter(e -> e.isLeashed() && event.getPlayer().equals(e.getLeashHolder())).forEach(e -> {
+            event.getPlayer().getNearbyEntities(10.0, 10.0, 10.0).stream()
+                    .filter(e -> e instanceof LivingEntity)
+                    .map(e -> (LivingEntity) e)
+                    .filter(e -> e.isLeashed() && event.getPlayer().equals(e.getLeashHolder()))
+                    .forEach(e -> {
                 e.setLeashHolder(null);
+                final boolean persistent = FLUtils.isPersistent(e);
+                FLUtils.setPersistent(e, true);
                 Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     e.getLocation().getChunk().load();
                     Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                         e.teleport(event.getTo());
                         e.setLeashHolder(event.getPlayer());
+                        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> FLUtils.setPersistent(e, persistent), 1);
                     }, 1);
                 }, 1);
             });

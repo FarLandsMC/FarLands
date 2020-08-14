@@ -411,8 +411,10 @@ public class DataHandler extends Mechanic {
         return new ArrayList<>(flPlayerMap.values());
     }
 
-    public void updateDiscordMap(long discordID, OfflineFLPlayer flp) {
-        discordMap.put(discordID, flp);
+    public void updateDiscordMap(long oldID, long newID, OfflineFLPlayer flp) {
+        discordMap.remove(oldID);
+        if (newID != 0)
+            discordMap.put(newID, flp);
     }
 
     public String getDataTextFile(String fileName) throws IOException {

@@ -135,6 +135,10 @@ public class FLPlayerSession {
         commandCooldowns.values().forEach(FarLands.getScheduler()::cancelTask);
     }
 
+    /*
+     * WARNING: DO NOT PUT ANY CALLS TO THE FARLANDS SCHEDULER IN THESE UPDATE METHODS OR IT WILL CAUSE SERVER CRASHES
+     */
+
     public void update(boolean sendMessages) {
         handle.update();
         if (!handle.username.equals(player.getName()))
