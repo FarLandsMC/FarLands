@@ -9,7 +9,13 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
 
+import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandNick extends PlayerCommand {
     public CommandNick() {
@@ -105,5 +111,19 @@ public class CommandNick extends PlayerCommand {
         // Update their player's display name
         flp.updateSessionIfOnline(false);
         return true;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if (!(Rank.getRank(sender).isStaff() && "nonick".equalsIgnoreCase(alias)))
+            return Collections.emptyList();
+        switch (args.length) {
+            case 0:
+                return getOnlinePlayers("", sender);
+            case 1:
+                return getOnlinePlayers(args[0], sender);
+            default:
+                return Collections.emptyList();
+        }
     }
 }
