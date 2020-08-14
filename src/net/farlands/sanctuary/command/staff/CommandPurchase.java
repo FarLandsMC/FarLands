@@ -60,9 +60,11 @@ public class CommandPurchase extends Command {
         double price = args.length >= 4 ? Double.parseDouble(args[3]) : 0;
         flp.amountDonated += price;
 
-        for (int i = 0; i < Rank.DONOR_RANK_COSTS.length; ++ i) {
-            if (flp.amountDonated > Rank.DONOR_RANK_COSTS[i])
+        for (int i = Rank.DONOR_RANK_COSTS.length; --i >= 0;) {
+            if (flp.amountDonated >= Rank.DONOR_RANK_COSTS[i]) {
                 rank = Rank.DONOR_RANKS[i];
+                break;
+            }
         }
 
         if (rank != null && rank.specialCompareTo(flp.rank) > 0) {
