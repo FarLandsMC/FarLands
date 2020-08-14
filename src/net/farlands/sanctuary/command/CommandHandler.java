@@ -45,11 +45,17 @@ import org.bukkit.event.server.ServerCommandEvent;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class CommandHandler extends Mechanic {
     private final List<Command> commands;
+    private static final List<String> COMMAND_LOG_BLACKLIST = Arrays.asList(
+            "hdb", "headdb", "heads",
+            "shops", "shopsearch",
+            "petblock", "petblocks", "petblockreload",
+            "trigger");
 
     public CommandHandler() {
         this.commands = new ArrayList<>();
@@ -375,8 +381,7 @@ public class CommandHandler extends Mechanic {
                 CommandEditArmorStand.class.equals(c.getClass()))))
             Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
         if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
-                !(command.equalsIgnoreCase("hdb") || command.equalsIgnoreCase("headdb") ||
-                        command.equalsIgnoreCase("heads")))
+                !COMMAND_LOG_BLACKLIST.contains(command.toLowerCase()))
             FarLands.getDiscordHandler().sendMessage(
                     DiscordChannel.COMMAND_LOG, event.getPlayer().getName() + ": " + fullCommand
             );
