@@ -24,13 +24,13 @@ public class CommandRanks extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         StringBuilder sb = new StringBuilder();
 
-        for(Rank rank : Rank.VALUES) {
+        for (Rank rank : Rank.VALUES) {
             // Skip the voter rank as it's only used internally
-            if(Rank.VOTER.equals(rank))
+            if (Rank.VOTER.equals(rank))
                 continue;
 
             // Don't show staff ranks
-            if(rank.specialCompareTo(Rank.PATRON) > 0)
+            if (rank.specialCompareTo(Rank.SPONSOR) > 0)
                 break;
 
             sb.append(rank.getColor()).append(rank.getName()).append(ChatColor.BLUE);
@@ -38,21 +38,15 @@ public class CommandRanks extends Command {
             // For donor ranks, show the cost
             switch (rank) {
                 case DONOR:
-                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[0]).append(" USD");
-                    break;
-
                 case PATRON:
-                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[1]).append(" USD");
-                    break;
-
                 case SPONSOR:
-                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[2]).append(" USD");
+                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[rank.ordinal() - Rank.DONOR.ordinal()]).append(" USD");
                     break;
 
                 default: {
                     int playTimeRequired = rank.getPlayTimeRequired();
                     // Ignore the initiate rank
-                    if(playTimeRequired > 0)
+                    if (playTimeRequired > 0)
                         sb.append(" - ").append(TimeInterval.formatTime(playTimeRequired * 60L * 60L * 1000L, false)).append(" play-time");
                 }
             }
@@ -61,14 +55,14 @@ public class CommandRanks extends Command {
             sb.append(" - ").append(rank.getHomes()).append(rank.getHomes() == 1 ? " home" : " homes");
 
             // Specify the new commands that come with the rank
-            if(!Rank.INITIATE.equals(rank)) {
+            if (!Rank.INITIATE.equals(rank)) {
                 List<String> cmds = ((List<Command>)ReflectionHelper.getFieldValue("commands", CommandHandler.class, FarLands.getCommandHandler()))
                         .stream().filter(cmd -> rank.equals(cmd.getMinRankRequirement()))
                         .map(cmd -> "/" + cmd.getName().toLowerCase())
                         .collect(Collectors.toList());
 
-                if(!cmds.isEmpty())
-                    sb.append(" - ").append(String.join(", ", cmds));
+                if (!cmds.isEmpty())
+                    sb.append(" -\n").append(String.join(", ", cmds));
             }
 
             sb.append('\n');
