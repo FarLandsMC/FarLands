@@ -7,12 +7,16 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Cat;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,7 +26,7 @@ import java.util.*;
 
 public class CommandKittyCannon extends PlayerCommand {
     public static final ItemStack CANNON;
-    public static final Map<UUID, Ocelot> LIVE_ROUNDS;
+    public static final Map<UUID, Cat> LIVE_ROUNDS;
 
     static {
         CANNON = new ItemStack(Material.DIAMOND_HORSE_ARMOR);
@@ -54,20 +58,20 @@ public class CommandKittyCannon extends PlayerCommand {
         return true;
     }
 
-    private static final double PI_ON_180 = Math.PI / 180;
+    private static final double RADS = Math.PI / 180;
 
     public static void fireCannon(Player player) {
         Location location = player.getLocation();
         double yaw = location.getYaw();
         double pitch = location.getPitch();
-        double vx = -Math.sin(yaw * PI_ON_180) * Math.cos(pitch * PI_ON_180);
-        double vy = -Math.sin(pitch * PI_ON_180);
-        double vz = Math.cos(yaw * PI_ON_180) * Math.cos(pitch * PI_ON_180);
+        double vx = -Math.sin(yaw   * RADS) * Math.cos(pitch * RADS);
+        double vy = -Math.sin(pitch * RADS);
+        double vz =  Math.cos(yaw   * RADS) * Math.cos(pitch * RADS);
         double mag = 1.0 + 0.75 * Math.random();
         Vector velocity = new Vector(vx, vy, vz);
 
         Snowball snowball = (Snowball) player.getWorld().spawnEntity(player.getLocation().clone().add(0, 1, 0).add(velocity), EntityType.SNOWBALL);
-        Ocelot kitty = (Ocelot) player.getWorld().spawnEntity(snowball.getLocation(), EntityType.OCELOT);
+        Cat kitty = (Cat) player.getWorld().spawnEntity(snowball.getLocation(), EntityType.CAT);
         kitty.setSilent(true);
         kitty.setInvulnerable(true);
         kitty.setRotation((float) (360 * Math.random()), 0.0f);

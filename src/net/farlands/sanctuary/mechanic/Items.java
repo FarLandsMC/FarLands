@@ -9,12 +9,15 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import net.minecraft.server.v1_16_R1.NBTTagCompound;
 
+import static org.bukkit.entity.EntityType.*;
+import static org.bukkit.Material.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -27,14 +30,17 @@ import java.util.stream.Collectors;
 public class Items extends Mechanic {
     private final Map<UUID, TNTArrow> tntArrows;
 
-    private static final List<Material> UNBREAKABLE_BLOCKS = Arrays.asList(Material.CHEST, Material.ENDER_CHEST, Material.BEDROCK,
-            Material.BARRIER, Material.AIR);
-    private static final List<EntityType> PASSIVES = Arrays.asList(EntityType.PIG, EntityType.COW, EntityType.SHEEP, EntityType.CHICKEN,
-            EntityType.HORSE, EntityType.LLAMA, EntityType.SKELETON_HORSE, EntityType.ZOMBIE_HORSE, EntityType.MUSHROOM_COW,
-            EntityType.RABBIT, EntityType.OCELOT, EntityType.SNOWMAN);
-    private static final List<EntityType> HOSTILES = Arrays.asList(EntityType.ZOMBIE, EntityType.BLAZE, EntityType.SKELETON,
-            EntityType.CREEPER, EntityType.SLIME, EntityType.WITCH, EntityType.VINDICATOR, EntityType.SPIDER, EntityType.CAVE_SPIDER,
-            EntityType.ENDERMAN, EntityType.SILVERFISH, EntityType.WITHER_SKELETON);
+    private static final List<Material> UNBREAKABLE_BLOCKS = Arrays.asList(
+            CHEST, ENDER_CHEST, BEDROCK, BARRIER, AIR
+    );
+    private static final List<EntityType> PASSIVES = Arrays.asList(
+            PIG, COW, SHEEP, HORSE, LLAMA, OCELOT, SNOWMAN, EntityType.CHICKEN, EntityType.RABBIT,
+            SKELETON_HORSE, ZOMBIE_HORSE, MUSHROOM_COW
+    );
+    private static final List<EntityType> HOSTILES = Arrays.asList(
+            ZOMBIE, BLAZE, SKELETON, CREEPER, SLIME, WITCH, VINDICATOR, SPIDER, CAVE_SPIDER, ENDERMAN, SILVERFISH,
+            WITHER_SKELETON
+    );
 
     public Items() {
         this.tntArrows = new HashMap<>();
@@ -105,7 +111,7 @@ public class Items extends Mechanic {
             Bukkit.getScheduler().runTaskLater(
                     FarLands.getInstance(),
                     () -> CommandKittyCannon.LIVE_ROUNDS.remove(event.getEntity().getUniqueId()),
-                    1L
+                    20L
             );
             return;
         }
@@ -178,6 +184,14 @@ public class Items extends Mechanic {
         ) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        if (CommandKittyCannon.LIVE_ROUNDS.containsValue((Cat)event.getEntity())) // says case is redundant - warns without it
+            event.getDrops().clear();
+        // else
+        //     it's a pretty good string farm
     }
 
     private void fakeExplosion(Location location, double radius, int duration) {
