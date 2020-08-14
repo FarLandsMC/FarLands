@@ -147,12 +147,13 @@ public class GeneralMechanics extends Mechanic {
     @Override
     public void onPlayerQuit(Player player) {
         Location exit = FarLands.getDataHandler().getSession(player).seatExit;
-        Entity vehicle = player.getVehicle();
-        if (vehicle != null) {
-            vehicle.eject();
-            vehicle.remove();
-        }
+
         if (exit != null) {
+            Entity vehicle = player.getVehicle();
+            if (vehicle != null) {
+                vehicle.eject();
+                vehicle.remove();
+            }
             player.teleport(exit);
             FarLands.getDataHandler().getSession(player).seatExit = null;
         }
