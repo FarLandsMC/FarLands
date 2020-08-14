@@ -195,15 +195,14 @@ public class CommandCraft extends PlayerCommand {
             cache.storeUndo(material, 1);
 
             ItemStack stack = slot.getFirst();
-            stack.setAmount(stack.getAmount() - 1);
-
-            if (stack.getAmount() <= 0)
-                cache.inventory.remove(stack);
-
-            if (stack.getType() == Material.POTION)
+            if (stack.getType() == Material.HONEY_BOTTLE)
                 cache.give(Material.GLASS_BOTTLE, 1, false);
             else if (stack.getType() == Material.MILK_BUCKET)
                 cache.give(Material.BUCKET, 1, false);
+
+            stack.setAmount(stack.getAmount() - 1);
+            if (stack.getAmount() <= 0)
+                cache.inventory.remove(stack);
 
             return true;
         }

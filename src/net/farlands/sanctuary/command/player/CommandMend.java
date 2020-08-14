@@ -28,7 +28,7 @@ public class CommandMend extends PlayerCommand {
 
         ItemMeta meta = stack.getItemMeta();
         if (stack.getEnchantmentLevel(Enchantment.MENDING) <= 0 || !(meta instanceof Damageable)) {
-            sender.sendMessage(ChatColor.RED + "This item cannot be mended.");
+            sender.sendMessage(ChatColor.RED + "This item cannot be mended. Does it have the mending enchantment?");
             return true;
         }
 

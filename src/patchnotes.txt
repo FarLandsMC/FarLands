@@ -1,16 +1,27 @@
-&7Additions:
- - Added /tpcancel (or /tpacancel) to cancel an outgoing teleport request
- - When images are sent to #in-game through discord, the text "[Image]" will appear in in-game chat
- - Right-clicking on a bee hive or nest will tell you the number of bees inside
- - Added /stack echest to stack your enderchest
- - Added /swaphome <firstHome> <secondHome>
+&7New Sponsor Rank:
+ - Given to those with at least 60 dollars in total donations
+ - 100,000 bonus claim blocks, 40 homes, shorter /package cooldown
+ - Items can be colored in an anvil using chat color codes
+ - Pet blocks
+   - Open the GUI with /petblock
+   - Spawn an adorable "pet block" that follows you around
+   - You can configure it however you like
+ - Additional commands
+   - /mend: use your XP to mend the item you are currently holding
+   - /eat: use food in your inventory to fill your hunger instantly
+   - /editarmorstand: opens the vanilla tweaks armor stand book
+   - /kittycannon: gives you a cannon that shoots exploding cats
+Additions:
+ - Co-owners are shown in /trustlist
+ - Bee count in a mined hive are added to the item lore
+ - Added /searchshops <item> for looking up items to buy
 Changes:
- - /homes will display home names in different colors depending on the homes world (red is nether, green is overworld)
- - When a co-owner of a claim expands the claim, their claim blocks will be used, not the owner's
+ - Teleport requests can be accepted through a corresponding /tpa(here)
+ - Muted players can no longer /mail send
+ - Changed /abandonallclaims to /abandonclaim all
 Fixes:
- - Fixed armor disappearance glitch
- - Fixed issues with /craft (to be continued...)
- - Fixed buggy chat colors
- - Fixed double advancement messages
- - Players cannot start raids in claims in which they are not trusted
- - Donors and Patrons will receive their bonus claim blocks upon joining
+ - Reworked /craft, the command now returns empty bottles and buckets
+ - Added tab completion to some commands
+ - Fixed painting and item frame explosion damage in claims
+ - Dolphins will no longer despawn when teleporting on a lead
+ - Deaths in PvP arenas are not counted toward total deaths
