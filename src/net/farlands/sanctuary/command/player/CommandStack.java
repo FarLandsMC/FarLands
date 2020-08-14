@@ -16,7 +16,6 @@ import net.farlands.sanctuary.util.Pair;
 
 import net.minecraft.server.v1_16_R1.TileEntity;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import static org.bukkit.Material.*;
@@ -26,7 +25,6 @@ import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_16_R1.CraftWorld;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
@@ -74,7 +72,7 @@ public class CommandStack extends PlayerCommand {
         // warning lists so they can be displayed in a compact manor at the end
         List<Material> warningsUnstack = new ArrayList<>();
 
-        if (args.length == 0) {
+        if (args.length <= 0) {
             player.getInventory().setStorageContents(
                     stack(player, player.getInventory().getStorageContents(), player.getLocation(), warningsUnstack)
             );
@@ -89,14 +87,14 @@ public class CommandStack extends PlayerCommand {
                 if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
                         .getTileEntity(new LocationWrapper(block.getLocation()).asBlockPosition())) == null ||
                         !ACCEPTED_CONTAINERS.contains(block.getType())) {
-                    player.sendMessage(ChatColor.RED + "Target block must be a chest or barrel");
+                    sendFormatted(player,"&(red)Target block must be a chest or barrel");
                     return true;
                 }
 
                 FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(block.getLocation());
                 if (!(flags == null || flags.isEffectiveOwner(player))) {
                     if (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.CONTAINER, flags)) {
-                        player.sendMessage(ChatColor.RED + "This belongs to " + flags.getOwnerName() + ".");
+                        sendFormatted(player,"&(red)This belongs to " + flags.getOwnerName() + ".");
                         return true;
                     }
                 }
@@ -106,7 +104,7 @@ public class CommandStack extends PlayerCommand {
                                 block.getLocation().add(0.5, 1.5, 0.5), warningsUnstack)
                 );
                 if (sendWarnings(player, warningsUnstack))
-                    player.sendMessage(ChatColor.GREEN + "Container contents stacked!");
+                    sendFormatted(player,"&(green)Container contents stacked!");
                 return true;
             }
             case "echest": {
@@ -115,7 +113,7 @@ public class CommandStack extends PlayerCommand {
                 );
 
                 if (sendWarnings(player, warningsUnstack))
-                    player.sendMessage(ChatColor.GREEN + "Ender chest contents stacked!");
+                    sendFormatted(player,"&(green)Ender chest contents stacked!");
                 return true;
             }
             case "hand": {
