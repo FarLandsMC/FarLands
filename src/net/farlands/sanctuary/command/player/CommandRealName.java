@@ -50,7 +50,7 @@ public class CommandRealName extends Command {
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
                 ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender).stream()
-                    .map(p -> FarLands.getDataHandler().getOfflineFLPlayer(p).nickname)
+                    .map(p -> Chat.removeColorCodes(FarLands.getDataHandler().getOfflineFLPlayer(p).nickname))
                     .collect(Collectors.toList())
                 : Collections.emptyList();
     }
