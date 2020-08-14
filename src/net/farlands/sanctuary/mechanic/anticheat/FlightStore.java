@@ -7,7 +7,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.util.FLUtils;
 
-import org.bukkit.Material;
+import static org.bukkit.Material.*;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -50,7 +50,7 @@ public class FlightStore {
             PotionEffect jumpBoost = player.getPotionEffect(PotionEffectType.JUMP);
             // Calculates what the player's jump velocity should be, with some buffer to prevent false alarms (the +0.025)
             double vyMax = 0.41999998688697815 + 0.1 * (jumpBoost == null ? 0 : jumpBoost.getAmplifier() + 1) + JUMP_TOLERANCE;
-            if (vy > vyMax && !FLUtils.checkNearby(player.getLocation(), Material.SLIME_BLOCK, Material.BUBBLE_COLUMN)) {
+            if (vy > vyMax && !FLUtils.checkNearby(player.getLocation(), SLIME_BLOCK, BUBBLE_COLUMN)) {
                 if (sendAlerts)
                     AntiCheat.broadcast(player.getName(), "jumped too high.");
                 FarLands.getDebugger().echo("vy: " + vy +
@@ -110,19 +110,17 @@ public class FlightStore {
                 player.isRiptiding() ||
                 player.hasPotionEffect(PotionEffectType.LEVITATION) ||
                 player.hasPotionEffect(PotionEffectType.SLOW_FALLING) ||
-                Material.AIR != player.getWorld().getBlockAt(player.getLocation()).getType() ||
+                AIR != player.getWorld().getBlockAt(player.getLocation()).getType() ||
                 FLUtils.checkNearby(player.getLocation(),
-                        Material.WATER, Material.LAVA, Material.LADDER, Material.VINE, Material.COBWEB,
-                        Material.WEEPING_VINES, Material.WEEPING_VINES_PLANT,
-                        Material.TWISTING_VINES, Material.TWISTING_VINES_PLANT
+                        WATER, LAVA, LADDER, VINE, COBWEB, HONEY_BLOCK,
+                        WEEPING_VINES, WEEPING_VINES_PLANT, TWISTING_VINES, TWISTING_VINES_PLANT
                 );
 
         if (immune)
             return true;
 
         FLPlayerSession session = FarLands.getDataHandler().getSession(player);
-        immune = immune || !session.flightDetectorMute.isComplete() ||
-                session.flying;
+        immune = !session.flightDetectorMute.isComplete() || session.flying;
 
         if (immune)
             return true;
