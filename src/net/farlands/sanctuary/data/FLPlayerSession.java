@@ -260,7 +260,7 @@ public class FLPlayerSession {
 
     public void setCommandCooldown(Command command, long delay) {
         TaskBase task = FarLands.getScheduler().getTask(commandCooldowns.getOrDefault(command.getClass(), -1));
-        if(task == null) {
+        if (task == null) {
             commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(() -> {
                 if (player.isOnline())
                     TextUtils.sendFormatted(player, "&(gold)You may use {&(aqua)/%0} again.", command.getName());
@@ -277,6 +277,12 @@ public class FLPlayerSession {
     public long commandCooldownTimeRemaining(Command command) {
         Integer taskUid = commandCooldowns.get(command.getClass());
         return taskUid == null ? 0L : FarLands.getScheduler().taskTimeRemaining(taskUid);
+    }
+
+    public void completeCooldown(Command command) {
+        TaskBase task = FarLands.getScheduler().getTask(commandCooldowns.getOrDefault(command.getClass(), -1));
+        if (task != null)
+            task.complete();
     }
 
     public void addBackLocation(Location location) {

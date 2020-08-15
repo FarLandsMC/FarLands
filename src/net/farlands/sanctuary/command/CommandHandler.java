@@ -22,6 +22,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
@@ -428,11 +429,11 @@ public class CommandHandler extends Mechanic {
         event.setCancelled(true);
     }
 
-    @EventHandler
+    @EventHandler // reset initiate wild cooldown on death
     public void onPlayerDeath(PlayerDeathEvent event) {
         FLPlayerSession session = FarLands.getDataHandler().getSession(event.getEntity());
         if (session.handle.rank == Rank.INITIATE)
-            session.setCommandCooldown(getCommand(CommandWild.class), Rank.INITIATE.getWildCooldown() * 60L * 20L);
+            session.completeCooldown(getCommand(CommandWild.class));
     }
 
     private boolean shouldNotExecute(Command command, CommandSender sender) {
