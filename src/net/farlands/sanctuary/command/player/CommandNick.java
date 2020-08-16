@@ -15,8 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Objects;
 
 public class CommandNick extends PlayerCommand {
     public CommandNick() {
@@ -43,16 +42,20 @@ public class CommandNick extends PlayerCommand {
             }
 
             // Don't allow duplicate names
-            if (FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                    .map(flpl -> Chat.removeColorCodes(flpl.username)).anyMatch(rawNick::equalsIgnoreCase) ||
-                FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                    .map(flpl -> Chat.removeColorCodes(flpl.nickname)).anyMatch(rawNick::equalsIgnoreCase)
+            if (
+                    FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                        .map(flpl -> flpl.username)
+                        .filter(username -> !rawNick.equals(username))
+                        .anyMatch(rawNick::equalsIgnoreCase) ||
+                    FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                        .map(flpl -> flpl.nickname)
+                        .filter(Objects::nonNull)
+                        .map(Chat::removeColorCodes)
+                        .anyMatch(rawNick::equalsIgnoreCase)
             ) {
                 sendFormatted(sender, "&(red)Another player already has this name.");
                 return true;
             }
-
-
 
             // Check length
             int rawLen = rawNick.length();
@@ -105,7 +108,6 @@ public class CommandNick extends PlayerCommand {
                     return true;
                 }
 
-                flp.nickname = null;
             }
             // The sender removes their own nickname
             else {
@@ -114,10 +116,9 @@ public class CommandNick extends PlayerCommand {
                     sendFormatted(sender, "&(red)You have no nickname to remove.");
                     return true;
                 }
-
-                flp.nickname = null;
             }
 
+            flp.nickname = null;
             sendFormatted(sender, "&(green)Removed nickname.");
         }
 
