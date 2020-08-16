@@ -50,7 +50,8 @@ public class CommandTop extends Command {
 
                 // Month votes
                 if (args.length == 1 || !"all".equals(args[1])) {
-                    flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalSeasonVotes)));
+                    // 6 bits for month, 13 for season and total
+                    flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> (flp.monthVotes << 26) + (flp.totalSeasonVotes << 13) + flp.totalVotes)));
                     int position = position(senderFlp, flps, flp -> flp.uuid);
 
                     sendFormatted(sender, "&(gold)Showing the top voters for this month (page %0/%1):", offset / 10 + 1, pageMax);
