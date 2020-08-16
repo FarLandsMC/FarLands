@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CommandNick extends PlayerCommand {
     public CommandNick() {
@@ -33,14 +34,26 @@ public class CommandNick extends PlayerCommand {
 
         // Set the nickname
         if ("nick".equals(args[0])) {
+            // Get rid of colors for length checking
+            String rawNick = Chat.removeColorCodes(args[1]);
             // Prevent whitespace and profanity
-            if (args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(Chat.removeColorCodes(args[1]))) {
+            if (args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(rawNick)) {
                 sendFormatted(sender, "&(red)You cannot set your nickname to this.");
                 return true;
             }
 
-            // Get rid of colors for length checking
-            String rawNick = Chat.removeColorCodes(args[1]);
+            // Don't allow duplicate names
+            if (FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                    .map(flpl -> Chat.removeColorCodes(flpl.username)).anyMatch(rawNick::equalsIgnoreCase) ||
+                FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                    .map(flpl -> Chat.removeColorCodes(flpl.nickname)).anyMatch(rawNick::equalsIgnoreCase)
+            ) {
+                sendFormatted(sender, "&(red)Another player already has this name.");
+                return true;
+            }
+
+
+
             // Check length
             int rawLen = rawNick.length();
             if (rawLen > 16) {
