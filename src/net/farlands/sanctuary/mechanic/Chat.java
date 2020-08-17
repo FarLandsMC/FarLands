@@ -17,7 +17,6 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -113,15 +112,14 @@ public class Chat extends Mechanic {
     }
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
-        Rank rank = senderFlp.rank,
-                displayedRank = senderFlp.topVoter && !rank.isStaff() ? Rank.VOTER : rank;
+        Rank displayedRank = senderFlp.getDisplayRank();
         String displayPrefix;
         if (senderFlp.nickname != null && !senderFlp.nickname.isEmpty()) {
             displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
                     displayedRank.getName() + " {$(hover," + senderFlp.username + ",%0%1)}:} ";
         } else {
             displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
-                    displayedRank.getName() + " {%0%1}:} ";
+                    displayedRank.getName() + " {%0%1:}} ";
         }
         chat(senderFlp, sender, displayPrefix, message.trim());
     }
@@ -130,7 +128,12 @@ public class Chat extends Mechanic {
         if (!senderFlp.rank.isStaff() && MESSAGE_FILTER.autoCensor(removeColorCodes(message))) {
             message = applyColorCodes(senderFlp.rank, message);
             // Make it seem like the message went through for the sender
-            TextUtils.sendFormatted(sender, displayPrefix + TextUtils.escapeExpression(message), senderFlp.rank.getColor(), senderFlp.getDisplayName());
+            TextUtils.sendFormatted(
+                    sender,
+                    displayPrefix + TextUtils.escapeExpression(message),
+                    senderFlp.rank.getNameColor(),
+                    senderFlp.getDisplayName()
+            );
             Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
                     sender.getDisplayName(), message), DiscordChannel.ALERTS);
             return;
@@ -166,13 +169,13 @@ public class Chat extends Mechanic {
                 .filter(session -> !session.handle.isIgnoring(senderFlp))
                 .forEach(session -> {
                     if (session.handle.censoring)
-                        TextUtils.sendFormatted(session.player, censorMessage, senderFlp.rank.getColor(), senderFlp.getDisplayName());
+                        TextUtils.sendFormatted(session.player, censorMessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName());
                     else
-                        TextUtils.sendFormatted(session.player, fmessage,      senderFlp.rank.getColor(), senderFlp.getDisplayName());
+                        TextUtils.sendFormatted(session.player, fmessage,      senderFlp.rank.getNameColor(), senderFlp.getDisplayName());
                 });
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, TextUtils.format(fmessage, senderFlp.rank.getColor(), senderFlp.getDisplayName()));
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, TextUtils.format(fmessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName()));
         // never send the nickname to console/logs
-        TextUtils.sendFormatted(Bukkit.getConsoleSender(), fmessage, senderFlp.rank.getColor(), senderFlp.username);
+        TextUtils.sendFormatted(Bukkit.getConsoleSender(), fmessage, senderFlp.rank.getNameColor(), senderFlp.username);
     }
 
     public void spamUpdate(Player player, String message) {
@@ -228,8 +231,9 @@ public class Chat extends Mechanic {
 
     public static String applyDiscordFilters(String message) {
         message = message.replaceAll("\\\\", "\\\\\\\\");
-        for (String c : DISCORD_CHARS)
-            message = message.replaceAll("\\" + c, "\\\\" + c);
+        for (String c : DISCORD_CHARS) {
+            message = message.replaceAll(String.valueOf(new char[] {'\\', c.charAt(0)}), "\\\\" + c);
+        }
         message = message.replaceAll("@", "\\\\@ ");
         return removeColorCodes(message);
     }

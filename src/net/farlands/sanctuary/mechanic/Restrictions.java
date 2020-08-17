@@ -8,6 +8,7 @@ import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -22,9 +23,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.*;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
+import org.bukkit.inventory.HorseInventory;
 import org.bukkit.potion.PotionEffect;
 
 
@@ -234,6 +238,19 @@ public class Restrictions extends Mechanic {
 
         if (result == Material.SHIELD) {
             event.getInventory().getContents()[0].setAmount(1);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerClickInventory(InventoryClickEvent event) {
+        if (event.getView().getTopInventory() instanceof HorseInventory) {
+            if (event.getAction() == InventoryAction.HOTBAR_SWAP || event.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) {
+                event.setCancelled(true);
+                return;
+            }
+
+            event.setCancelled(CommandKittyCannon.CANNON.isSimilar(event.getCursor()) ||
+                    CommandKittyCannon.CANNON.isSimilar(event.getCurrentItem()));
         }
     }
 

@@ -35,6 +35,7 @@ public enum Rank {
 
     // symbol color [teamColor=color] playTimeRequired homes tpDelay shops wildCooldown
     VOTER   ("Voter",    ChatColor.LIGHT_PURPLE,                               -1, 16, 3, 30,  7), // Same as Scholar
+    BIRTHDAY("B-Day",    ChatColor.of("#de3193"), org.bukkit.ChatColor.RED,    -1, 16, 3, 30,  7),
     DONOR   ("Donor",    ChatColor.LIGHT_PURPLE,                               -1, 24, 2, 40,  6),
     PATRON  ("Patron",   ChatColor.DARK_PURPLE,                                -1, 32, 0, 50,  3),
     SPONSOR ("Sponsor",  ChatColor.of("#32a4ea"), org.bukkit.ChatColor.BLUE,   -1, 40, 0, 50,  1),

@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -49,6 +48,7 @@ public class OfflineFLPlayer {
     public Particles particles;
     public Rank rank;
     public ChatColor staffChatColor;
+    public Birthday birthday;
     public LocationWrapper lastLocation;
     public Mute currentMute;
     public List<String> notes;
@@ -89,6 +89,7 @@ public class OfflineFLPlayer {
         this.particles = null;
         this.rank = Rank.INITIATE;
         this.staffChatColor = ChatColor.RED;
+        this.birthday = null;
         this.lastLocation = null;
         this.currentMute = null;
         this.notes = new ArrayList<>();
@@ -227,6 +228,18 @@ public class OfflineFLPlayer {
             else
                 particles.setTypeAndLocation(type, location);
         }
+    }
+
+    public Rank getDisplayRank() {
+        if (rank.isStaff())
+            return rank;
+
+        if (birthday != null && birthday.isToday())
+            return Rank.BIRTHDAY;
+        else if (topVoter)
+            return Rank.VOTER;
+        else
+            return rank;
     }
 
     public void setRank(Rank rank) {

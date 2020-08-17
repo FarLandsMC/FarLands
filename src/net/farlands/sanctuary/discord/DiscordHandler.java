@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.discord;
 
+import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
@@ -28,7 +29,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
@@ -214,7 +217,7 @@ public class DiscordHandler extends ListenerAdapter {
         if (event.getAuthor().isBot())
             return;
         DiscordSender sender = new DiscordSender(event.getAuthor(), event.getChannel());
-        String message = event.getMessage().getContentStripped();
+        String message = event.getMessage().getContentRaw();
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
         message = Chat.removeColorCodes(message.replaceAll("\\s+", " "));
@@ -225,7 +228,7 @@ public class DiscordHandler extends ListenerAdapter {
             else
                 message += " [Image]";
         }
-        final String fmessage = message;
+        final String fmessage = translateFormatting(message);
 
         if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
             if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
@@ -270,21 +273,155 @@ public class DiscordHandler extends ListenerAdapter {
 
                 Bukkit.getOnlinePlayers().stream().filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).isIgnoring(flp)).forEach(p -> {
                     boolean censor = FarLands.getDataHandler().getOfflineFLPlayer(p).censoring;
-                    p.sendMessage(String.format(
-                            ChatColor.DARK_GRAY + "DISCORD" +
-                                    (rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor().toString() : "") +
-                                    " %s: " + ChatColor.WHITE + "%s",
+                    TextUtils.sendFormatted(
+                            p,
+                            "&(dark_gray)DISCORD %0%1: &(white)%2",
+                            rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor() : ChatColor.WHITE,
                             flp.username,
-                            censor
-                                    ? Chat.getMessageFilter().censor(fmessage)
-                                    : fmessage
-                    ));
+                            censor ? Chat.getMessageFilter().censor(fmessage) : fmessage
+                    );
                 });
 
-                Bukkit.getConsoleSender().sendMessage(String.format(ChatColor.DARK_GRAY + "DISCORD" +
-                        (rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor().toString() : "") + " %s: " +
-                        ChatColor.WHITE + "%s", flp.username, fmessage));
+                TextUtils.sendFormatted(
+                        Bukkit.getConsoleSender(),
+                        "&(dark_gray)DISCORD %0%1: &(white)%2",
+                        rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor() : ChatColor.WHITE,
+                        flp.username,
+                        fmessage
+                );
             }
+        }
+    }
+
+    private static final int BOLD = 0x01;
+    private static final int ITALIC1 = 0x02; // _italic_
+    private static final int ITALIC2 = 0x04; // *italic*
+    private static final int UNDERLINE = 0x08;
+    private static final int STRIKETHROUGH = 0x10;
+
+    private static String translateFormatting(String string) {
+        FormatterState state = new FormatterState();
+        char[] chars = string.toCharArray();
+        for (;state.cursor < chars.length;++ state.cursor) {
+            state.prev = state.cursor == 0 ? '\0' : chars[state.cursor - 1];
+            state.current = chars[state.cursor];
+            state.next = state.cursor == chars.length - 1 ? '\0' : chars[state.cursor + 1];
+            state.nextNext = state.cursor >= chars.length - 2 ? '\0' : chars[state.cursor + 2];
+
+            switch (state.current) {
+                case '_': {
+                    if (state.next == '_') {
+                        if (applyFormat(state, UNDERLINE, "underline", Buffer.ANY, Buffer.ANY, false))
+                            continue;
+                    } else {
+                        if (applyFormat(state, ITALIC1, "italic", Buffer.WHITESPACE, Buffer.RIGHT_WHITESPACE, true))
+                            continue;
+                    }
+                    break;
+                }
+
+                case '*': {
+                    if (state.next == '*') {
+                        if (applyFormat(state, BOLD, "bold", Buffer.ANY, Buffer.ANY, false))
+                            continue;
+                    } else {
+                        if (applyFormat(state, ITALIC2, "italic", Buffer.RIGHT_TEXT_ONLY, Buffer.LEFT_TEXT_ONLY, true))
+                            continue;
+                    }
+                    break;
+                }
+
+                case '~': {
+                    if (state.next == '~' && applyFormat(state, STRIKETHROUGH, "strikethrough", Buffer.ANY, Buffer.ANY, false))
+                        continue;
+                    break;
+                }
+            }
+
+            state.sb.append(state.current);
+        }
+
+        return state.sb.toString();
+    }
+
+    private static boolean applyFormat(
+            FormatterState state,
+            int flag,
+            String format,
+            Buffer start,
+            Buffer end,
+            boolean oneChar
+    ) {
+        char next = oneChar ? state.next : state.nextNext;
+        if (isSet(flag, state.flags)) {
+            if (next == '\0' || end.test(state.prev, state.current, next)) {
+                state.sb.append("&(!").append(format).append(')');
+                state.flags ^= flag;
+                if (oneChar)
+                    state.undo.remove(flag);
+                else
+                    ++ state.cursor;
+                return true;
+            } else {
+                Pair<Integer, String> undo = state.undo.remove(flag);
+                if (undo != null) {
+                    state.sb.insert(undo.getFirst(), undo.getSecond());
+                    state.flags ^= flag;
+                }
+                return false;
+            }
+        } else {
+            if (state.prev == '\0' || start.test(state.prev, state.current, next)) {
+                state.sb.append("&(").append(format).append(')');
+                state.flags ^= flag;
+                if (oneChar)
+                    state.undo.put(flag, new Pair<>(state.sb.length(), "&(!" + format + ")" + state.current));
+                else
+                    ++ state.cursor;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isSet(int flag, int flags) {
+        return (flags & flag) != 0;
+    }
+
+    private static class FormatterState {
+        StringBuilder sb;
+        int cursor, flags;
+        char prev, current, next, nextNext;
+        Map<Integer, Pair<Integer, String>> undo;
+
+        FormatterState() {
+            this.sb = new StringBuilder();
+            this.cursor = this.flags = 0;
+            this.prev = this.current = this.next = this.nextNext = '\0';
+            this.undo = new HashMap<>();
+        }
+    }
+
+    private enum Buffer {
+        WHITESPACE,
+        RIGHT_WHITESPACE,
+        RIGHT_TEXT_ONLY,
+        LEFT_TEXT_ONLY,
+        ANY;
+
+        boolean test(char prev, char cur, char next) {
+            switch (this) {
+                case RIGHT_TEXT_ONLY:
+                    return Character.isLetterOrDigit(next) || cur == next;
+                case LEFT_TEXT_ONLY:
+                    return Character.isLetterOrDigit(prev) || cur == prev;
+                case RIGHT_WHITESPACE:
+                    return !Character.isWhitespace(prev) && Character.isWhitespace(next);
+                case ANY:
+                    return true;
+            }
+
+            return prev == '\0' || next == '\0' || Character.isWhitespace(prev) || Character.isWhitespace(next);
         }
     }
 }

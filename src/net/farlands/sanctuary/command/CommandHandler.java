@@ -81,6 +81,7 @@ public class CommandHandler extends Mechanic {
 
         // Player Commands
         registerCommand(new CommandAFK());              // Initiate
+        registerCommand(new CommandBirthday());         // Initiate
         registerCommand(new CommandCensor());           // Initiate
         registerCommand(new CommandColors());           // Adept
         registerCommand(new CommandCraft());            // Patron
