@@ -5,6 +5,7 @@ import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
 import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
@@ -41,7 +42,7 @@ public enum Rank {
 
     /* Staff Ranks */
 
-    // permissionLevel symbol color
+    // permissionLevel symbol color teamColor
     JR_BUILDER(1, "Jr. Builder", ChatColor.of("#bf6bff"), org.bukkit.ChatColor.AQUA),
     JR_MOD    (1, "Jr. Mod",     ChatColor.of("#d7493d"), org.bukkit.ChatColor.RED),
     JR_DEV    (1, "Jr. Dev",     ChatColor.of("#0bbd9e"), org.bukkit.ChatColor.DARK_AQUA),

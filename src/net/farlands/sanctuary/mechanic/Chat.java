@@ -83,12 +83,10 @@ public class Chat extends Mechanic {
 
     public static void playerTransition(OfflineFLPlayer flp, boolean joinMessage) {
         String joinOrLeave = joinMessage ? "joined." : "left.";
-        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(ChatColor.YELLOW +ChatColor.BOLD.toString() +
-                " > " + ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has " +
-                joinOrLeave));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW +ChatColor.BOLD.toString() +
-                " > " + ChatColor.RESET + flp.rank.getNameColor() + flp.username + ChatColor.YELLOW + " has " +
-                joinOrLeave);
+        Bukkit.getOnlinePlayers().forEach(player -> TextUtils.sendFormatted(player, "{&(yellow,bold) > }" +
+                flp.rank.getNameColor() + flp.username + "&(yellow) has " + joinOrLeave));
+        TextUtils.sendFormatted(Bukkit.getConsoleSender(), "{&(yellow,bold) > }" +
+                flp.rank.getNameColor() + flp.username + "&(yellow) has " + joinOrLeave);
         FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, "> " + flp.username + " has " + joinOrLeave);
     }
 
@@ -117,16 +115,22 @@ public class Chat extends Mechanic {
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
         Rank rank = senderFlp.rank,
                 displayedRank = senderFlp.topVoter && !rank.isStaff() ? Rank.VOTER : rank;
-        chat(senderFlp, sender, displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
-                displayedRank.getName() + ChatColor.RESET + displayedRank.getNameColor() + " " + senderFlp.getDisplayName() + ": " +
-                ChatColor.WHITE, message.trim());
+        String displayPrefix;
+        if (senderFlp.nickname != null && !senderFlp.nickname.isEmpty()) {
+            displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
+                    displayedRank.getName() + " {$(hover," + senderFlp.username + ",%0%1)}:} ";
+        } else {
+            displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
+                    displayedRank.getName() + " {%0%1}:} ";
+        }
+        chat(senderFlp, sender, displayPrefix, message.trim());
     }
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String displayPrefix, String message) {
         if (!senderFlp.rank.isStaff() && MESSAGE_FILTER.autoCensor(removeColorCodes(message))) {
             message = applyColorCodes(senderFlp.rank, message);
             // Make it seem like the message went through for the sender
-            sender.sendMessage(displayPrefix + ChatColor.WHITE + message);
+            TextUtils.sendFormatted(sender, displayPrefix + TextUtils.escapeExpression(message), senderFlp.rank.getColor(), senderFlp.getDisplayName());
             Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
                     sender.getDisplayName(), message), DiscordChannel.ALERTS);
             return;
@@ -156,18 +160,19 @@ public class Chat extends Mechanic {
             }
         }
         final String lmessage = limitCaps(limitFlood(message)),
-                     fmessage = displayPrefix + lmessage,
-                censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
+                     fmessage = displayPrefix + TextUtils.escapeExpression(lmessage),
+                censorMessage = displayPrefix + TextUtils.escapeExpression(Chat.getMessageFilter().censor(lmessage));
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
                 .filter(session -> !session.handle.isIgnoring(senderFlp))
                 .forEach(session -> {
                     if (session.handle.censoring)
-                        session.player.sendMessage(censorMessage);
+                        TextUtils.sendFormatted(session.player, censorMessage, senderFlp.rank.getColor(), senderFlp.getDisplayName());
                     else
-                        session.player.sendMessage(fmessage);
+                        TextUtils.sendFormatted(session.player, fmessage,      senderFlp.rank.getColor(), senderFlp.getDisplayName());
                 });
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, fmessage);
-        Bukkit.getConsoleSender().sendMessage(fmessage);
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, TextUtils.format(fmessage, senderFlp.rank.getColor(), senderFlp.getDisplayName()));
+        // never send the nickname to console/logs
+        TextUtils.sendFormatted(Bukkit.getConsoleSender(), fmessage, senderFlp.rank.getColor(), senderFlp.username);
     }
 
     public void spamUpdate(Player player, String message) {
