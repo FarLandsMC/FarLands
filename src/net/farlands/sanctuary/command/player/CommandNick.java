@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CommandNick extends PlayerCommand {
     public CommandNick() {
@@ -41,22 +42,6 @@ public class CommandNick extends PlayerCommand {
                 return true;
             }
 
-            // Don't allow duplicate names
-            if (
-                    FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .map(flpl -> flpl.username)
-                        .filter(username -> !rawNick.equals(username))
-                        .anyMatch(rawNick::equalsIgnoreCase) ||
-                    FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .map(flpl -> flpl.nickname)
-                        .filter(Objects::nonNull)
-                        .map(Chat::removeColorCodes)
-                        .anyMatch(rawNick::equalsIgnoreCase)
-            ) {
-                sendFormatted(sender, "&(red)Another player already has this name.");
-                return true;
-            }
-
             // Check length
             int rawLen = rawNick.length();
             if (rawLen > 16) {
@@ -76,7 +61,7 @@ public class CommandNick extends PlayerCommand {
             // Count the number of non-ascii characters for a percentage calculation
             double nonAscii = 0.0;
             for (char c : rawNick.toCharArray()) {
-                if (c < 33 || c > '~') {
+                if (33 > c || c > '~') {
                     ++nonAscii;
                 }
             }
@@ -85,6 +70,17 @@ public class CommandNick extends PlayerCommand {
             if (nonAscii / rawLen > 0.4) {
                 sendFormatted(sender, "&(red)Your nickname must be at least 60% ASCII characters.");
                 return true;
+            }
+
+            // Disallow duplicate names
+            for ( // Ignore the sender, they can use their own name
+                    OfflineFLPlayer flpl : FarLands.getDataHandler().getOfflineFLPlayers().stream()
+                    .filter(flpl -> !flpl.uuid.equals(sender.getUniqueId())).collect(Collectors.toList())
+            ) {
+                if (rawNick.equalsIgnoreCase(flpl.username) || rawNick.equalsIgnoreCase(flpl.nickname)) {
+                    sendFormatted(sender, "&(red)Another player already has this name.");
+                    return true;
+                }
             }
 
             flp.nickname = Chat.applyColorCodes(Rank.getRank(sender), args[1]);
