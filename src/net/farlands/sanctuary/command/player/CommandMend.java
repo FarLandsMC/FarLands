@@ -74,14 +74,16 @@ public class CommandMend extends PlayerCommand {
         int repairXp = 1 + damageable.getDamage() >> 1, playerXp, usedXp;
         if (repairXp <= 0)
             return false;
+
         usedXp = Math.min(playerXp = totalExp(player), repairXp); // damage / 2 rounded up
         damageable.setDamage(damageable.getDamage() - (usedXp << 1)); // exp * 2
         player.giveExp(-usedXp);
+        stack.setItemMeta((ItemMeta) damageable);
+
         if (playerXp == usedXp) {
             sendFormatted(player,"&(red)You ran out of exp to mend items with.");
             return true;
         }
-        stack.setItemMeta((ItemMeta) damageable);
         return false;
     }
 
