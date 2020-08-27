@@ -18,7 +18,7 @@ public class CommandEditArmorStand extends PlayerCommand {
     private final ItemStack editorBook;
 
     public CommandEditArmorStand() {
-        super(Rank.SPONSOR, Category.UTILITY, "Open the vanilla tweaks armor stand editor book.", "/editarmorstand", "editarmorstand");
+        super(Rank.SPONSOR, Category.UTILITY, "Open the vanilla tweaks armor stand editor book.", "/editarmorstand", "editarmorstand", "aditarmourstand");
         this.editorBook = FarLands.getFLConfig().armorStandBook.getStack();
     }
 

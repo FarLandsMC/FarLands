@@ -145,16 +145,13 @@ public class Restrictions extends Mechanic {
     @EventHandler
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         String[] args = event.getMessage().split(" ");
-        if (
-                event.getMessage().startsWith("/editarmorstand") ||
-                event.getMessage().startsWith("/trigger") && args.length > 1 && !"as_help".equalsIgnoreCase(args[1])
-        ) {
+        if (event.getMessage().startsWith("/trigger") && args.length > 1 && !"as_help".equalsIgnoreCase(args[1])) {
             Player player = event.getPlayer();
 
             // Check for claims
             FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(player.getLocation());
-            if (!(flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.ACCESS, flags))) {
-                sendFormatted(player, "&(red)You cannot use that here.");
+            if (!(flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.BUILD, flags))) {
+                sendFormatted(player, "&(red)You do not have permission to edit armor stands here.");
                 event.setCancelled(true);
             }
         }
