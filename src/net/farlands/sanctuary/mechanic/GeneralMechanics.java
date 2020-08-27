@@ -40,10 +40,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.FireworkExplodeEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
@@ -392,6 +389,12 @@ public class GeneralMechanics extends Mechanic {
             event.getExited().teleport(session.seatExit);
             session.seatExit = null;
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerDamaged(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player)
+            FarLands.getDataHandler().getSession((Player) event.getEntity()).unsit();
     }
 
     @EventHandler

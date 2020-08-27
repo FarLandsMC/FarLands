@@ -54,18 +54,28 @@ public class Voting extends Mechanic {
 
     private void updateTopVoter() {
         OfflineFLPlayer currentTop = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                .filter(flp -> flp.topVoter).findAny().orElse(null);
+                .filter(flp -> flp.topVoter)
+                .findAny()
+                .orElse(null);
         OfflineFLPlayer actualTop = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                .max(Comparator.comparingInt(flp -> flp.monthVotes * 65536 + flp.totalSeasonVotes)).orElse(null);
-        if (actualTop.uuid != currentTop.uuid) {
-            currentTop.topVoter = false;
-            actualTop.topVoter = true;
-            currentTop.updateSessionIfOnline(false);
-            Player actualTopPlayer = actualTop.getOnlinePlayer();
-            if (actualTopPlayer != null) {
-                actualTop.updateSessionIfOnline(false);
-                actualTopPlayer.sendMessage(ChatColor.GREEN + "You are now the top voter of the month!");
+                .filter(flp -> !flp.rank.isStaff())
+                .max(Comparator.comparingInt(flp -> (flp.monthVotes << 26) + (flp.totalSeasonVotes << 13) + flp.totalVotes))
+                .orElse(null);
+
+        if (currentTop != null) {
+            if (actualTop.uuid == currentTop.uuid)
+                return;
+            else {
+                currentTop.topVoter = false;
+                currentTop.updateSessionIfOnline(false);
             }
+        }
+
+        actualTop.topVoter = true;
+        Player actualTopPlayer = actualTop.getOnlinePlayer();
+        if (actualTopPlayer != null) {
+            actualTop.updateSessionIfOnline(false);
+            actualTopPlayer.sendMessage(ChatColor.GREEN + "You are now the top voter of the month!");
         }
     }
 

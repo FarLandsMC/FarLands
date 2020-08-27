@@ -70,6 +70,7 @@ public class CommandWild extends PlayerCommand {
         int wildCooldown = Rank.getRank(sender).getWildCooldown();
         if (wildCooldown > 0)
             session.setCommandCooldown(this, wildCooldown * 60L * 20L);
+        session.unsit();
 
         long time = System.currentTimeMillis() - FarLands.getDataHandler().getPluginData().seasonStartTime;
         rtpPlayer(

@@ -13,6 +13,7 @@ import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
@@ -23,6 +24,7 @@ public class FLPlayerSession {
     public final OfflineFLPlayer handle;
     public final PermissionAttachment permissionAttachment;
     public long lastTimeRecorded;
+    public long lastUnvanish;
     public double spamAccumulation;
     public boolean afk;
     public boolean flying;
@@ -57,6 +59,7 @@ public class FLPlayerSession {
         this.handle = handle;
         this.permissionAttachment = player.addAttachment(FarLands.getInstance());
         this.lastTimeRecorded = System.currentTimeMillis();
+        this.lastUnvanish = 0;
         this.spamAccumulation = 0.0;
         this.afk = false;
         this.flying = handle.flightPreference;
@@ -89,6 +92,7 @@ public class FLPlayerSession {
         this.handle = cached.handle;
         this.permissionAttachment = player.addAttachment(FarLands.getInstance());
         this.lastTimeRecorded = System.currentTimeMillis();
+        this.lastUnvanish = 0;
         this.spamAccumulation = cached.spamAccumulation;
         this.afk = cached.afk;
         this.flying = cached.flying;
@@ -97,6 +101,7 @@ public class FLPlayerSession {
         this.isInEvent = cached.isInEvent;
         this.replyToggleRecipient = cached.replyToggleRecipient;
         this.seatExit = null;
+        this.outgoingTeleportRequest = null;
         this.incomingTeleportRequests = new ArrayList<>();
 
         this.givePetRecipient = new TransientField<>();
@@ -237,6 +242,28 @@ public class FLPlayerSession {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUniqueId());
             handle.secondsPlayed = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20;
         }
+    }
+
+    public boolean unsit() {
+        if (seatExit == null)
+            return false;
+        else {
+            Entity chair = player.getVehicle();
+            if (chair != null) {
+                chair.eject();
+                // Event handler takes care of removal
+            }
+            return true;
+        }
+    }
+
+    public void updateVanish() {
+        if (!handle.vanished)
+            lastUnvanish = System.currentTimeMillis();
+    }
+
+    public boolean isVanishedWithBuffer() {
+        return handle.vanished || System.currentTimeMillis() - lastUnvanish < 1000;
     }
 
     public void allowCoRollback() {

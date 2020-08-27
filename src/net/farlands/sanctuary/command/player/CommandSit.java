@@ -11,7 +11,6 @@ import net.farlands.sanctuary.util.ReflectionHelper;
 
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPig;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -19,7 +18,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class CommandSit extends PlayerCommand {
-
     public CommandSit() {
         super(Rank.KNIGHT, Category.MISCELLANEOUS, "Have a seat.", "/sit", "sit");
     }
@@ -36,16 +34,14 @@ public class CommandSit extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
-        if (session.seatExit != null) {
-            Entity chair = sender.getVehicle();
-            if (chair != null)
-                chair.eject();
+        if (session.unsit())
             return true;
-        }
+
         if (!sender.isOnGround()) { // can't go in canUse as it prevents /sit exit
             sendFormatted(sender, "&(red)You must be on the ground to use this command.");
             return true;
         }
+
         session.seatExit = sender.getLocation().clone();
         Pig seat = (Pig) sender.getWorld().spawnEntity(sender.getLocation().clone().subtract(0, .875, 0), EntityType.PIG);
         seat.setAdult();
@@ -58,6 +54,7 @@ public class CommandSit extends PlayerCommand {
         ReflectionHelper.setFieldValue("vehicle", net.minecraft.server.v1_16_R1.Entity.class,
                 ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
         ((CraftPig) seat).getHandle().passengers.add(((CraftPlayer) sender).getHandle());
+
         return true;
     }
 }

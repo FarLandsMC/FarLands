@@ -4,6 +4,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.minecraft.server.v1_16_R1.FoodMetaData;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
@@ -11,9 +12,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandEat extends PlayerCommand {
+    private static final List<Material> BLACKLIST = Arrays.asList(
+            Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.ROTTEN_FLESH, Material.SPIDER_EYE,
+            Material.POISONOUS_POTATO, Material.PUFFERFISH, Material.SUSPICIOUS_STEW
+    );
+
     public CommandEat() {
         super(Rank.SPONSOR, Category.UTILITY, "Eat up food in your inventory instantly to fill your hunger.", "/eat", "eat", "feed");
     }
@@ -30,7 +39,7 @@ public class CommandEat extends PlayerCommand {
         }
         while (index < inv.getSize() && foodData.foodLevel < 20) {
             ItemStack stack = inv.getItem(index);
-            if (stack == null || !stack.getType().isEdible()) {
+            if (stack == null || !stack.getType().isEdible() || BLACKLIST.contains(stack.getType())) {
                 ++index;
                 continue;
             }

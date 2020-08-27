@@ -180,7 +180,7 @@ public class CommandMessage extends PlayerCommand {
     }
 
     private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {
-        sendFormatted(recipient, "&(dark_gray)%0 %1%2: &(reset)%3", prefix, rank.getNameColor(), escapeExpression(name), message);
+        sendFormatted(recipient, "&(dark_gray)%0 &(gray)%1%2: &(reset)%3", prefix, rank.getNameColor(), escapeExpression(name), message);
     }
 
     private static String getDisplayName(CommandSender sender) {
