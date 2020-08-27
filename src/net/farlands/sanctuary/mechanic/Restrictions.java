@@ -1,6 +1,10 @@
 package net.farlands.sanctuary.mechanic;
 
 import com.kicas.rp.RegionProtection;
+import com.kicas.rp.data.FlagContainer;
+import com.kicas.rp.data.RegionFlag;
+import com.kicas.rp.data.flagdata.TrustLevel;
+import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
@@ -34,6 +38,8 @@ import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class Restrictions extends Mechanic {
     @Override
@@ -136,6 +142,24 @@ public class Restrictions extends Mechanic {
                 .map(PotionEffect::getType).forEach(player::removePotionEffect);
     }
 
+    @EventHandler
+    public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+        String[] args = event.getMessage().split(" ");
+        if (
+                event.getMessage().startsWith("/editarmorstand") ||
+                event.getMessage().startsWith("/trigger") && args.length > 1 && !"as_help".equalsIgnoreCase(args[1])
+        ) {
+            Player player = event.getPlayer();
+
+            // Check for claims
+            FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(player.getLocation());
+            if (!(flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.ACCESS, flags))) {
+                sendFormatted(player, "&(red)You cannot use that here.");
+                event.setCancelled(true);
+            }
+        }
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onShopCreation(ShopCreateEvent event) {
         Player player = event.getPlayer();
@@ -152,12 +176,6 @@ public class Restrictions extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onShopDestroyed(ShopRemoveEvent event) {
         FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getOwner()).removeShop();
-    }
-
-    @EventHandler(ignoreCancelled = true) // Prevent players from teleporting using spectator mode
-    public void onTeleport(PlayerTeleportEvent event) {
-        event.setCancelled(event.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE &&
-                !Rank.getRank(event.getPlayer()).isStaff());
     }
 
     @EventHandler(ignoreCancelled = true) // Prevent portals from forming in spawn
@@ -205,17 +223,17 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
+        if (event.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE &&
+                !Rank.getRank(event.getPlayer()).isStaff()) { // Prevent players from teleporting using spectator mode
+            event.setCancelled(true);
+            return;
+        }
         onPlayerMove(event);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
         Location to = event.getTo();
-        /*if (to.getY() >= 128 && "world_nether".equals(to.getWorld().getName()) && !Rank.getRank(event.getPlayer()).isStaff()) {
-            event.getPlayer().sendMessage(ChatColor.RED + "You cannot go on top of the nether. This is in the rules.");
-            event.setCancelled(true);
-            return;
-        }*/
         if ((Math.abs(to.getX()) > 5000 || Math.abs(to.getZ()) > 5000) && to.getWorld().getEnvironment() == World.Environment.NETHER
                 && !Rank.getRank(event.getPlayer()).isStaff()) {
             event.setCancelled(true);

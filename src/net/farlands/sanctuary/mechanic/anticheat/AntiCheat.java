@@ -46,11 +46,13 @@ public class AntiCheat extends Mechanic {
         flight.put(player.getUniqueId(), new FlightStore(player, sendAlerts));
     }
     public void remove(Player player) {
+        if (xray.containsKey(player.getUniqueId()))
+            xray.get(player.getUniqueId()).printObtained();
         xray.remove(player.getUniqueId());
         flight.remove(player.getUniqueId());
     }
 
-    public List<Pair<Detecting, Location>> getXrayNodes(UUID playerUUID) {
+    public List<Pair<Detecting, Location>> getXRayNodes(UUID playerUUID) {
         if (xray.containsKey(playerUUID))
             return xray.get(playerUUID).getNodes();
         return null;

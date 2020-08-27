@@ -25,8 +25,8 @@ public class CommandRanks extends Command {
         StringBuilder sb = new StringBuilder();
 
         for (Rank rank : Rank.VALUES) {
-            // Skip the voter rank as it's only used internally
-            if (Rank.VOTER.equals(rank))
+            // Skip the voter and birthday ranks as it's only used internally
+            if (Rank.VOTER == rank || Rank.BIRTHDAY == rank)
                 continue;
 
             // Don't show staff ranks

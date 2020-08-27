@@ -105,7 +105,7 @@ public class Chat extends Mechanic {
         if (flp.isMuted()) {
             flp.currentMute.sendMuteMessage(player);
             Logging.broadcastStaff(TextUtils.format("&(red)[MUTED] %0: &(gray)%1", event.getPlayer().getName(),
-                    event.getMessage()));
+                    TextUtils.escapeExpression(event.getMessage())));
             return;
         }
         chat(flp, player, event.getMessage());
@@ -230,7 +230,6 @@ public class Chat extends Mechanic {
     }
 
     public static String applyDiscordFilters(String message) {
-        message = message.replaceAll("\\\\", "\\\\\\\\");
         for (String c : DISCORD_CHARS) {
             message = message.replaceAll(String.valueOf(new char[] {'\\', c.charAt(0)}), "\\\\" + c);
         }
@@ -254,7 +253,7 @@ public class Chat extends Mechanic {
     public static String applyColorCodes(Rank rank, String message) {
         if (rank == null || rank.specialCompareTo(Rank.ADEPT) < 0)
             return removeColorCodes(message);
-        message = ChatColor.translateAlternateColorCodes('&', message);
+        message = applyColorCodes(message);
         if (!rank.isStaff()) {
             for (ChatColor color : ILLEGAL_COLORS)
                 message = message.replaceAll(ChatColor.COLOR_CHAR + Character.toString(color.getChar()), "");

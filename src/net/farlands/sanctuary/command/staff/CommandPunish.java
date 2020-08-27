@@ -36,7 +36,8 @@ public class CommandPunish extends Command {
             sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
-        if (flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender).uuid)) {
+        if (!(sender instanceof ConsoleCommandSender) &&
+                flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender).uuid)) {
             sendFormatted(sender, "&(red)That was close!");
             return true;
         }

@@ -217,10 +217,10 @@ public class DiscordHandler extends ListenerAdapter {
         if (event.getAuthor().isBot())
             return;
         DiscordSender sender = new DiscordSender(event.getAuthor(), event.getChannel());
-        String message = event.getMessage().getContentRaw();
+        String message = event.getMessage().getContentDisplay();
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
-        message = Chat.removeColorCodes(message.replaceAll("\\s+", " "));
+        message = TextUtils.escapeExpression(Chat.removeColorCodes(message.replaceAll("\\s+", " ")));
         message = message.substring(0, Math.min(256, message.length())).trim();
         if (!event.getMessage().getAttachments().isEmpty()) {
             if (message.isEmpty())
@@ -271,21 +271,21 @@ public class DiscordHandler extends ListenerAdapter {
                     return;
                 }
 
-                Bukkit.getOnlinePlayers().stream().filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).isIgnoring(flp)).forEach(p -> {
-                    boolean censor = FarLands.getDataHandler().getOfflineFLPlayer(p).censoring;
+                String censorMessage = Chat.getMessageFilter().censor(fmessage);
+                Bukkit.getOnlinePlayers().stream().filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).isIgnoring(flp)).forEach(p ->
                     TextUtils.sendFormatted(
                             p,
                             "&(dark_gray)DISCORD %0%1: &(white)%2",
-                            rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor() : ChatColor.WHITE,
+                            rank.getNameColor(),
                             flp.username,
-                            censor ? Chat.getMessageFilter().censor(fmessage) : fmessage
-                    );
-                });
+                            FarLands.getDataHandler().getOfflineFLPlayer(p).censoring ? censorMessage : fmessage
+                    )
+                );
 
                 TextUtils.sendFormatted(
                         Bukkit.getConsoleSender(),
                         "&(dark_gray)DISCORD %0%1: &(white)%2",
-                        rank.specialCompareTo(Rank.DONOR) >= 0 ? rank.getColor() : ChatColor.WHITE,
+                        rank.getNameColor(),
                         flp.username,
                         fmessage
                 );

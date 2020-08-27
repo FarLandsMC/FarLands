@@ -37,7 +37,7 @@ public class CommandViewNodes extends Command {
         }
 
         List<Pair<Detecting, Location>> nodes = FarLands.getMechanicHandler().getMechanic(AntiCheat.class)
-                .getXrayNodes(player.getUniqueId());
+                .getXRayNodes(player.getUniqueId());
 
         if (nodes == null || nodes.isEmpty()) {
             sendFormatted(sender, "&(red)no nodes available for player " + player.getName());

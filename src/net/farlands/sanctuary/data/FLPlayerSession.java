@@ -4,6 +4,7 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.util.TextUtils;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -11,6 +12,7 @@ import net.farlands.sanctuary.data.struct.TeleportRequest;
 import net.farlands.sanctuary.mechanic.Toggles;
 import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.FLUtils;
+
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -247,14 +249,13 @@ public class FLPlayerSession {
     public boolean unsit() {
         if (seatExit == null)
             return false;
-        else {
-            Entity chair = player.getVehicle();
-            if (chair != null) {
-                chair.eject();
-                // Event handler takes care of removal
-            }
-            return true;
+
+        Entity chair = player.getVehicle();
+        if (chair != null) {
+            chair.eject();
+            // Event handler takes care of removal
         }
+        return true;
     }
 
     public void updateVanish() {

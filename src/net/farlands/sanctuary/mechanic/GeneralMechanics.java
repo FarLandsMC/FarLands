@@ -2,9 +2,9 @@ package net.farlands.sanctuary.mechanic;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import static com.kicas.rp.util.TextUtils.format;
-
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Cooldown;
@@ -28,8 +28,6 @@ import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
@@ -143,18 +141,33 @@ public class GeneralMechanics extends Mechanic {
 
     @Override
     public void onPlayerQuit(Player player) {
-        Location exit = FarLands.getDataHandler().getSession(player).seatExit;
-
-        if (exit != null) {
+        FLPlayerSession session = FarLands.getDataHandler().getSession(player);
+        if (session.seatExit != null) {
             Entity vehicle = player.getVehicle();
             if (vehicle != null) {
                 vehicle.eject();
                 vehicle.remove();
             }
-            player.teleport(exit);
-            FarLands.getDataHandler().getSession(player).seatExit = null;
+            player.teleport(session.seatExit);
+            session.seatExit = null;
         }
+
         updateNightSkip(true);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onVehicleExit(VehicleExitEvent event) {
+        if (!(event.getExited() instanceof Player))
+            return;
+
+        FLPlayerSession session = FarLands.getDataHandler().getSession((Player) event.getExited());
+        if (session.seatExit != null) {
+            event.setCancelled(true);
+            event.getVehicle().eject();
+            event.getVehicle().remove();
+            event.getExited().teleport(session.seatExit);
+            session.seatExit = null;
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -375,20 +388,6 @@ public class GeneralMechanics extends Mechanic {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerBedEnter(PlayerBedEnterEvent event) {
         updateNightSkip(true);
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onVehicleExit(VehicleExitEvent event) {
-        if (!(event.getExited() instanceof Player))
-            return;
-        FLPlayerSession session = FarLands.getDataHandler().getSession((Player) event.getExited());
-        if (session.seatExit != null) {
-            event.setCancelled(true);
-            event.getVehicle().eject();
-            event.getVehicle().remove();
-            event.getExited().teleport(session.seatExit);
-            session.seatExit = null;
-        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)

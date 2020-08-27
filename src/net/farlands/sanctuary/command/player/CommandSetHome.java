@@ -43,7 +43,7 @@ public class CommandSetHome extends PlayerCommand {
 
         // Check for claims
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(location);
-        if (!(flp.rank.isStaff() || flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
+        if (!(flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
             sendFormatted(sender, "&(red)You do not have permission to set a home in this claim.");
             return true;
         }

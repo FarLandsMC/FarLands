@@ -136,13 +136,10 @@ public class CommandMessage extends PlayerCommand {
 
     // Send the formatted message
     public static void sendMessages(CommandSender recipient, CommandSender sender, String message) {
-        OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
+        if (!FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff())
+            message = escapeExpression(message);
 
-        if (sender instanceof Player) {
-            FLPlayerSession senderSession = FarLands.getDataHandler().getSession((Player) sender);
-            if (!senderSession.handle.rank.isStaff())
-                message = escapeExpression(message);
-        }
+        OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
         // Censor the message if censoring
         String censored = message;
         if (recipientFlp != null && recipientFlp.censoring)
