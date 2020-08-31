@@ -251,8 +251,8 @@ public class GeneralMechanics extends Mechanic {
             Location location = event.getClickedBlock().getLocation();
             sendFormatted(player, "&(dark_purple)This portal best links to %0 in the %1.",
                     location.getWorld().getName().equals("world") ?
-                    (location.getBlockX() >> 3) + " "      + location.getBlockY() + " " + (location.getBlockZ() >> 3) :           // x / 8
-                    (location.getBlockX() << 3) + "(+15) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+15)",  // x * 8
+                    (location.getBlockX() >> 3) + " "     + location.getBlockY() + " " + (location.getBlockZ() >> 3) :           // x / 8
+                    (location.getBlockX() << 3) + "(+7) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+7)",  // x * 8
                     location.getWorld().getName().equals("world") ? "Nether" : "Overworld");
             return;
         }

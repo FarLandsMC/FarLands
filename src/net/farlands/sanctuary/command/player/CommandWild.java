@@ -112,7 +112,7 @@ public class CommandWild extends PlayerCommand {
         int death = 64;
         for (; --death >= 0;) {
             if (quickCheck(rtp.getBlock())) {
-                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 128);
+                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 127);
                 if (safe != null)
                     break;
             }
@@ -122,7 +122,7 @@ public class CommandWild extends PlayerCommand {
             ));
 
             if (quickCheck(rtp.getBlock())) {
-                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 128);
+                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 127);
                 if (safe != null)
                     break;
             }

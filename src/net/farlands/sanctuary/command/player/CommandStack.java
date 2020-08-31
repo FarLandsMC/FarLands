@@ -63,7 +63,7 @@ public class CommandStack extends PlayerCommand {
     }
 
     public CommandStack() {
-        super(Rank.ESQUIRE, "Stack all items of a similar type in your inventory.", "/stack [container|echest]",
+        super(Rank.ESQUIRE, "Stack all items of a similar type in your inventory.", "/stack [container|echest|hand]",
                 "stack", "condense");
     }
 
