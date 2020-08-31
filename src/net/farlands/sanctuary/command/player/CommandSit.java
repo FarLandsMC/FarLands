@@ -9,8 +9,8 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ReflectionHelper;
 
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPig;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPig;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -51,7 +51,7 @@ public class CommandSit extends PlayerCommand {
         seat.setAI(false);
         seat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
         seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,         Integer.MAX_VALUE, 1));
-        ReflectionHelper.setFieldValue("vehicle", net.minecraft.server.v1_16_R1.Entity.class,
+        ReflectionHelper.setFieldValue("vehicle", net.minecraft.server.v1_16_R2.Entity.class,
                 ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
         ((CraftPig) seat).getHandle().passengers.add(((CraftPlayer) sender).getHandle());
 

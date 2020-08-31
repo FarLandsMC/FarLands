@@ -2,7 +2,6 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
-import com.kicas.rp.RegionProtection;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -11,10 +10,10 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.minecraft.server.v1_16_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R2.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -53,7 +52,7 @@ public class CommandSkull extends PlayerCommand {
                 amount = 1;
         }
 
-        net.minecraft.server.v1_16_R1.ItemStack skull = CraftItemStack.asNMSCopy(new ItemStack(Material.PLAYER_HEAD,
+        net.minecraft.server.v1_16_R2.ItemStack skull = CraftItemStack.asNMSCopy(new ItemStack(Material.PLAYER_HEAD,
                 args.length > 1 ? Math.min(8, amount) : 1));
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("SkullOwner", args[0]);

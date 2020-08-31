@@ -13,12 +13,9 @@ import net.farlands.sanctuary.mechanic.MechanicHandler;
 import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
 
-import net.minecraft.server.v1_16_R1.CommandExecute;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;

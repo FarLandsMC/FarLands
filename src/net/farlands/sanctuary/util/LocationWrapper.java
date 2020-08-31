@@ -1,6 +1,6 @@
 package net.farlands.sanctuary.util;
 
-import net.minecraft.server.v1_16_R1.BlockPosition;
+import net.minecraft.server.v1_16_R2.BlockPosition;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 

@@ -1,28 +1,19 @@
-&7New Sponsor Rank:
- - Given to those with at least 60 dollars in total donations
- - 100,000 bonus claim blocks, 40 homes, shorter /package cooldown
- - Items can be colored in an anvil using chat color codes
- - Pet blocks
-   - Open the GUI with /petblock
-   - Spawn an adorable "pet block" that follows you around
-   - You can configure it however you like
- - Additional commands
-   - /mend: use your XP to mend the item you are currently holding
-   - /eat: use food in your inventory to fill your hunger instantly
-   - /editarmorstand: opens the vanilla tweaks armor stand book
-   - /kittycannon: gives you a cannon that shoots exploding cats
-Additions:
- - Co-owners are shown in /trustlist
- - Bee count in a mined hive are added to the item lore
- - Added /searchshops <item> for looking up items to buy
+&7Additions:
+ - Shop display items can be toggled off by shift-right-clicking the sign
+ - /stack hand will only stack items of the held item type
+ - You can hover over someone's nickname in chat to see their real name
+ - Added /claimtoggle fire-tick on|off
+ - Added /birthday command
+   - Register your birthday with /birthday register month/day
+   - See upcoming birthdays with /birthday upcoming week|month
+ - You can search for enchantments (optionally with the level) in /searchshops
+ - Added /editarmorstand marker on|off
+ - Added /renameitem <name> for Sponsor so that colors can be applied without the anvil limit being exceeded
 Changes:
- - Teleport requests can be accepted through a corresponding /tpa(here)
- - Muted players can no longer /mail send
- - Changed /abandonallclaims to /abandonclaim all
- - /stack hand can now be used to stack items that match the held item
+ - /kittycannon now fires cats instead of ocelots
+ - The kitty cannon item can no longer be equipped on horses
+ - /shopsearch allows filtering by buy and sell items
+ - Small change to /m formatting
 Fixes:
- - Reworked /craft, the command now returns empty bottles and buckets
- - Added tab completion to some commands
- - Fixed painting and item frame explosion damage in claims
- - Dolphins will no longer despawn when teleporting on a lead
- - Deaths in PvP arenas are not counted toward total deaths
+ - Fixed /mend all
+ - Fixed /realname not showing all matches

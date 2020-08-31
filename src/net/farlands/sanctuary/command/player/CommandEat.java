@@ -3,11 +3,11 @@ package net.farlands.sanctuary.command.player;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.minecraft.server.v1_16_R1.FoodMetaData;
+import net.minecraft.server.v1_16_R2.FoodMetaData;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +20,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 public class CommandEat extends PlayerCommand {
     private static final List<Material> BLACKLIST = Arrays.asList(
             Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.ROTTEN_FLESH, Material.SPIDER_EYE,
-            Material.POISONOUS_POTATO, Material.PUFFERFISH, Material.SUSPICIOUS_STEW
+            Material.POISONOUS_POTATO, Material.PUFFERFISH, Material.SUSPICIOUS_STEW, Material.CHORUS_FRUIT
     );
 
     public CommandEat() {
@@ -45,7 +45,7 @@ public class CommandEat extends PlayerCommand {
             }
 
             // Eat one of the item
-            net.minecraft.server.v1_16_R1.ItemStack copy = CraftItemStack.asNMSCopy(stack);
+            net.minecraft.server.v1_16_R2.ItemStack copy = CraftItemStack.asNMSCopy(stack);
             foodData.a(copy.getItem(), copy);
 
             // Use the item

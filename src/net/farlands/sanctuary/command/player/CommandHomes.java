@@ -44,7 +44,6 @@ public class CommandHomes extends Command {
                 return true;
             }
 
-            sender.sendMessage(ChatColor.GOLD + "You have " + flp.homes.size() + " home" + (flp.homes.size() == 1 ? "" : "s"));
             flp.homes.forEach(home -> {
                 Location location = home.getLocation();
                 sendFormatted(sender, "&(gold)$(hovercmd,/home %0 %1,Go to home {&(aqua)%0},%0: {&(aqua)%2 %3 %4})",
@@ -70,6 +69,7 @@ public class CommandHomes extends Command {
                         location.getBlockZ()
                 );
             });
+            sender.sendMessage(ChatColor.GOLD + "You have " + homes.size() + " home" + (homes.size() == 1 ? "" : "s"));
         }
 
         return true;

@@ -58,15 +58,13 @@ public class CommandKittyCannon extends PlayerCommand {
         return true;
     }
 
-    private static final double RADS = Math.PI / 180;
-
     public static void fireCannon(Player player) {
         Location location = player.getLocation();
         double yaw = location.getYaw();
         double pitch = location.getPitch();
-        double vx = -Math.sin(yaw   * RADS) * Math.cos(pitch * RADS);
-        double vy = -Math.sin(pitch * RADS);
-        double vz =  Math.cos(yaw   * RADS) * Math.cos(pitch * RADS);
+        double vx = -Math.sin(yaw   * FLUtils.DEGREES_TO_RADIANS) * Math.cos(pitch * FLUtils.DEGREES_TO_RADIANS);
+        double vy = -Math.sin(pitch * FLUtils.DEGREES_TO_RADIANS);
+        double vz =  Math.cos(yaw   * FLUtils.DEGREES_TO_RADIANS) * Math.cos(pitch * FLUtils.DEGREES_TO_RADIANS);
         double mag = 1.0 + 0.75 * Math.random();
         Vector velocity = new Vector(vx, vy, vz);
 

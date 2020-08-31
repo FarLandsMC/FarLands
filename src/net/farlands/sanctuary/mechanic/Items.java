@@ -7,7 +7,7 @@ import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.util.FireworkBuilder;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.minecraft.server.v1_16_R1.NBTTagCompound;
+import net.minecraft.server.v1_16_R2.NBTTagCompound;
 
 import static org.bukkit.entity.EntityType.*;
 import static org.bukkit.Material.*;

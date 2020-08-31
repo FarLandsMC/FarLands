@@ -5,6 +5,7 @@ import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
+import com.kicas.rp.event.ClaimCreationEvent;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
@@ -231,17 +232,21 @@ public class Restrictions extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
         Location to = event.getTo();
-        if ((Math.abs(to.getX()) > 5000 || Math.abs(to.getZ()) > 5000) && to.getWorld().getEnvironment() == World.Environment.NETHER
-                && !Rank.getRank(event.getPlayer()).isStaff()) {
-            event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "The nether border has temporarily been restricted due to world gen changes in 1.16.2");
-            return;
-        }
-
         int max = (int)to.getWorld().getWorldBorder().getSize() >> 1; // size / 2 (rounded down)
         if (Math.abs(to.getX()) > max || Math.abs(to.getZ()) > max) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot leave the world.");
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onClaimCreated(ClaimCreationEvent event) {
+        Location min = event.getRegion().getMin();
+        if (min.getWorld().getEnvironment() == World.Environment.NETHER &&
+                (Math.abs(min.getBlockX()) > 15000 || Math.abs(min.getBlockZ()) > 15000))
+        {
+            event.getCreator().sendMessage(ChatColor.RED + "You cannot create a claim more than 15k blocks from 0,0.");
+            event.setCancelled(true);
         }
     }
 

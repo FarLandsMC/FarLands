@@ -27,7 +27,6 @@ import net.farlands.sanctuary.util.Logging;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 import java.util.HashMap;
 import java.util.List;
@@ -220,7 +219,7 @@ public class DiscordHandler extends ListenerAdapter {
         String message = event.getMessage().getContentDisplay();
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
-        message = TextUtils.escapeExpression(Chat.removeColorCodes(message.replaceAll("\\s+", " ")));
+        message = TextUtils.escapeExpression(Chat.removeColorCodes(message));
         message = message.substring(0, Math.min(256, message.length())).trim();
         if (!event.getMessage().getAttachments().isEmpty()) {
             if (message.isEmpty())

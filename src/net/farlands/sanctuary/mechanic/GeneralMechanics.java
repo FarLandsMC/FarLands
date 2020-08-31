@@ -5,6 +5,11 @@ import static com.kicas.rp.util.TextUtils.format;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 
+import com.kicas.rp.data.RegionFlag;
+import com.kicas.rp.data.WorldData;
+import com.kicas.rp.data.flagdata.EnumFilter;
+import com.kicas.rp.data.flagdata.TrustLevel;
+import com.kicas.rp.data.flagdata.TrustMeta;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Cooldown;
@@ -18,7 +23,7 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_16_R2.*;
 
 import org.bukkit.*;
 import org.bukkit.Material;
@@ -27,8 +32,8 @@ import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R2.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -227,10 +232,17 @@ public class GeneralMechanics extends Mechanic {
         // Pick up dragon egg
         Player player = event.getPlayer();
         if (Material.DRAGON_EGG == event.getClickedBlock().getType()) {
+            FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
             event.setCancelled(true);
-            event.getClickedBlock().setType(Material.AIR);
-            FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
-            event.getPlayer().playSound(event.getClickedBlock().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
+            if (
+                    !flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
+                    (!event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK)
+                            .isBlocked(Material.DRAGON_EGG))
+            ) {
+                event.getClickedBlock().setType(Material.AIR);
+                FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
+                event.getPlayer().playSound(event.getClickedBlock().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
+            }
             return;
         }
 
@@ -417,7 +429,7 @@ public class GeneralMechanics extends Mechanic {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getEntity().getLocation());
-        if (flags != null && flags.isAdminOwned()) {
+        if (flags != null && flags.isAdminOwned()  && !(flags instanceof WorldData)) {
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 Bukkit.getOfflinePlayer(event.getEntity().getUniqueId()).decrementStatistic(Statistic.DEATHS);
             }, 5L);

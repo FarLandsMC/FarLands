@@ -26,15 +26,15 @@ import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.minecraft.server.v1_16_R1.*;
+import net.minecraft.server.v1_16_R2.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_16_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R2.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -120,6 +120,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandRankup());           // Initiate
         registerCommand(new CommandRealName());         // Initiate
         registerCommand(new CommandReboot());           // Initiate
+        registerCommand(new CommandRenameItem());       // Sponsor
         registerCommand(new CommandReport());           // Initiate
         registerCommand(new CommandResetHome());        // Initiate
         registerCommand(new CommandRules());            // Initiate

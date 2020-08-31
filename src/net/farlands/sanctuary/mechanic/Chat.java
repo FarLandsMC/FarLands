@@ -116,7 +116,7 @@ public class Chat extends Mechanic {
         String displayPrefix;
         if (senderFlp.nickname != null && !senderFlp.nickname.isEmpty()) {
             displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
-                    displayedRank.getName() + " {$(hover," + senderFlp.username + ",%0%1)}:} ";
+                    displayedRank.getName() + " {$(hover," + senderFlp.username + ",%0%1:)}} ";
         } else {
             displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
                     displayedRank.getName() + " {%0%1:}} ";
