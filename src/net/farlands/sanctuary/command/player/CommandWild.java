@@ -112,7 +112,7 @@ public class CommandWild extends PlayerCommand {
         int death = 64;
         for (; --death >= 0;) {
             if (quickCheck(rtp.getBlock())) {
-                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 127);
+                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 126);
                 if (safe != null)
                     break;
             }
@@ -122,7 +122,7 @@ public class CommandWild extends PlayerCommand {
             ));
 
             if (quickCheck(rtp.getBlock())) {
-                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 127);
+                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 126);
                 if (safe != null)
                     break;
             }
@@ -135,6 +135,7 @@ public class CommandWild extends PlayerCommand {
             // Pretty much never happens in practice
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
             sendFormatted(player, "&(red)Your random teleport randomly failed :(");
+            FarLands.getDebugger().echo(player.getName() + " /rtp -> fail");
             return;
         }
         FarLands.getDebugger().echo(player.getName() + " /rtp -> " +

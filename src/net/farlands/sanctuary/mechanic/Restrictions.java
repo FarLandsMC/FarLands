@@ -95,13 +95,7 @@ public class Restrictions extends Mechanic {
             }, 60L);
         }
 
-        if (isNew ||
-            (
-                player.getWorld().getEnvironment() == World.Environment.NETHER &&
-                    (Math.abs(player.getLocation().getX()) > 5000 ||
-                    Math.abs(player.getLocation().getZ()) > 5000)
-            )
-        ) {
+        if (isNew) {
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
                 if (spawn != null)
@@ -241,9 +235,11 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onClaimCreated(ClaimCreationEvent event) {
-        Location min = event.getRegion().getMin();
-        if (min.getWorld().getEnvironment() == World.Environment.NETHER &&
-                (Math.abs(min.getBlockX()) > 15000 || Math.abs(min.getBlockZ()) > 15000))
+        Location min = event.getRegion().getMin(),
+                 max = event.getRegion().getMax();
+        if (event.getRegion().getWorld().getEnvironment() == World.Environment.NETHER &&
+                (Math.abs(min.getBlockX()) > 15000 || Math.abs(min.getBlockZ()) > 15000 ||
+                 Math.abs(max.getBlockX()) > 15000 || Math.abs(max.getBlockZ()) > 15000))
         {
             event.getCreator().sendMessage(ChatColor.RED + "You cannot create a claim more than 15k blocks from 0,0.");
             event.setCancelled(true);
