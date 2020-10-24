@@ -3,6 +3,7 @@ package net.farlands.sanctuary.mechanic;
 import com.vexsoftware.votifier.model.VotifierEvent;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.data.DataHandler;
 import net.farlands.sanctuary.data.VoteConfig;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.PluginData;
@@ -87,7 +88,10 @@ public class Voting extends Mechanic {
     }
 
     public void doVoteParty() {
-        Bukkit.getOnlinePlayers().forEach(player -> {
+        Bukkit.getOnlinePlayers()
+                .stream()
+                .filter(player -> FarLands.getDataHandler().getOfflineFLPlayer(player).acceptVoteRewards)
+                .forEach(player -> {
             ItemStack stack = ItemReward.randomReward(voteConfig.votePartyRewards, voteConfig.votePartyDistribWeight).getFirst();
             player.sendMessage(ChatColor.GOLD + "Vote party! Receiving " + ChatColor.AQUA + FLUtils.itemName(stack));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.6929134F);

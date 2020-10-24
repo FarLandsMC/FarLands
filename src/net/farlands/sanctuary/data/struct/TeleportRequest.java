@@ -79,6 +79,7 @@ public final class TeleportRequest implements Runnable {
                 // Send messages
                 teleporter.sendMessage(ChatColor.RED + "Teleport canceled.");
                 teleporter.playSound(teleporter.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 3.0F, 1.0F);
+                anchor.sendMessage(ChatColor.RED + teleporter.getName() + " cancelled the teleport by moving.");
                 return;
             }
 

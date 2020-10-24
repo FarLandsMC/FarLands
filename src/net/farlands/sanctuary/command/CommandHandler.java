@@ -141,6 +141,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandTradepost());        // Initiate
         registerCommand(new CommandVote());             // Initiate
         registerCommand(new CommandVoteParty());        // Initiate
+        registerCommand(new CommandVoteRewards());      // Initiate
         registerCommand(new CommandWarp());             // Initiate
         registerCommand(new CommandWarps());            // Initiate
         registerCommand(new CommandWhyLag());           // Initiate
@@ -257,7 +258,7 @@ public class CommandHandler extends Mechanic {
                             sender,
                             // Position
                             server.getWorldServer(World.OVERWORLD) == null
-                                    ? Vec3D.a
+                                    ? Vec3D.ORIGIN
                                     : Vec3D.b(server.getWorldServer(World.OVERWORLD).getSpawn()),
                             Vec2F.a, // Rotation
                             server.getWorldServer(World.OVERWORLD), // World

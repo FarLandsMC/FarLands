@@ -45,6 +45,7 @@ public class OfflineFLPlayer {
     public boolean topVoter;
     public boolean viewedPatchnotes;
     public boolean debugging;
+    public boolean acceptVoteRewards;
     public Particles particles;
     public Rank rank;
     public ChatColor staffChatColor;
@@ -86,6 +87,7 @@ public class OfflineFLPlayer {
         this.topVoter = false;
         this.viewedPatchnotes = true;
         this.debugging = false;
+        this.acceptVoteRewards = true;
         this.particles = null;
         this.rank = Rank.INITIATE;
         this.staffChatColor = ChatColor.RED;
@@ -190,6 +192,12 @@ public class OfflineFLPlayer {
         ++ totalVotes;
         ++ totalSeasonVotes;
         ++ monthVotes;
+
+        if (!acceptVoteRewards) {
+            voteRewards = 0;
+            return;
+        }
+
         FLPlayerSession session = getSession();
         if(session != null) {
             session.giveVoteRewards(1);

@@ -76,7 +76,7 @@ public class AntiCheat extends Mechanic {
             muteFlightDetector((Player)event.getEntity(), 10);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         if (GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && xray.containsKey(event.getPlayer().getUniqueId()))
             xray.get(event.getPlayer().getUniqueId()).onBlockBreak(event);

@@ -391,20 +391,27 @@ public class DataHandler extends Mechanic {
 
     public OfflineFLPlayer getOfflineFLPlayerMatching(String username) {
         String lowerCaseUsername = username.toLowerCase();
-        OfflineFLPlayer match = null;
+        List<OfflineFLPlayer> matches = new ArrayList<>();
         int matchLevel = 0;
+
         for (OfflineFLPlayer flp : flPlayerMap.values()) {
             if (flp.username.equals(username))
                 return flp;
-            else if (matchLevel == 1 && flp.username.equalsIgnoreCase(username)) {
-                match = flp;
+            else if (matchLevel <= 2 && flp.username.equalsIgnoreCase(username)) {
+                if (matchLevel < 2)
+                    matches.clear();
+                matches.add(flp);
                 matchLevel = 2;
-            } else if (matchLevel == 0 && flp.username.toLowerCase().startsWith(lowerCaseUsername)) {
-                match = flp;
+            } else if (matchLevel <= 1 && flp.username.toLowerCase().startsWith(lowerCaseUsername)) {
+                matches.add(flp);
                 matchLevel = 1;
             }
         }
-        return match;
+
+        // Return match with the highest play time
+        return matches.stream()
+                .max(Comparator.comparingInt(flp -> flp.secondsPlayed))
+                .orElse(null);
     }
 
     public List<OfflineFLPlayer> getOfflineFLPlayers() {

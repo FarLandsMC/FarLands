@@ -2,10 +2,12 @@ package net.farlands.sanctuary.mechanic;
 
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
+import com.kicas.rp.data.Region;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimCreationEvent;
+import com.kicas.rp.event.ClaimResizeEvent;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
@@ -25,6 +27,7 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.*;
@@ -235,13 +238,23 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onClaimCreated(ClaimCreationEvent event) {
-        Location min = event.getRegion().getMin(),
-                 max = event.getRegion().getMax();
-        if (event.getRegion().getWorld().getEnvironment() == World.Environment.NETHER &&
+        checkClaim(event.getCreator(), event.getRegion(), event);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onClaimResized(ClaimResizeEvent event) {
+        checkClaim(event.getDelegate(), event.getRegion(), event);
+    }
+
+    private void checkClaim(Player delegate, Region region, Cancellable event) {
+        Location min = region.getMin(),
+                max = region.getMax();
+        if (region.getWorld().getEnvironment() == World.Environment.NETHER &&
                 (Math.abs(min.getBlockX()) > 15000 || Math.abs(min.getBlockZ()) > 15000 ||
-                 Math.abs(max.getBlockX()) > 15000 || Math.abs(max.getBlockZ()) > 15000))
+                        Math.abs(max.getBlockX()) > 15000 || Math.abs(max.getBlockZ()) > 15000))
         {
-            event.getCreator().sendMessage(ChatColor.RED + "You cannot create a claim more than 15k blocks from 0,0.");
+            if (delegate != null)
+                delegate.sendMessage(ChatColor.RED + "You cannot create a claim more than 15k blocks from 0,0.");
             event.setCancelled(true);
         }
     }
