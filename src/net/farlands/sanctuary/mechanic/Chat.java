@@ -15,8 +15,12 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
+import net.minecraft.server.v1_16_R2.NBTTagCompound;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,14 +28,20 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Chat extends Mechanic {
     public static final List<ChatColor> ILLEGAL_COLORS = Arrays.asList(ChatColor.MAGIC, ChatColor.BLACK);
+    public static final List<Character> COLOR_CHARS = Arrays.asList('0', '1', '2', '3', '4', '5', '6',
+            '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'l', 'm', 'n', 'o', 'r');
     private static final List<String> DISCORD_CHARS = Arrays.asList("_", "~", "*", ":", "`", "|", ">");
     private static final MessageFilter MESSAGE_FILTER = new MessageFilter();
     private final List<BaseComponent[]> rotatingMessages;
@@ -67,7 +77,7 @@ public class Chat extends Mechanic {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         event.setJoinMessage(null);
         if (flp.vanished)
-            Logging.broadcastStaff(ChatColor.YELLOW + event.getPlayer().getName() + " joined silently.");
+            Logging.broadcastStaff(ChatColor.YELLOW + event.getPlayer().getName() + " has joined silently.");
         else
             playerTransition(flp, true);
     }
@@ -76,7 +86,9 @@ public class Chat extends Mechanic {
     public void onPlayerQuit(PlayerQuitEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         event.setQuitMessage(null);
-        if (!flp.vanished)
+        if (flp.vanished)
+            Logging.broadcastStaff(ChatColor.YELLOW + event.getPlayer().getName() + " has left silently.");
+        else
             playerTransition(flp, false);
     }
 
@@ -137,10 +149,14 @@ public class Chat extends Mechanic {
             Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
                     sender.getDisplayName(), message), DiscordChannel.ALERTS);
             return;
-        } else
+        } else {
             message = applyColorCodes(senderFlp.rank, message);
+            message = itemShare(senderFlp.rank, message, sender);
+        }
 
-
+        if (removeColorCodes(message).length() < 1) {
+            return;
+        }
         if (message.startsWith("!")) {
             if (message.length() <= 1)
                 return;
@@ -163,15 +179,15 @@ public class Chat extends Mechanic {
             }
         }
         final String lmessage = limitCaps(limitFlood(message)),
-                     fmessage = displayPrefix + TextUtils.escapeExpression(lmessage),
-                censorMessage = displayPrefix + TextUtils.escapeExpression(Chat.getMessageFilter().censor(lmessage));
+                     fmessage = displayPrefix + lmessage,
+                censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
                 .filter(session -> !session.handle.isIgnoring(senderFlp))
                 .forEach(session -> {
                     if (session.handle.censoring)
-                        TextUtils.sendFormatted(session.player, censorMessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName());
+                        TextUtils.sendFormatted(session.player, senderFlp.rank.isStaff(), censorMessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName());
                     else
-                        TextUtils.sendFormatted(session.player, fmessage,      senderFlp.rank.getNameColor(), senderFlp.getDisplayName());
+                        TextUtils.sendFormatted(session.player, senderFlp.rank.isStaff(), fmessage,      senderFlp.rank.getNameColor(), senderFlp.getDisplayName());
                 });
         FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, TextUtils.format(fmessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName()));
         // never send the nickname to console/logs
@@ -237,17 +253,45 @@ public class Chat extends Mechanic {
         return removeColorCodes(message);
     }
 
+    public static final Pattern pattern6 = Pattern.compile("&#[a-fA-F0-9]{6}");
+    public static final Pattern pattern3 = Pattern.compile("&#[a-fA-F0-9]{3}");
+    public static List<Integer> formatted = new CopyOnWriteArrayList<>();
+
     public static String removeColorCodes(String message) {
+        Matcher match6 = pattern6.matcher(message);
+        Matcher match3 = pattern3.matcher(message);
+        while (match6.find()) {
+            String color = message.substring(match6.start(), match6.end());
+            message = message.replace(color, "");
+            match6 = pattern6.matcher(message);
+            match3 = pattern3.matcher(message);
+        }
+        while (match3.find()) {
+            String color = message.substring(match3.start(), match3.end());
+            message = message.replace(color, "");
+            match3 = pattern3.matcher(message);
+        }
         StringBuilder sb = new StringBuilder(message.length());
         char[] chars = message.toCharArray();
         for (int i = 0; i < chars.length; ++i) {
             if (chars[i] == '&' || chars[i] == ChatColor.COLOR_CHAR) {
-                ++i;
-                continue;
+                try {
+                    if (COLOR_CHARS.contains(chars[i+1])) {
+                        ++i;
+                        continue;
+                    }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    // do nothing :)
+                    // allows for removing color codes in tab complete methods
+                }
             }
             sb.append(chars[i]);
         }
         return sb.toString();
+    }
+
+    public static String applyColorCodes(String message) {
+        return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     public static String applyColorCodes(Rank rank, String message) {
@@ -255,14 +299,98 @@ public class Chat extends Mechanic {
             return removeColorCodes(message);
         message = applyColorCodes(message);
         if (!rank.isStaff()) {
-            for (ChatColor color : ILLEGAL_COLORS)
+            for (org.bukkit.ChatColor color : ILLEGAL_COLORS) {
                 message = message.replaceAll(ChatColor.COLOR_CHAR + Character.toString(color.getChar()), "");
+            }
+        }
+        message = sixChar(message);
+        message = threeChar(message);
+        formatted.clear();
+        return message;
+    }
+
+    public static String sixChar(String message) {
+        Matcher match6 = pattern6.matcher(message);
+        while (match6.find()) {
+            String color = message.substring(match6.start()+1, match6.end());
+            if (!formatted.contains(match6.start())) {
+                if (getLuma(color) > 16) {
+                    StringBuilder sb = new StringBuilder(message);
+                    sb.delete(match6.start(), match6.start() + 8);
+                    sb.insert(match6.start(), net.md_5.bungee.api.ChatColor.of(color));
+                    message = sb.toString();
+                } else {
+                    StringBuilder sb = new StringBuilder(message);
+                    sb.delete(match6.start(), match6.start() + 8);
+                    message = sb.toString();
+                }
+                formatted.add(match6.start());
+                match6 = pattern6.matcher(message);
+            }
         }
         return message;
     }
 
-    public static String applyColorCodes(String message) {
-        return ChatColor.translateAlternateColorCodes('&', message);
+    public static String threeChar(String message) {
+        Matcher match3 = pattern3.matcher(message);
+        while (match3.find()) {
+            String color = message.substring(match3.start()+1, match3.end());
+            char[] chars = color.toCharArray();
+            String newColor = String.valueOf(chars[0]) + chars[1] + chars[1] + chars[2] + chars[2] + chars[3] + chars[3];
+            if (!formatted.contains(match3.start())) {
+                if (getLuma(newColor) > 16) {
+                    StringBuilder sb2 = new StringBuilder(message);
+                    sb2.delete(match3.start(), match3.start() + 5);
+                    sb2.insert(match3.start(), net.md_5.bungee.api.ChatColor.of(newColor));
+                    message = sb2.toString();
+                } else {
+                    StringBuilder sb2 = new StringBuilder(message);
+                    sb2.delete(match3.start(), match3.start() + 5);
+                    message = sb2.toString();
+                }
+                formatted.add(match3.start());
+                match3 = pattern3.matcher(message);
+            }
+        }
+        return message;
+    }
+
+    // Returns luminescence of a given 6 char hex string
+    public static double getLuma(String color) {
+        int red = Integer.valueOf(color.substring(1,3), 16);
+        int green = Integer.valueOf(color.substring(3,5), 16);
+        int blue = Integer.valueOf(color.substring(5,7), 16);
+        return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
+    }
+
+    public static String itemShare(Rank rank, String message, Player player) {
+        if (rank == null || rank.specialCompareTo(Rank.ADEPT) < 0)
+            return message;
+
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (item.getType() == Material.AIR) {
+            return message;
+        }
+
+        net.minecraft.server.v1_16_R2.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(item);
+        net.minecraft.server.v1_16_R2.NBTTagCompound compound = new NBTTagCompound();
+        compound = nmsItemStack.save(compound);
+        String json = compound.toString(); // standard object
+
+        String name;
+        if (item.getItemMeta().getDisplayName().equals("")) {
+            name = item.getType().name().replace("_", " ");
+            name = WordUtils.capitalizeFully(name);
+        } else
+            name = item.getItemMeta().getDisplayName();
+
+        message = message.replace("[item]", "[i]");
+        message = message.replace("[hand]", "[i]");
+        if (message.contains("[i]")) {
+            String insert = "{$(item,"+json+",&(aqua)[i] " + name + "&(white))}";
+            message = message.replace("[i]", insert);
+        }
+        return message;
     }
 
     public static class MessageFilter {

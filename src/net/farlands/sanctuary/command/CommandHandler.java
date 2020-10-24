@@ -91,6 +91,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandEat());              // Sponsor
         registerCommand(new CommandEchest());           // Donor
         registerCommand(new CommandEditArmorStand());   // Sponsor
+        registerCommand(new CommandEditSign());         // Sage
         registerCommand(new CommandExtinguish());       // Patron
         registerCommand(new CommandGivePet());          // Initiate
         registerCommand(new CommandGuideBook());        // Initiate
@@ -102,6 +103,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandIgnoredList());      // Initiate
         registerCommand(new CommandJoined());           // Initiate
         registerCommand(new CommandKittyCannon());      // Sponsor
+        registerCommand(new CommandLastDeath());        // Initiate
         registerCommand(new CommandList());             // Initiate
         registerCommand(new CommandMail());             // Initiate
         registerCommand(new CommandMe());               // Initiate
