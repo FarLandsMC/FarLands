@@ -29,7 +29,7 @@ import java.util.List;
 public class CommandEditSign extends PlayerCommand {
 
     public CommandEditSign() {
-        super(Rank.SAGE, Category.UTILITY, "Edit a specific line of a sign.", "/editsign <line> <text>", "editsign");
+        super(Rank.SAGE, Category.UTILITY, "Edit a specific line of a sign.", "/editsign <set/clear> <line> <text>", "editsign");
     }
 
     @Override
