@@ -68,7 +68,7 @@ public class Scheduler extends Thread {
 
     public synchronized boolean resetTask(int uid) {
         TaskBase task = getTask(uid);
-        if(task == null)
+        if (task == null)
             return false;
         task.reset();
         return true;
@@ -76,7 +76,7 @@ public class Scheduler extends Thread {
 
     public synchronized boolean completeTask(int uid) {
         TaskBase task = getTask(uid);
-        if(task == null)
+        if (task == null)
             return false;
         task.complete();
         return tasks.remove(task);

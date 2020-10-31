@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.escapeExpression;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Materials;
+import com.kicas.rp.util.TextUtils;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -10,9 +11,10 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.data.struct.Package;
+import net.farlands.sanctuary.data.struct.PackageToggle;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.TimeInterval;
-import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -64,51 +66,37 @@ public class CommandPackage extends PlayerCommand {
 
         // If the package has a message then grab it and apply color codes if the sender has chat colors
         final String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)),
-                     escapedMessage = escapeExpression(message);
+              escapedMessage = escapeExpression(message);
         final boolean useEscaped = !senderSession.handle.rank.isStaff();
 
-        // Directly give it to the recipient if they're online
-        if (recipientFlp.isOnline()) {
-            Player player = recipientFlp.getOnlinePlayer();
+        if (recipientFlp.packageToggle == PackageToggle.DECLINE) {
+            TextUtils.sendFormatted(sender, "&(red)This player is not accepting packages.");
+            return true;
+        }
 
-            // Modify necessary data
-            FLUtils.giveItem(player, item, true);
+        // Players can only queue one item at a time, so make sure this operation actually succeeds
+        if (FarLands.getDataHandler().addPackage(recipientFlp.uuid,
+                new Package(sender.getUniqueId(), escapeExpression(senderSession.handle.getDisplayName()),
+                item, useEscaped ? escapedMessage : message, false))
+        ) {
             sender.getInventory().setItemInMainHand(null);
             senderSession.setCommandCooldown(this, senderSession.handle.rank.getPackageCooldown() * 60L * 20L);
+            if (recipientFlp.isOnline())
+                recipientFlp.getSession().givePackages();
 
-            // Notify parties involved
-            sendFormatted(player, "&(gold){&(aqua)%0} has sent you {&(aqua)%1}%2.",
-                    senderSession.handle.getDisplayName(), FLUtils.itemName(item),
-                    message.equals("")
-                            ? ""
-                            : " with the following message: {&(aqua)" + (useEscaped ? escapedMessage : message) + "}");
-            sendFormatted(sender, "&(gold)Package sent to {&(aqua)%0}%1.",
-                    recipientFlp.getDisplayName(), message.isEmpty()
-                            ? ""
-                            : " with the following message: {&(aqua)" + (useEscaped ? escapedMessage : message) + "}");
+            sendFormatted(sender, "&(green)Package sent.");
         }
-        // If the recipient is not online then queue it for when the log back in
-        else {
-            // Players can only queue one item at a time, so make sure this operation actually succeeds
-            if (FarLands.getDataHandler().addPackage(
-                    recipientFlp.uuid, escapeExpression(senderSession.handle.getDisplayName()),
-                    item, useEscaped ? escapedMessage : message)
-            ) {
-                sender.getInventory().setItemInMainHand(null);
-                senderSession.setCommandCooldown(this, senderSession.handle.rank.getPackageCooldown() * 60L * 20L);
-
-                sendFormatted(sender, "&(green)Package sent.");
-            }
-            // The sender already has a package queued for this person so the transfer failed
-            else
-                sendFormatted(sender, "&(red)You cannot send %0 a package right now.", recipientFlp.username);
-        }
+        // The sender already has a package queued for this person so the transfer failed
+        else
+            sendFormatted(sender, "&(red)You cannot send %0 a package right now.", recipientFlp.username);
 
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args[0], sender) : Collections.emptyList();
+        return args.length <= 1
+                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender)
+                : Collections.emptyList();
     }
 }

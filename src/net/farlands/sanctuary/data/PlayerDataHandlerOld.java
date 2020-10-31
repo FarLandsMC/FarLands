@@ -1,11 +1,13 @@
 package net.farlands.sanctuary.data;
 
+import com.kicas.rp.util.Pair;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.util.FileSystem;
-import net.farlands.sanctuary.util.Pair;
 import net.farlands.sanctuary.util.FLUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;

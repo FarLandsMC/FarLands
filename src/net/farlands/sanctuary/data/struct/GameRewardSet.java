@@ -1,9 +1,11 @@
 package net.farlands.sanctuary.data.struct;
 
 import com.kicas.rp.util.TextUtils;
+import com.kicas.rp.util.Pair;
+
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.Pair;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

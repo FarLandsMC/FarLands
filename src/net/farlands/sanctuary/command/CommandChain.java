@@ -1,8 +1,10 @@
 package net.farlands.sanctuary.command;
 
+import com.kicas.rp.util.Pair;
+
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.Pair;
 import net.farlands.sanctuary.util.FLUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 

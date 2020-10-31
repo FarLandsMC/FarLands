@@ -1,10 +1,12 @@
 package net.farlands.sanctuary.command;
 
 import com.kicas.rp.util.TextUtils;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -101,8 +103,8 @@ public abstract class Command extends org.bukkit.command.Command {
 
     public boolean canUse(CommandSender sender) {
         if (Rank.getRank(sender).specialCompareTo(minimumRankRequirement) < 0) {
-            sender.sendMessage(ChatColor.RED + "You must be at least rank " + FLUtils.capitalize(minimumRankRequirement.toString()) +
-                    " to use this command.");
+            sender.sendMessage(ChatColor.RED + "You must be at least rank " +
+                    FLUtils.capitalize(minimumRankRequirement.toString()) + " to use this command.");
             return false;
         }
         return true;

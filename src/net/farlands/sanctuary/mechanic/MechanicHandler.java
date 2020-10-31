@@ -4,6 +4,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.mechanic.region.*;
 import net.farlands.sanctuary.util.Logging;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,6 +32,9 @@ public class MechanicHandler implements Listener {
         registerMechanic(FarLands.getDataHandler());
         registerMechanic(FarLands.getGuiHandler());
 
+        if (AutumnEvent.isActive())
+            registerMechanic(new AutumnEvent());
+
         // Feature mechanics
         registerMechanic(new AFK());
         registerMechanic(new AntiCheat());
@@ -38,7 +42,7 @@ public class MechanicHandler implements Listener {
         registerMechanic(new CompassMechanic());
         registerMechanic(new GeneralMechanics());
         registerMechanic(new Restrictions());
-        //registerMechanic(new Spawn());
+        registerMechanic(new Spawn());
         registerMechanic(new Toggles());
         registerMechanic(new Voting());
         registerMechanic(new Items());
@@ -58,13 +62,13 @@ public class MechanicHandler implements Listener {
 
     @EventHandler
     public void onPluginEnable(PluginEnableEvent event) {
-        if(FarLands.class.equals(event.getPlugin().getClass()))
+        if (FarLands.class.equals(event.getPlugin().getClass()))
             mechanics.forEach(Mechanic::onStartup);
     }
 
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {
-        if(FarLands.class.equals(event.getPlugin().getClass()))
+        if (FarLands.class.equals(event.getPlugin().getClass()))
             mechanics.forEach(Mechanic::onShutdown);
     }
 

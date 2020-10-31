@@ -235,9 +235,9 @@ public class GeneralMechanics extends Mechanic {
             FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
             event.setCancelled(true);
             if (
-                    !flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
+                    flags != null && (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
                     (!event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK)
-                            .isBlocked(Material.DRAGON_EGG))
+                            .isBlocked(Material.DRAGON_EGG)))
             ) {
                 event.getClickedBlock().setType(Material.AIR);
                 FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
@@ -247,7 +247,8 @@ public class GeneralMechanics extends Mechanic {
         }
 
         // Tell players where a portal links
-        if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.NETHER_PORTAL) {
+        if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK &&
+                event.getClickedBlock().getType() == Material.NETHER_PORTAL) {
             Location location = event.getClickedBlock().getLocation();
             sendFormatted(player, "&(dark_purple)This portal best links to %0 in the %1.",
                     location.getWorld().getName().equals("world") ?

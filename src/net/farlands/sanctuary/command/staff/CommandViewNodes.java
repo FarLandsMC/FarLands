@@ -1,13 +1,13 @@
 package net.farlands.sanctuary.command.staff;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
+import com.kicas.rp.util.Pair;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.mechanic.anticheat.Detecting;
-import net.farlands.sanctuary.util.Pair;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

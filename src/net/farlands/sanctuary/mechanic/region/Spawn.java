@@ -16,12 +16,13 @@ import org.bukkit.inventory.ItemStack;
 
 public class Spawn extends Mechanic {
 
-    private static final int END_PORTAL_COST = 5;
     private static final Region END_PORTAL = new Region(
-            new Location(Bukkit.getWorld("world"), -116, 130, -76),
-            new Location(Bukkit.getWorld("world"), -109, 137, -67));
+            new Location(Bukkit.getWorld("world"), 111, 78, -133),
+            new Location(Bukkit.getWorld("world"), 111, 81, -131)
+    );
 
     public Spawn() {
+
     }
 
     @EventHandler
@@ -46,21 +47,15 @@ public class Spawn extends Mechanic {
     private void checkSpawnPortal(Location from, Location to, PlayerMoveEvent event) {
         if (!END_PORTAL.contains(from) && END_PORTAL.contains(to)) {
             Player player = event.getPlayer();
-            if (player.getGameMode() != GameMode.SURVIVAL && Rank.getRank(player).isStaff())
-                return;
-            ItemStack stack = player.getInventory().getItemInMainHand();
-            if (Material.DIAMOND == stack.getType() && stack.getAmount() >= END_PORTAL_COST) {
-                stack.setAmount(stack.getAmount() - END_PORTAL_COST);
-                player.getInventory().setItemInMainHand(stack.getAmount() == 0 ? null : stack);
-                player.sendMessage(ChatColor.GREEN + "Payment accepted. You may now use the portal.");
-            } else {
-                player.sendMessage(ChatColor.RED + "To enter this room, you must be holding at least 5 diamonds in your main hand. " +
-                        "5 diamonds will be removed from your hand upon entering.");
+            if (!AutumnEvent.isActive()) {
+                player.sendMessage(ChatColor.RED + "There are no events running.");
                 event.setCancelled(true);
                 // yeet them in the other direction to reduce chat spam
                 from.setYaw(from.getYaw() + 180);
                 player.teleport(from);
+                return;
             }
+            player.teleport(AutumnEvent.getSpawn());
         }
     }
 }

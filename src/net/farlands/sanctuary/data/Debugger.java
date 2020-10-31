@@ -25,6 +25,7 @@ public class Debugger {
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + key + ": " + ChatColor.GREEN + data.get());
         });
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + key + ": " + data.get() + "```");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[DEBUG] " + key + ": " + ChatColor.GREEN + data.get());
     }
 
     public void echo(String key, Object data) {
@@ -37,6 +38,7 @@ public class Debugger {
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + msg);
         });
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + msg + "```");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[DEBUG] " + msg);
     }
 
     public void post(String key, Function<String[], String> data) {

@@ -7,6 +7,8 @@ import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 
+import com.kicas.rp.util.Pair;
+
 import net.farlands.sanctuary.FarLands;
 
 import net.minecraft.server.v1_16_R2.*;

@@ -1,10 +1,10 @@
 package net.farlands.sanctuary.mechanic.anticheat;
 
 import com.kicas.rp.util.Materials;
+import com.kicas.rp.util.Pair;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.util.Pair;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

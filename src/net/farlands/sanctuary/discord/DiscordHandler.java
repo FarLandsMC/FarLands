@@ -2,6 +2,7 @@ package net.farlands.sanctuary.discord;
 
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
+
 import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -16,6 +17,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -24,6 +27,7 @@ import net.farlands.sanctuary.data.struct.Proposal;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.Logging;
+
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -64,8 +68,7 @@ public class DiscordHandler extends ListenerAdapter {
                 return;
             }
 
-            jdaBot = (new JDABuilder(AccountType.BOT))
-                    .setToken(config.token)
+            jdaBot = (JDABuilder.createDefault(config.token))
                     .setAutoReconnect(true)
                     .setActivity(getStats())
                     .setStatus(OnlineStatus.ONLINE)
@@ -215,7 +218,7 @@ public class DiscordHandler extends ListenerAdapter {
 
         if (event.getAuthor().isBot())
             return;
-        DiscordSender sender = new DiscordSender(event.getAuthor(), event.getChannel());
+        DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel());
         String message = event.getMessage().getContentDisplay();
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;

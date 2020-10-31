@@ -6,6 +6,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -24,39 +25,50 @@ import java.util.stream.Collectors;
 
 public class OfflineFLPlayer {
     public UUID uuid;
+
+    public String lastIP;
+    public String nickname;
     public String username;
+
     public long discordID;
     public long lastLogin;
-    public String nickname;
-    public String lastIP;
-    public int secondsPlayed;
+
+    public long ptime;
+    public boolean pweather;
+
+    public int bonusClaimBlocksReceived;
     public int totalVotes;
     public int totalSeasonVotes;
     public int monthVotes;
     public int voteRewards;
-    public double amountDonated;
+    public int secondsPlayed;
     public int shops;
-    public int bonusClaimBlocksReceived;
+
+    public double amountDonated;
+
+    public boolean acceptVoteRewards;
+    public boolean censoring;
+    public boolean debugging;
     public boolean flightPreference;
     public boolean god;
-    public boolean vanished;
-    public boolean censoring;
     public boolean pvp;
     public boolean topVoter;
+    public boolean vanished;
     public boolean viewedPatchnotes;
-    public boolean debugging;
-    public boolean acceptVoteRewards;
-    public Particles particles;
-    public Rank rank;
-    public ChatColor staffChatColor;
-    public Birthday birthday;
+
+    public Birthday        birthday;
+    public ChatColor       staffChatColor;
     public LocationWrapper lastLocation;
-    public Mute currentMute;
-    public List<String> notes;
-    public List<Punishment> punishments;
-    public Set<UUID> ignoredPlayers;
-    public List<Home> homes;
+    public Mute            currentMute;
+    public PackageToggle   packageToggle;
+    public Particles       particles;
+    public Rank            rank;
+
+    public Set<UUID>         ignoredPlayers;
+    public List<Home>        homes;
     public List<MailMessage> mail;
+    public List<Punishment>  punishments;
+    public List<String>      notes;
 
     public static final Map<String, List<String>> SQL_SER_INFO = (new ImmutableMap.Builder<String, List<String>>())
             .put("constants", Arrays.asList("uuid", "username"))
@@ -66,37 +78,48 @@ public class OfflineFLPlayer {
 
     public OfflineFLPlayer(UUID uuid, String username) {
         this.uuid = uuid;
+
+        this.lastIP = "";
+        this.nickname = "";
         this.username = username;
+
         this.discordID = 0;
         this.lastLogin = System.currentTimeMillis();
-        this.nickname = "";
-        this.lastIP = "";
-        this.secondsPlayed = 0;
+
+        this.ptime = -1;
+        this.pweather = false;
+
+        this.bonusClaimBlocksReceived = 0;
         this.totalVotes = 0;
         this.totalSeasonVotes = 0;
         this.monthVotes = 0;
         this.voteRewards = 0;
-        this.amountDonated = 0;
+        this.secondsPlayed = 0;
         this.shops = 0;
-        this.bonusClaimBlocksReceived = 0;
+
+        this.amountDonated = 0;
+
+        this.acceptVoteRewards = true;
+        this.censoring = false;
+        this.debugging = false;
         this.flightPreference = false;
         this.god = false;
-        this.vanished = false;
-        this.censoring = false;
         this.pvp = false;
         this.topVoter = false;
+        this.vanished = false;
         this.viewedPatchnotes = true;
-        this.debugging = false;
-        this.acceptVoteRewards = true;
-        this.particles = null;
-        this.rank = Rank.INITIATE;
-        this.staffChatColor = ChatColor.RED;
+
         this.birthday = null;
+        this.staffChatColor = ChatColor.RED;
         this.lastLocation = null;
         this.currentMute = null;
+        this.packageToggle = PackageToggle.ACCEPT;
+        this.particles = null;
+        this.rank = Rank.INITIATE;
+
+        this.ignoredPlayers = new HashSet<>();
         this.notes = new ArrayList<>();
         this.punishments = new ArrayList<>();
-        this.ignoredPlayers = new HashSet<>();
         this.homes = new ArrayList<>();
         this.mail = new ArrayList<>();
     }
@@ -110,9 +133,9 @@ public class OfflineFLPlayer {
     */
 
     public synchronized void update() {
-        if(currentMute != null && currentMute.hasExpired()) {
+        if (currentMute != null && currentMute.hasExpired()) {
             currentMute = null;
-            if(isOnline())
+            if (isOnline())
                 getOnlinePlayer().sendMessage(ChatColor.GREEN + "Your mute has expired.");
         }
         updateDiscord();
@@ -164,7 +187,7 @@ public class OfflineFLPlayer {
 
     public boolean updateSessionIfOnline(boolean sendMessages) {
         Player player = getOnlinePlayer();
-        if(player != null) {
+        if (player != null) {
             FarLands.getDataHandler().getSession(player).update(sendMessages);
             return true;
         }
@@ -189,9 +212,9 @@ public class OfflineFLPlayer {
     }
 
     public void addVote() {
-        ++ totalVotes;
-        ++ totalSeasonVotes;
-        ++ monthVotes;
+        ++totalVotes;
+        ++totalSeasonVotes;
+        ++monthVotes;
 
         if (!acceptVoteRewards) {
             voteRewards = 0;
@@ -199,11 +222,11 @@ public class OfflineFLPlayer {
         }
 
         FLPlayerSession session = getSession();
-        if(session != null) {
+        if (session != null) {
             session.giveVoteRewards(1);
             session.player.sendMessage(ChatColor.GOLD + "Receiving 1 vote reward!");
-        }else
-            ++ voteRewards;
+        } else
+            ++voteRewards;
     }
 
     public void clearMonthVotes() {
@@ -211,7 +234,7 @@ public class OfflineFLPlayer {
     }
 
     public void addShop() {
-        ++ shops;
+        ++shops;
     }
 
     public boolean canAddShop() {
@@ -219,8 +242,8 @@ public class OfflineFLPlayer {
     }
 
     public void removeShop() {
-        if(shops > 0)
-            -- shops;
+        if (shops > 0)
+            --shops;
     }
 
     public boolean hasParticles() {
@@ -228,10 +251,10 @@ public class OfflineFLPlayer {
     }
 
     public void setParticles(Particle type, Particles.ParticleLocation location) {
-        if(type == null || location == null)
+        if (type == null || location == null)
             particles = null;
-        else{
-            if(particles == null)
+        else {
+            if (particles == null)
                 particles = new Particles(type, location);
             else
                 particles.setTypeAndLocation(type, location);
@@ -253,10 +276,10 @@ public class OfflineFLPlayer {
     public void setRank(Rank rank) {
         Player player = getOnlinePlayer();
         boolean online = player != null;
-        if(rank.specialCompareTo(this.rank) > 0) {
+        if (rank.specialCompareTo(this.rank) > 0) {
             Logging.broadcast(ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
                     " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ", true);
-            if(online)
+            if (online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
         }
         this.rank = rank;
@@ -303,15 +326,15 @@ public class OfflineFLPlayer {
 
     public long punish(Punishment.PunishmentType type, String message) { // Returns time remaining
         Punishment p = new Punishment(type, message);
-        if(punishments.size() >= 4 || punishments.stream().map(Punishment::getType).anyMatch(Punishment.PunishmentType::isPermanent))
+        if (punishments.size() >= 4 || punishments.stream().map(Punishment::getType).anyMatch(Punishment.PunishmentType::isPermanent))
             return -1L; // No use for further punishing, this player is permanently banned
         punishments.add(p);
         Player player = getOnlinePlayer();
-        if(player != null)
+        if (player != null)
             player.kickPlayer(p.generateBanMessage(punishments.size() - 1, true));
         LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
-        if(spawn != null) { // Make sure spawn is set
-            if(player != null)
+        if (spawn != null) { // Make sure spawn is set
+            if (player != null)
                 FLUtils.tpPlayer(player, spawn.asLocation());
             else
                 lastLocation = spawn;
@@ -321,16 +344,16 @@ public class OfflineFLPlayer {
 
     public boolean pardon(Punishment.PunishmentType type) {
         Punishment punishment = null;
-        for(int i = punishments.size() - 1;i >= 0;-- i) {
-            if(type.equals(punishments.get(i).getType()))
+        for (int i = punishments.size() - 1; i >= 0; --i) {
+            if (type.equals(punishments.get(i).getType()))
                 punishment = punishments.get(i);
         }
         return punishments.remove(punishment);
     }
 
     public Punishment getCurrentPunishment() {
-        for(int i = punishments.size() - 1;i >= 0;-- i) {
-            if(punishments.get(i).isActive(i))
+        for (int i = punishments.size() - 1; i >= 0; --i) {
+            if (punishments.get(i).isActive(i))
                 return punishments.get(i);
         }
         return null;
@@ -350,8 +373,8 @@ public class OfflineFLPlayer {
     }
 
     public boolean isBanned() {
-        for(int i = 0;i < punishments.size();++ i) {
-            if(punishments.get(i).isActive(i))
+        for (int i = 0; i < punishments.size(); ++i) {
+            if (punishments.get(i).isActive(i))
                 return true;
         }
         return false;

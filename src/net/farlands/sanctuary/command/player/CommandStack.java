@@ -8,11 +8,11 @@ import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Materials;
+import com.kicas.rp.util.Pair;
 
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.LocationWrapper;
-import net.farlands.sanctuary.util.Pair;
 
 import net.minecraft.server.v1_16_R2.TileEntity;
 

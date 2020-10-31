@@ -8,6 +8,8 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.data.struct.Package;
+import net.farlands.sanctuary.data.struct.PackageToggle;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
 import net.farlands.sanctuary.mechanic.Toggles;
 import net.farlands.sanctuary.scheduling.TaskBase;
@@ -20,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FLPlayerSession {
     public final Player player;
@@ -198,8 +201,10 @@ public class FLPlayerSession {
                 handle.vanished = false;
             }
         }
-        if ((FarLands.getWorld().equals(player.getWorld()) || "world_the_end".equals(player.getWorld().getName())) &&
-                !Rank.getRank(player).isStaff()) {
+        if (!handle.rank.isStaff() && (
+                FarLands.getWorld().equals(player.getWorld()) ||
+                "world_the_end".equals(player.getWorld().getName()))
+        ) {
             flying = false;
         }
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(player.getLocation());
@@ -209,6 +214,12 @@ public class FLPlayerSession {
                 GameMode.SPECTATOR.equals(player.getGameMode()));
 
         Toggles.hidePlayers(player);
+
+        if (handle.ptime >= 0)
+            player.setPlayerTime(handle.ptime, false);
+        if (handle.pweather)
+            player.setPlayerWeather(WeatherType.CLEAR);
+
         if (!handle.mail.isEmpty() && sendMessages && mailCooldown.isComplete()) {
             mailCooldown.reset();
             TextUtils.sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read,{&(gray)Click to Run},&(yellow)/mail read)");
@@ -243,6 +254,43 @@ public class FLPlayerSession {
         } else {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUniqueId());
             handle.secondsPlayed = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20;
+        }
+    }
+
+    public void givePackages() {
+        List<Package> packages = FarLands.getDataHandler().getPackages(handle.uuid);
+        boolean sentMessage = true;
+        for (int i = packages.size(); --i >= 0; ) {
+            if (packages.get(i).forceSend || handle.packageToggle == PackageToggle.ACCEPT) {
+                if (sentMessage) {
+                    sentMessage = false;
+                    // Notify the player how many packages they've been sent
+                    TextUtils.sendFormatted(
+                            player, "&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}.",
+                            packages.size(),
+                            packages.stream().filter(p -> p.forceSend).map(laPackage -> "{" + laPackage.senderName + "}")
+                                    .collect(Collectors.joining(", "))
+                    );
+                }
+                // Give the packages and send the messages
+                final String message = packages.get(i).message;
+                if (message != null && !message.isEmpty())
+                    TextUtils.sendFormatted(player, "&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
+                            FLUtils.itemName(packages.get(i).item), message);
+                FLUtils.giveItem(player, packages.get(i).item, true);
+                packages.remove(i);
+            }
+        }
+        if (handle.packageToggle == PackageToggle.ASK) {
+            if (!packages.isEmpty()) {
+                // Notify the player how many packages they've been sent
+                TextUtils.sendFormatted(
+                        player, "&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}." +
+                                " Use /paccecpt|pdecline <player> to accept or decline the packages.",
+                        packages.size(),
+                        packages.stream().map(lPackage -> "{" + lPackage.senderName + "}").collect(Collectors.joining(", "))
+                );
+            }
         }
     }
 

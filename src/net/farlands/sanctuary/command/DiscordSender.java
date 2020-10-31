@@ -28,27 +28,27 @@ import java.util.stream.Stream;
  */
 public class DiscordSender implements CommandSender, ICommandListener {
     private final DiscordSpigot spigot;
-    private final User user;
+    private final Member member;
     private final MessageChannel channel;
     private final OfflineFLPlayer flp;
 
-    public DiscordSender(User user, MessageChannel channel) {
+    public DiscordSender(Member member, MessageChannel channel) {
         this.spigot = new DiscordSpigot();
-        this.user = user;
+        this.member = member;
         this.channel = channel;
         this.flp = FarLands.getDataHandler().getOfflineFLPlayer(getUserID());
     }
 
     public User getUser() {
-        return user;
+        return member.getUser();
     }
 
     public Member getMember() {
-        return FarLands.getDiscordHandler().getGuild().getMember(user);
+        return member;
     }
 
     public long getUserID() {
-        return user.getIdLong();
+        return member.getIdLong();
     }
 
     public boolean isVerified() {

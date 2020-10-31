@@ -1,7 +1,9 @@
 package net.farlands.sanctuary.data.struct;
 
+import com.kicas.rp.util.Pair;
+
 import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.Pair;
+
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;

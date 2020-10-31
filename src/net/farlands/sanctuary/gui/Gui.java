@@ -1,8 +1,10 @@
 package net.farlands.sanctuary.gui;
 
+import com.kicas.rp.util.Pair;
+
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.util.Pair;
 import net.farlands.sanctuary.util.FLUtils;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

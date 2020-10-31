@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command;
 
-import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.util.FLUtils;
 
 public enum Category {

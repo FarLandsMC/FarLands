@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
+import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -40,10 +41,12 @@ public class CommandPWeather extends PlayerCommand {
         // Change the player's weather
         switch (weatherType) {
             case CLEAR:
+                FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).pweather = true;
                 sender.setPlayerWeather(WeatherType.CLEAR);
                 break;
 
             case RESET:
+                FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).pweather = false;
                 sender.resetPlayerWeather();
                 sendFormatted(sender, "&(green)Weather synchronized to world weather.");
                 return true;

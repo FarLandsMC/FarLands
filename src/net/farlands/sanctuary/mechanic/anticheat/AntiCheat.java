@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.mechanic.anticheat;
 
+import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
 import net.farlands.sanctuary.FarLands;
@@ -8,7 +9,6 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
 
-import net.farlands.sanctuary.util.Pair;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AntiCheat extends Mechanic {
     private final Map<UUID, XRayStore> xray;

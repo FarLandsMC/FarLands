@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
+import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -41,6 +42,7 @@ public class CommandPTime extends PlayerCommand {
                         Arrays.stream(Time.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
                 return true;
             } else if (t == Time.RESET) {
+                FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).ptime = -1;
                 sender.resetPlayerTime();
                 sendFormatted(sender, "&(green)Clock synchronized to world time.");
                 return true;
@@ -49,7 +51,9 @@ public class CommandPTime extends PlayerCommand {
             time = t.getTicks();
         }
 
-        sender.setPlayerTime(time % 24000L, false);
+        time = time % 24000;
+        FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).ptime = time;
+        sender.setPlayerTime(time, false);
         sendFormatted(sender, "&(green)Personal time set. Use $(hovercmd,/ptime reset,{&(gray)Click to Run},&(aqua)/ptime reset) " +
                 "to synchronize your time to the world time.");
 

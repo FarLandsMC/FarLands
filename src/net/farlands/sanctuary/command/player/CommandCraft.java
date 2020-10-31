@@ -3,12 +3,12 @@ package net.farlands.sanctuary.command.player;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
+import com.kicas.rp.util.Pair;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.Pair;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

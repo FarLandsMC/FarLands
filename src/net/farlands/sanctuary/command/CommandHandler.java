@@ -112,7 +112,9 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandNick());             // Adept
         registerCommand(new CommandNightSkip());        // Initiate
         registerCommand(new CommandPackage());          // Knight
+        registerCommand(new CommandPackageAccept());    // Initiate
         registerCommand(new CommandParticles());        // Donor
+        registerCommand(new CommandParty());            // Initiate
         registerCommand(new CommandPatchnotes());       // Initiate
         registerCommand(new CommandProposeWarp());      // Initiate
         registerCommand(new CommandPTime());            // Knight
@@ -136,6 +138,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandStack());            // Esquire
         registerCommand(new CommandStats());            // Initiate
         registerCommand(new CommandSwapHome());         // Initiate
+        registerCommand(new CommandTogglePackages());           // Initiate
         registerCommand(new CommandTop());              // Initiate
         registerCommand(new CommandTPA());              // Initiate
         registerCommand(new CommandTPAccept());         // Initiate

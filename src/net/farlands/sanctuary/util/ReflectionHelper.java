@@ -2,6 +2,8 @@ package net.farlands.sanctuary.util;
 
 import com.google.common.collect.ImmutableMap;
 
+import com.kicas.rp.util.Pair;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;

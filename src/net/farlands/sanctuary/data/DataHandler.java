@@ -3,17 +3,15 @@ package net.farlands.sanctuary.data;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import com.kicas.rp.util.TextUtils;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.*;
+import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.FileSystem;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.Pair;
 import net.farlands.sanctuary.util.FLUtils;
 
 import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
@@ -31,14 +29,12 @@ import org.bukkit.event.entity.VillagerCareerChangeEvent;
 import org.bukkit.event.entity.VillagerReplenishTradeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This class serves as and API to interact with FarLands' data.
@@ -57,7 +53,8 @@ public class DataHandler extends Mechanic {
     private final Map<UUID, EvidenceLocker> evidenceLockers;
     private final Map<UUID, List<PlayerDeath>> deathDatabase;
     private final List<UUID> openEvidenceLockers;
-    private final Map<UUID, Map<String, Pair<org.bukkit.inventory.ItemStack, String>>> packages;
+    //                recipient, packages
+    private final Map<UUID, List<Package>> packages;
     private Map<String, ItemCollection> itemData;
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
@@ -195,27 +192,11 @@ public class DataHandler extends Mechanic {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        FLPlayerSession session = getSession(player);
+        FLPlayerSession session = getSession(event.getPlayer());
 
         // Give packages and update
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-            Map<String, Pair<ItemStack, String>> packages = getAndRemovePackages(player.getUniqueId());
-            if (!packages.isEmpty()) {
-                // Notify the player how many packages they're getting
-                player.spigot().sendMessage(TextUtils.format("&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}",
-                        packages.size(), packages.keySet().stream().map(sender -> "{" + sender + "}").collect(Collectors.joining(", "))));
-
-                // Give the packages and send the messages
-                packages.values().forEach(item -> {
-                    final String message = item.getSecond();
-                    if (message != null && !message.isEmpty())
-                        player.spigot().sendMessage(TextUtils.format("&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
-                                FLUtils.itemName(item.getFirst()), message));
-                    FLUtils.giveItem(player, item.getFirst(), true);
-                });
-            }
-
+            session.givePackages();
             session.update(true);
         }, 5L);
 
@@ -518,29 +499,47 @@ public class DataHandler extends Mechanic {
         if (nbt.isEmpty())
             return;
 
+        List<Package> rtsPackages = new ArrayList<>();
         nbt.getKeys().forEach(key -> {
             NBTTagCompound serIndividualPackages = nbt.getCompound(key);
-            Map<String, Pair<ItemStack, String>> individualPackages = new HashMap<>();
+            List<Package> individualPackages = new ArrayList<>();
             serIndividualPackages.getKeys().forEach(packageSender -> {
-                NBTTagCompound serPackage = serIndividualPackages.getCompound(packageSender);
-                individualPackages.put(packageSender, new Pair<>(FLUtils.itemStackFromNBT(serPackage.getCompound("item")),
-                        serPackage.getString("message")));
+                NBTTagCompound packageNBT = serIndividualPackages.getCompound(packageSender);
+                String uuid = packageNBT.getString("sender");
+                Package lPackage = new Package(
+                        uuid.isEmpty() ? null : UUID.fromString(uuid), packageSender,
+                        FLUtils.itemStackFromNBT(packageNBT.getCompound("item")),
+                        packageNBT.getString("message"), packageNBT.getLong("sentTime"),
+                        packageNBT.getBoolean("forceSend"));
+                if (lPackage.hasExpired())
+                    rtsPackages.add(lPackage);
+                else
+                    individualPackages.add(lPackage);
             });
             packages.put(UUID.fromString(key), individualPackages);
         });
+        rtsPackages.forEach(lPackage -> addPackage(lPackage.senderUuid,
+                new Package(null, "FarLands Packaging Service",
+                lPackage.item, "Return To Sender", true)
+        ));
     }
 
     public void savePackages() {
         NBTTagCompound nbt = new NBTTagCompound();
         packages.forEach((uuid, individualPackages) -> {
-            NBTTagCompound serIndividualPackages = new NBTTagCompound();
-            individualPackages.forEach((packageSender, pkg) -> {
-                NBTTagCompound serPackage = new NBTTagCompound();
-                serPackage.set("item", FLUtils.itemStackToNBT(pkg.getFirst()));
-                serPackage.setString("message", pkg.getSecond());
-                serIndividualPackages.set(packageSender, serPackage);
-            });
-            nbt.set(uuid.toString(), serIndividualPackages);
+            if (uuid != null) {
+                NBTTagCompound serIndividualPackages = new NBTTagCompound();
+                individualPackages.forEach(lPackage -> {
+                    NBTTagCompound packageNBT = new NBTTagCompound();
+                    packageNBT.setString("sender", lPackage.senderUuid == null ? "" : lPackage.senderUuid.toString());
+                    packageNBT.set("item", FLUtils.itemStackToNBT(lPackage.item));
+                    packageNBT.setString("message", lPackage.message);
+                    packageNBT.setLong("sentTime", lPackage.sentTime);
+                    packageNBT.setBoolean("forceSend", lPackage.forceSend);
+                    serIndividualPackages.set(lPackage.senderName, packageNBT);
+                });
+                nbt.set(uuid.toString(), serIndividualPackages);
+            }
         });
 
         try {
@@ -551,21 +550,23 @@ public class DataHandler extends Mechanic {
         }
     }
 
-    public boolean addPackage(UUID recipient, String sender, ItemStack stack, String message) {
-        packages.putIfAbsent(recipient, new HashMap<>());
-        Map<String, Pair<ItemStack, String>> pkgs = packages.get(recipient);
-        if (pkgs.containsKey(sender))
-            return false;
-        else {
-            pkgs.put(sender, new Pair<>(stack, message));
-            return true;
+    public boolean addPackage(UUID recipient, Package pack) {
+        List<Package> localPackages;
+        if (!packages.containsKey(recipient))
+            packages.put(recipient, new ArrayList<>());
+        localPackages = packages.get(recipient);
+
+        for (Package lPackage : localPackages) {
+            if (pack.senderUuid != null && pack.senderUuid.equals(lPackage.senderUuid))
+                return false;
         }
+        localPackages.add(pack);
+        return true;
     }
 
-    public Map<String, Pair<ItemStack, String>> getAndRemovePackages(UUID recipient) {
-        if (!packages.containsKey(recipient))
-            return Collections.emptyMap();
-        return packages.remove(recipient);
+    public List<Package> getPackages(UUID recipient) {
+        List<Package> lPackages = packages.get(recipient);
+        return lPackages == null ? Collections.emptyList() : lPackages;
     }
 
     public List<PlayerDeath> getDeaths(UUID uuid) {
@@ -577,12 +578,12 @@ public class DataHandler extends Mechanic {
     }
 
     public void loadCriticalData() {
-        config = FileSystem.loadJson(Config.class, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
+        config =     FileSystem.loadJson(Config.class,     FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
     }
 
     public void saveCriticalData() {
-        FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
+        FileSystem.saveJson(config,     FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
     }
 

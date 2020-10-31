@@ -3,6 +3,9 @@ package net.farlands.sanctuary.data;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.FLUtils;
 
+/**
+ * Class to determine if a given amount of time has passed in ticks
+ */
 public class Cooldown {
     private final long delay;
     private int taskUid;

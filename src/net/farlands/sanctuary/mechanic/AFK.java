@@ -1,8 +1,9 @@
 package net.farlands.sanctuary.mechanic;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.util.TextUtils;
+import com.kicas.rp.util.Pair;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.FLCommandEvent;
 import net.farlands.sanctuary.command.player.CommandMessage;
@@ -11,7 +12,6 @@ import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.Pair;
 import net.farlands.sanctuary.util.FLUtils;
 
 import net.md_5.bungee.api.ChatMessageType;

@@ -6,6 +6,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
@@ -72,8 +73,9 @@ public class CommandPurchase extends Command {
                 if (flp.isOnline()) {
                     FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
                 } else {
-                    FarLands.getDataHandler().addPackage(flp.uuid, "FarLands Staff",
-                            FarLands.getFLConfig().patronCollectable.getStack(), "");
+                    FarLands.getDataHandler().addPackage(flp.uuid,
+                            new Package(null, "FarLands Staff",
+                            FarLands.getFLConfig().patronCollectable.getStack(), "", true));
                 }
             }
 

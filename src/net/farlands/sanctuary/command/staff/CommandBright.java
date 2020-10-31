@@ -14,7 +14,7 @@ public class CommandBright extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(sender.hasPotionEffect(PotionEffectType.NIGHT_VISION))
+        if (sender.hasPotionEffect(PotionEffectType.NIGHT_VISION))
             sender.removePotionEffect(PotionEffectType.NIGHT_VISION);
         else
             sender.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false));
