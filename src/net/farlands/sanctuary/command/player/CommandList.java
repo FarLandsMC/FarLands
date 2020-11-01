@@ -53,6 +53,7 @@ public class CommandList extends Command {
                 bucket.put(flp.rank, new ArrayList<>());
 
             switch (player.getWorld().getName()) {
+                case "farlands":
                 case "world": {
                     ++overworld;
                     break;
