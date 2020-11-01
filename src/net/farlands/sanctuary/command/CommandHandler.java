@@ -138,7 +138,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandStack());            // Esquire
         registerCommand(new CommandStats());            // Initiate
         registerCommand(new CommandSwapHome());         // Initiate
-        registerCommand(new CommandTogglePackages());           // Initiate
+        registerCommand(new CommandTogglePackages());   // Initiate
         registerCommand(new CommandTop());              // Initiate
         registerCommand(new CommandTPA());              // Initiate
         registerCommand(new CommandTPAccept());         // Initiate

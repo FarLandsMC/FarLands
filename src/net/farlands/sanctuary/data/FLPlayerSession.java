@@ -268,7 +268,8 @@ public class FLPlayerSession {
                     TextUtils.sendFormatted(
                             player, "&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}.",
                             packages.size(),
-                            packages.stream().filter(p -> p.forceSend).map(laPackage -> "{" + laPackage.senderName + "}")
+                            packages.stream().filter(p -> p.forceSend || handle.packageToggle == PackageToggle.ACCEPT)
+                                    .map(laPackage -> "{" + laPackage.senderName + "}")
                                     .collect(Collectors.joining(", "))
                     );
                 }

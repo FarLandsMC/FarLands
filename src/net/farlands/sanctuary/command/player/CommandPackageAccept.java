@@ -38,7 +38,7 @@ public class CommandPackageAccept extends PlayerCommand {
         if (packages.size() <= 1) {
             packageID = packages.get(0).senderName;
         }
-        if (packageID.isEmpty()) {
+        if (!packageID.isEmpty()) {
             if (args.length > 1 && !args[1].isEmpty())
                 packageID = args[1];
             else {

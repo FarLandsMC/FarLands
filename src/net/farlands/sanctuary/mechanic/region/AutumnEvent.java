@@ -726,7 +726,7 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.DARK_RED + "Shrieking Specter");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2048);
+        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
         mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
 
         return mob;
@@ -1125,43 +1125,80 @@ public class AutumnEvent extends Mechanic {
     // Witch Village
     static {
         putPack(new Pack(
-                AutumnEvent::summonWitch, Witch.class,
+                AutumnEvent::summonHag, Witch.class,
                 new Location(FarLands.getWorld(), -252, 69, 796),
                 5, 3, new Cooldown(60 * 20),
                 false
         ));
         putPack(new Pack(
-                AutumnEvent::summonWitch, Witch.class,
+                AutumnEvent::summonHag, Witch.class,
                 new Location(FarLands.getWorld(), -238, 67, 874),
                 5, 3, new Cooldown(60 * 20),
                 false
         ));
         putPack(new Pack(
-                AutumnEvent::summonWitch, Witch.class,
+                AutumnEvent::summonHag, Witch.class,
                 new Location(FarLands.getWorld(), -206, 66, 872),
                 5, 3, new Cooldown(60 * 20),
                 false
         ));
         putPack(new Pack(
-                AutumnEvent::summonWitch, Witch.class,
+                AutumnEvent::summonHag, Witch.class,
                 new Location(FarLands.getWorld(), -237, 69, 909),
                 5, 3, new Cooldown(60 * 20),
                 false
         ));
         putPack(new Pack(
-                AutumnEvent::summonWitch, Witch.class,
+                AutumnEvent::summonHag, Witch.class,
                 new Location(FarLands.getWorld(), -198, 66, 925),
                 5, 3, new Cooldown(60 * 20),
                 false
         ));
+
+        putPack(new Pack(
+                AutumnEvent::summonSludge, Slime.class,
+                new Location(FarLands.getWorld(), -204, 63, 840),
+                12, 5, new Cooldown(90 * 20),
+                true
+        ));
+        putPack(new Pack(
+                AutumnEvent::summonSludge, Slime.class,
+                new Location(FarLands.getWorld(), -142, 67, 929),
+                12, 5, new Cooldown(90 * 20),
+                true
+        ));
+        putPack(new Pack(
+                AutumnEvent::summonSludge, Slime.class,
+                new Location(FarLands.getWorld(), -221, 64, 897),
+                12, 5, new Cooldown(90 * 20),
+                true
+        ));
+        putPack(new Pack(
+                AutumnEvent::summonSludge, Slime.class,
+                new Location(FarLands.getWorld(), -282, 63, 906),
+                12, 5, new Cooldown(90 * 20),
+                true
+        ));
     }
-    private static Mob summonWitch(Location location) {
+    private static Mob summonHag(Location location) {
         Witch mob = (Witch)dramaticSpawn(location, EntityType.WITCH, 1.62F);
         mob.setCustomName(ChatColor.LIGHT_PURPLE + "Old Hag");
         mob.setCustomNameVisible(true);
 
         mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(128);
         mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+
+        return mob;
+    }
+    private static Mob summonSludge(Location location) {
+        Slime mob = (Slime)FarLands.getWorld().spawnEntity(location, EntityType.SLIME);
+        mob.setCustomName(ChatColor.LIGHT_PURPLE + "Sludge Heap");
+        mob.setCustomNameVisible(true);
+        mob.setSize(RNG.nextInt(2) + (RNG.nextInt(8) == 0 ? 4 : 3));
+
+        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20 * mob.getSize());
+        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(5 * mob.getSize());
 
         return mob;
     }
@@ -2439,7 +2476,7 @@ public class AutumnEvent extends Mechanic {
             }
             case "Axe Murderer": {
                 reward.setFirst(DOORS.get(0).keyType);
-                reward.setSecond(2);
+                reward.setSecond(4);
                 break;
             }
 
@@ -2468,7 +2505,10 @@ public class AutumnEvent extends Mechanic {
             }
             case "Molten Slime": {
                 reward.setFirst(DOORS.get(1).keyType);
-                reward.setSecond((int) Math.ceil(8f / (4 + 2 * ((MagmaCube) event.getEntity()).getSize())));
+                // Range between 3 and 5
+                int size = ((MagmaCube) event.getEntity()).getSize() - 2;
+                // Range between 1 and 3
+                reward.setSecond((int) Math.ceil(18f / (size * size))); // 2 5 18
                 break;
             }
             case "Shrieking Specter": {
@@ -2497,12 +2537,12 @@ public class AutumnEvent extends Mechanic {
                 reward.setSecond(12);
                 break;
             }
-            case "Cadaver":
             case "Maggot": {
                 reward.setFirst(DOORS.get(3).keyType);
                 reward.setSecond(8);
                 break;
             }
+            case "Cadaver":
             case "Dark Monk": {
                 reward.setFirst(DOORS.get(3).keyType);
                 reward.setSecond(4);
@@ -2521,7 +2561,11 @@ public class AutumnEvent extends Mechanic {
             }
 
             // Autumn Woods
-            case "Scarecrow":
+            case "Scarecrow": {
+                reward.setFirst(DOORS.get(4).keyType);
+                reward.setSecond(6);
+                break;
+            }
             case "Forest Huntsman": {
                 reward.setFirst(DOORS.get(4).keyType);
                 reward.setSecond(8);
@@ -2529,7 +2573,7 @@ public class AutumnEvent extends Mechanic {
             }
             case "Forest Minion": {
                 reward.setFirst(DOORS.get(4).keyType);
-                reward.setSecond(12);
+                reward.setSecond(10);
                 if (event.getEntity().getVehicle() != null)
                     event.getEntity().getVehicle().remove();
                 break;
@@ -2566,6 +2610,14 @@ public class AutumnEvent extends Mechanic {
                 reward.setSecond(4);
                 break;
             }
+            case "Sludge Heap": {
+                reward.setFirst(DOORS.get(6).keyType);
+                // Range between 3 and 5
+                int size = ((MagmaCube) event.getEntity()).getSize() - 2;
+                // Range between 1 and 3
+                reward.setSecond((int) Math.ceil(9f / (size * size))); // 1 3 9
+                break;
+            }
 
             case "Baba Yaga": {
                 FarLands.getWorld().getPlayers().forEach(player -> player.sendMessage(event.getEntity().getCustomName() +
@@ -2599,7 +2651,6 @@ public class AutumnEvent extends Mechanic {
                 reward.setSecond(8);
                 break;
             }
-
             case "Creepy Spider": {
                 reward.setFirst(DOORS.get(7).keyType);
                 reward.setSecond(1);
