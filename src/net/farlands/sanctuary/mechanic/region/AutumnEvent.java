@@ -2417,6 +2417,7 @@ public class AutumnEvent extends Mechanic {
         soulbound.get(uid).keySet().stream().map(Bukkit.getServer()::getPlayer).forEach(player -> {
             if (player == null)
                 return;
+            PLAYER_RESPAWNS.remove(player.getUniqueId());
             player.sendMessage(ChatColor.GREEN + "Congratulations on defeating " + name + ChatColor.GREEN +
                     ", you will now be returned to the event map...");
             FarLands.getScheduler().scheduleSyncDelayedTask(() -> player.teleport(SPAWN), 100);
