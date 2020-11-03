@@ -2,9 +2,9 @@ package net.farlands.sanctuary.data.struct;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.farlands.sanctuary.util.Logging;
-import net.minecraft.server.v1_16_R2.MojangsonParser;
+import net.minecraft.server.v1_16_R3.MojangsonParser;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 public class JsonItemStack {
@@ -28,7 +28,7 @@ public class JsonItemStack {
     }
 
     private void genStack() {
-        net.minecraft.server.v1_16_R2.ItemStack tmp = CraftItemStack.asNMSCopy(new ItemStack(Material.valueOf(itemName.toUpperCase()), count));
+        net.minecraft.server.v1_16_R3.ItemStack tmp = CraftItemStack.asNMSCopy(new ItemStack(Material.valueOf(itemName.toUpperCase()), count));
         if (nbt != null && !nbt.isEmpty()) {
             try {
                 tmp.setTag(MojangsonParser.parse(nbt));

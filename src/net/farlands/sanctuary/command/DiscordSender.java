@@ -8,9 +8,9 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.minecraft.server.v1_16_R2.CommandListenerWrapper;
-import net.minecraft.server.v1_16_R2.IChatBaseComponent;
-import net.minecraft.server.v1_16_R2.ICommandListener;
+import net.minecraft.server.v1_16_R3.CommandListenerWrapper;
+import net.minecraft.server.v1_16_R3.IChatBaseComponent;
+import net.minecraft.server.v1_16_R3.ICommandListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
@@ -18,6 +18,8 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 import java.util.UUID;
@@ -79,6 +81,16 @@ public class DiscordSender implements CommandSender, ICommandListener {
     @Override
     public void sendMessage(String[] strings) {
         sendMessage(String.join("\n", strings));
+    }
+
+    @Override
+    public void sendMessage(@Nullable UUID uuid, @NotNull String s) {
+
+    }
+
+    @Override
+    public void sendMessage(@Nullable UUID uuid, @NotNull String[] strings) {
+
     }
 
     @Override

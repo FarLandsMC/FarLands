@@ -1,8 +1,8 @@
 package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.util.FLUtils;
-import net.minecraft.server.v1_16_R2.NBTTagCompound;
-import net.minecraft.server.v1_16_R2.NBTTagList;
+import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import net.minecraft.server.v1_16_R3.NBTTagList;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;

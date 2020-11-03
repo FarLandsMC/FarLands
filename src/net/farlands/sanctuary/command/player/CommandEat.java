@@ -3,11 +3,11 @@ package net.farlands.sanctuary.command.player;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.minecraft.server.v1_16_R2.FoodMetaData;
+import net.minecraft.server.v1_16_R3.FoodMetaData;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -45,7 +45,7 @@ public class CommandEat extends PlayerCommand {
             }
 
             // Eat one of the item
-            net.minecraft.server.v1_16_R2.ItemStack copy = CraftItemStack.asNMSCopy(stack);
+            net.minecraft.server.v1_16_R3.ItemStack copy = CraftItemStack.asNMSCopy(stack);
             foodData.a(copy.getItem(), copy);
 
             // Use the item

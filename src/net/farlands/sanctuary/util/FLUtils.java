@@ -11,7 +11,7 @@ import com.kicas.rp.util.Pair;
 
 import net.farlands.sanctuary.FarLands;
 
-import net.minecraft.server.v1_16_R2.*;
+import net.minecraft.server.v1_16_R3.*;
 
 import org.bukkit.*;
 import org.bukkit.Chunk;
@@ -19,9 +19,9 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -50,14 +50,14 @@ public final class FLUtils {
     private FLUtils() { }
 
     public static boolean isPersistent(Entity entity) {
-        net.minecraft.server.v1_16_R2.Entity handle = ((CraftEntity) entity).getHandle();
+        net.minecraft.server.v1_16_R3.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityInsentient)
             return ((EntityInsentient) handle).persistent;
         return false;
     }
 
     public static void setPersistent(Entity entity, boolean persistent) {
-        net.minecraft.server.v1_16_R2.Entity handle = ((CraftEntity) entity).getHandle();
+        net.minecraft.server.v1_16_R3.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityInsentient)
             ((EntityInsentient) handle).persistent = persistent;
     }
@@ -269,7 +269,7 @@ public final class FLUtils {
     }
 
     public static ItemStack applyTag(NBTTagCompound nbt, ItemStack stack) {
-        net.minecraft.server.v1_16_R2.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
+        net.minecraft.server.v1_16_R3.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
         nmsStack.setTag(nbt);
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
@@ -363,7 +363,7 @@ public final class FLUtils {
 
     public static ItemStack itemStackFromNBT(NBTTagCompound nbt) {
         return nbt == null || nbt.isEmpty() ? null: CraftItemStack.asBukkitCopy(ReflectionHelper
-                .instantiate(net.minecraft.server.v1_16_R2.ItemStack.class, nbt));
+                .instantiate(net.minecraft.server.v1_16_R3.ItemStack.class, nbt));
     }
 
     public static NBTTagCompound itemStackToNBT(ItemStack stack) {
