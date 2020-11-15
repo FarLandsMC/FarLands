@@ -165,8 +165,6 @@ public class OfflineFLPlayer {
             }
         }, error -> {
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.DEBUG, error.getMessage());
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.DEBUG, "De-verifying " + username);
-            setDiscordID(0);
             System.out.println(error.getMessage());
             error.printStackTrace(System.out);
         });
