@@ -68,6 +68,9 @@ public class Chat extends Mechanic {
     @Override
     public void onStartup() {
         FarLands.getFLConfig().rotatingMessages.stream().map(TextUtils::format).forEach(rotatingMessages::add);
+
+        addRotatingMessage("&(gold)All griefing is currently off limits, even if a build is unclaimed!");
+
         // Wait for any dynamically added messages to be registered
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), this::scheduleRotatingMessages, 15L * 20L);
     }

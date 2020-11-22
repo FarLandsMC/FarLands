@@ -84,7 +84,7 @@ public class CommandBirthday extends Command {
                         if (flp.birthday == null)
                             return false;
                         long timeFromToday = flp.birthday.timeFromToday();
-                        return timeFromToday > 0 && timeFromToday < timeDelta;
+                        return (timeFromToday > 0 && timeFromToday < timeDelta) || flp.birthday.isToday();
                     })
                     .sorted(Comparator.comparingLong(flp -> flp.birthday.timeFromToday()))
                     .collect(Collectors.toList());

@@ -32,12 +32,13 @@ public class CommandDevReport extends DiscordCommand {
             return true;
         }
 
+        String body = joinArgsBeyond(0, " ", args).replaceAll("`", "\\`");
         String message;
         if ("suggest".equalsIgnoreCase(args[0])) {
-            message = "Suggestion from `" + sender.getName() + "`:```" + joinArgsBeyond(0, " ", args) + "```";
+            message = "Suggestion from `" + sender.getName() + "`:```" + body + "```";
             FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.SUGGESTIONS, message);
         } else {
-            message = "Glitch/bug report from `" + sender.getName() + "`:```" + joinArgsBeyond(0, " ", args) + "```";
+            message = "Glitch/bug report from `" + sender.getName() + "`:```" + body + "```";
             FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.BUG_REPORTS, message);
         }
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEV_REPORTS, message);

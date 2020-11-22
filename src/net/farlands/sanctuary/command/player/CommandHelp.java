@@ -86,7 +86,7 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
             int page = 0;
             if (args.length > 1) {
                 try {
-                    page = Integer.parseInt(args[1]);
+                    page = Integer.parseInt(args[1]) - 1;
                 } catch (NumberFormatException ex) {
                     sender.sendMessage(ChatColor.RED + "Invalid page number: " + args[1]);
                     return true;
@@ -107,11 +107,11 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
             TextUtils.sendFormatted(
                     sender,
                     "&(gold)[%0] %1 - Page %2/%3 [%4]\n%5",
-                    page == 0 ? "{&(gray)Prev}" : "$(command,/help " + args[0] + " " + (page - 1) + ",{&(aqua)Prev})",
+                    page == 0 ? "{&(gray)Prev}" : "$(command,/help " + args[0] + " " + page + ",{&(aqua)Prev})",
                     category.getAlias(),
                     page + 1,
                     maxPageIndex + 1,
-                    page == maxPageIndex ? "{&(gray)Next}" : "$(command,/help " + args[0] + " " + (page + 1) + ",{&(aqua)Next})",
+                    page == maxPageIndex ? "{&(gray)Next}" : "$(command,/help " + args[0] + " " + (page + 2) + ",{&(aqua)Next})",
                     commands.stream().skip(page * COMMANDS_PER_PAGE).limit(COMMANDS_PER_PAGE)
                             .map(command -> "$(hover,{&(gray)" + command.getDescription() + "},{" + formatUsage(command.getUsage()) + "})")
                             .collect(Collectors.joining("\n"))

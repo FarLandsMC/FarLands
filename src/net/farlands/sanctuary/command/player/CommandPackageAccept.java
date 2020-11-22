@@ -34,10 +34,12 @@ public class CommandPackageAccept extends PlayerCommand {
             TextUtils.sendFormatted(sender, "&(red)You do not have any pending packages.");
             return true;
         }
+
         String packageID = "";
         if (packages.size() <= 1) {
             packageID = packages.get(0).senderName;
         }
+
         if (!packageID.isEmpty()) {
             if (args.length > 1 && !args[1].isEmpty())
                 packageID = args[1];
@@ -46,6 +48,7 @@ public class CommandPackageAccept extends PlayerCommand {
                 return true;
             }
         }
+
         for (Package lPackage : packages) {
             if (Chat.removeColorCodes(lPackage.senderName.replaceAll("\\{+|}+", "")).equalsIgnoreCase(packageID)) {
                 if ("paccept".equalsIgnoreCase(args[0])) {
@@ -75,6 +78,7 @@ public class CommandPackageAccept extends PlayerCommand {
                 return true;
             }
         }
+
         TextUtils.sendFormatted(sender, "&(red)The package sender specified was not correct.");
         return true;
     }

@@ -84,6 +84,8 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     public Role getRole(String name) {
+        if (!active)
+            return null;
         List<Role> roles = getGuild().getRolesByName(name, true);
         return roles == null || roles.isEmpty() ? null : roles.get(0);
     }
@@ -114,7 +116,13 @@ public class DiscordHandler extends ListenerAdapter {
                 .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
                 .count();
 
-        return Activity.of(Activity.ActivityType.DEFAULT, "with " + online + " online player" + (online == 1 ? "" : "s"));
+        String status = "with ";
+        if (online == 1)
+            status += Bukkit.getOnlinePlayers().iterator().next().getName();
+        else
+            status += online + " online players";
+
+        return Activity.of(Activity.ActivityType.DEFAULT, status);
     }
 
     public void sendMessage(MessageChannel channel, String message) {
@@ -417,12 +425,16 @@ public class DiscordHandler extends ListenerAdapter {
                 case LEFT_TEXT_ONLY:
                     return Character.isLetterOrDigit(prev) || cur == prev;
                 case RIGHT_WHITESPACE:
-                    return !Character.isWhitespace(prev) && Character.isWhitespace(next);
+                    return !isWhitespace(prev) && isWhitespace(next);
                 case ANY:
                     return true;
             }
 
-            return prev == '\0' || next == '\0' || Character.isWhitespace(prev) || Character.isWhitespace(next);
+            return prev == '\0' || next == '\0' || isWhitespace(prev) || isWhitespace(next);
+        }
+
+        static boolean isWhitespace(char ch) {
+            return Character.isWhitespace(ch) || ch == '{' || ch == '}';
         }
     }
 }

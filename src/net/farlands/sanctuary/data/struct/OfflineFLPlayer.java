@@ -159,8 +159,10 @@ public class OfflineFLPlayer {
             if (rank.specialCompareTo(Rank.DONOR) >= 0)
                 roles.add(dh.getRole(rank.getName()));
 
+            if (roles.stream().anyMatch(Objects::isNull))
+                return;
+
             if (!member.getRoles().containsAll(roles)) {
-                roles.removeIf(Objects::isNull);
                 guild.modifyMemberRoles(member, roles).queue();
             }
         }, error -> {
