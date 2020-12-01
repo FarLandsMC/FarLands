@@ -161,7 +161,6 @@ public class DiscordHandler extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         config.channels.forEach((channel, id) -> channelHandler.setChannel(channel, id == 0L ? null : jdaBot.getTextChannelById(id)));
         channelHandler.startTicking();
-        FarLands.getScheduler().scheduleSyncRepeatingTask(this::updateStats, 0L, 1200L);
         active = true;
     }
 

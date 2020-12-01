@@ -132,13 +132,22 @@ public class OfflineFLPlayer {
     * WARNING: DO NOT PUT ANY CALLS TO THE FARLANDS SCHEDULER IN THESE UPDATE METHODS OR IT WILL CAUSE SERVER CRASHES
     */
 
+    public synchronized void updateAll(boolean sendMessages) {
+        updateDiscord();
+
+        FLPlayerSession session = getSession();
+        if (session == null)
+            update();
+        else
+            session.update(sendMessages);
+    }
+
     public synchronized void update() {
         if (currentMute != null && currentMute.hasExpired()) {
             currentMute = null;
             if (isOnline())
                 getOnlinePlayer().sendMessage(ChatColor.GREEN + "Your mute has expired.");
         }
-        updateDiscord();
     }
 
     public synchronized void updateDiscord() {
@@ -165,10 +174,6 @@ public class OfflineFLPlayer {
             if (!member.getRoles().containsAll(roles)) {
                 guild.modifyMemberRoles(member, roles).queue();
             }
-        }, error -> {
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.DEBUG, error.getMessage());
-            System.out.println(error.getMessage());
-            error.printStackTrace(System.out);
         });
     }
 
