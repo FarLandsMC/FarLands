@@ -433,7 +433,6 @@ public class Chat extends Mechanic {
     public static String atPlayer(String message) {
 
         String playerName;
-        Bukkit.getConsoleSender().sendMessage(String.valueOf(message.indexOf('@')+1));
         // Need this in case the player name comes at the very end
         try {
             playerName = message.substring(message.indexOf('@')+1, message.indexOf(" ", message.indexOf('@')));
@@ -443,7 +442,6 @@ public class Chat extends Mechanic {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(playerName);
         if (flp == null) {
-            Bukkit.getConsoleSender().sendMessage("Couldn't find player: " + playerName);
             return message;
         }
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
