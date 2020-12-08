@@ -408,6 +408,11 @@ public class OfflineFLPlayer {
         homes.removeIf(home -> name.equals(home.getName()));
     }
 
+    public void renameHome(String oldName, String newName) {
+        Home home = homes.stream().filter(h -> oldName.equals(h.getName())).findAny().orElse(null);
+        home.setName(newName);
+    }
+
     public void addMail(String sender, String message) {
         mail.add(new MailMessage(sender, message));
 

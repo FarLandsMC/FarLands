@@ -32,7 +32,7 @@ public class CommandRenameItem extends PlayerCommand {
         }
 
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(Chat.applyColorCodes(rawName));
+        meta.setDisplayName(Chat.applyColorCodes(Rank.SPONSOR, rawName));
         stack.setItemMeta(meta);
         ((CraftPlayer) sender).getHandle().levelDown(-1);
         return true;

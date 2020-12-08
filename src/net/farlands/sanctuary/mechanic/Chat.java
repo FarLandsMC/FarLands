@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.mechanic;
 
+import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
 import net.farlands.sanctuary.FarLands;
@@ -13,13 +14,13 @@ import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
 
+import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,6 +46,8 @@ public class Chat extends Mechanic {
     private static final List<String> DISCORD_CHARS = Arrays.asList("_", "~", "*", ":", "`", "|", ">");
     private static final MessageFilter MESSAGE_FILTER = new MessageFilter();
     private final List<BaseComponent[]> rotatingMessages;
+    public static Pair<Integer, Integer> itemShare = new Pair<>();
+    public static Pair<Integer, Integer> taggedPlayer = new Pair<>();
 
     Chat() {
         this.rotatingMessages = new ArrayList<>();
@@ -154,7 +157,10 @@ public class Chat extends Mechanic {
             return;
         } else {
             message = applyColorCodes(senderFlp.rank, message);
+            itemShare = new Pair<>(); taggedPlayer = new Pair<>();
             message = itemShare(senderFlp.rank, message, sender);
+            message = atPlayer(message);
+            message = escapeExpression(message);
         }
 
         if (removeColorCodes(message).length() < 1) {
@@ -195,6 +201,33 @@ public class Chat extends Mechanic {
         FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, TextUtils.format(fmessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName()));
         // never send the nickname to console/logs
         TextUtils.sendFormatted(Bukkit.getConsoleSender(), fmessage, senderFlp.rank.getNameColor(), senderFlp.username);
+    }
+
+    public static String escapeExpression(String message) {
+        if (itemShare.getFirst() != null && taggedPlayer.getFirst() == null) {
+            String beginning = TextUtils.escapeExpression(message.substring(0, itemShare.getFirst()));
+            String middle = message.substring(itemShare.getFirst(), itemShare.getSecond());
+            String end = TextUtils.escapeExpression(message.substring(itemShare.getSecond()));
+            message = beginning + middle + end;
+        } else if (itemShare.getFirst() == null && taggedPlayer.getFirst() != null) {
+            String beginning = TextUtils.escapeExpression(message.substring(0, taggedPlayer.getFirst()));
+            String middle = message.substring(taggedPlayer.getFirst(), taggedPlayer.getSecond());
+            String end = TextUtils.escapeExpression(message.substring(taggedPlayer.getSecond()));
+            message = beginning + middle + end;
+        } else if (itemShare.getFirst() != null && taggedPlayer.getFirst() != null) {
+            String one = TextUtils.escapeExpression(message.substring(0, Math.min(taggedPlayer.getFirst(), itemShare.getFirst())));
+            String two = message.substring(Math.min(taggedPlayer.getFirst(), itemShare.getFirst()),
+                    Math.min(taggedPlayer.getSecond(), itemShare.getSecond()));
+            String three = TextUtils.escapeExpression(message.substring(Math.min(taggedPlayer.getSecond(), itemShare.getSecond()),
+                    Math.max(taggedPlayer.getFirst(), itemShare.getFirst())));
+            String four = message.substring(Math.max(taggedPlayer.getFirst(), itemShare.getFirst()),
+                    Math.max(taggedPlayer.getSecond(), itemShare.getSecond()));
+            String five = TextUtils.escapeExpression(message.substring(Math.max(taggedPlayer.getSecond(), itemShare.getSecond())));
+            message = one + two + three + four + five;
+        } else {
+            return TextUtils.escapeExpression(message);
+        }
+        return message;
     }
 
     public void spamUpdate(Player player, String message) {
@@ -390,9 +423,48 @@ public class Chat extends Mechanic {
         message = message.replace("[item]", "[i]");
         message = message.replace("[hand]", "[i]");
         if (message.contains("[i]")) {
-            String insert = "{$(item,"+json+",&(aqua)[i] " + name + "&(white))}";
-            message = message.replace("[i]", insert);
+            String insert = "{$(item,"+json+",&(aqua)[i] " + name + "&(white)" + "" + ")}";
+            message = StringUtils.replaceOnce(message, "[i]", insert);
+            itemShare.setFirst(message.indexOf("{$")); itemShare.setSecond(message.indexOf("))}")+3);
         }
+        return message;
+    }
+
+    public static String atPlayer(String message) {
+
+        String playerName;
+        Bukkit.getConsoleSender().sendMessage(String.valueOf(message.indexOf('@')+1));
+        // Need this in case the player name comes at the very end
+        try {
+            playerName = message.substring(message.indexOf('@')+1, message.indexOf(" ", message.indexOf('@')));
+        } catch (Exception ignored) {
+            playerName = message.substring(message.indexOf('@')+1);
+        }
+
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(playerName);
+        if (flp == null) {
+            Bukkit.getConsoleSender().sendMessage("Couldn't find player: " + playerName);
+            return message;
+        }
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
+        String name;
+        if (flp.nickname == null || flp.nickname.equals(""))
+            name = flp.username;
+        else
+            name = flp.nickname;
+
+        String hover = "{$(hover,&(green)"+
+                ChatColor.GOLD  + name + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
+                "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
+                "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
+                "Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false) + "\n" +
+                "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
+                "Votes this Month: " + flp.monthVotes + "\n" +
+                "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
+                "Total Votes All Time: " + flp.totalVotes + ","+ flp.rank.getNameColor() + "@" + flp.username + ")}";
+        message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "").replace(playerName, hover);
+        taggedPlayer.setFirst(message.indexOf("{$(h")); taggedPlayer.setSecond(message.indexOf(flp.username + ")}")+2+flp.username.length());
+
         return message;
     }
 

@@ -27,6 +27,10 @@ public final class Home extends LocationWrapper {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return ChatColor.GOLD + name + ": " + ChatColor.AQUA + FLUtils.toStringTruncated(x) + ", " +

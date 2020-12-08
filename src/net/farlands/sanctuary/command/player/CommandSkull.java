@@ -7,13 +7,12 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.SkullCreator;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -52,12 +51,9 @@ public class CommandSkull extends PlayerCommand {
                 amount = 1;
         }
 
-        net.minecraft.server.v1_16_R3.ItemStack skull = CraftItemStack.asNMSCopy(new ItemStack(Material.PLAYER_HEAD,
-                args.length > 1 ? Math.min(8, amount) : 1));
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setString("SkullOwner", args[0]);
-        skull.setTag(nbt);
-        FLUtils.giveItem(sender, CraftItemStack.asBukkitCopy(skull), true);
+        ItemStack skull = SkullCreator.skullFromName(args[0]);
+        skull.setAmount(args.length > 1 ? Math.min(8, amount) : 1);
+        FLUtils.giveItem(sender, skull, true);
         return true;
     }
 

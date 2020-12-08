@@ -126,7 +126,8 @@ public final class TeleportRequest implements Runnable {
 
         // Send messages
         boolean isSenderToRecipient = TeleportType.SENDER_TO_RECIPIENT.equals(type);
-        recipient.sendMessage(ChatColor.GOLD + "Request accepted." + (isSenderToRecipient ? " Teleporting..." : ""));
+        recipient.sendMessage(ChatColor.GOLD + "Request accepted." + (isSenderToRecipient ? " Teleporting" +
+                (delay > 0 ? " in " + delay / 20 + " seconds..." : "...") : ""));
         sender.sendMessage(ChatColor.AQUA + recipient.getName() + ChatColor.GOLD + " has accepted your teleport request." +
                 (isSenderToRecipient ? "" : " Teleporting..."));
         sender.playSound(sender.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);

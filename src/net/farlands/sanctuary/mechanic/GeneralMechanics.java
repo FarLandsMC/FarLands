@@ -16,6 +16,7 @@ import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.SkullCreator;
 import net.farlands.sanctuary.gui.GuiVillagerEditor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
@@ -25,6 +26,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.server.v1_16_R3.*;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -189,6 +191,20 @@ public class GeneralMechanics extends Mechanic {
             blockStateMeta.setBlockState(blockState);
             stack.setItemMeta(blockStateMeta);
             event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), stack);
+        }
+
+        // Exit a sitting player if the block below them is broken
+        for (FLPlayerSession session : FarLands.getDataHandler().getSessions()) {
+            Location location = event.getBlock().getLocation();
+            if (session.seatExit != null && session.seatExit.getBlockX() == location.getBlockX()
+                    && session.seatExit.getBlockY() == location.add(0, 1, 0).getBlockY()
+                    && session.seatExit.getBlockZ() == location.getBlockZ()) {
+                session.player.getVehicle().eject();
+                session.player.getVehicle().remove();
+                //session.player.teleport(session.seatExit);
+                // ^ throws error, not sure why but we don't need it since they're falling anyway
+                session.seatExit = null;
+            }
         }
     }
 
@@ -434,6 +450,33 @@ public class GeneralMechanics extends Mechanic {
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 Bukkit.getOfflinePlayer(event.getEntity().getUniqueId()).decrementStatistic(Statistic.DEATHS);
             }, 5L);
+        }
+        // Drop a player skull with lore when a player is killed by another player
+        Player player = event.getEntity();
+        Player killer = event.getEntity().getKiller();
+        if (killer != null && killer != player) {
+            ItemStack killingWeapon = event.getEntity().getKiller().getInventory().getItemInMainHand();
+            String weaponName;
+            if (killingWeapon.hasItemMeta()) {
+                if (!killingWeapon.getItemMeta().getDisplayName().equals(""))
+                    weaponName = killingWeapon.getItemMeta().getDisplayName();
+                else {
+                    weaponName = killingWeapon.getType().name().replace("_", " ");
+                    weaponName = WordUtils.capitalizeFully(weaponName);
+                }
+            } else if (killingWeapon.getType() == Material.AIR) {
+                weaponName = "Fists";
+            } else {
+                weaponName = killingWeapon.getType().name().replace("_", " ");
+                weaponName = WordUtils.capitalizeFully(weaponName);
+            }
+            ItemStack skull = SkullCreator.skullFromUuid(player.getUniqueId());
+            ItemMeta meta = skull.getItemMeta();
+            meta.setDisplayName(ChatColor.RED + player.getName() + "'s Head");
+            meta.setLore(Collections.singletonList(Chat.applyColorCodes( "&6Slain by &b" + killer.getName() +
+                    " &6using " + weaponName)));
+            skull.setItemMeta(meta);
+            killer.getWorld().dropItemNaturally(player.getLocation(), skull);
         }
     }
 
