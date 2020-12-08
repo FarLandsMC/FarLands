@@ -57,6 +57,7 @@ public class CommandEdit extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if (args.length < 3)
             return false;
+
         args[0] = args[0].toLowerCase(); // Not case sensitive
         Object target = getTarget(args[0], args[1]); // Get the object we're editing
         if (target == null) { // Send the error if no object was found
@@ -65,6 +66,7 @@ public class CommandEdit extends Command {
             sendFormatted(sender, "&(red)%0 not found.", FLUtils.capitalize(args[0]));
             return true;
         }
+
         // Apply restrictions
         int restriction = getRestriction(sender, args[2]);
         if (restriction == 1 && args.length > 3) {
@@ -74,6 +76,7 @@ public class CommandEdit extends Command {
             sendFormatted(sender, "&(red)\"%0\" is restricted. Try searching for a specific sub-field.", args[2]);
             return true;
         }
+
         try {
             if (args.length == 3) { // Value get requests
                 sendFormatted(sender, "&(green)%0&(gold) is currently set to: &(white)%1",
@@ -96,6 +99,10 @@ public class CommandEdit extends Command {
         } catch (InvalidFieldException ex) {
             sendFormatted(sender, "&(red)Invalid field, field not found: %0", ex.getField());
         }
+
+        if (target instanceof OfflineFLPlayer)
+            ((OfflineFLPlayer) target).updateAll(false);
+
         return true;
     }
 

@@ -54,11 +54,7 @@ public class CommandFLTrigger extends Command {
                 break;
 
             case PLAYER_UPDATE:
-                FLPlayerSession session = flp.getSession();
-                if (session == null)
-                    flp.update();
-                else
-                    session.update(true);
+                flp.updateAll(true);
                 break;
         }
 
