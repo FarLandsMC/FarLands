@@ -65,6 +65,8 @@ public class CommandEditArmorStand extends PlayerCommand {
             );
             Entity selected = null;
             for (Entity entity : entities) {
+                // if the armour stand has the scoreboard tag for a chest shop, don't select it.
+                if(entity.getScoreboardTags().contains("chestShopDisplay")){continue;}
                 Vector direction = entity.getLocation().toVector().subtract(location.toVector()).normalize();
                 double dot = velocity.dot(direction);
                 if (dot > maxDot && dot > 0) {

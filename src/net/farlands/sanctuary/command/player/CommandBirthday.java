@@ -97,7 +97,7 @@ public class CommandBirthday extends Command {
             StringBuilder sb = new StringBuilder();
             sb.append(ChatColor.GOLD).append("Upcoming birthdays:\n");
             for (OfflineFLPlayer flp : upcoming) {
-                sb.append(flp.username).append(": ").append(ChatColor.AQUA).append(flp.birthday).append(ChatColor.GOLD)
+                sb.append(flp.username).append(": ").append(ChatColor.AQUA).append(flp.birthday.toFormattedString()).append(ChatColor.GOLD)
                         .append('\n');
             }
             sender.sendMessage(sb.toString().trim());

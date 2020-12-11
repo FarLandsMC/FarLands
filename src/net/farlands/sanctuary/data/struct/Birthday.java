@@ -31,4 +31,13 @@ public class Birthday {
     public String toString() {
         return (month + 1) + "/" + day;
     }
+
+    /**
+     * Formats the Birthday as 3 letter month + Day
+     * @return Formatted String
+     */
+    public String toFormattedString(){
+        String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        return months[month] + " " + day;
+    }
 }
