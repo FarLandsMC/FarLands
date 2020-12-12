@@ -9,6 +9,8 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ReflectionHelper;
 
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPig;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
@@ -37,7 +39,8 @@ public class CommandSit extends PlayerCommand {
         if (session.unsit())
             return true;
 
-        if (!sender.isOnGround()) { // can't go in canUse as it prevents /sit exit
+        if (!sender.isOnGround() || // can't go in canUse as it prevents /sit exit
+                sender.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) { // Check if player is standing directly on top of block, not off of a side
             sendFormatted(sender, "&(red)You must be on the ground to use this command.");
             return true;
         }

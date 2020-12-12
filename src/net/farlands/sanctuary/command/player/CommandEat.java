@@ -46,7 +46,7 @@ public class CommandEat extends PlayerCommand {
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("hand")) {
+        if (args.length == 1 && args[0].equalsIgnoreCase("hand")) {
             while (foodData.foodLevel < 20) {
                 ItemStack food = sender.getInventory().getItemInMainHand();
                 int location = sender.getInventory().getHeldItemSlot();
