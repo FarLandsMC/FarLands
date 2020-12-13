@@ -44,8 +44,18 @@ public class CommandPackageAccept extends PlayerCommand {
             if (args.length > 1 && !args[1].isEmpty())
                 packageID = args[1];
             else {
-                TextUtils.sendFormatted(sender, "&(red)Please specify the package sender.");
-                return true;
+                if(args.length == 1 && packages.size() == 1){
+                    FLUtils.giveItem(sender, packages.get(0).item, true);
+                    TextUtils.sendFormatted(
+                            sender, "&(gold)Receiving package from {&(aqua){%0}}.",
+                            packages.get(0).senderName
+                    );
+                    packages.remove(0);
+                    return true;
+                }else {
+                    TextUtils.sendFormatted(sender, "&(red)Please specify the package sender.");
+                    return true;
+                }
             }
         }
 
