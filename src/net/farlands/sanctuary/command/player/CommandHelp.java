@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.RegionProtection;
+import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.TextUtils;
 import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
@@ -9,6 +10,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -129,5 +131,12 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
             } else
                 return arg.replaceAll("\\|", "{&(gray)|}");
         }).collect(Collectors.joining(" "));
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        return args.length <= 1
+                ? TabCompleterBase.filterStartingWith(args[0], Arrays.stream(Category.values()).map(Category::name).map(String::toLowerCase))
+                : Collections.emptyList();
     }
 }

@@ -30,6 +30,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -291,8 +292,10 @@ public class DiscordHandler extends ListenerAdapter {
                 Bukkit.getOnlinePlayers().stream().filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).isIgnoring(flp)).forEach(p ->
                     TextUtils.sendFormatted(
                             p,
-                            "&(dark_gray)DISCORD %0%1: &(white)%2",
+                            "&(dark_gray)DISCORD %1%0%2%1%3: &(white)%4",
+                            rank.isStaff() ? ChatColor.BOLD : "",
                             rank.getNameColor(),
+                            rank.isStaff() ? rank.getName() + " " : "",
                             flp.username,
                             FarLands.getDataHandler().getOfflineFLPlayer(p).censoring ? censorMessage : fmessage
                     )
@@ -300,8 +303,10 @@ public class DiscordHandler extends ListenerAdapter {
 
                 TextUtils.sendFormatted(
                         Bukkit.getConsoleSender(),
-                        "&(dark_gray)DISCORD %0%1: &(white)%2",
+                        "&(dark_gray)DISCORD %1%0%2%1%3: &(white)%4",
+                        rank.isStaff() ? ChatColor.BOLD : "",
                         rank.getNameColor(),
+                        rank.isStaff() ? rank.getName() + " " : "",
                         flp.username,
                         fmessage
                 );
