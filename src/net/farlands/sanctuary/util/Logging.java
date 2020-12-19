@@ -63,6 +63,14 @@ public final class Logging {
         broadcastStaff(TextComponent.fromLegacyText(message), null);
     }
 
+    public static void broadcastStaffWithExemptions(BaseComponent[] message, Player exempt1, Player exempt2) {
+        Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
+                .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+                .filter(session -> session.player != exempt1 && session.player != exempt2)
+                .forEach(session -> session.player.spigot().sendMessage(message));
+        Bukkit.getConsoleSender().spigot().sendMessage(message);
+    }
+
     public static void log(Object x) {
         Bukkit.getLogger().info("[FLv" + FarLands.getInstance().getDescription().getVersion() + "] - " + x);
     }

@@ -172,8 +172,8 @@ public class CommandMessage extends PlayerCommand {
             FarLands.getDataHandler().getSession((Player) sender).lastMessageSender.setValue(recipient, 10L * 60L * 20L, null);
 
         // Notify staff of the message
-        Logging.broadcastStaff(format("&(red)[%0 -> %1]: &(gray)%2", Chat.removeColorCodes(sender.getName()),
-                Chat.removeColorCodes(recipient.getName()), message));
+        Logging.broadcastStaffWithExemptions(format("&(red)[%0 -> %1]: &(gray)%2", Chat.removeColorCodes(sender.getName()),
+                Chat.removeColorCodes(recipient.getName()), message), (Player) sender, (Player) recipient);
     }
 
     private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {

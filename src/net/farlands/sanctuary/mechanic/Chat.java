@@ -158,8 +158,7 @@ public class Chat extends Mechanic {
         } else {
             message = applyColorCodes(senderFlp.rank, message);
             itemShare = new Pair<>(); taggedPlayer = new Pair<>();
-            message = itemShare(senderFlp.rank, message, sender);
-            message = atPlayer(message);
+            message = itemShareAndTag(senderFlp.rank, message, sender);
             message = escapeExpression(message);
         }
 
@@ -399,6 +398,24 @@ public class Chat extends Mechanic {
         return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
     }
 
+    public static String itemShareAndTag(Rank rank, String message, Player player) {
+        // Make sure to do the right one first lol
+        int indexOfItem = message.indexOf("[i]");
+        int indexOfAt = message.indexOf("@");
+        if (indexOfAt == -1)
+            return itemShare(rank, message, player);
+        if (indexOfItem == -1)
+            return atPlayer(message);
+        if (message.indexOf("[i]") < message.indexOf("@")) {
+            message = itemShare(rank, message, player);
+            message = atPlayer(message);
+        } else {
+            message = atPlayer(message);
+            message = itemShare(rank, message, player);
+        }
+        return message;
+    }
+
     public static String itemShare(Rank rank, String message, Player player) {
         if (rank == null || rank.specialCompareTo(Rank.ADEPT) < 0)
             return message;
@@ -423,45 +440,49 @@ public class Chat extends Mechanic {
         message = message.replace("[item]", "[i]");
         message = message.replace("[hand]", "[i]");
         if (message.contains("[i]")) {
-            String insert = "{$(item,"+json+",&(aqua)[i] " + name + "&(white)" + "" + ")}";
+            String insert = "{$(item,"+json+",&(aqua)[i] " + name + "&(white)" +  ")}";
             message = StringUtils.replaceOnce(message, "[i]", insert);
-            itemShare.setFirst(message.indexOf("{$")); itemShare.setSecond(message.indexOf("))}")+3);
+            itemShare.setFirst(message.indexOf("{$(item")); itemShare.setSecond(message.indexOf("&(white))}")+10);
+            Bukkit.getConsoleSender().sendMessage(itemShare.getFirst() + " " + itemShare.getSecond());
         }
         return message;
     }
 
     public static String atPlayer(String message) {
+        if (taggedPlayer.getFirst() == null) {
+            String playerName;
+            // Need this in case the player name comes at the very end
+            try {
+                playerName = message.substring(message.indexOf('@')+1, message.indexOf(" ", message.indexOf('@')));
+            } catch (Exception ignored) {
+                playerName = message.substring(message.indexOf('@')+1);
+            }
 
-        String playerName;
-        // Need this in case the player name comes at the very end
-        try {
-            playerName = message.substring(message.indexOf('@')+1, message.indexOf(" ", message.indexOf('@')));
-        } catch (Exception ignored) {
-            playerName = message.substring(message.indexOf('@')+1);
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(playerName);
+            if (flp == null) {
+                return message;
+            }
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
+            String name;
+            if (flp.nickname == null || flp.nickname.equals(""))
+                name = flp.username;
+            else
+                name = flp.nickname;
+
+            String hover = "{$(hover,&(green)"+
+                    ChatColor.GOLD  + name + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
+                    "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
+                    "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
+                    "Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false) + "\n" +
+                    "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
+                    "Votes this Month: " + flp.monthVotes + "\n" +
+                    "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
+                    "Total Votes All Time: " + flp.totalVotes + ","+ flp.rank.getNameColor() + "@" + flp.username + ")}";
+            message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "");
+            message = StringUtils.replaceOnce(message, playerName, hover);
+            taggedPlayer.setFirst(message.indexOf("{$(h")); taggedPlayer.setSecond(message.indexOf(flp.username + ")}")+2+flp.username.length());
+            Bukkit.getConsoleSender().sendMessage(taggedPlayer.getFirst() + " " + taggedPlayer.getSecond());
         }
-
-        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(playerName);
-        if (flp == null) {
-            return message;
-        }
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
-        String name;
-        if (flp.nickname == null || flp.nickname.equals(""))
-            name = flp.username;
-        else
-            name = flp.nickname;
-
-        String hover = "{$(hover,&(green)"+
-                ChatColor.GOLD  + name + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
-                "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
-                "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
-                "Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false) + "\n" +
-                "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
-                "Votes this Month: " + flp.monthVotes + "\n" +
-                "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
-                "Total Votes All Time: " + flp.totalVotes + ","+ flp.rank.getNameColor() + "@" + flp.username + ")}";
-        message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "").replace(playerName, hover);
-        taggedPlayer.setFirst(message.indexOf("{$(h")); taggedPlayer.setSecond(message.indexOf(flp.username + ")}")+2+flp.username.length());
 
         return message;
     }
