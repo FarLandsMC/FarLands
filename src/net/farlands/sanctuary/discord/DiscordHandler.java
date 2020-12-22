@@ -246,26 +246,23 @@ public class DiscordHandler extends ListenerAdapter {
         }
         MarkdownProcessor mp = new MarkdownProcessor();
         final String fmessage = mp.markdown(cleanUp(message));
-
         if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
-            if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
-                TextUtils.sendFormatted(
-                        Bukkit.getConsoleSender(),
-                        "&(red)[SC] %0: %1",
-                        sender.getName(),
-                        fmessage
-                );
+            TextUtils.sendFormatted(
+                    Bukkit.getConsoleSender(),
+                    "&(red)[SC] %0: %1",
+                    sender.getName(),
+                    fmessage
+            );
 
-                FarLands.getDataHandler().getSessions().stream()
-                        .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
-                        .forEach(session -> sendFormatted(
-                                session.player,
-                                "%0[SC] %1: %2",
-                                session.handle.staffChatColor,
-                                sender.getName(),
-                                fmessage
-                        ));
-            }
+            FarLands.getDataHandler().getSessions().stream()
+                    .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+                    .forEach(session -> sendFormatted(
+                            session.player,
+                            "&(%0)[SC] %1: %2",
+                            session.handle.staffChatColor.name(),
+                            sender.getName(),
+                            fmessage
+                    ));
         }
 
         else if (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong()) {

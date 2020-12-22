@@ -31,7 +31,7 @@ public class CommandWild extends PlayerCommand {
     private final Cooldown globalCooldown;
 
     public CommandWild() {
-        super(Rank.INITIATE, Category.TELEPORTING, "Teleport to a random location on the map.", "/wild", "wild", "rtp");
+        super(Rank.INITIATE, Category.TELEPORTING, "Teleport to a random location on the map.", "/wild|rtp", "wild", "rtp");
         this.globalCooldown = new Cooldown(200L);
     }
 

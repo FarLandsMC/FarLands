@@ -48,6 +48,6 @@ public class CommandDevReport extends DiscordCommand {
     }
 
     public boolean deleteOnUse() {
-        return true;
+        return globalCooldown.timeRemaining() <= 0;
     }
 }

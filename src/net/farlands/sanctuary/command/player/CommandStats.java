@@ -39,6 +39,7 @@ public class CommandStats extends Command {
                     "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
                     (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
                             flp.amountDonated + "\n" : "") +
+                    (flp.birthday != null ? "Birthday: " + flp.birthday.toFormattedString() + "\n" : "") +
                     "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
                     "Votes this Month: " + flp.monthVotes + "\n" +
                     "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +

@@ -132,13 +132,18 @@ public class Chat extends Mechanic {
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
         Rank displayedRank = senderFlp.getDisplayRank();
         String displayPrefix;
-        if (senderFlp.nickname != null && !senderFlp.nickname.isEmpty()) {
-            displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
-                    displayedRank.getName() + " {$(hover," + senderFlp.username + ",%0%1:)}} ";
-        } else {
-            displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") +
-                    displayedRank.getName() + " {%0%1:}} ";
-        }
+        String playerStats = (displayedRank.isStaff() ? displayedRank.getColor() + "{&(bold)" : "{&(white)") + senderFlp.username +
+                "}&(gold)'s Stats: &(green)\n" +
+                "Rank: " + (displayedRank.isStaff() ? ChatColor.BOLD : "") + senderFlp.rank.getColor() + senderFlp.rank.getName() + "&(green)\n" +
+                "Time Played: " + TimeInterval.formatTime(senderFlp.secondsPlayed * 1000L, false) + "\n" +
+                "Deaths: " + sender.getStatistic(Statistic.DEATHS) + "\n" +
+                (senderFlp.birthday != null ? "Birthday: " + senderFlp.birthday.toFormattedString() + "\n" : "") +
+                "Votes this Month: " + senderFlp.monthVotes + "\n" +
+                "Total Votes this Season: " + senderFlp.totalSeasonVotes + "\n" +
+                "Total Votes All Time: " + senderFlp.totalVotes;
+
+        displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName() +
+                " {$(hover," + playerStats + "," + "%0%1:)}} ";
         chat(senderFlp, sender, displayPrefix, message.trim());
     }
 

@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.data.struct;
 
+import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
 public class Birthday {
@@ -33,11 +34,20 @@ public class Birthday {
     }
 
     /**
-     * Formats the Birthday as 3 letter month + Day
+     * Formats the Birthday as month + Day
+     * @param shortMonth Should the month be shortened to 3 chars?
+     * @return Formatted String
+     */
+    public String toFormattedString(boolean shortMonth){
+        String[] months = !shortMonth ? new DateFormatSymbols().getMonths() : new DateFormatSymbols().getShortMonths();
+        return months[month] + " " + day;
+    }
+
+    /**
+     * Formats the Birthday as month + Day
      * @return Formatted String
      */
     public String toFormattedString(){
-        String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-        return months[month] + " " + day;
+        return toFormattedString(false);
     }
 }
