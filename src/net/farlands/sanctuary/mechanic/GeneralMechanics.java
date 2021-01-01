@@ -251,7 +251,7 @@ public class GeneralMechanics extends Mechanic {
             FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
             event.setCancelled(true);
             if (
-                    flags != null && (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
+                    flags == null || (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
                     (!event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK)
                             .isBlocked(Material.DRAGON_EGG)))
             ) {
