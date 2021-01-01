@@ -46,6 +46,9 @@ import java.util.stream.Collectors;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class Restrictions extends Mechanic {
+
+    private HashSet<UUID> endWarnings = new HashSet<>();
+
     @Override
     public void onStartup() {
         // Fix nether claim heights
@@ -201,15 +204,27 @@ public class Restrictions extends Mechanic {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        // TODO: Add honey to check or warn players flying machines are unsafe
-        if ("world_the_end".equals(event.getBlock().getWorld().getName()) &&
-                event.getBlockPlaced().getType() == Material.SLIME_BLOCK) {
-            event.getPlayer().sendMessage(ChatColor.RED + "You can't place slime blocks in the end.");
-            event.setCancelled(true);
-        } else if (event.getBlockAgainst().getType() == Material.SLIME_BLOCK &&
-                (event.getBlockPlaced().getType().name().endsWith("FAN") ||
-                        event.getBlockPlaced().getType().name().endsWith("CORAL"))) {
-            final Location location = event.getBlock().getLocation();
+        if (
+                "world_the_end".equals(event.getBlock().getWorld().getName()) && (
+                        event.getBlockPlaced().getType() == Material.SLIME_BLOCK ||
+                        event.getBlockPlaced().getType() == Material.HONEY_BLOCK
+                )
+        ) {
+            if (!endWarnings.contains(event.getPlayer().getUniqueId())) {
+                TextUtils.sendFormatted(event.getPlayer(), "&(red)Flying machine related deaths will not be considered " +
+                        "server error and as a result, will {&(bold)not} be restored! " +
+                        "Travel safely by riding in a boat or minecart that is attached to the machine.");
+                endWarnings.add(event.getPlayer().getUniqueId());
+            }
+        }
+        else if ((
+                event.getBlockAgainst().getType() == Material.SLIME_BLOCK ||
+                event.getBlockAgainst().getType() == Material.HONEY_BLOCK
+            ) && (
+                event.getBlockPlaced().getType().name().endsWith("FAN") ||
+                event.getBlockPlaced().getType().name().endsWith("CORAL")
+        )) {
+            Location location = event.getBlock().getLocation();
             AntiCheat.broadcast(event.getPlayer().getName(), "may be attempting to build a duper @ " +
                     location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
             TextUtils.sendFormatted(event.getPlayer(), "&(red)It appears you are building a duping device, " +
