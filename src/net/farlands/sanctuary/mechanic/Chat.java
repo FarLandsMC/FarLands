@@ -456,6 +456,15 @@ public class Chat extends Mechanic {
     public static String atPlayer(String message) {
         if (taggedPlayer.getFirst() == null) {
             String playerName;
+            // Starting to hate this code -.-
+            // If there is an @ symbol by itself
+            try {
+                if (message.charAt(message.indexOf('@')+1) == ' ') {
+                    return message;
+                }
+            } catch (Exception ex) {
+                return message;
+            }
             // Need this in case the player name comes at the very end
             try {
                 playerName = message.substring(message.indexOf('@')+1, message.indexOf(" ", message.indexOf('@')));

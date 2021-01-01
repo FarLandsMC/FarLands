@@ -229,7 +229,8 @@ public class DiscordHandler extends ListenerAdapter {
             return;
         message = TextUtils.escapeExpression(Chat.removeColorCodes(message));
         message = message.trim();
-        if (message.length() > 256) {
+        if (message.length() > 256 && (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong()
+                == event.getChannel().getIdLong())) {
             message = message.substring(0, 232);
             message = message + "&(gray)... View more on $(hoverlink,https://discord.gg/gYmpZqZ," +
                     "&(gold)Click to join our Discord server.,&(aqua,underline)Discord)}";
