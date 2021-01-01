@@ -251,9 +251,8 @@ public class GeneralMechanics extends Mechanic {
             FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
             event.setCancelled(true);
             if (
-                    flags == null || (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
-                    (!event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK)
-                            .isBlocked(Material.DRAGON_EGG)))
+                    flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
+                    event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK).isBlocked(Material.DRAGON_EGG)
             ) {
                 event.getClickedBlock().setType(Material.AIR);
                 FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
@@ -268,7 +267,7 @@ public class GeneralMechanics extends Mechanic {
             Location location = event.getClickedBlock().getLocation();
             sendFormatted(player, "&(dark_purple)This portal best links to %0 in the %1.",
                     location.getWorld().getName().equals("world") ?
-                    (location.getBlockX() >> 3) + " "     + location.getBlockY() + " " + (location.getBlockZ() >> 3) :           // x / 8
+                    (location.getBlockX() >> 3) + " "     + location.getBlockY() + " " + (location.getBlockZ() >> 3) :          // x / 8
                     (location.getBlockX() << 3) + "(+7) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+7)",  // x * 8
                     location.getWorld().getName().equals("world") ? "Nether" : "Overworld");
             return;
