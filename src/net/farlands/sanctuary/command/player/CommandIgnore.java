@@ -2,12 +2,15 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.data.struct.IgnoreStatus;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -18,8 +21,8 @@ import java.util.List;
 
 public class CommandIgnore extends Command {
     public CommandIgnore() {
-        super(Rank.INITIATE, Category.CHAT, "Ignores a player so that you do not see any of their messages.", "/ignore <player>", true,
-                "ignore", "unignore");
+        super(Rank.INITIATE, Category.CHAT, "Ignores a player so that you do not see any of their messages.",
+                "/ignore <player> [type]", true, "ignore", "unignore");
     }
 
     @Override
@@ -47,6 +50,14 @@ public class CommandIgnore extends Command {
             return true;
         }
 
+        IgnoreStatus.IgnoreType type = args.length >= 3
+                ? Utils.valueOfFormattedName(args[2], IgnoreStatus.IgnoreType.class)
+                : IgnoreStatus.IgnoreType.ALL;
+        if (type == null) {
+            sender.sendMessage(ChatColor.RED + "Invalid ignore type: " + args[2]);
+            return true;
+        }
+
         if ("ignore".equals(args[0])) {
             // You can't ignore staff
             if (ignored.rank.isStaff()) {
@@ -54,20 +65,49 @@ public class CommandIgnore extends Command {
                 return true;
             }
 
-            // You can't ignore someone more than once
-            if (!flp.setIgnoring(ignored.uuid, true)) {
-                sendFormatted(sender, "&(red)You are already ignoring this player.");
+            // The selected type is already set
+            if (flp.getIgnoreStatus(ignored).isSet(type)) {
+                sendFormatted(
+                        sender,
+                        "&(red)You are already ignoring %0 from &(aqua)%1",
+                        type.toFormattedString(),
+                        ignored.username
+                );
                 return true;
             }
 
-            sendFormatted(sender, "&(green)You are now ignoring &(aqua)%0", ignored.username);
+            flp.updateIgnoreStatus(ignored.uuid, type, true);
+            sendFormatted(
+                    sender,
+                    "&(green)You are now ignoring %0 from &(aqua)%1",
+                    type.toFormattedString(),
+                    ignored.username
+            );
         } else if ("unignore".equals(args[0])) {
-            if (!flp.setIgnoring(ignored.uuid, false)) {
-                sendFormatted(sender, "&(red)You were not ignoring this player.");
+            IgnoreStatus status = flp.getIgnoreStatus(ignored);
+            boolean redundant = type == IgnoreStatus.IgnoreType.ALL ? status.includesNone() : !status.isSet(type);
+            // The selected type is not set
+            if (redundant) {
+                sendFormatted(
+                        sender,
+                        type == IgnoreStatus.IgnoreType.ALL
+                                ? "&(red)You are already not ignoring &(aqua)%1"
+                                : "&(red)You are already not ignoring %0 from &(aqua)%1",
+                        type.toFormattedString(),
+                        ignored.username
+                );
                 return true;
             }
 
-            sendFormatted(sender, "&(green)You are no longer ignoring &(aqua)%0", ignored.username);
+            flp.updateIgnoreStatus(ignored.uuid, type, false);
+            sendFormatted(
+                    sender,
+                    type == IgnoreStatus.IgnoreType.ALL
+                            ? "&(green)You are no longer ignoring &(aqua)%1"
+                            : "&(green)You are no longer ignoring %0 from &(aqua)%1",
+                    type.toFormattedString(),
+                    ignored.username
+            );
         }
 
         return true;

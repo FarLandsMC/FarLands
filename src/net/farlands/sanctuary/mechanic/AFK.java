@@ -125,7 +125,7 @@ public class AFK extends Mechanic {
     public static void setNotAFK(FLPlayerSession session) {
         session.afk = false;
         if (!session.handle.vanished)
-            Logging.broadcast(flp -> !flp.handle.isIgnoring(session.player), " * %0 is no longer AFK.", session.handle.username);
+            Logging.broadcast(flp -> !flp.handle.getIgnoreStatus(session.player).includesChat(), " * %0 is no longer AFK.", session.handle.username);
     }
 
     public static void setAFKCooldown(Player player) {

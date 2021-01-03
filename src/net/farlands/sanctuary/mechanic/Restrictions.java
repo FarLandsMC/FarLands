@@ -14,6 +14,7 @@ import com.kicas.rp.util.TextUtils;
 import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
 
+import com.kicasmads.cs.event.ShopTransactionEvent;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.struct.Punishment;
@@ -37,6 +38,7 @@ import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.HorseInventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 
@@ -47,7 +49,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class Restrictions extends Mechanic {
 
-    private HashSet<UUID> endWarnings = new HashSet<>();
+    private final HashSet<UUID> endWarnings = new HashSet<>();
 
     @Override
     public void onStartup() {
@@ -174,8 +176,20 @@ public class Restrictions extends Mechanic {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onShopTransaction(ShopTransactionEvent event) {
+        Player player = event.getPlayer();
+        int buyAmount = event.getShop().getBuyAmount();
+        ItemStack bought = event.getShop().getBuyItem();
+        int sellAmount = event.getShop().getSellAmount();
+        ItemStack sold = event.getShop().getSellItem();
+
+        Logging.log(player.getName() + " bought " + sellAmount + "x" + sold.getType() + " with " + buyAmount + "x" +
+                bought.getType());
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onShopDestroyed(ShopRemoveEvent event) {
-        FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getOwner()).removeShop();
+        FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getCachedOwner().getId()).removeShop();
     }
 
     @EventHandler(ignoreCancelled = true) // Prevent portals from forming in spawn

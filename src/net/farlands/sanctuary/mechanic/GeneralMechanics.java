@@ -361,7 +361,7 @@ public class GeneralMechanics extends Mechanic {
             FarLands.getDataHandler().getSession(event.getPlayer()).givePetRecipient.discard();
             if (petRecipient == null)
                 return;
-            if (FarLands.getDataHandler().getOfflineFLPlayer(petRecipient).isIgnoring(event.getPlayer()))
+            if (FarLands.getDataHandler().getOfflineFLPlayer(petRecipient).getIgnoreStatus(event.getPlayer()).includesPackages())
                 pet.remove(); // fake the pet teleporting
 
             pet.setOwner(petRecipient);

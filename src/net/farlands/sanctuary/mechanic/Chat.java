@@ -195,7 +195,7 @@ public class Chat extends Mechanic {
                      fmessage = displayPrefix + lmessage,
                 censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
-                .filter(session -> !session.handle.isIgnoring(senderFlp))
+                .filter(session -> !session.handle.getIgnoreStatus(senderFlp).includesChat())
                 .forEach(session -> {
                     if (session.handle.censoring)
                         TextUtils.sendFormatted(session.player, senderFlp.rank.isStaff(), censorMessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName());

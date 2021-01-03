@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.data.SkipSerializing;
 import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
@@ -64,11 +64,15 @@ public class OfflineFLPlayer {
     public Particles       particles;
     public Rank            rank;
 
-    public Set<UUID>         ignoredPlayers;
-    public List<Home>        homes;
-    public List<MailMessage> mail;
-    public List<Punishment>  punishments;
-    public List<String>      notes;
+    public Map<UUID, IgnoreStatus> ignoreStatusMap;
+    public List<Home>              homes;
+    public List<MailMessage>       mail;
+    public List<Punishment>        punishments;
+    public List<String>            notes;
+
+    // Legacy
+    @SkipSerializing
+    public Set<UUID> ignoredPlayers;
 
     public static final Map<String, List<String>> SQL_SER_INFO = (new ImmutableMap.Builder<String, List<String>>())
             .put("constants", Arrays.asList("uuid", "username"))
@@ -117,11 +121,13 @@ public class OfflineFLPlayer {
         this.particles = null;
         this.rank = Rank.INITIATE;
 
-        this.ignoredPlayers = new HashSet<>();
+        this.ignoreStatusMap = new HashMap<>();
         this.notes = new ArrayList<>();
         this.punishments = new ArrayList<>();
         this.homes = new ArrayList<>();
         this.mail = new ArrayList<>();
+
+        this.ignoredPlayers = new HashSet<>();
     }
 
     OfflineFLPlayer() { // No-Args ctr for GSON
@@ -136,18 +142,8 @@ public class OfflineFLPlayer {
         updateDiscord();
 
         FLPlayerSession session = getSession();
-        if (session == null)
-            update();
-        else
+        if (session != null)
             session.update(sendMessages);
-    }
-
-    public synchronized void update() {
-        if (currentMute != null && currentMute.hasExpired()) {
-            currentMute = null;
-            if (isOnline())
-                getOnlinePlayer().sendMessage(ChatColor.GREEN + "Your mute has expired.");
-        }
     }
 
     public synchronized void updateDiscord() {
@@ -305,24 +301,35 @@ public class OfflineFLPlayer {
     }
 
     public List<String> getIgnoreList() {
-        return ignoredPlayers.stream().map(uuid -> FarLands.getDataHandler().getOfflineFLPlayer(uuid).username)
+        return ignoreStatusMap.keySet()
+                .stream()
+                .map(uuid -> FarLands.getDataHandler().getOfflineFLPlayer(uuid).username)
                 .collect(Collectors.toList());
     }
 
-    public boolean isIgnoring(CommandSender sender) {
+    public IgnoreStatus getIgnoreStatus(CommandSender sender) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        return flp != null && ignoredPlayers.contains(flp.uuid);
+        return flp == null ? IgnoreStatus.NONE : getIgnoreStatus(flp);
     }
 
-    public boolean isIgnoring(OfflineFLPlayer flp) {
-        return ignoredPlayers.contains(flp.uuid);
+    public IgnoreStatus getIgnoreStatus(OfflineFLPlayer flp) {
+        return ignoreStatusMap.getOrDefault(flp.uuid, IgnoreStatus.NONE);
     }
 
-    public boolean setIgnoring(UUID player, boolean value) {
-        if(value)
-            return ignoredPlayers.add(player);
-        else
-            return ignoredPlayers.remove(player);
+    public void updateIgnoreStatus(UUID player, IgnoreStatus.IgnoreType type, boolean value) {
+        IgnoreStatus status = ignoreStatusMap.get(player);
+
+        if (status == null) {
+            if (value) {
+                status = new IgnoreStatus();
+                ignoreStatusMap.put(player, status);
+            } else
+                return;
+        }
+
+        status.set(type, value);
+        if (status.includesNone())
+            ignoreStatusMap.remove(player);
     }
 
     public boolean isMuted() {

@@ -287,17 +287,20 @@ public class DiscordHandler extends ListenerAdapter {
                 }
 
                 String censorMessage = Chat.getMessageFilter().censor(fmessage);
-                Bukkit.getOnlinePlayers().stream().filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).isIgnoring(flp)).forEach(p ->
-                    TextUtils.sendFormatted(
-                            p,
-                            "&(dark_gray)DISCORD %1%0%2%1%3: &(white)%4",
-                            rank.isStaff() ? ChatColor.BOLD : "",
-                            rank.getNameColor(),
-                            rank.isStaff() ? rank.getName() + " " : "",
-                            flp.username,
-                            FarLands.getDataHandler().getOfflineFLPlayer(p).censoring ? censorMessage : fmessage
-                    )
-                );
+                Bukkit.getOnlinePlayers()
+                        .stream()
+                        .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
+                        .forEach(p ->
+                            TextUtils.sendFormatted(
+                                    p,
+                                    "&(dark_gray)DISCORD %1%0%2%1%3: &(white)%4",
+                                    rank.isStaff() ? ChatColor.BOLD : "",
+                                    rank.getNameColor(),
+                                    rank.isStaff() ? rank.getName() + " " : "",
+                                    flp.username,
+                                    FarLands.getDataHandler().getOfflineFLPlayer(p).censoring ? censorMessage : fmessage
+                            )
+                        );
 
                 TextUtils.sendFormatted(
                         Bukkit.getConsoleSender(),

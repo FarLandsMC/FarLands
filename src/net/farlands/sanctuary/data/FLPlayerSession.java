@@ -7,10 +7,8 @@ import com.kicas.rp.util.TextUtils;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.data.struct.Package;
-import net.farlands.sanctuary.data.struct.PackageToggle;
-import net.farlands.sanctuary.data.struct.TeleportRequest;
 import net.farlands.sanctuary.mechanic.Toggles;
 import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.FLUtils;
@@ -150,7 +148,15 @@ public class FLPlayerSession {
      */
 
     public void update(boolean sendMessages) {
-        handle.update();
+        // Data maintenance
+        if (handle.currentMute != null && handle.currentMute.hasExpired()) {
+            handle.currentMute = null;
+            player.sendMessage(ChatColor.GREEN + "Your mute has expired.");
+        }
+
+        handle.ignoredPlayers.forEach(uuid -> handle.updateIgnoreStatus(uuid, IgnoreStatus.IgnoreType.ALL, true));
+        handle.ignoredPlayers.clear();
+
         if (!handle.username.equals(player.getName()))
             handle.username = player.getName();
 

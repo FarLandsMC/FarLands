@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.data;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
@@ -622,16 +623,18 @@ public class DataHandler extends Mechanic {
             t.printStackTrace(System.out);
         }
 
-        itemData = FileSystem.loadJson(new TypeToken<HashMap<String, ItemCollection>>() { }, new HashMap<>(),
-                FileSystem.getFile(rootDirectory, ITEMS_FILE));
+        itemData = FileSystem.loadJson(new TypeToken<>() { }, new HashMap<>(), FileSystem.getFile(rootDirectory, ITEMS_FILE));
         loadEvidenceLockers();
         loadDeathDatabase();
         loadPackages();
     }
 
     public void saveData() {
-        // Disable pretty-printing
-        FileSystem.saveJson((new GsonBuilder()).create(), flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
+        // Disable pretty-printing and handle the @SkipSerializing annotation
+        Gson playerDataGson = new GsonBuilder()
+                .addSerializationExclusionStrategy(new SerializationExclusionStrategy())
+                .create();
+        FileSystem.saveJson(playerDataGson, flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
         FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
         saveEvidenceLockers();
         saveDeathDatabase();

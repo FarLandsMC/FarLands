@@ -42,7 +42,7 @@ public class CommandAFK extends PlayerCommand {
             session.afkCheckInitializerCooldown.resetCurrentTask();
 
         // Notify the server
-        Logging.broadcast(flp -> !flp.handle.isIgnoring(session.handle), " * %0 is now AFK.", session.handle.username);
+        Logging.broadcast(flp -> !flp.handle.getIgnoreStatus(session.handle).includesChat(), " * %0 is now AFK.", session.handle.username);
         return true;
     }
 }

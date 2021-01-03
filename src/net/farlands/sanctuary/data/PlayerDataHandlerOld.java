@@ -488,9 +488,9 @@ public class PlayerDataHandlerOld {
                 saveFlp.setLong(22, flp.currentMute.getDateEnds());
                 saveFlp.setString(23, flp.currentMute.getReason());
             }
-            byte[] ignored = new byte[flp.ignoredPlayers.size() * 16];
+            byte[] ignored = new byte[flp.ignoreStatusMap.size() * 16];
             int i = 0;
-            for(UUID uid : flp.ignoredPlayers) {
+            for(UUID uid : flp.ignoreStatusMap.keySet()) {
                 FLUtils.serializeUuid(uid, ignored, i);
                 i += 16;
             }
@@ -559,7 +559,7 @@ public class PlayerDataHandlerOld {
             byte[] ignoredPlayers = rs.getBytes("ignoredPlayers");
             if(ignoredPlayers != null) {
                 for (int i = 0; i + 15 < ignoredPlayers.length; i += 16)
-                    flp.setIgnoring(FLUtils.getUuid(ignoredPlayers, i), true);
+                    flp.updateIgnoreStatus(FLUtils.getUuid(ignoredPlayers, i), IgnoreStatus.IgnoreType.ALL, true);
             }
 
             flp.punishments = getPunishments(uuid);
@@ -826,9 +826,6 @@ public class PlayerDataHandlerOld {
     }
 
     private static String valueSpaces(int amount) {
-        StringBuilder sb = new StringBuilder("(?");
-        for(int i = 1;i < amount;++ i)
-            sb.append(",?");
-        return sb.append(')').toString();
+        return "(?" + ",?".repeat(Math.max(0, amount - 1)) + ')';
     }
 }

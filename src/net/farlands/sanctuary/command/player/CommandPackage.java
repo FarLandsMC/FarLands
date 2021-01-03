@@ -69,7 +69,7 @@ public class CommandPackage extends PlayerCommand {
               escapedMessage = escapeExpression(message);
         final boolean useEscaped = !senderSession.handle.rank.isStaff();
 
-        if (recipientFlp.packageToggle == PackageToggle.DECLINE) {
+        if (recipientFlp.packageToggle == PackageToggle.DECLINE || recipientFlp.getIgnoreStatus(sender).includesPackages()) {
             TextUtils.sendFormatted(sender, "&(red)This player is not accepting packages.");
             return true;
         }

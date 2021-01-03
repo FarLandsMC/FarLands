@@ -90,7 +90,7 @@ public class PlayerTrade {
         lastClickTime = clickTime;
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(owner);
-        if (flp.isIgnoring(clicker))
+        if (flp.getIgnoreStatus(clicker).includesChat())
             return;
 
         Player trader = flp.getOnlinePlayer();

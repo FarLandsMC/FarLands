@@ -48,7 +48,7 @@ public class CommandTPA extends PlayerCommand {
         if (recipientSession.afk)
             sendFormatted(sender, "&(red)This player is AFK, so they may not receive your request.");
 
-        if (recipientSession.handle.isIgnoring(sender))
+        if (recipientSession.handle.getIgnoreStatus(sender).includesTeleports())
             return true;
 
         // Everything else is handled here

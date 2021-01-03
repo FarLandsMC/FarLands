@@ -88,7 +88,7 @@ public class CommandMail extends Command {
                 sendMailMessage(sender, "To", recipientFlp.rank.getNameColor(), escapeExpression(recipientFlp.getDisplayName()), message);
 
                 // Check for ignoring
-                if (!recipientFlp.isIgnoring(senderFlp))
+                if (!recipientFlp.getIgnoreStatus(senderFlp).includesChat())
                     recipientFlp.addMail(sender.getName(), message);
                 break;
             }
