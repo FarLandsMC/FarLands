@@ -14,17 +14,33 @@ public final class Punishment {
     private PunishmentType punishmentType;
     private long dateIssued;
     private String message;
+    private boolean pardoned;
 
     public static final int[] PUNISHMENT_DURATIONS = {24, 72, 168}; // In hours
 
-    public Punishment(PunishmentType punishmentType, long dateIssued, String message) {
+    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned){
         this.punishmentType = punishmentType;
         this.dateIssued = dateIssued;
         this.message = message;
+        this.pardoned = pardoned;
+    }
+
+    public Punishment(PunishmentType punishmentType, long dateIssued, String message) {
+        this(punishmentType, dateIssued, message, false);
     }
 
     public Punishment(PunishmentType punishmentType, String message) {
         this(punishmentType, System.currentTimeMillis(), message);
+    }
+
+    public boolean isNotPardoned() {
+        return !pardoned;
+    }
+
+    public boolean pardon(){
+        boolean out = !pardoned;
+        pardoned = true;
+        return out;
     }
 
     public long getDateIssued() {
@@ -78,6 +94,23 @@ public final class Punishment {
     @Override
     public String toString() {
         return punishmentType.getHumanName() + " (" + SDF.format(new Date(dateIssued)) + ")";
+    }
+
+    /**
+     * Returns a formatted string with colour codes- used in /seen and /punishments.
+     * @param index The punishment #
+     * @return String formatted with ChatColors
+     */
+    public String toFormattedString(int index) {
+        String suffix = null;
+        if(pardoned)
+            suffix = ChatColor.GREEN + "[Pardoned]";
+        if(isActive(index) && suffix == null)
+            suffix = ChatColor.RED + "[Active]";
+
+        return ChatColor.GOLD + punishmentType.getHumanName() +
+                ChatColor.AQUA + " (" + SDF.format(new Date(dateIssued)) + ")" +
+                ChatColor.GREEN + " " + (suffix == null ? "" : suffix);
     }
 
     public enum PunishmentType {

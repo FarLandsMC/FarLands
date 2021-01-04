@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OfflineFLPlayer {
     public UUID uuid;
@@ -338,12 +339,14 @@ public class OfflineFLPlayer {
 
     public long punish(Punishment.PunishmentType type, String message) { // Returns time remaining
         Punishment p = new Punishment(type, message);
-        if (punishments.size() >= 4 || punishments.stream().map(Punishment::getType).anyMatch(Punishment.PunishmentType::isPermanent))
+        List<Punishment> validPunishments = punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
+        if (validPunishments.size() >= 4 || validPunishments.stream().map(Punishment::getType).anyMatch(Punishment.PunishmentType::isPermanent))
             return -1L; // No use for further punishing, this player is permanently banned
         punishments.add(p);
+        validPunishments = punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
         Player player = getOnlinePlayer();
         if (player != null)
-            player.kickPlayer(p.generateBanMessage(punishments.size() - 1, true));
+            player.kickPlayer(p.generateBanMessage(validPunishments.size() - 1, true));
         LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
         if (spawn != null) { // Make sure spawn is set
             if (player != null)
@@ -351,10 +354,19 @@ public class OfflineFLPlayer {
             else
                 lastLocation = spawn;
         }
-        return p.totalTime(punishments.size() - 1);
+        return p.totalTime(validPunishments.size() - 1);
     }
 
     public boolean pardon(Punishment.PunishmentType type) {
+        Punishment punishment = null;
+        for (int i = punishments.size() - 1; i >= 0; --i) {
+            if (type.equals(punishments.get(i).getType()) && punishments.get(i).isNotPardoned())
+                punishment = punishments.get(i);
+        }
+        return punishment != null && punishment.pardon();
+    }
+
+    public boolean removePunishment(Punishment.PunishmentType type) {
         Punishment punishment = null;
         for (int i = punishments.size() - 1; i >= 0; --i) {
             if (type.equals(punishments.get(i).getType()))
@@ -365,7 +377,7 @@ public class OfflineFLPlayer {
 
     public Punishment getCurrentPunishment() {
         for (int i = punishments.size() - 1; i >= 0; --i) {
-            if (punishments.get(i).isActive(i))
+            if (punishments.get(i).isActive(i) && punishments.get(i).isNotPardoned())
                 return punishments.get(i);
         }
         return null;
@@ -373,10 +385,17 @@ public class OfflineFLPlayer {
 
     public String getCurrentPunishmentMessage() {
         Punishment cp = getCurrentPunishment();
-        return cp == null ? null : cp.generateBanMessage(punishments.indexOf(cp), false);
+        List<Punishment> validPunishments = punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
+        return cp == null ? null : cp.generateBanMessage(validPunishments.indexOf(cp), false);
     }
 
     public Punishment getMostRecentPunishment() {
+        List<Punishment> validPunishments = punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
+        return validPunishments.isEmpty() ? null :
+                validPunishments.get(validPunishments.size() - 1);
+    }
+
+    public Punishment getMostRecentPunishmentAll(){
         return punishments.isEmpty() ? null : punishments.get(punishments.size() - 1);
     }
 
@@ -386,7 +405,7 @@ public class OfflineFLPlayer {
 
     public boolean isBanned() {
         for (int i = 0; i < punishments.size(); ++i) {
-            if (punishments.get(i).isActive(i))
+            if (punishments.get(i).isActive(i) && punishments.get(i).isNotPardoned())
                 return true;
         }
         return false;

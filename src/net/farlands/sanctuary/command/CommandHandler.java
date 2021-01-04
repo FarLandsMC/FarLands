@@ -96,6 +96,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandGivePet());          // Initiate
         registerCommand(new CommandGuideBook());        // Initiate
         registerCommand(new CommandHat());              // Donor
+        registerCommand(new CommandHeadDatabase());     // Sponsor
         registerCommand(new CommandHelp());             // Initiate
         registerCommand(new CommandHome());             // Initiate
         registerCommand(new CommandHomes());            // Initiate
@@ -175,6 +176,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandMoveSchems());       // Builder
         registerCommand(new CommandMute());             // Jr_Builder
         registerCommand(new CommandPunish());           // Jr_Builder
+        registerCommand(new CommandPunishRemove());     // Jr_Builder
         registerCommand(new CommandPurchase());         // Builder
         registerCommand(new CommandRestoreDeath());     // Builder
         registerCommand(new CommandSearchHomes());      // Jr_Builder

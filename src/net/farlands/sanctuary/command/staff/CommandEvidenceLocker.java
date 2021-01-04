@@ -29,7 +29,7 @@ public class CommandEvidenceLocker extends PlayerCommand {
             return true;
         }
         if(FarLands.getDataHandler().isLockerOpen(flp.uuid)) {
-            sendFormatted(sender, "&(red)This player\'s evidence locker is already being edited. You must wait for the other editor to finish.");
+            sendFormatted(sender, "&(red)This player's evidence locker is already being edited. You must wait for the other editor to finish.");
             return true;
         }
         (new GuiEvidenceLocker(flp)).openGui(sender);

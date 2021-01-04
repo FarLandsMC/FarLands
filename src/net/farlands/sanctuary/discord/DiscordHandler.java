@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.discord;
 
+import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
 import net.dv8tion.jda.api.JDA;
@@ -232,7 +233,7 @@ public class DiscordHandler extends ListenerAdapter {
         if (message.length() > 256 && (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong()
                 == event.getChannel().getIdLong())) {
             message = message.substring(0, 232);
-            message = message + "&(gray)... View more on $(hoverlink,https://discord.gg/gYmpZqZ," +
+            message = message.trim() + "&(gray)... View more on $(hoverlink,https://discord.gg/gYmpZqZ," +
                     "&(gold)Click to join our Discord server.,&(aqua,underline)Discord)}";
             // Notify sender their message was too long
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, "Your message was " +
@@ -246,11 +247,12 @@ public class DiscordHandler extends ListenerAdapter {
                 message += " [Image]";
         }
         MarkdownProcessor mp = new MarkdownProcessor();
-        final String fmessage = mp.markdown(cleanUp(message));
+        Chat.taggedPlayer = new Pair<>();
+        final String fmessage = Chat.atPlayer(Chat.limitFlood((Chat.limitCaps(mp.markdown(message)))), sender.getFlp().uuid);
         if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
             TextUtils.sendFormatted(
                     Bukkit.getConsoleSender(),
-                    "&(red)[SC] %0: %1",
+                    "&(red)[SC] {&(dark_gray,bold)D} %0: %1",
                     sender.getName(),
                     fmessage
             );
@@ -259,7 +261,7 @@ public class DiscordHandler extends ListenerAdapter {
                     .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
                     .forEach(session -> sendFormatted(
                             session.player,
-                            "&(%0)[SC] %1: %2",
+                            "&(%0)[SC] {&(dark_gray)Discord} %1: %2",
                             session.handle.staffChatColor.name(),
                             sender.getName(),
                             fmessage

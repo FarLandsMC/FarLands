@@ -16,7 +16,7 @@ public class GuiEvidenceLocker extends Gui {
     private int currentPunishment;
 
     public GuiEvidenceLocker(OfflineFLPlayer flp) {
-        super("Evidence Locker", flp.punishments.get(0).toString(), 54);
+        super("Evidence Locker", flp.punishments.get(0).toFormattedString(0), 54);
         this.flp = flp;
         this.locker = FarLands.getDataHandler().getEvidenceLocker(flp);
         this.currentPunishment = 0;
@@ -42,7 +42,7 @@ public class GuiEvidenceLocker extends Gui {
     private void changeInventory(int move) {
         saveInventory();
         currentPunishment += move;
-        newInventory(54, flp.punishments.get(currentPunishment).toString());
+        newInventory(54, flp.punishments.get(currentPunishment).toFormattedString(currentPunishment));
     }
 
     @Override

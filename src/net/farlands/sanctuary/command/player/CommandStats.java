@@ -32,7 +32,7 @@ public class CommandStats extends Command {
         }
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
-            flp.update(); // Make sure our stats are fresh
+            flp.updateAll(false); // Make sure our stats are fresh
             sender.sendMessage(ChatColor.GREEN +
                     "Showing stats for " + ChatColor.GOLD + flp.username + ":" + ChatColor.GREEN + "\n" +
                     "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +

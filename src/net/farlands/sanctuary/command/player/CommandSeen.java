@@ -8,9 +8,11 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.TimeInterval;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -18,6 +20,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandSeen extends Command {
     public CommandSeen() {
@@ -47,8 +50,14 @@ public class CommandSeen extends Command {
             sb.append("\n&(gold)Muted: &(aqua)").append(flp.isMuted());
 
             if (!flp.punishments.isEmpty()) {
+                List<Punishment> validPunishments = flp.punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
+                int hourIndex = 0;
                 sb.append("\n&(gold)Punishments:");
-                flp.punishments.forEach(p -> sb.append("\n - ").append(p));
+                for (Punishment p : flp.punishments) {
+                    sb.append(ChatColor.GOLD).append("\n - ").append(p.toFormattedString(hourIndex));
+                    if(validPunishments.contains(p))
+                        ++hourIndex;
+                }
             }
             sb.append("\n&(gold)Last IP: &(aqua)").append(flp.lastIP);
         }

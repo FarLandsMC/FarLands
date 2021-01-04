@@ -131,10 +131,9 @@ public class Chat extends Mechanic {
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
         Rank displayedRank = senderFlp.getDisplayRank();
-        String displayPrefix;
-        String playerStats = (displayedRank.isStaff() ? displayedRank.getColor() + "{&(bold)" : "{&(white)") + senderFlp.username +
-                "}&(gold)'s Stats: &(green)\n" +
-                "Rank: " + (displayedRank.isStaff() ? ChatColor.BOLD : "") + senderFlp.rank.getColor() + senderFlp.rank.getName() + "&(green)\n" +
+        String playerStats = (displayedRank.compareTo(Rank.SCHOLAR) > 0 ? displayedRank.getColor() : "") + senderFlp.username + ChatColor.RESET +
+                "&(gold)'s Stats: &(green)\n" +
+                "Rank: {&(" + senderFlp.rank.getColor().getName() + ")" + (senderFlp.rank.isStaff() ? "&(bold)" : "") + senderFlp.rank.getName() + "}&(green)\n" +
                 "Time Played: " + TimeInterval.formatTime(senderFlp.secondsPlayed * 1000L, false) + "\n" +
                 "Deaths: " + sender.getStatistic(Statistic.DEATHS) + "\n" +
                 (senderFlp.birthday != null ? "Birthday: " + senderFlp.birthday.toFormattedString() + "\n" : "") +
@@ -142,7 +141,7 @@ public class Chat extends Mechanic {
                 "Total Votes this Season: " + senderFlp.totalSeasonVotes + "\n" +
                 "Total Votes All Time: " + senderFlp.totalVotes;
 
-        displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName() +
+        String displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName() +
                 " {$(hover," + playerStats + "," + "%0%1:)}} ";
         chat(senderFlp, sender, displayPrefix, message.trim());
     }
@@ -289,7 +288,7 @@ public class Chat extends Mechanic {
         for (String c : DISCORD_CHARS) {
             message = message.replaceAll(String.valueOf(new char[] {'\\', c.charAt(0)}), "\\\\" + c);
         }
-        message = message.replaceAll("@", "\\\\@ ");
+        message = message.replaceAll("@", "@\u200B");
         return removeColorCodes(message);
     }
 
@@ -410,12 +409,12 @@ public class Chat extends Mechanic {
         if (indexOfAt == -1)
             return itemShare(rank, message, player);
         if (indexOfItem == -1)
-            return atPlayer(message);
+            return atPlayer(message, player.getUniqueId());
         if (message.indexOf("[i]") < message.indexOf("@")) {
             message = itemShare(rank, message, player);
-            message = atPlayer(message);
+            message = atPlayer(message, player.getUniqueId());
         } else {
-            message = atPlayer(message);
+            message = atPlayer(message, player.getUniqueId());
             message = itemShare(rank, message, player);
         }
         return message;
@@ -453,7 +452,7 @@ public class Chat extends Mechanic {
         return message;
     }
 
-    public static String atPlayer(String message) {
+    public static String atPlayer(String message, UUID player) {
         if (taggedPlayer.getFirst() == null) {
             String playerName;
             // Starting to hate this code -.-
@@ -471,6 +470,7 @@ public class Chat extends Mechanic {
             } catch (Exception ignored) {
                 playerName = message.substring(message.indexOf('@')+1);
             }
+            playerName = playerName.replaceAll("[{}\\[\\]()]", "");
 
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(playerName);
             if (flp == null) {
@@ -482,7 +482,9 @@ public class Chat extends Mechanic {
                 name = flp.username;
             else
                 name = flp.nickname;
-
+            if(flp.getOnlinePlayer() != null && flp.getOnlinePlayer().isOnline() && !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()){
+                flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
+            }
             String hover = "{$(hover,&(green)"+
                     ChatColor.GOLD  + name + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
                     "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
@@ -495,7 +497,6 @@ public class Chat extends Mechanic {
             message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "");
             message = StringUtils.replaceOnce(message, playerName, hover);
             taggedPlayer.setFirst(message.indexOf("{$(h")); taggedPlayer.setSecond(message.indexOf(flp.username + ")}")+2+flp.username.length());
-            Bukkit.getConsoleSender().sendMessage(taggedPlayer.getFirst() + " " + taggedPlayer.getSecond());
         }
 
         return message;
