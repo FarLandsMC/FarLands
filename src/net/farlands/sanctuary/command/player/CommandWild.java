@@ -109,8 +109,8 @@ public class CommandWild extends PlayerCommand {
         );
 
         Location safe = null;
-        int death = 64;
-        for (; --death >= 0;) {
+        int ttl = 64;
+        while (--ttl >= 0) {
             if (quickCheck(rtp.getBlock())) {
                 safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 126);
                 if (safe != null)
@@ -142,7 +142,7 @@ public class CommandWild extends PlayerCommand {
                 safe.getWorld().getName() + " " +
                 safe.getBlockX() + " " +
                 safe.getBlockY() + " " +
-                safe.getBlockZ() + " : " + (64 - death)
+                safe.getBlockZ() + " : " + (64 - ttl)
         );
         tpPlayer(player, safe);
 
