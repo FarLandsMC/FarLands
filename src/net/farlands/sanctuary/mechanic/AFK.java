@@ -24,6 +24,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.HashMap;
@@ -75,6 +76,11 @@ public class AFK extends Mechanic {
 
     @EventHandler
     public void onBlockPlaced(BlockPlaceEvent event) {
+        resetInitializerCooldown(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onBookEdit(PlayerEditBookEvent event) {
         resetInitializerCooldown(event.getPlayer());
     }
 
