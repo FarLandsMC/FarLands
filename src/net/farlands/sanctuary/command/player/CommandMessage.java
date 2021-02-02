@@ -139,6 +139,8 @@ public class CommandMessage extends PlayerCommand {
         if (!FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff())
             message = escapeExpression(message);
 
+        message = Chat.applyEmotes(message);
+
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
         // Censor the message if censoring
         String censored = message;

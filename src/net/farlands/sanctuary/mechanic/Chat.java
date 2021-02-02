@@ -5,6 +5,7 @@ import com.kicas.rp.util.TextUtils;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
+import net.farlands.sanctuary.command.player.CommandShrug;
 import net.farlands.sanctuary.command.staff.CommandStaffChat;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -164,6 +165,7 @@ public class Chat extends Mechanic {
             itemShare = new Pair<>(); taggedPlayer = new Pair<>();
             message = itemShareAndTag(senderFlp.rank, message, sender);
             message = escapeExpression(message);
+            message = applyEmotes(message);
         }
 
         if (removeColorCodes(message).length() < 1) {
@@ -452,7 +454,7 @@ public class Chat extends Mechanic {
         return message;
     }
 
-    public static String atPlayer(String message, UUID player) {
+    public static String atPlayer(String message, UUID player, boolean silent) {
         if (taggedPlayer.getFirst() == null) {
             String playerName;
             // Starting to hate this code -.-
@@ -482,7 +484,7 @@ public class Chat extends Mechanic {
                 name = flp.username;
             else
                 name = flp.nickname;
-            if(flp.getOnlinePlayer() != null && flp.getOnlinePlayer().isOnline() && !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()){
+            if(!silent && flp.getOnlinePlayer() != null && flp.getOnlinePlayer().isOnline() && !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()){
                 flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
             }
             String hover = "{$(hover,&(green)"+
@@ -499,6 +501,20 @@ public class Chat extends Mechanic {
             taggedPlayer.setFirst(message.indexOf("{$(h")); taggedPlayer.setSecond(message.indexOf(flp.username + ")}")+2+flp.username.length());
         }
 
+        return message;
+    }
+
+    public static String atPlayer(String message, UUID player) {
+        return atPlayer(message, player, false);
+    }
+
+    public static String applyEmotes(String message){
+        for(CommandShrug.TextEmote emote : CommandShrug.TextEmote.values){
+            message = message.replaceAll(
+                ":" + emote.name().toLowerCase() + ":",
+                emote.getValue().replace("\\", "\\\\")
+            );
+        }
         return message;
     }
 

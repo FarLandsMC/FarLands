@@ -6,10 +6,7 @@ import com.kicas.rp.util.TextUtils;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -224,6 +221,7 @@ public class DiscordHandler extends ListenerAdapter {
 
         if (event.getAuthor().isBot())
             return;
+
         DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel());
         String message = event.getMessage().getContentDisplay();
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
@@ -240,6 +238,30 @@ public class DiscordHandler extends ListenerAdapter {
                     "too long so it was shortened for in-game chat.");
         }
 
+
+        Message refMessage = event.getMessage().getReferencedMessage();
+        if(event.getMessage().getType() == MessageType.INLINE_REPLY && refMessage != null){
+            String hoverText = refMessage.getContentDisplay();
+            hoverText = hoverText.replace(",", "\\,");
+            hoverText = TextUtils.escapeExpression(Chat.removeColorCodes(hoverText));
+
+            OfflineFLPlayer refFlp = FarLands.getDataHandler().getOfflineFLPlayer(
+                            new DiscordSender(refMessage.getMember(), event.getChannel())
+                    );
+
+            String prefix = "";
+            if(!refMessage.getAuthor().isBot()){
+                prefix = "&(" + (refFlp.rank.isStaff() ? "bold," : "") +
+                        refFlp.rank.getColor().getName() + ")" +
+                        refFlp.rank.getName() + "&(!bold) " +
+                        refFlp.username + ":&(white) ";
+            }
+
+            hoverText = prefix + hoverText;
+
+            message = "$(hover," + hoverText + ",{&(gray,bold)[Reply]}) " + message.replace("\\", "");
+        }
+
         if (!event.getMessage().getAttachments().isEmpty()) {
             if (message.isEmpty())
                 message = "[Image]";
@@ -248,8 +270,9 @@ public class DiscordHandler extends ListenerAdapter {
         }
         MarkdownProcessor mp = new MarkdownProcessor();
         Chat.taggedPlayer = new Pair<>();
-        final String fmessage = Chat.atPlayer(Chat.limitFlood((Chat.limitCaps(mp.markdown(message)))), sender.getFlp().uuid);
-        if (channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong()) {
+        boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
+        final String fmessage = Chat.atPlayer(Chat.limitFlood((Chat.limitCaps(mp.markdown(message)))), sender.getFlp().uuid, staffChat);
+        if (staffChat) {
             TextUtils.sendFormatted(
                     Bukkit.getConsoleSender(),
                     "&(red)[SC] {&(dark_gray,bold)D} %0: %1",

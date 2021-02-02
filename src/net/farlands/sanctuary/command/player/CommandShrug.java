@@ -14,35 +14,36 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public class CommandShrug extends PlayerCommand {
-    private static final String SHRUG = "\u00AF\\_(\u30C4)_/\u00AF";
-    private static final String TABLEFLIP = "(╯°□°）╯︵ ┻━┻";
-    private static final String UNFLIP = "┬─┬ ノ( ゜-゜ノ)";
-    private static final String DAB = "ㄥ(⸝ ، ⸍ )‾‾‾‾‾";
 
     public CommandShrug() {
         super(Rank.INITIATE, Category.CHAT, "Append text emojis to the end of your message.",
-                "/shrug|tableflip|unflip|dab [action]", true, "shrug", "tableflip", "unflip", "dab");
+                "/" + Arrays
+                        .stream(TextEmote.values)
+                        .map(emote -> emote.name().toLowerCase())
+                        .collect(Collectors.joining("|")) + " [action]",
+                true, "shrug",
+                Arrays.stream(TextEmote.values)
+                        .map(emote -> emote.name().toLowerCase())
+                        .toArray(String[]::new));
     }
 
     @Override
     public boolean execute(Player sender, String[] args) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        switch (args[0]) {
-            case "shrug":
-                Chat.chat(flp, sender, args.length == 1 ? SHRUG : joinArgsBeyond(0, " ", args).trim() + " " + SHRUG);
-                return true;
-            case "tableflip":
-                Chat.chat(flp, sender, args.length == 1 ? TABLEFLIP : joinArgsBeyond(0, " ", args).trim() + " " + TABLEFLIP);
-                return true;
-            case "unflip":
-                Chat.chat(flp, sender, args.length == 1 ? UNFLIP : joinArgsBeyond(0, " ", args).trim() + " " + UNFLIP);
-                return true;
-            case "dab":
-                Chat.chat(flp, sender, args.length == 1 ? DAB : joinArgsBeyond(0, " ", args).trim() + " " + DAB);
-                return true;
-        }
-        return false;
+        String emote;
+        try {
+            emote = TextEmote.valueOf(args[0].toUpperCase()).getValue();
+        } catch (IllegalArgumentException e) {
+            return false;
+        } // Invalid emote
+        Chat.chat(flp, sender, args.length == 1 ?
+                emote :
+                joinArgsBeyond(0, " ", args).trim() + " " + emote);
+        return true;
     }
 
     @Override
@@ -53,5 +54,24 @@ public class CommandShrug extends PlayerCommand {
             return false;
         }
         return super.canUse(sender);
+    }
+
+    public enum TextEmote {
+        SHRUG("\u00AF\\_(\u30C4)_/\u00AF"), // ¯\_(ツ)_/¯
+        TABLEFLIP("(╯°□°）╯︵ ┻━┻"),
+        UNFLIP("┬─┬ ノ( ゜-゜ノ)"),
+        DAB("ㄥ(⸝ ، ⸍ )‾‾‾‾‾");
+
+        public static TextEmote[] values = values();
+
+        private final String value;
+
+        TextEmote(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
     }
 }

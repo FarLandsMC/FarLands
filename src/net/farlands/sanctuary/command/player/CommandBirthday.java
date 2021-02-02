@@ -69,8 +69,17 @@ public class CommandBirthday extends Command {
                 return true;
             }
 
-            if (day < 1 || day > 31) {
-                sender.sendMessage(ChatColor.RED + "Your birth date must be between 1 and 31.");
+            int maxDays;
+            try {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(2020, month - 1, 1);
+                maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+            } catch (Exception e) {
+                maxDays = 31;
+            }
+
+            if (day < 1 || day > maxDays) {
+                sender.sendMessage(ChatColor.RED + "Your birth date must be between 1 and " + maxDays + " for this month.");
                 return true;
             }
 
@@ -121,11 +130,19 @@ public class CommandBirthday extends Command {
 
                 List<String> suggestions = new ArrayList<>();
                 if (args[1].contains("/")) {
-                    for (int i = 1;i <= 31;++ i) {
+                    int days;
+                    try {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(2020, Integer.parseInt(args[1].split("/")[0]) - 1, 1);
+                        days = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    } catch (Exception e) {
+                        days = 31;
+                    }
+                    for (int i = 1; i <= days; ++i) {
                         suggestions.add(args[1].substring(0, args[1].indexOf('/')) + "/" + i);
                     }
                 } else {
-                    for (int i = 1;i <= 12;++ i) {
+                    for (int i = 1; i <= 12; ++i) {
                         suggestions.add(i + "/");
                     }
                 }
