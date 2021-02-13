@@ -496,7 +496,8 @@ public class Chat extends Mechanic {
                     "Votes this Month: " + flp.monthVotes + "\n" +
                     "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
                     "Total Votes All Time: " + flp.totalVotes + ","+ flp.rank.getNameColor() + "@" + flp.username + ")}";
-            message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "");
+            //message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "");
+            message = StringUtils.replaceOnce(message, "@", "");
             message = StringUtils.replaceOnce(message, playerName, hover);
             taggedPlayer.setFirst(message.indexOf("{$(h")); taggedPlayer.setSecond(message.indexOf(flp.username + ")}")+2+flp.username.length());
         }

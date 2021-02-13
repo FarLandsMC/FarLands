@@ -17,7 +17,7 @@ import java.util.List;
 
 public class CommandHeadDatabase extends Command {
     public CommandHeadDatabase() {
-        super(Rank.SPONSOR, Category.COSMETIC, "Place the current item in your main hand on your head, or remove your current equipped hat.",
+        super(Rank.DONOR, Category.COSMETIC, "Place the current item in your main hand on your head, or remove your current equipped hat.",
                 "/hdb <search|i>", false, "hdb", "headdb");
     }
 
