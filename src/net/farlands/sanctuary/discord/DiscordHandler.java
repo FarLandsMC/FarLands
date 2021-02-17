@@ -5,6 +5,7 @@ import com.kicas.rp.util.TextUtils;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -268,10 +269,18 @@ public class DiscordHandler extends ListenerAdapter {
             else
                 message += " [Image]";
         }
+
+        // replace mentions with the users nickname
+        if (!event.getMessage().getMentionedMembers().isEmpty()) {
+            Member member = event.getMessage().getMentionedMembers().get(0);
+            message = message.replaceAll("@" + member.getUser().getName(), "@" + member.getNickname());
+        }
+
         MarkdownProcessor mp = new MarkdownProcessor();
         Chat.taggedPlayer = new Pair<>();
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
-        final String fmessage = Chat.atPlayer(Chat.limitFlood((Chat.limitCaps(mp.markdown(message)))), sender.getFlp().uuid, staffChat);
+        final String fmessage = Chat.atPlayer(Chat.limitFlood(Chat.limitCaps(mp.markdown(message))), sender.getFlp().uuid, staffChat);
+
         if (staffChat) {
             TextUtils.sendFormatted(
                     Bukkit.getConsoleSender(),

@@ -3,6 +3,8 @@ package net.farlands.sanctuary.mechanic;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
 import net.farlands.sanctuary.command.player.CommandShrug;
@@ -458,48 +460,53 @@ public class Chat extends Mechanic {
         if (taggedPlayer.getFirst() == null) {
             String playerName;
             // Starting to hate this code -.-
-            // If there is an @ symbol by itself
-            try {
-                if (message.charAt(message.indexOf('@')+1) == ' ') {
-                    return message;
-                }
-            } catch (Exception ex) {
+            int indexOfAt = message.indexOf('@');
+            // if there is no @ in the message or there is an @ symbol by itself
+            if (indexOfAt < 0 || message.charAt(indexOfAt + 1) == ' ')
                 return message;
-            }
+
             // Need this in case the player name comes at the very end
             try {
-                playerName = message.substring(message.indexOf('@')+1, message.indexOf(" ", message.indexOf('@')));
+                playerName = message.substring(indexOfAt + 1, message.indexOf(" ", indexOfAt));
             } catch (Exception ignored) {
-                playerName = message.substring(message.indexOf('@')+1);
+                playerName = message.substring(indexOfAt + 1);
             }
             playerName = playerName.replaceAll("[{}\\[\\]()]", "");
 
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(playerName);
-            if (flp == null) {
+            if (flp == null)
                 return message;
-            }
+
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
             String name;
             if (flp.nickname == null || flp.nickname.equals(""))
                 name = flp.username;
             else
                 name = flp.nickname;
-            if(!silent && flp.getOnlinePlayer() != null && flp.getOnlinePlayer().isOnline() && !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()){
+
+            if (
+                    !silent &&
+                    flp.getOnlinePlayer() != null &&
+                    flp.getOnlinePlayer().isOnline() &&
+                    !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()
+            )
                 flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
-            }
-            String hover = "{$(hover,&(green)"+
-                    ChatColor.GOLD  + name + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
+
+            String hover = "{$(hover,&(green)" +
+                    ChatColor.GOLD + name + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
                     "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
                     "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
                     "Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false) + "\n" +
                     "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
                     "Votes this Month: " + flp.monthVotes + "\n" +
                     "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
-                    "Total Votes All Time: " + flp.totalVotes + ","+ flp.rank.getNameColor() + "@" + flp.username + ")}";
+                    "Total Votes All Time: " + flp.totalVotes + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
             //message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "");
             message = StringUtils.replaceOnce(message, "@", "");
             message = StringUtils.replaceOnce(message, playerName, hover);
-            taggedPlayer.setFirst(message.indexOf("{$(h")); taggedPlayer.setSecond(message.indexOf(flp.username + ")}")+2+flp.username.length());
+
+            taggedPlayer.setFirst(message.indexOf("{$(h"));
+            taggedPlayer.setSecond(message.indexOf(flp.username + ")}") + 2 + flp.username.length());
         }
 
         return message;
