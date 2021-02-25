@@ -10,7 +10,6 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.mojang.authlib.GameProfile;
 
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.command.staff.CommandStaffChat;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
@@ -34,7 +33,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.server.TabCompleteEvent;
@@ -55,14 +53,14 @@ public class Toggles extends Mechanic {
     public void onStartup() {
         FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
             Bukkit.getOnlinePlayers().forEach(player -> {
-                Player recipient = (Player) FarLands.getDataHandler().getSession(player).replyToggleRecipient;
-                if (FarLands.getDataHandler().getSession(player).autoSendStaffChat)
+                FLPlayerSession session = FarLands.getDataHandler().getSession(player);
+                if (session.autoSendStaffChat)
                     sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)Staff chat auto-messaging is toggled on.");
-                else if (FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
+                else if (session.handle.vanished)
                     sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are vanished.");
-                else if (recipient != null)
+                else if (session.replyToggleRecipient != null)
                     sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are messaging %0.",
-                            recipient.getName());
+                            session.replyToggleRecipient.getName());
             });
         }, 0L, 40L);
 
@@ -121,20 +119,6 @@ public class Toggles extends Mechanic {
             return flp != null && flp.vanished;
         });
         event.setCompletions(completions);
-    }
-
-    @EventHandler(priority = EventPriority.LOW)
-    public void onChat(AsyncPlayerChatEvent event) {
-        FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
-        if (session.handle.vanished && !session.autoSendStaffChat) {
-            event.setCancelled(true);
-            if (session.handle.rank.isStaff()) {
-                FarLands.getCommandHandler().getCommand(CommandStaffChat.class)
-                        .execute(event.getPlayer(), new String[]{"c", event.getMessage()});
-                return;
-            }
-            event.getPlayer().sendMessage(ChatColor.RED + "You are vanished, you cannot chat in-game.");
-        }
     }
 
     @EventHandler(ignoreCancelled = true)

@@ -3,8 +3,6 @@ package net.farlands.sanctuary.mechanic;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
 import net.farlands.sanctuary.command.player.CommandShrug;
@@ -86,7 +84,10 @@ public class Chat extends Mechanic {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         event.setJoinMessage(null);
         if (flp.vanished)
-            Logging.broadcastStaff(ChatColor.YELLOW + event.getPlayer().getName() + " has joined silently.");
+            Logging.broadcastStaff(
+                    ChatColor.YELLOW + event.getPlayer().getName() + " has joined silently.",
+                    DiscordChannel.STAFF_COMMANDS
+            );
         else
             playerTransition(flp, true);
     }
@@ -96,7 +97,10 @@ public class Chat extends Mechanic {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         event.setQuitMessage(null);
         if (flp.vanished)
-            Logging.broadcastStaff(ChatColor.YELLOW + event.getPlayer().getName() + " has left silently.");
+            Logging.broadcastStaff(
+                    ChatColor.YELLOW + event.getPlayer().getName() + " has left silently.",
+                    DiscordChannel.STAFF_COMMANDS
+            );
         else
             playerTransition(flp, false);
     }
@@ -119,17 +123,18 @@ public class Chat extends Mechanic {
     // Process this more superficial, non-critical stuff last
     public void onChat(AsyncPlayerChatEvent event) {
         event.setCancelled(true);
-        Player player = event.getPlayer();
-        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+        Player sender = event.getPlayer();
+        OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
-        spamUpdate(player, event.getMessage());
-        if (flp.isMuted()) {
-            flp.currentMute.sendMuteMessage(player);
+        spamUpdate(sender, event.getMessage());
+        if (senderFlp.isMuted()) {
+            senderFlp.currentMute.sendMuteMessage(sender);
             Logging.broadcastStaff(TextUtils.format("&(red)[MUTED] %0: &(gray)%1", event.getPlayer().getName(),
                     TextUtils.escapeExpression(event.getMessage())));
             return;
         }
-        chat(flp, player, event.getMessage());
+
+        chat(senderFlp, sender, event.getMessage());
     }
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
@@ -162,36 +167,54 @@ public class Chat extends Mechanic {
             Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
                     sender.getDisplayName(), message), DiscordChannel.ALERTS);
             return;
-        } else {
-            message = applyColorCodes(senderFlp.rank, message);
-            itemShare = new Pair<>(); taggedPlayer = new Pair<>();
-            message = itemShareAndTag(senderFlp.rank, message, sender);
-            message = escapeExpression(message);
-            message = applyEmotes(message);
         }
 
-        if (removeColorCodes(message).length() < 1) {
-            return;
-        }
-        if (message.startsWith("!")) {
+        // Vanished players shouldn't be shouting
+        boolean shout = message.startsWith("!") && !senderFlp.vanished;
+        if (shout) {
             if (message.length() <= 1)
                 return;
+
             message = message.substring(1);
-        } else {
-            FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
+        }
+
+        itemShare    = new Pair<>();
+        taggedPlayer = new Pair<>();
+        message = applyColorCodes(senderFlp.rank, message);
+        message = itemShareAndTag(senderFlp.rank, message, sender);
+        message = escapeExpression(message);
+        message = applyEmotes(message);
+
+        if (removeColorCodes(message).length() < 1)
+            return;
+
+        if (!shout) {
+            if (senderFlp.vanished) {
+                if (senderFlp.rank.isStaff()) {
+                    FarLands.getCommandHandler().getCommand(CommandStaffChat.class).execute(sender, new String[]{"c", message});
+                    return;
+                }
+                sender.sendMessage(ChatColor.RED + "You are vanished, you cannot chat in-game.");
+                return;
+            }
+
+            FLPlayerSession session = senderFlp.getSession();
             if (session.autoSendStaffChat) {
                 FarLands.getCommandHandler().getCommand(CommandStaffChat.class).execute(sender, new String[]{"c", message});
                 return;
             }
+
             if (session.replyToggleRecipient != null) {
                 if (session.replyToggleRecipient instanceof Player && ((Player) session.replyToggleRecipient).isOnline()) {
                     CommandMessage.sendMessages(session.replyToggleRecipient, sender, message);
                     return;
-                } else {
-                    sender.sendMessage(ChatColor.RED + session.replyToggleRecipient.getName() +
-                            " is no longer online, your reply toggle has been turned off.");
-                    session.replyToggleRecipient = null;
                 }
+
+                sender.sendMessage(
+                        ChatColor.RED + session.replyToggleRecipient.getName() +
+                                " is no longer online, your reply toggle has been turned off."
+                );
+                session.replyToggleRecipient = null;
             }
         }
         final String lmessage = limitCaps(limitFlood(message)),
@@ -240,6 +263,7 @@ public class Chat extends Mechanic {
     public void spamUpdate(Player player, String message) {
         if (Rank.getRank(player).isStaff())
             return;
+
         FLPlayerSession session = FarLands.getDataHandler().getSession(player);
         double strikes = session.spamAccumulation;
         if (FLUtils.deltaEquals(strikes, 0.0, 1e-8))
@@ -273,11 +297,13 @@ public class Chat extends Mechanic {
     public static String limitCaps(String message) {
         if (message.length() < 6)
             return message;
+
         float uppers = 0;
         for (char c : message.toCharArray()) {
             if (Character.isUpperCase(c))
                 ++uppers;
         }
+
         if (uppers / message.length() >= 5f / 12)
             return message.substring(0, 1).toUpperCase() + message.substring(1).toLowerCase();
         else
@@ -317,16 +343,10 @@ public class Chat extends Mechanic {
         StringBuilder sb = new StringBuilder(message.length());
         char[] chars = message.toCharArray();
         for (int i = 0; i < chars.length; ++i) {
-            if (chars[i] == '&' || chars[i] == ChatColor.COLOR_CHAR) {
-                try {
-                    if (COLOR_CHARS.contains(chars[i+1])) {
-                        ++i;
-                        continue;
-                    }
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    // do nothing :)
-                    // allows for removing color codes in tab complete methods
-                }
+            if (chars[i] == '&' || chars[i] == ChatColor.COLOR_CHAR &&
+                    i < chars.length - 1 && COLOR_CHARS.contains(chars[i + 1])) {
+                ++i;
+                continue;
             }
             sb.append(chars[i]);
         }
@@ -340,6 +360,7 @@ public class Chat extends Mechanic {
     public static String applyColorCodes(Rank rank, String message) {
         if (rank == null || rank.specialCompareTo(Rank.ADEPT) < 0)
             return removeColorCodes(message);
+
         message = applyColorCodes(message);
         if (!rank.isStaff()) {
             for (org.bukkit.ChatColor color : ILLEGAL_COLORS) {
@@ -400,9 +421,9 @@ public class Chat extends Mechanic {
 
     // Returns luminescence of a given 6 char hex string
     public static double getLuma(String color) {
-        int red = Integer.valueOf(color.substring(1,3), 16);
+        int red   = Integer.valueOf(color.substring(1,3), 16);
         int green = Integer.valueOf(color.substring(3,5), 16);
-        int blue = Integer.valueOf(color.substring(5,7), 16);
+        int blue  = Integer.valueOf(color.substring(5,7), 16);
         return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
     }
 

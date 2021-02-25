@@ -40,8 +40,8 @@ public class CommandStaffChat extends Command {
                 sendFormatted(sender, "&(red)You must be online to manage staff chat settings.");
                 return true;
             }
-            FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
 
+            FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
             if (args.length == 1) {
                 sendFormatted(sender, "&(red)Usage: /staffchat <toggle-message|toggle-view|set-color>...");
                 return true;
@@ -83,8 +83,6 @@ public class CommandStaffChat extends Command {
                     sendFormatted(sender, "&(red)Usage: /staffchat <toggle|set-color>...");
                     return true;
             }
-
-
         } else {
             OfflineFLPlayer handle = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             String username = handle == null ? "Console" : handle.username;
@@ -99,7 +97,7 @@ public class CommandStaffChat extends Command {
             );
             FarLands.getDataHandler().getSessions().stream().filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
                     .forEach(session -> sendFormatted(session.player, "%0[SC] %1: %2", session.handle.staffChatColor, username, message));
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, username + ": " + message);
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.STAFF_COMMANDS, TextUtils.format(username + ": " + message));
         }
 
         return true;
@@ -109,19 +107,18 @@ public class CommandStaffChat extends Command {
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         if (!Rank.getRank(sender).isStaff())
             return Collections.emptyList();
-        if ("staffchat".equals(alias)) {
-            if (args.length == 1) {
-                return TabCompleterBase.filterStartingWith(args[0], Stream.of("toggle-message", "toggle-view", "set-color"));
-            } else {
-                if ("toggle-message".equals(args[0]) || "toggle-view".equals(args[0]))
-                    return TabCompleterBase.filterStartingWith(args[1], Stream.of("on", "off"));
-                else
-                    return TabCompleterBase.filterStartingWith(args[1], Arrays.stream(ChatColor.values())
-                            .filter(color -> color.isColor() && color != ChatColor.RESET).map(Utils::formattedName));
-            }
-        }
 
-        return Collections.emptyList();
+        if (!"staffchat".equals(alias))
+            return Collections.emptyList();
+
+        if (args.length == 1)
+            return TabCompleterBase.filterStartingWith(args[0], Stream.of("toggle-message", "toggle-view", "set-color"));
+
+        if ("toggle-message".equals(args[0]) || "toggle-view".equals(args[0]))
+            return TabCompleterBase.filterStartingWith(args[1], Stream.of("on", "off"));
+
+        return TabCompleterBase.filterStartingWith(args[1], Arrays.stream(ChatColor.values())
+                .filter(color -> color.isColor() && color != ChatColor.RESET).map(Utils::formattedName));
     }
 
     private static boolean toggledValue(CommandSender sender, boolean currentValue, String[] args, int index) {

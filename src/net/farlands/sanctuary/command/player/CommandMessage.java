@@ -51,7 +51,7 @@ public class CommandMessage extends PlayerCommand {
             }
 
             // Keep the name stored
-            sendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
+            formatAndSendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
         }
         // Non-/r aliases
         else {
@@ -112,7 +112,7 @@ public class CommandMessage extends PlayerCommand {
             }
 
             // Try to send the message, and if it succeeds then store the metadata for /r
-            sendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
+            formatAndSendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
         }
         return true;
     }
@@ -134,13 +134,14 @@ public class CommandMessage extends PlayerCommand {
                 : Collections.emptyList();
     }
 
-    // Send the formatted message
-    public static void sendMessages(CommandSender recipient, CommandSender sender, String message) {
+    public static void formatAndSendMessages(CommandSender recipient, CommandSender sender, String message) {
         if (!FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff())
             message = escapeExpression(message);
+        sendMessages(recipient, sender, Chat.applyEmotes(message));
+    }
 
-        message = Chat.applyEmotes(message);
-
+    // Send the formatted message
+    public static void sendMessages(CommandSender recipient, CommandSender sender, String message) {
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
         // Censor the message if censoring
         String censored = message;
