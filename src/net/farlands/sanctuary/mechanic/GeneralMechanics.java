@@ -5,11 +5,15 @@ import static com.kicas.rp.util.TextUtils.format;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 
+import com.kicas.rp.data.Region;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.WorldData;
 import com.kicas.rp.data.flagdata.EnumFilter;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
+import com.kicas.rp.event.ClaimAbandonEvent;
+import com.kicas.rp.event.ClaimStealEvent;
+import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Cooldown;
@@ -22,6 +26,7 @@ import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
+import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.server.v1_16_R3.*;
@@ -526,5 +531,84 @@ public class GeneralMechanics extends Mechanic {
                 }, 30L);
             }
         }, 2L);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onClaimStolen(ClaimStealEvent event) {
+        TrustMeta trustMeta = event.getRegion().getAndCreateFlagMeta(RegionFlag.TRUST);
+        Map<TrustLevel, List<UUID>> trustList = trustMeta.getTrustList();
+        int trustedCount = (int) trustList.values().stream().map(List::size).mapToDouble(n -> n).sum();
+
+        String trustListString = trustedCount == 0 ? "none" :
+                "\n  Access: " + uuidsToStealInfo(trustList.get(TrustLevel.ACCESS)) +
+                        "\n  Container: " + uuidsToStealInfo(trustList.get(TrustLevel.CONTAINER)) +
+                        "\n  Build: " + uuidsToStealInfo(trustList.get(TrustLevel.BUILD)) +
+                        "\n  Management: " + uuidsToStealInfo(trustList.get(TrustLevel.MANAGEMENT)) +
+                        "\n  CoOwner: " + uuidsToStealInfo(event.getRegion().getCoOwners());
+        Location location = event.getRegion().getMin();
+
+        FarLands.getDebugger().echo(event.getNewOwner().getName() + " stole claim:" +
+                "\nPrevious Owner: " + uuidsToStealInfo(Collections.singletonList(event.getPreviousOwner())) +
+                "\nCoordinates: " + "x: " + location.getBlockX() + " y: " + location.getBlockY() + " z: " + location.getBlockZ() +
+                "\nTrustlist: " + trustListString
+        );
+    }
+
+    private String uuidsToStealInfo(List<UUID> uuids) {
+        return uuids.size() > 0 ? uuids.stream().map(uuid -> {
+            OfflineFLPlayer player = FarLands.getDataHandler().getOfflineFLPlayer(uuid);
+            if(player == null){
+                return "Unknown Player";
+            }
+            return player.username + "(Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - player.getLastLogin(), true, TimeInterval.DAY) + ")";
+        }).collect(Collectors.joining(", ")) : "none";
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onClaimAbandoned(ClaimAbandonEvent event) {
+        if(event.getRegions().size() == 0){
+            return;
+        }
+
+        switch(event.getRegions().size()){
+            case 0:
+                return;
+            case 1:
+                Region region = event.getRegions().get(0);
+                Location min = region.getMin();
+                Location max = region.getMax();
+                FarLands.getDebugger().echo(
+                        String.format(
+                            "%s abandoned " + (event.isAll() ? "all claims" : "claim") + ": %s\nBounds: %s %s %s | %s %s %s\nRecently Stolen: %b",
+                            event.getPlayer().getName(),
+                            region.getDisplayName(),
+                            min.getBlockX(),
+                            min.getBlockY(),
+                            min.getBlockZ(),
+                            max.getBlockX(),
+                            max.getBlockY(),
+                            max.getBlockZ(),
+                            region.isRecentlyStolen()
+                        )
+                );
+                return;
+            default:
+                StringBuilder sb = new StringBuilder(event.getPlayer().getName() + " abandoned " + (event.isAll() ? "all " : "") + "claims:\nName | Coords | Stolen");
+                event.getRegions().forEach(rg -> {
+                    Location loc = rg.getMin();
+                    sb.append("\n")
+                       .append(rg.getDisplayName())
+                       .append(" | ")
+                       .append(loc.getBlockX()).append(" ")
+                       .append(loc.getBlockY()).append(" ")
+                       .append(loc.getBlockZ()).append(" ")
+                       .append(" | ")
+                       .append(rg.isRecentlyStolen());
+                });
+                FarLands.getDebugger().echo(sb.toString());
+                return;
+        }
+
+
     }
 }

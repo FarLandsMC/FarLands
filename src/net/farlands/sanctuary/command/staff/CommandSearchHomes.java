@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandSearchHomes extends PlayerCommand {
     public CommandSearchHomes() {
@@ -36,7 +37,7 @@ public class CommandSearchHomes extends PlayerCommand {
             List<String> lines = new ArrayList<>();
             // Build the list of lines to paginate
             for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
-                for (Home home : flp.homes) {
+                flp.homes.stream().filter(home -> home.getLocation().getWorld() == sender.getWorld()).forEach(home -> {
                     if (sender.getLocation().distance(home.getLocation()) < radius) {
                         Location loc = home.getLocation();
                         String line = "&(gold)\"" + home.getName() + "\"&(aqua) belonging to " + flp.username + " at "
@@ -45,7 +46,7 @@ public class CommandSearchHomes extends PlayerCommand {
                                 + loc.getBlockZ() + ")";
                         lines.add(line);
                     }
-                }
+                });
             }
             Pair<String, Integer> foo = new Pair<>();
             if (lines.isEmpty()) { // No homes found within provided radius

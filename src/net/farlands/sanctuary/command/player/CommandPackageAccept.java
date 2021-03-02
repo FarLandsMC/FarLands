@@ -36,7 +36,7 @@ public class CommandPackageAccept extends PlayerCommand {
         }
 
         String packageID = "";
-        if (packages.size() <= 1) {
+        if (packages.size() == 1) {
             packageID = packages.get(0).senderName;
         }
 
@@ -44,45 +44,27 @@ public class CommandPackageAccept extends PlayerCommand {
             if (args.length > 1 && !args[1].isEmpty())
                 packageID = args[1];
             else {
-                if(args.length == 1 && packages.size() == 1){
-                    FLUtils.giveItem(sender, packages.get(0).item, true);
-                    TextUtils.sendFormatted(
-                            sender, "&(gold)Receiving package from {&(aqua){%0}}.",
-                            packages.get(0).senderName
-                    );
+                if(args.length == 1){
+                    Package lPackage = packages.get(0);
+                    if ("paccept".equalsIgnoreCase(args[0])) {
+                        accept(sender, lPackage);
+                    } else {
+                        decline(sender, lPackage);
+                    }
                     packages.remove(0);
-                    return true;
                 }else {
                     TextUtils.sendFormatted(sender, "&(red)Please specify the package sender.");
-                    return true;
                 }
+                return true;
             }
         }
 
         for (Package lPackage : packages) {
             if (Chat.removeColorCodes(lPackage.senderName.replaceAll("\\{+|}+", "")).equalsIgnoreCase(packageID)) {
                 if ("paccept".equalsIgnoreCase(args[0])) {
-                    TextUtils.sendFormatted(
-                            sender, "&(gold)Receiving package from {&(aqua){%0}}.",
-                            lPackage.senderName
-                    );
-                    final String message = lPackage.message;
-                    if (message != null && !message.isEmpty())
-                        TextUtils.sendFormatted(sender, "&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
-                                FLUtils.itemName(lPackage.item), message);
-                    FLUtils.giveItem(sender, lPackage.item, true);
+                    accept(sender, lPackage);
                 } else {
-                    TextUtils.sendFormatted(
-                            sender, "&(gold)Returning package from {&(aqua){%0}}.",
-                            lPackage.senderName
-                    );
-                    OfflineFLPlayer packageSenderFlp = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid);
-                    FarLands.getDataHandler().addPackage(packageSenderFlp.uuid,
-                            new Package(null, "FarLands Packaging Service",
-                            lPackage.item, "Return To Sender", true)
-                    );
-                    if (packageSenderFlp.isOnline())
-                        packageSenderFlp.getSession().givePackages();
+                    decline(sender, lPackage);
                 }
                 packages.remove(lPackage);
                 return true;
@@ -91,6 +73,32 @@ public class CommandPackageAccept extends PlayerCommand {
 
         TextUtils.sendFormatted(sender, "&(red)The package sender specified was not correct.");
         return true;
+    }
+
+    private void accept(Player sender, Package lPackage){
+        TextUtils.sendFormatted(
+                sender, "&(gold)Receiving package from {&(aqua){%0}}.",
+                lPackage.senderName
+        );
+        final String message = lPackage.message;
+        if (message != null && !message.isEmpty())
+            TextUtils.sendFormatted(sender, "&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
+                    FLUtils.itemName(lPackage.item), message);
+        FLUtils.giveItem(sender, lPackage.item, true);
+    }
+    private void decline(Player sender, Package lPackage){
+        TextUtils.sendFormatted(
+                sender, "&(gold)Returning package to {&(aqua){%0}}.",
+                lPackage.senderName
+        );
+        OfflineFLPlayer packageSenderFlp = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid);
+        FarLands.getDataHandler().addPackage(packageSenderFlp.uuid,
+                new Package(null, "FarLands Packaging Service",
+                        lPackage.item, "Return To Sender", true)
+        );
+        if (packageSenderFlp.isOnline()) {
+            packageSenderFlp.getSession().givePackages();
+        }
     }
 
     @Override
