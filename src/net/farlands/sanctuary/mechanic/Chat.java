@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.mechanic;
 
-import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
 import net.farlands.sanctuary.FarLands;
@@ -19,7 +18,6 @@ import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
@@ -31,10 +29,10 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,8 +45,6 @@ public class Chat extends Mechanic {
     private static final List<String> DISCORD_CHARS = Arrays.asList("_", "~", "*", ":", "`", "|", ">");
     private static final MessageFilter MESSAGE_FILTER = new MessageFilter();
     private final List<BaseComponent[]> rotatingMessages;
-    public static Pair<Integer, Integer> itemShare = new Pair<>();
-    public static Pair<Integer, Integer> taggedPlayer = new Pair<>();
 
     Chat() {
         this.rotatingMessages = new ArrayList<>();
@@ -72,8 +68,6 @@ public class Chat extends Mechanic {
     @Override
     public void onStartup() {
         FarLands.getFLConfig().rotatingMessages.stream().map(TextUtils::format).forEach(rotatingMessages::add);
-
-        addRotatingMessage("&(gold)All griefing is currently off limits, even if a build is unclaimed!");
 
         // Wait for any dynamically added messages to be registered
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), this::scheduleRotatingMessages, 15L * 20L);
@@ -178,12 +172,12 @@ public class Chat extends Mechanic {
             message = message.substring(1);
         }
 
-        itemShare    = new Pair<>();
-        taggedPlayer = new Pair<>();
-        message = applyColorCodes(senderFlp.rank, message);
-        message = itemShareAndTag(senderFlp.rank, message, sender);
-        message = escapeExpression(message);
+        // Do not change the order of these
         message = applyEmotes(message);
+        message = applyColorCodes(senderFlp.rank, message);
+        message = TextUtils.escapeExpression(message);
+        message = atPlayer(message, sender.getUniqueId());
+        message = itemShare(senderFlp.rank, message, sender);
 
         if (removeColorCodes(message).length() < 1)
             return;
@@ -231,33 +225,6 @@ public class Chat extends Mechanic {
         FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, TextUtils.format(fmessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName()));
         // never send the nickname to console/logs
         TextUtils.sendFormatted(Bukkit.getConsoleSender(), fmessage, senderFlp.rank.getNameColor(), senderFlp.username);
-    }
-
-    public static String escapeExpression(String message) {
-        if (itemShare.getFirst() != null && taggedPlayer.getFirst() == null) {
-            String beginning = TextUtils.escapeExpression(message.substring(0, itemShare.getFirst()));
-            String middle = message.substring(itemShare.getFirst(), itemShare.getSecond());
-            String end = TextUtils.escapeExpression(message.substring(itemShare.getSecond()));
-            message = beginning + middle + end;
-        } else if (itemShare.getFirst() == null && taggedPlayer.getFirst() != null) {
-            String beginning = TextUtils.escapeExpression(message.substring(0, taggedPlayer.getFirst()));
-            String middle = message.substring(taggedPlayer.getFirst(), taggedPlayer.getSecond());
-            String end = TextUtils.escapeExpression(message.substring(taggedPlayer.getSecond()));
-            message = beginning + middle + end;
-        } else if (itemShare.getFirst() != null && taggedPlayer.getFirst() != null) {
-            String one = TextUtils.escapeExpression(message.substring(0, Math.min(taggedPlayer.getFirst(), itemShare.getFirst())));
-            String two = message.substring(Math.min(taggedPlayer.getFirst(), itemShare.getFirst()),
-                    Math.min(taggedPlayer.getSecond(), itemShare.getSecond()));
-            String three = TextUtils.escapeExpression(message.substring(Math.min(taggedPlayer.getSecond(), itemShare.getSecond()),
-                    Math.max(taggedPlayer.getFirst(), itemShare.getFirst())));
-            String four = message.substring(Math.max(taggedPlayer.getFirst(), itemShare.getFirst()),
-                    Math.max(taggedPlayer.getSecond(), itemShare.getSecond()));
-            String five = TextUtils.escapeExpression(message.substring(Math.max(taggedPlayer.getSecond(), itemShare.getSecond())));
-            message = one + two + three + four + five;
-        } else {
-            return TextUtils.escapeExpression(message);
-        }
-        return message;
     }
 
     public void spamUpdate(Player player, String message) {
@@ -322,24 +289,9 @@ public class Chat extends Mechanic {
         return removeColorCodes(message);
     }
 
-    public static final Pattern pattern6 = Pattern.compile("&#[a-fA-F0-9]{6}");
-    public static final Pattern pattern3 = Pattern.compile("&#[a-fA-F0-9]{3}");
-    public static List<Integer> formatted = new CopyOnWriteArrayList<>();
-
     public static String removeColorCodes(String message) {
-        Matcher match6 = pattern6.matcher(message);
-        Matcher match3 = pattern3.matcher(message);
-        while (match6.find()) {
-            String color = message.substring(match6.start(), match6.end());
-            message = message.replace(color, "");
-            match6 = pattern6.matcher(message);
-            match3 = pattern3.matcher(message);
-        }
-        while (match3.find()) {
-            String color = message.substring(match3.start(), match3.end());
-            message = message.replace(color, "");
-            match3 = pattern3.matcher(message);
-        }
+        // Colorize it first to properly strip hex codes
+        message = colorize(message);
         StringBuilder sb = new StringBuilder(message.length());
         char[] chars = message.toCharArray();
         for (int i = 0; i < chars.length; ++i) {
@@ -367,82 +319,56 @@ public class Chat extends Mechanic {
                 message = message.replaceAll(ChatColor.COLOR_CHAR + Character.toString(color.getChar()), "");
             }
         }
-        message = sixChar(message);
-        message = threeChar(message);
-        formatted.clear();
+        message = colorize(message);
         return message;
     }
 
-    public static String sixChar(String message) {
-        Matcher match6 = pattern6.matcher(message);
-        while (match6.find()) {
-            String color = message.substring(match6.start()+1, match6.end());
-            if (!formatted.contains(match6.start())) {
-                if (getLuma(color) > 16) {
-                    StringBuilder sb = new StringBuilder(message);
-                    sb.delete(match6.start(), match6.start() + 8);
-                    sb.insert(match6.start(), net.md_5.bungee.api.ChatColor.of(color));
-                    message = sb.toString();
-                } else {
-                    StringBuilder sb = new StringBuilder(message);
-                    sb.delete(match6.start(), match6.start() + 8);
-                    message = sb.toString();
-                }
-                formatted.add(match6.start());
-                match6 = pattern6.matcher(message);
-            }
+    // Pattern matching "nicer" legacy hex chat color codes - &#rrggbb
+    private static final Pattern HEX_COLOR_PATTERN_SIX = Pattern.compile("&#([0-9a-fA-F]{6})");
+    // Pattern matching funny's need for 3 char hex
+    private static final Pattern HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
+
+    private static String colorize(String string) {
+        // Do 6 char first since the 3 char pattern will also match 6 char occurrences
+        StringBuffer sb6 = new StringBuffer();
+        Matcher matcher6 = HEX_COLOR_PATTERN_SIX.matcher(string);
+        while (matcher6.find()) {
+            StringBuilder replacement = new StringBuilder(14).append("&x");
+            for (char character : matcher6.group(1).toCharArray())
+                replacement.append('&').append(character);
+            if (getLuma(replacement.toString()) > 16)
+                matcher6.appendReplacement(sb6, replacement.toString());
+            else
+                matcher6.appendReplacement(sb6, "");
         }
-        return message;
-    }
+        matcher6.appendTail(sb6);
+        string = sb6.toString();
 
-    public static String threeChar(String message) {
-        Matcher match3 = pattern3.matcher(message);
-        while (match3.find()) {
-            String color = message.substring(match3.start()+1, match3.end());
-            char[] chars = color.toCharArray();
-            String newColor = String.valueOf(chars[0]) + chars[1] + chars[1] + chars[2] + chars[2] + chars[3] + chars[3];
-            if (!formatted.contains(match3.start())) {
-                if (getLuma(newColor) > 16) {
-                    StringBuilder sb2 = new StringBuilder(message);
-                    sb2.delete(match3.start(), match3.start() + 5);
-                    sb2.insert(match3.start(), net.md_5.bungee.api.ChatColor.of(newColor));
-                    message = sb2.toString();
-                } else {
-                    StringBuilder sb2 = new StringBuilder(message);
-                    sb2.delete(match3.start(), match3.start() + 5);
-                    message = sb2.toString();
-                }
-                formatted.add(match3.start());
-                match3 = pattern3.matcher(message);
-            }
+        // Now convert 3 char to the same format ex. &#363 -> &x&3&3&6&6&3&3
+        StringBuffer sb3 = new StringBuffer();
+        Matcher matcher3 = HEX_COLOR_PATTERN_THREE.matcher(string);
+        while (matcher3.find()) {
+            StringBuilder replacement = new StringBuilder(14).append("&x");
+            for (char character : matcher3.group(1).toCharArray())
+                replacement.append('&').append(character).append('&').append(character);
+            if (getLuma(replacement.toString()) > 16)
+                matcher3.appendReplacement(sb3, replacement.toString());
+            else
+                matcher3.appendReplacement(sb3, "");
         }
-        return message;
+        matcher3.appendTail(sb3);
+
+        // Translate '&' to '§'
+        return ChatColor.translateAlternateColorCodes('&', sb3.toString());
     }
 
-    // Returns luminescence of a given 6 char hex string
+    // Get luminescence passing through Bungee's hex format - &x&r&r&g&g&b&b
     public static double getLuma(String color) {
-        int red   = Integer.valueOf(color.substring(1,3), 16);
-        int green = Integer.valueOf(color.substring(3,5), 16);
-        int blue  = Integer.valueOf(color.substring(5,7), 16);
+        color = color.replace("&", "").replace("x", "");
+        int red   = Integer.valueOf(color.substring(0,2), 16);
+        int green = Integer.valueOf(color.substring(2,4), 16);
+        int blue  = Integer.valueOf(color.substring(4,6), 16);
         return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue);
-    }
-
-    public static String itemShareAndTag(Rank rank, String message, Player player) {
-        // Make sure to do the right one first lol
-        int indexOfItem = message.indexOf("[i]");
-        int indexOfAt = message.indexOf("@");
-        if (indexOfAt == -1)
-            return itemShare(rank, message, player);
-        if (indexOfItem == -1)
-            return atPlayer(message, player.getUniqueId());
-        if (message.indexOf("[i]") < message.indexOf("@")) {
-            message = itemShare(rank, message, player);
-            message = atPlayer(message, player.getUniqueId());
-        } else {
-            message = atPlayer(message, player.getUniqueId());
-            message = itemShare(rank, message, player);
-        }
-        return message;
     }
 
     public static String itemShare(Rank rank, String message, Player player) {
@@ -454,11 +380,6 @@ public class Chat extends Mechanic {
             return message;
         }
 
-        net.minecraft.server.v1_16_R3.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(item);
-        net.minecraft.server.v1_16_R3.NBTTagCompound compound = new NBTTagCompound();
-        compound = nmsItemStack.save(compound);
-        String json = compound.toString(); // standard object
-
         String name;
         if (item.getItemMeta().getDisplayName().equals("")) {
             name = item.getType().name().replace("_", " ");
@@ -466,71 +387,70 @@ public class Chat extends Mechanic {
         } else
             name = item.getItemMeta().getDisplayName();
 
+        // Make TextUtils happy
+        String saveName = name;
+        name = name.replace("{", "").replace("}", "").replace("(", "")
+                .replace(")", "").replace("$", "").replace("%", "");
+        // Change the item display name to remove TextUtils characters, we'll put them back later
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(Chat.colorize(name));
+        item.setItemMeta(meta);
+
+        net.minecraft.server.v1_16_R3.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(item);
+        net.minecraft.server.v1_16_R3.NBTTagCompound compound = new NBTTagCompound();
+        compound = nmsItemStack.save(compound);
+        String json = compound.toString(); // standard object
+
         message = message.replace("[item]", "[i]");
         message = message.replace("[hand]", "[i]");
-        if (message.contains("[i]")) {
-            String insert = "{$(item,"+json+",&(aqua)[i] " + name + "&(white)" +  ")}";
-            message = StringUtils.replaceOnce(message, "[i]", insert);
-            itemShare.setFirst(message.indexOf("{$(item")); itemShare.setSecond(message.indexOf("&(white))}")+10);
-            Bukkit.getConsoleSender().sendMessage(itemShare.getFirst() + " " + itemShare.getSecond());
-        }
+        message = message.replace("[i]", "{$(item,"+json+",&(aqua)[i] " + name + "&(white)" +  ")}");
+
+        // Put the item name back
+        meta.setDisplayName(Chat.colorize(saveName));
+        item.setItemMeta(meta);
         return message;
     }
 
     public static String atPlayer(String message, UUID player, boolean silent) {
-        if (taggedPlayer.getFirst() == null) {
-            String playerName;
-            // Starting to hate this code -.-
-            int indexOfAt = message.indexOf('@');
-            // if there is no @ in the message or there is an @ symbol by itself
-            if (indexOfAt < 0 || message.charAt(indexOfAt + 1) == ' ')
-                return message;
+        StringBuilder newMessage = new StringBuilder();
+        for (String word : message.replace("{", "").replace("}", "").split(" ")) {
+            if (word.startsWith("@")) {
+                String name = word.substring(1).replaceAll("[^a-zA-Z]", "").toLowerCase();
+                OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(name);
+                if (flp == null) {
+                    newMessage.append(word).append(" ");
+                    continue;
+                }
 
-            // Need this in case the player name comes at the very end
-            try {
-                playerName = message.substring(indexOfAt + 1, message.indexOf(" ", indexOfAt));
-            } catch (Exception ignored) {
-                playerName = message.substring(indexOfAt + 1);
-            }
-            playerName = playerName.replaceAll("[{}\\[\\]()]", "");
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
+                String nickname;
+                if (flp.nickname == null || flp.nickname.equals(""))
+                    nickname = flp.username;
+                else
+                    nickname = flp.nickname;
 
-            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(playerName);
-            if (flp == null)
-                return message;
+                if (
+                        !silent &&
+                        flp.getOnlinePlayer() != null &&
+                        flp.getOnlinePlayer().isOnline() &&
+                        !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()
+                )
+                    flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
 
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
-            String name;
-            if (flp.nickname == null || flp.nickname.equals(""))
-                name = flp.username;
-            else
-                name = flp.nickname;
-
-            if (
-                    !silent &&
-                    flp.getOnlinePlayer() != null &&
-                    flp.getOnlinePlayer().isOnline() &&
-                    !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()
-            )
-                flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
-
-            String hover = "{$(hover,&(green)" +
-                    ChatColor.GOLD + name + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
-                    "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
-                    "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
-                    "Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false) + "\n" +
-                    "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
-                    "Votes this Month: " + flp.monthVotes + "\n" +
-                    "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
-                    "Total Votes All Time: " + flp.totalVotes + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
-            //message = message.replaceFirst(String.valueOf(message.charAt(message.indexOf('@'))), "");
-            message = StringUtils.replaceOnce(message, "@", "");
-            message = StringUtils.replaceOnce(message, playerName, hover);
-
-            taggedPlayer.setFirst(message.indexOf("{$(h"));
-            taggedPlayer.setSecond(message.indexOf(flp.username + ")}") + 2 + flp.username.length());
+                String hover = "{$(hover,&(green)" +
+                        ChatColor.GOLD + nickname + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
+                        "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
+                        "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
+                        "Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false) + "\n" +
+                        "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
+                        "Votes this Month: " + flp.monthVotes + "\n" +
+                        "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
+                        "Total Votes All Time: " + flp.totalVotes + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
+                newMessage.append(hover).append(word.substring(name.length() + 1)).append(" ");
+            } else
+                newMessage.append(word).append(" ");
         }
-
-        return message;
+        return "{" + newMessage.toString() + "}";
     }
 
     public static String atPlayer(String message, UUID player) {
@@ -538,11 +458,22 @@ public class Chat extends Mechanic {
     }
 
     public static String applyEmotes(String message){
-        for(CommandShrug.TextEmote emote : CommandShrug.TextEmote.values){
-            message = message.replaceAll(
-                ":" + emote.name().toLowerCase() + ":",
-                emote.getValue().replace("\\", "\\\\")
-            );
+        for (CommandShrug.TextEmote emote : CommandShrug.TextEmote.values) {
+            StringBuilder sb = new StringBuilder();
+            for (String word : message.split(" ")) {
+                String search = ":" + emote.name().toLowerCase() + ":";
+                if (word.contains(search)) {
+                    if (word.contains("\\" + search)) {
+                        word = word.replace("\\", "");
+                    } else {
+                        System.out.println(word + " " + search);
+                        word = word.substring(0, word.indexOf(search)) + emote.getValue() + word
+                                .substring(word.indexOf(search) + search.length());
+                    }
+                }
+                sb.append(word).append(" ");
+            }
+            message = sb.toString();
         }
         return message;
     }

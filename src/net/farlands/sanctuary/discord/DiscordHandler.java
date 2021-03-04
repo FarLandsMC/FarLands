@@ -32,6 +32,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
@@ -239,7 +240,6 @@ public class DiscordHandler extends ListenerAdapter {
                     "too long so it was shortened for in-game chat.");
         }
 
-
         Message refMessage = event.getMessage().getReferencedMessage();
         if(event.getMessage().getType() == MessageType.INLINE_REPLY && refMessage != null){
             String hoverText = refMessage.getContentDisplay();
@@ -270,14 +270,7 @@ public class DiscordHandler extends ListenerAdapter {
                 message += " [Image]";
         }
 
-        // replace mentions with the users nickname
-        if (!event.getMessage().getMentionedMembers().isEmpty()) {
-            Member member = event.getMessage().getMentionedMembers().get(0);
-            message = message.replaceAll("@" + member.getUser().getName(), "@" + member.getNickname());
-        }
-
         MarkdownProcessor mp = new MarkdownProcessor();
-        Chat.taggedPlayer = new Pair<>();
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
         final String fmessage = Chat.atPlayer(Chat.limitFlood(Chat.limitCaps(mp.markdown(message))), sender.getFlp().uuid, staffChat);
 

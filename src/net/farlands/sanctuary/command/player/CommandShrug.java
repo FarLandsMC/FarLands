@@ -57,10 +57,10 @@ public class CommandShrug extends PlayerCommand {
     }
 
     public enum TextEmote {
-        SHRUG("\u00AF\\_(\u30C4)_/\u00AF"), // ¯\_(ツ)_/¯
         TABLEFLIP("(╯°□°）╯︵ ┻━┻"),
         UNFLIP("┬─┬ ノ( ゜-゜ノ)"),
-        DAB("ㄥ(⸝ ، ⸍ )‾‾‾‾‾");
+        DAB("ㄥ(⸝ ، ⸍ )‾‾‾‾‾"),
+        SHRUG("\u00AF\\_(\u30C4)_/\u00AF"); // ¯\_(ツ)_/¯
 
         public static TextEmote[] values = values();
 
