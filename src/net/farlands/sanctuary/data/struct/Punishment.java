@@ -15,18 +15,24 @@ public final class Punishment {
     private long dateIssued;
     private String message;
     private boolean pardoned;
+    private boolean hasAlerted;
 
     public static final int[] PUNISHMENT_DURATIONS = {24, 72, 168}; // In hours
 
-    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned){
+    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned, boolean hasAlerted){
         this.punishmentType = punishmentType;
         this.dateIssued = dateIssued;
         this.message = message;
         this.pardoned = pardoned;
+        this.hasAlerted = hasAlerted;
+    }
+
+    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned){
+        this(punishmentType, dateIssued, message, pardoned, true);
     }
 
     public Punishment(PunishmentType punishmentType, long dateIssued, String message) {
-        this(punishmentType, dateIssued, message, false);
+        this(punishmentType, dateIssued, message, false, true);
     }
 
     public Punishment(PunishmentType punishmentType, String message) {
@@ -50,6 +56,14 @@ public final class Punishment {
     public boolean isActive(int index) {
         int hours = hours(index);
         return hours < 0 || System.currentTimeMillis() < (dateIssued + hours * 60L * 60L * 1000L);
+    }
+
+    public boolean notAlerted() {
+        return !hasAlerted && !pardoned;
+    }
+
+    public void alertSent() {
+        hasAlerted = true;
     }
 
     public String getRawMessage() {
@@ -118,10 +132,10 @@ public final class Punishment {
         HARASSMENT("Harassment"),
         ADVERTISING("Advertising"),
         AFK_BYPASS("Bypassing AFK"),
-        TOXICITY("Toxicity"),
-        SLURS("Slurs"),
-        THREATS("Threats"),
-        ADULT_CONTENT("Adult Content"),
+        TOXICITY("Toxicity", false, true),
+        SLURS("Slurs", false, true),
+        THREATS("Threats", false, true),
+        ADULT_CONTENT("Adult Content", false, true),
         GENERAL_HACKS("General Hacks"),
         FLYING("Flying"),
         X_RAY("X-Ray"),
@@ -134,16 +148,22 @@ public final class Punishment {
 
         private final String humanName;
         private final boolean permanent;
+        private final boolean rejoinAlert; // Should staff be alerted when a player joins after receiving this punishment
 
         public static final PunishmentType[] VALUES = values();
 
-        PunishmentType(String humanName, boolean permanent) {
+        PunishmentType(String humanName, boolean permanent, boolean rejoinAlert) {
             this.humanName = humanName;
             this.permanent = permanent;
+            this.rejoinAlert = rejoinAlert;
+        }
+
+        PunishmentType(String humanName, boolean permanent) {
+            this(humanName, permanent, false);
         }
 
         PunishmentType(String humanName) {
-            this(humanName, false);
+            this(humanName, false, false);
         }
 
         public String getHumanName() {
@@ -152,6 +172,10 @@ public final class Punishment {
 
         public boolean isPermanent() {
             return permanent;
+        }
+
+        public boolean isRejoinAlert() {
+            return rejoinAlert;
         }
     }
 }

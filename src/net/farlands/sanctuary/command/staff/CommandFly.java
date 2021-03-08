@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class CommandFly extends PlayerCommand {
     public CommandFly() {
-        super(Rank.MEDIA, "Enable or disable flight.", "/fly", "fly");
+        super(Rank.MEDIA, "Enable or disable flight.", "/fly <on|off>", "fly");
     }
 
     @Override

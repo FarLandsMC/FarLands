@@ -191,7 +191,7 @@ public class Toggles extends Mechanic {
         OfflineFLPlayer damagerFLP = FarLands.getDataHandler().getOfflineFLPlayer(damager),
                 attackedFLP = FarLands.getDataHandler().getOfflineFLPlayer((Player) event.getEntity());
         if (!damagerFLP.pvp) {
-            damager.sendMessage(ChatColor.RED + "You have PvP toggled off, activate it with /pvp.");
+            damager.sendMessage(ChatColor.RED + "You have PvP toggled off, activate it with /pvp on.");
             event.setCancelled(true);
             event.getEntity().setFireTicks(-1); // Blocks fire damage
         } else if (!attackedFLP.pvp) {

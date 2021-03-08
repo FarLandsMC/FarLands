@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class CommandGod extends PlayerCommand {
     public CommandGod() {
-        super(Rank.JR_BUILDER, "Enable or disable god mode.", "/god", "god");
+        super(Rank.JR_BUILDER, "Enable or disable god mode.", "/god <on|off>", "god");
     }
 
     @Override

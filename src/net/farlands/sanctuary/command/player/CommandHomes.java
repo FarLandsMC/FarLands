@@ -89,7 +89,7 @@ public class CommandHomes extends Command {
 
             String header = "Your " + homes.size() + " home" + (homes.size() == 1 ? "" : "s");
             Paginate paginate = new Paginate(lines, header, 8, "homes");
-            String toSend = args.length == 0 ? paginate.getPage(1) : paginate.getPage(Integer.parseInt(args[0]));
+            String toSend = args.length == 0 || !NumberUtils.isNumber(args[0]) ? paginate.getPage(1) : paginate.getPage(Integer.parseInt(args[0]));
 
             if (toSend == null) {
                 sendFormatted(sender, "&(red)Invalid page number. Must be between 1 and %0.",

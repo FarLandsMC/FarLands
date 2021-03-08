@@ -85,6 +85,15 @@ public class CommandStack extends PlayerCommand {
             return true;
         }
 
+        if(args[0].equalsIgnoreCase("container") &&
+            player.getTargetBlockExact(5) != null &&
+            player.getTargetBlockExact(5)
+                .getState()
+                .getType() == Material.ENDER_CHEST
+        ){
+            args[0] = "echest";
+        }
+
         switch (args[0].toLowerCase()) {
             case "container": {
                 Block block = player.getTargetBlockExact(5);

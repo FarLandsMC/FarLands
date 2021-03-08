@@ -11,6 +11,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 
+import net.farlands.sanctuary.util.Logging;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -20,7 +22,7 @@ import java.util.stream.Stream;
 
 public class CommandVanish extends Command {
     public CommandVanish() {
-        super(Rank.MEDIA, "Toggle on and off vanish mode.", "/vanish", "vanish");
+        super(Rank.MEDIA, "Toggle on and off vanish mode.", "/vanish <on|off>", "vanish");
     }
 
     @Override
@@ -38,6 +40,13 @@ public class CommandVanish extends Command {
             if (session != null) {
                 session.update(false);
                 session.updateVanish();
+
+                Logging.broadcastStaff(
+                        ChatColor.YELLOW + sender.getName() + " is " +
+                                (flp.vanished ? "now" : "no longer") +
+                                " vanished.",
+                        DiscordChannel.STAFF_COMMANDS
+                );
             }
         }
 

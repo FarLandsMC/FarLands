@@ -101,6 +101,26 @@ public class Restrictions extends Mechanic {
                     }
                 }
             }, 60L);
+
+            List<Punishment> alterablePunishments =
+                flp.punishments.stream()
+                    .filter(Punishment::notAlerted)
+                    .collect(Collectors.toList());
+
+            if(!alterablePunishments.isEmpty()){
+                Logging.broadcastStaff(
+                    TextUtils.format(ChatColor.RED + "%0 has joined for the first time since receiving the following punishment%1: %2",
+                        flp.username,
+                        alterablePunishments.size() == 1 ? "" : "s",
+                        alterablePunishments.stream()
+                            .map(punishment -> punishment.getType().getHumanName())
+                            .collect(Collectors.joining(", "))
+                    ),
+                    DiscordChannel.ALERTS);
+                alterablePunishments.forEach(Punishment::alertSent);
+            }
+
+
         }
 
         if (isNew) {
@@ -205,7 +225,7 @@ public class Restrictions extends Mechanic {
         StringBuilder sb = new StringBuilder();
         for (String line : event.getLines()) {
             if (!line.isEmpty())
-                sb.append(line).append("\n");
+                sb.append(line).append("\n").append(ChatColor.GRAY);
         }
         String text = sb.toString().trim();
         if (!text.isEmpty()) {

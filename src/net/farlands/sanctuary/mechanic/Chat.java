@@ -133,15 +133,7 @@ public class Chat extends Mechanic {
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
         Rank displayedRank = senderFlp.getDisplayRank();
-        String playerStats = (displayedRank.compareTo(Rank.SCHOLAR) > 0 ? displayedRank.getColor() : "") + senderFlp.username + ChatColor.RESET +
-                "&(gold)'s Stats: &(green)\n" +
-                "Rank: {&(" + senderFlp.rank.getColor().getName() + ")" + (senderFlp.rank.isStaff() ? "&(bold)" : "") + senderFlp.rank.getName() + "}&(green)\n" +
-                "Time Played: " + TimeInterval.formatTime(senderFlp.secondsPlayed * 1000L, false) + "\n" +
-                "Deaths: " + sender.getStatistic(Statistic.DEATHS) + "\n" +
-                (senderFlp.birthday != null ? "Birthday: " + senderFlp.birthday.toFormattedString() + "\n" : "") +
-                "Votes this Month: " + senderFlp.monthVotes + "\n" +
-                "Total Votes this Season: " + senderFlp.totalSeasonVotes + "\n" +
-                "Total Votes All Time: " + senderFlp.totalVotes;
+        String playerStats = playerInfo(senderFlp);
 
         String displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName() +
                 " {$(hover," + playerStats + "," + "%0%1:)}} ";
@@ -422,30 +414,16 @@ public class Chat extends Mechanic {
                     continue;
                 }
 
-                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
-                String nickname;
-                if (flp.nickname == null || flp.nickname.equals(""))
-                    nickname = flp.username;
-                else
-                    nickname = flp.nickname;
-
                 if (
                         !silent &&
                         flp.getOnlinePlayer() != null &&
                         flp.getOnlinePlayer().isOnline() &&
                         !flp.getIgnoreStatus(FarLands.getDataHandler().getOfflineFLPlayer(player)).includesChat()
-                )
+                ) {
                     flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
+                }
 
-                String hover = "{$(hover,&(green)" +
-                        ChatColor.GOLD + nickname + "'s" + ChatColor.GOLD + " Stats:" + ChatColor.GREEN + "\n" +
-                        "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
-                        "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
-                        "Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false) + "\n" +
-                        "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
-                        "Votes this Month: " + flp.monthVotes + "\n" +
-                        "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
-                        "Total Votes All Time: " + flp.totalVotes + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
+                String hover = "{$(hover,&(green)" + playerInfo(flp) + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
                 newMessage.append(hover).append(word.substring(name.length() + 1)).append(" ");
             } else
                 newMessage.append(word).append(" ");
@@ -457,7 +435,7 @@ public class Chat extends Mechanic {
         return atPlayer(message, player, false);
     }
 
-    public static String applyEmotes(String message){
+    public static String applyEmotes(String message) {
         for (CommandShrug.TextEmote emote : CommandShrug.TextEmote.values) {
             StringBuilder sb = new StringBuilder();
             for (String word : message.split(" ")) {
@@ -466,7 +444,6 @@ public class Chat extends Mechanic {
                     if (word.contains("\\" + search)) {
                         word = word.replace("\\", "");
                     } else {
-                        System.out.println(word + " " + search);
                         word = word.substring(0, word.indexOf(search)) + emote.getValue() + word
                                 .substring(word.indexOf(search) + search.length());
                     }
@@ -476,6 +453,41 @@ public class Chat extends Mechanic {
             message = sb.toString();
         }
         return message;
+    }
+
+    /**
+     * Get formatted player info from an OfflineFLPlayer.
+     * <br>
+     * Current Display:
+     * <pre>
+     * "(username)'s stats"
+     * Nickname (if set)
+     * Rank
+     * Time Played
+     * Deaths
+     * Birthday (if set)
+     * Votes this Month
+     * Total Votes this season
+     * Total Votes All Time
+     * </pre>
+     *
+     * @param flp player to get data from
+     * @return the properly formatted text
+     */
+    public static String playerInfo(OfflineFLPlayer flp) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
+        Rank displayedRank = flp.getDisplayRank();
+
+        return (displayedRank.compareTo(Rank.SCHOLAR) > 0 ? displayedRank.getColor() : "") + flp.username + ChatColor.RESET +
+                "&(gold)'s Stats: &(green)\n" +
+                (flp.nickname == null || flp.nickname.isEmpty() ? "" : "Nickname: {" + flp.nickname + "}\n") +
+                "Rank: {&(" + flp.rank.getColor().getName() + ")" + (flp.rank.isStaff() ? "&(bold)" : "") + flp.rank.getName() + "}&(green)\n" +
+                "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
+                "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
+                (flp.birthday != null ? "Birthday: " + flp.birthday.toFormattedString() + "\n" : "") +
+                "Votes this Month: " + flp.monthVotes + "\n" +
+                "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
+                "Total Votes All Time: " + flp.totalVotes;
     }
 
     public static class MessageFilter {
