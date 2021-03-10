@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class OfflineFLPlayer {
     public UUID uuid;
@@ -63,6 +62,7 @@ public class OfflineFLPlayer {
     public Mute            currentMute;
     public PackageToggle   packageToggle;
     public Particles       particles;
+    public Pronouns        pronouns;
     public Rank            rank;
 
     public Map<UUID, IgnoreStatus> ignoreStatusMap;
@@ -120,6 +120,7 @@ public class OfflineFLPlayer {
         this.currentMute = null;
         this.packageToggle = PackageToggle.ACCEPT;
         this.particles = null;
+        this.pronouns = null;
         this.rank = Rank.INITIATE;
 
         this.ignoreStatusMap = new HashMap<>();
@@ -157,8 +158,12 @@ public class OfflineFLPlayer {
             if (member == null || member.isOwner())
                 return;
 
-            if (!username.equals(member.getNickname()))
-                member.modifyNickname(username).queue();
+            boolean nickIsUser = username.equals(member.getNickname());
+            boolean pronounsEnabled = pronouns != null && pronouns.showOnDiscord;
+            boolean nickIsUserPronouns = pronounsEnabled && (username + " " + pronouns.toString()).equals(member.getNickname());
+
+            if ((!nickIsUser && !pronounsEnabled) || (pronounsEnabled && !nickIsUserPronouns))
+                member.modifyNickname(username + (pronounsEnabled ? " " + pronouns.toString() : "")).queue();
 
             List<Role> roles = new ArrayList<>();
             roles.add(rank.isStaff() ? dh.getRole(DiscordHandler.STAFF_ROLE) : dh.getRole(DiscordHandler.VERIFIED_ROLE));

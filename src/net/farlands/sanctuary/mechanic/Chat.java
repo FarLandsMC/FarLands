@@ -462,6 +462,7 @@ public class Chat extends Mechanic {
      * <pre>
      * "(username)'s stats"
      * Nickname (if set)
+     * Pronouns (if set)
      * Rank
      * Time Played
      * Deaths
@@ -481,6 +482,7 @@ public class Chat extends Mechanic {
         return (displayedRank.compareTo(Rank.SCHOLAR) > 0 ? displayedRank.getColor() : "") + flp.username + ChatColor.RESET +
                 "&(gold)'s Stats: &(green)\n" +
                 (flp.nickname == null || flp.nickname.isEmpty() ? "" : "Nickname: {" + flp.nickname + "}\n") +
+                (flp.pronouns == null || flp.pronouns.toString() == null ? "" : "Pronouns: " + flp.pronouns.toString(false) + "\n") +
                 "Rank: {&(" + flp.rank.getColor().getName() + ")" + (flp.rank.isStaff() ? "&(bold)" : "") + flp.rank.getName() + "}&(green)\n" +
                 "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
                 "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +

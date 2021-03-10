@@ -249,6 +249,7 @@ public class FLPlayerSession {
         permissionAttachment.setPermission("petblocks.command.rename", isSponsor);
         permissionAttachment.setPermission("petblocks.command.toggle", isSponsor);
         permissionAttachment.setPermission("petblocks.command.call", isSponsor);
+        permissionAttachment.setPermission("petblocks.gui", isSponsor);
     }
 
     public void updatePlaytime() {
