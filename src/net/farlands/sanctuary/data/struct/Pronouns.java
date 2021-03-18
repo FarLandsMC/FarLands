@@ -1,10 +1,6 @@
 package net.farlands.sanctuary.data.struct;
 
-import net.farlands.sanctuary.data.Rank;
-
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Pronouns {
 
@@ -52,6 +48,7 @@ public class Pronouns {
         XE("Xe"),
         ZE("Ze"),
         E("E"),
+        ALL("All"),
         OTHER("Other", true);
 
         public static final SubjectPronoun[] VALUES = values();
@@ -94,7 +91,8 @@ public class Pronouns {
         XEM("Xem"),
         HIR("Hir"),
         ZIR("Zir"),
-        EM("Em");
+        EM("Em"),
+        ANY("Any");
 
         public static final ObjectPronoun[] VALUES = values();
 

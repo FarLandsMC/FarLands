@@ -5,6 +5,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 
 import org.bukkit.ChatColor;
@@ -56,7 +57,9 @@ public class CommandDonate extends Command {
         if (sender instanceof Player)
             sendFormatted(sender, "&(gold)Donate here: $(hoverlink,%0,{&(gray)Click to Follow},&(aqua,underline)%0)",
                     FarLands.getFLConfig().donationLink);
-        else
+        else if (sender instanceof DiscordSender) {
+            ((DiscordSender) sender).sendMessage("Donate here: <" + FarLands.getFLConfig().donationLink + ">", false);
+        } else
             sendFormatted(sender, "&(gold)Donate here: &(aqua)%0", FarLands.getFLConfig().donationLink);
 
         return true;

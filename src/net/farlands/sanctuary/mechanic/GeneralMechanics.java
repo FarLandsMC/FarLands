@@ -123,6 +123,9 @@ public class GeneralMechanics extends Mechanic {
             if (!flp.viewedPatchnotes)
                 sendFormatted(player,"&(gold)Patch {&(aqua)#%0} has been released! View changes with " +
                         "$(hovercmd,/patchnotes,{&(gray)Click to Run},&(aqua)/patchnotes)", FarLands.getDataHandler().getCurrentPatch());
+            if (flp.birthday != null && flp.birthday.isToday()) {
+                sendFormatted(player, "&(gold)Happy Birthday!");
+            }
         }, 125L);
 
         if (isNew) {

@@ -3,8 +3,6 @@ package net.farlands.sanctuary.discord.markdown;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MarkdownProcessor {
     private static final CharacterProtector HTML_PROTECTOR = new CharacterProtector();
@@ -76,6 +74,12 @@ public class MarkdownProcessor {
         return new TextEditor(paragraph);
     }
 
+    private TextEditor formUrls(TextEditor markup) {
+        return markup.replaceAll(
+                "(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])",
+                "\\$(hoverlink,$1,&(aqua)Follow Link,&(aqua)$1)"
+        );
+    }
 
     private TextEditor unEscapeSpecialChars(TextEditor ed) {
         for (String hash : CHAR_PROTECTOR.getAllEncodedTokens()) {
@@ -89,8 +93,8 @@ public class MarkdownProcessor {
     public TextEditor runSpanGamut(TextEditor text) {
         text = escapeSpecialCharsWithinTagAttributes(text);
         text = encodeBackslashEscapes(text);
-        text = text.replaceAll("(https?:[^'\\\">\\\\\\s]+)", ChatColor.AQUA + "$1" + ChatColor.RESET);
         text = escapeSpecialCharsWithinTagAttributes(text);
+        text = formUrls(text);
         text = doMCFormat(text);
         return text;
     }
@@ -118,7 +122,7 @@ public class MarkdownProcessor {
      * __STRING__ to (<u>STRING</u>)underline<br>
      * ~~STRING~~ to (<span style="text-decoration: line-through">STRING</span>)Strikethrough<br>
      * *STRING* or _STRING_ to (<em>STRING</em>) Italics
-     * ||STRING|| to (Spoiler: ████)the spolier format with a hover text
+     * ||STRING|| to (Spoiler: ████)the spoiler format with a hover text
      * @param markup Markup TextEditor Object
      * @return The formatted version of the input
      */

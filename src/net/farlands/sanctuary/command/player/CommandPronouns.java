@@ -54,10 +54,10 @@ public class CommandPronouns extends Command {
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         switch (args.length) {
             case 1:
-                return TabCompleterBase.filterStartingWith(args[0],Arrays.asList("set", "show-on-discord", "reset"));
+                return TabCompleterBase.filterStartingWith(args[0], Arrays.asList("set", "show-on-discord", "reset"));
 
             case 2:
-                switch(args[0].toLowerCase()){
+                switch (args[0].toLowerCase()) {
                     case "set":
                         if (!args[1].contains("/")) {
                             return TabCompleterBase.filterStartingWith(args[1],
@@ -70,7 +70,7 @@ public class CommandPronouns extends Command {
                             return TabCompleterBase.filterStartingWith(args[1],
                                     Arrays.stream(Pronouns.ObjectPronoun.VALUES)
                                             .map(op ->
-                                                subject + "/" + op.getHumanName()
+                                                    subject + "/" + op.getHumanName()
                                             )
                             );
                         }
@@ -88,8 +88,8 @@ public class CommandPronouns extends Command {
     /**
      * Set the pronouns of a player
      *
-     * @param flp player to change
-     * @param arg The value to use for determining the pronouns
+     * @param flp    player to change
+     * @param arg    The value to use for determining the pronouns
      * @param sender Used for player feedback
      * @return If the command ran successfully
      */
@@ -124,8 +124,11 @@ public class CommandPronouns extends Command {
 
         TextUtils.sendFormatted(sender,
                 "&(green)Successfully updated your pronouns to {&(aqua)%0}!\n" +
-                        "You have show-on-discord set to %1, if you want it %2, " +
-                        "run $(hovercmd,%3,&(aqua)Run Command,&(aqua)%3).",
+                        (
+                            flp.isDiscordVerified() ?
+                            "You have show-on-discord set to %1, if you want it %2, run $(hovercmd,%3,&(aqua)Run Command,&(aqua)%3)." :
+                            ""
+                        ),
                 flp.pronouns.toString(false),
                 flp.pronouns.showOnDiscord,
                 flp.pronouns.showOnDiscord ? "disabled" : "enabled",
@@ -138,15 +141,15 @@ public class CommandPronouns extends Command {
     /**
      * Set the `showOnDiscord` status of a player
      *
-     * @param flp player to change
-     * @param arg The value to use for determining the pronouns
+     * @param flp    player to change
+     * @param arg    The value to use for determining the pronouns
      * @param sender Used for player feedback
      * @return If the command ran successfully
      */
     private boolean setShowOnDiscord(OfflineFLPlayer flp, String arg, CommandSender sender) {
 
         boolean value;
-        switch(arg.toLowerCase()){
+        switch (arg.toLowerCase()) {
             case "true":
             case "on":
                 value = true;

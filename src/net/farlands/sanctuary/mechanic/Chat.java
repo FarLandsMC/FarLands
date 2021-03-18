@@ -5,6 +5,7 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
 import net.farlands.sanctuary.command.player.CommandShrug;
+import net.farlands.sanctuary.command.player.CommandStats;
 import net.farlands.sanctuary.command.staff.CommandStaffChat;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -14,7 +15,6 @@ import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
@@ -133,7 +133,7 @@ public class Chat extends Mechanic {
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
         Rank displayedRank = senderFlp.getDisplayRank();
-        String playerStats = playerInfo(senderFlp);
+        String playerStats = CommandStats.playerInfo(senderFlp, false);
 
         String displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName() +
                 " {$(hover," + playerStats + "," + "%0%1:)}} ";
@@ -168,6 +168,7 @@ public class Chat extends Mechanic {
         message = applyEmotes(message);
         message = applyColorCodes(senderFlp.rank, message);
         message = TextUtils.escapeExpression(message);
+        message = formUrls(message);
         message = atPlayer(message, sender.getUniqueId());
         message = itemShare(senderFlp.rank, message, sender);
 
@@ -423,7 +424,7 @@ public class Chat extends Mechanic {
                     flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
                 }
 
-                String hover = "{$(hover,&(green)" + playerInfo(flp) + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
+                String hover = "{$(hover,&(green)" + CommandStats.playerInfo(flp, false) + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
                 newMessage.append(hover).append(word.substring(name.length() + 1)).append(" ");
             } else
                 newMessage.append(word).append(" ");
@@ -433,6 +434,18 @@ public class Chat extends Mechanic {
 
     public static String atPlayer(String message, UUID player) {
         return atPlayer(message, player, false);
+    }
+
+    /**
+     * Converts text links in messages into clickable links for players to click on
+     * @param message The text to convert
+     * @return The converted text
+     */
+    public static String formUrls(String message) {
+        return message.replaceAll(
+                "(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])",
+                "\\$(hoverlink,$1,&(aqua)Follow Link,&(aqua)$1)"
+        );
     }
 
     public static String applyEmotes(String message) {
@@ -455,42 +468,7 @@ public class Chat extends Mechanic {
         return message;
     }
 
-    /**
-     * Get formatted player info from an OfflineFLPlayer.
-     * <br>
-     * Current Display:
-     * <pre>
-     * "(username)'s stats"
-     * Nickname (if set)
-     * Pronouns (if set)
-     * Rank
-     * Time Played
-     * Deaths
-     * Birthday (if set)
-     * Votes this Month
-     * Total Votes this season
-     * Total Votes All Time
-     * </pre>
-     *
-     * @param flp player to get data from
-     * @return the properly formatted text
-     */
-    public static String playerInfo(OfflineFLPlayer flp) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
-        Rank displayedRank = flp.getDisplayRank();
 
-        return (displayedRank.compareTo(Rank.SCHOLAR) > 0 ? displayedRank.getColor() : "") + flp.username + ChatColor.RESET +
-                "&(gold)'s Stats: &(green)\n" +
-                (flp.nickname == null || flp.nickname.isEmpty() ? "" : "Nickname: {" + flp.nickname + "}\n") +
-                (flp.pronouns == null || flp.pronouns.toString() == null ? "" : "Pronouns: " + flp.pronouns.toString(false) + "\n") +
-                "Rank: {&(" + flp.rank.getColor().getName() + ")" + (flp.rank.isStaff() ? "&(bold)" : "") + flp.rank.getName() + "}&(green)\n" +
-                "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
-                "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
-                (flp.birthday != null ? "Birthday: " + flp.birthday.toFormattedString() + "\n" : "") +
-                "Votes this Month: " + flp.monthVotes + "\n" +
-                "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
-                "Total Votes All Time: " + flp.totalVotes;
-    }
 
     public static class MessageFilter {
         private final Map<String, Boolean> words;

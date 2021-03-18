@@ -73,9 +73,13 @@ public class DiscordSender implements CommandSender, ICommandListener {
         return flp == null ? Rank.INITIATE : flp.rank;
     }
 
+    public void sendMessage(String s, boolean applyFilters) {
+        FarLands.getDiscordHandler().sendMessage(channel, applyFilters ? Chat.applyDiscordFilters(s) : s);
+    }
+
     @Override
     public void sendMessage(String s) {
-        FarLands.getDiscordHandler().sendMessage(channel, Chat.applyDiscordFilters(s));
+        sendMessage(s, true);
     }
 
     @Override

@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
@@ -30,24 +31,95 @@ public class CommandStats extends Command {
             sendFormatted(sender, "&(red)Player not found.");
             return true;
         }
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.updateAll(false); // Make sure our stats are fresh
-            sender.sendMessage(ChatColor.GREEN +
-                    "Showing stats for " + ChatColor.GOLD + flp.username + ":" + ChatColor.GREEN + "\n" +
-                    (flp.pronouns == null || flp.pronouns.toString() == null ? "" : "Pronouns: " + flp.pronouns.toString(false) + "\n") +
-                    "Rank: " + flp.rank.getColor() + flp.rank.getName() + ChatColor.GREEN + "\n" +
-                    "Time Played: " + TimeInterval.formatTime(flp.secondsPlayed * 1000L, false) + "\n" +
-                    (isPersonal && sender instanceof Player && flp.amountDonated > 0 ? "Amount Donated: $" +
-                            flp.amountDonated + "\n" : "") +
-                    (flp.birthday != null ? "Birthday: " + flp.birthday.toFormattedString() + "\n" : "") +
-                    "Deaths: " + offlinePlayer.getStatistic(Statistic.DEATHS) + "\n" +
-                    "Votes this Month: " + flp.monthVotes + "\n" +
-                    "Total Votes this Season: " + flp.totalSeasonVotes + "\n" +
-                    "Total Votes All Time: " + flp.totalVotes
-            );
+            sender.sendMessage(playerInfo(flp, isPersonal && sender instanceof Player));
         });
         return true;
+    }
+
+    /**
+     * Get formatted player info from an OfflineFLPlayer.
+     * <br>
+     * Current Display:
+     * <pre>
+     * "(username)'s stats"
+     * Nickname (if set)
+     * Pronouns (if set)
+     * Rank
+     * Time Played
+     * Amount Donated (if `showDonated` and >0)
+     * Deaths
+     * Birthday (if set)
+     * Votes this Month
+     * Total Votes this season
+     * Total Votes All Time
+     * </pre>
+     *
+     * @param flp         player to get data from
+     * @param showDonated Whether to show amount of money donated
+     * @return the properly formatted text
+     */
+    public static String playerInfo(OfflineFLPlayer flp, boolean showDonated) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
+        Rank displayedRank = flp.getDisplayRank();
+
+        return (displayedRank.compareTo(Rank.SCHOLAR) > 0 ? displayedRank.getColor() : "") + flp.username + ChatColor.RESET +
+            ChatColor.GOLD + "'s Stats: " + ChatColor.GOLD + "\n" +
+            statLine("Nickname",
+                flp.nickname,
+                flp.nickname != null && !flp.nickname.isEmpty()
+            ) +
+            statLine("Pronouns",
+                flp.pronouns.toString(false),
+                flp.pronouns != null && flp.pronouns.toString() != null
+            ) +
+            statLine("Rank",
+                flp.rank.getColor() + (flp.rank.isStaff() ? ChatColor.BOLD + "" : "") + flp.rank.getName()
+            ) +
+            statLine("Time Played",
+                TimeInterval.formatTime(flp.secondsPlayed * 1000L, false)
+            ) +
+            statLine("Amount Donated",
+                "$" + flp.amountDonated,
+                showDonated && flp.amountDonated > 0
+            ) +
+            statLine("Deaths",
+                offlinePlayer.getStatistic(Statistic.DEATHS)
+            ) +
+            statLine("Birthday",
+                flp.birthday.toFormattedString(),
+                flp.birthday != null
+            ) +
+            statLine("Votes this Month",
+                flp.monthVotes
+            ) +
+            statLine("Total Votes this Season",
+                flp.totalSeasonVotes
+            ) +
+            statLine("Total Votes All Time",
+                flp.totalVotes, false, true
+            );
+    }
+
+    /**
+     * Ease of use for creating the stats
+     * @param key The name of the value
+     * @param value The value of the line
+     * @param newline Should it have a newline at the end?
+     * @param showWhen Should it show up?
+     * @return The formatted line
+     */
+    private static String statLine(String key, Object value, boolean newline, boolean showWhen) {
+        return showWhen ? (ChatColor.GOLD + key + ": " + ChatColor.AQUA + value.toString() + (newline ? "\n" : "")) : "";
+    }
+
+    private static String statLine(String key, Object value) {
+        return statLine(key, value, true, true);
+    }
+
+    private static String statLine(String key, Object value, boolean showWhen) {
+        return statLine(key, value, true, showWhen);
     }
 
     @Override
