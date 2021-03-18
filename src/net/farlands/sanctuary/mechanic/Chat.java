@@ -367,7 +367,7 @@ public class Chat extends Mechanic {
         if (rank == null || rank.specialCompareTo(Rank.ADEPT) < 0)
             return message;
 
-        ItemStack item = player.getInventory().getItemInMainHand();
+        ItemStack item = player.getInventory().getItemInMainHand().clone();
         if (item.getType() == Material.AIR) {
             return message;
         }
