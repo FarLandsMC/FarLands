@@ -1,17 +1,23 @@
 package net.farlands.sanctuary.command.player;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.CommandHandler;
+import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.TimeInterval;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommandRanks extends Command {
@@ -22,7 +28,7 @@ public class CommandRanks extends Command {
     @Override
     @SuppressWarnings("unchecked")
     public boolean execute(CommandSender sender, String[] args) {
-        StringBuilder sb = new StringBuilder();
+        Map<Rank, List<String>> ranksInfo = new HashMap<>();
 
         for (Rank rank : Rank.VALUES) {
             // Skip the voter and birthday ranks as it's only used internally
@@ -33,42 +39,70 @@ public class CommandRanks extends Command {
             if (rank.specialCompareTo(Rank.SPONSOR) > 0)
                 break;
 
-            sb.append(rank.getColor()).append(rank.getName()).append(ChatColor.BLUE);
+            List<String> info = new ArrayList<>();
 
             // For donor ranks, show the cost
             switch (rank) {
                 case DONOR:
                 case PATRON:
                 case SPONSOR:
-                    sb.append(" - ").append(Rank.DONOR_RANK_COSTS[rank.ordinal() - Rank.DONOR.ordinal()]).append(" USD");
+                    info.add(Rank.DONOR_RANK_COSTS[rank.ordinal() - Rank.DONOR.ordinal()] + " USD");
                     break;
 
                 default: {
                     int playTimeRequired = rank.getPlayTimeRequired();
                     // Ignore the initiate rank
                     if (playTimeRequired > 0)
-                        sb.append(" - ").append(TimeInterval.formatTime(playTimeRequired * 60L * 60L * 1000L, false)).append(" play-time");
+                        info.add(TimeInterval.formatTime(playTimeRequired * 60L * 60L * 1000L, false) + " play-time");
                 }
             }
 
-            // Show homes
-            sb.append(" - ").append(rank.getHomes()).append(rank.getHomes() == 1 ? " home" : " homes");
+            // Add homes
+            info.add(rank.getHomes() + (rank.getHomes() == 1 ? " home" : " homes"));
 
             // Specify the new commands that come with the rank
             if (!Rank.INITIATE.equals(rank)) {
-                List<String> cmds = ((List<Command>)ReflectionHelper.getFieldValue("commands", CommandHandler.class, FarLands.getCommandHandler()))
+                List<String> cmds = ((List<Command>) ReflectionHelper.getFieldValue("commands", CommandHandler.class, FarLands.getCommandHandler()))
                         .stream().filter(cmd -> rank.equals(cmd.getMinRankRequirement()))
                         .map(cmd -> "/" + cmd.getName().toLowerCase())
                         .collect(Collectors.toList());
 
                 if (!cmds.isEmpty())
-                    sb.append(" -\n").append(String.join(", ", cmds));
+                    info.add(String.join(", ", cmds));
             }
 
-            sb.append('\n');
+            ranksInfo.put(rank, info);
         }
 
-        sender.sendMessage(sb.toString());
+        if (sender instanceof DiscordSender) {
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+            EmbedBuilder eb = new EmbedBuilder()
+                    .setTitle("Ranks")
+                    .setColor(flp == null ? 0xAAAAAA : flp.rank.getColor().getColor().getRGB());
+            for (Rank rank : Rank.values()) {
+                if (!ranksInfo.containsKey(rank)) { continue; }
+                eb.addField(
+                    rank.getName(),
+                    String.join("\n- ", ranksInfo.get(rank)),
+                    false
+                );
+            };
+            ((DiscordSender) sender).getChannel().sendMessage(eb.build()).queue();
+
+        } else {
+            StringBuilder sb = new StringBuilder(ChatColor.GREEN + "Ranks: \n");
+            for (Rank rank : Rank.values()) {
+                if (!ranksInfo.containsKey(rank)) { continue; }
+                sb.append(rank.getColor())
+                    .append(rank.getName())
+                    .append(" - ")
+                    .append(ChatColor.BLUE)
+                    .append(String.join(" - ", ranksInfo.get(rank)))
+                    .append("\n");
+            }
+            sender.sendMessage(sb.toString());
+        }
+
         return true;
     }
 }

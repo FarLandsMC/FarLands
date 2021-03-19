@@ -88,8 +88,9 @@ public class CommandList extends Command {
                 embedDesc.add("End: " + end);
 
             EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(+ total + "Player" + (total == 1 ? "" : "s") + "Online")
-                .setDescription(String.join(" | ", embedDesc));
+                .setTitle(+ total + " Player" + (total == 1 ? "" : "s") + " Online")
+                .setDescription(String.join(" | ", embedDesc))
+                .setColor(0x00AAAA); // DARK_AQUA
 
             if (!players.isEmpty()) {
                 players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->

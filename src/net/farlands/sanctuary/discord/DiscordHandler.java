@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.discord;
 
-import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
 import net.dv8tion.jda.api.*;
@@ -30,7 +29,6 @@ import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
@@ -276,9 +274,8 @@ public class DiscordHandler extends ListenerAdapter {
                 message += " [Image]";
         }
 
-        MarkdownProcessor mp = new MarkdownProcessor();
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
-        final String fmessage = Chat.atPlayer(Chat.limitFlood(Chat.limitCaps(mp.markdown(message))), sender.getFlp().uuid, staffChat);
+        final String fmessage = Chat.atPlayer(Chat.limitFlood(Chat.limitCaps(MarkdownProcessor.markdownToMC(message))), sender.getFlp().uuid, staffChat);
 
         if (staffChat) {
             TextUtils.sendFormatted(

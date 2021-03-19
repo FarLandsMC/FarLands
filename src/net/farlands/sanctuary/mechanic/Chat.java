@@ -11,6 +11,7 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.discord.markdown.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
@@ -279,7 +280,8 @@ public class Chat extends Mechanic {
             message = message.replaceAll(String.valueOf(new char[] {'\\', c.charAt(0)}), "\\\\" + c);
         }
         message = message.replaceAll("@", "@\u200B");
-        return removeColorCodes(message);
+        int firstColon = Math.max(message.indexOf(':'), 0);
+        return removeColorCodes(MarkdownProcessor.mcToMarkdown(message, firstColon));
     }
 
     public static String removeColorCodes(String message) {
