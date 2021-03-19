@@ -4,6 +4,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
@@ -37,14 +38,26 @@ public class CommandReport extends Command {
             return true;
         }
 
-        StringBuilder sb = new StringBuilder();
-
-        // If we're reporting a player tag all staff
-        if (reportType == ReportType.PLAYER) {
-            sb.append("@here\n");
+        // Command for teleporting to the location
+        String tpCmd;
+        if (sender instanceof DiscordSender)
+            tpCmd = "`sent from discord.`";
+        else {
+            Location l = ((Player) sender).getLocation();
+            tpCmd = "/tl "+
+                Math.floor(l.getX()) + 0.5 + " " +
+                (int) l.getY() + " " +
+                Math.floor(l.getZ()) + 0.5 + " " +
+                (int) l.getYaw() + " " +
+                (int) l.getPitch() + " " +
+                l.getWorld().getName();
         }
-        // Append info about the reporter
-        sb.append("New **").append(args[0]).append("** report from `").append(sender.getName()).append("`\n");
+
+        EmbedBuilder embedBuilder = reportType.toEmbed(
+            sender.getName(),
+            tpCmd,
+            "```" + joinArgsBeyond("player".equals(args[0]) ? 1 : 0, " ", args) + "```"
+        );
 
         // If it's a player report add the player's name
         if (reportType == ReportType.PLAYER) {
@@ -53,32 +66,21 @@ public class CommandReport extends Command {
                 return true;
             }
 
-            sb.append("Subject: `").append(args[1]).append("`\n");
+            embedBuilder.addField("Subject", "`" + args[1] + "`", false);
         }
 
-        // Add location information
-        if (sender instanceof DiscordSender)
-            sb.append("Location: `sent from discord.`\n");
-        else {
-            Location l = ((Player) sender).getLocation();
-            sb.append("Location: `/tl ")
-                    .append(Math.floor(l.getX()) + 0.5).append(' ')
-                    .append((int) l.getY()).append(' ')
-                    .append(Math.floor(l.getZ()) + 0.5).append(' ')
-                    .append((int) l.getYaw()).append(' ')
-                    .append((int) l.getPitch()).append(' ')
-                    .append(l.getWorld().getName())
-                    .append("`\n");
+        // Send embed to Discord
+        FarLands.getDiscordHandler().sendMessageEmbed(DiscordChannel.REPORTS, embedBuilder);
+
+        // If player report, do @here
+        if (reportType == ReportType.PLAYER) {
+           FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.REPORTS, "@here");
         }
 
-        // Add the description
-        sb.append("Description:\n```").append(joinArgsBeyond("player".equals(args[0]) ? 1 : 0, " ", args)).append("```");
-
-        // Send the report to discord
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.REPORTS, sb.toString());
         if ("glitch".equals(args[0])) {
-            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEV_REPORTS, "Glitch/bug report from `" + sender.getName() + "`:" +
-                    "```" + joinArgsBeyond(0, " ", args) + "```");
+            embedBuilder.setTitle("Bug Report from `" + sender.getName() + "`").clearFields();
+
+            FarLands.getDiscordHandler().sendMessageEmbed(DiscordChannel.DEV_REPORTS, embedBuilder);
         }
 
         sendFormatted(sender, "&(green)Report sent.");
@@ -96,8 +98,25 @@ public class CommandReport extends Command {
     }
 
     private enum ReportType {
-        PLAYER, LOCATION, GLITCH, OTHER;
+        PLAYER   (0xAA0000), // DARK_RED
+        LOCATION (0xFF55FF), // LIGHT_PURPLE
+        GLITCH   (0xFFAA00), // GOLD
+        OTHER    (0xAAAAAA); // GRAY
 
         static final ReportType[] VALUES = values();
+
+        private final int embedColor;
+
+        ReportType(int embedColor) {
+            this.embedColor = embedColor;
+        }
+
+        public EmbedBuilder toEmbed(String username, String teleportCommand, String description) {
+            return new EmbedBuilder()
+                .setTitle("New **" + Utils.formattedName(this) + "** report from `" + username + "`")
+                .setDescription(description)
+                .setColor(this.embedColor)
+                .addField("Location", "`" + teleportCommand + "`", false);
+        }
     }
 }

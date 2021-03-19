@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
@@ -77,40 +78,76 @@ public class CommandList extends Command {
             return true;
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(ChatColor.GOLD).append("- ").append(total).append(" Player").append(total != 1 ? "s" : "")
-                .append(" Online -\n");
-        if (!players.isEmpty()) {
-            players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                    .append(rank.getName()).append(": ").append(ChatColor.GOLD)
-                    .append(String.join(", ", players.get(rank))).append('\n'));
+        if (sender instanceof DiscordSender) {
+            List<String> embedDesc = new ArrayList<>();
+            if (overworld > 0)
+                embedDesc.add("Overworld: " + overworld);
+            if (nether > 0)
+                embedDesc.add("Nether: " + nether);
+            if (end > 0)
+                embedDesc.add("End: " + end);
+
+            EmbedBuilder eb = new EmbedBuilder()
+                .setTitle(+ total + "Player" + (total == 1 ? "" : "s") + "Online")
+                .setDescription(String.join(" | ", embedDesc));
+
+            if (!players.isEmpty()) {
+                players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
+                    eb.addField(rank.getName(), String.join(", ", players.get(rank)), false)
+                );
+            }
+
+            if (!staff.isEmpty()) {
+                if (!players.isEmpty())
+                    eb.addField("— Staff —", staff.keySet().size() + "Staff Member" +
+                            (staff.keySet().size() == 1 ? "" : "s")
+                            + " Online" +
+                            (listHasVanishedPlayer ? "\n*\\*These players are vanished*" : ""), false);
+
+                staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
+                        eb.addField(rank.getName(), String.join(", ", staff.get(rank)), false)
+                );
+            }
+
+            ((DiscordSender) sender).getChannel().sendMessage(eb.build()).queue();
+
+        } else {
+
+            StringBuilder sb = new StringBuilder();
+            sb.append(ChatColor.GOLD).append("- ").append(total).append(" Player").append(total != 1 ? "s" : "")
+                    .append(" Online -\n");
+            if (!players.isEmpty()) {
+                players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
+                        .append(rank.getName()).append(": ").append(ChatColor.GOLD)
+                        .append(String.join(", ", players.get(rank))).append('\n'));
+            }
+            if (!staff.isEmpty()) {
+                if (!players.isEmpty())
+                    sb.append(ChatColor.GOLD).append("- Staff -\n");
+
+                staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
+                        .append(rank.getName()).append(": ").append(ChatColor.GOLD)
+                        .append(String.join(", ", staff.get(rank))).append('\n'));
+            }
+
+            boolean applyColour = overworld > 0 || nether > 0 || end > 0;
+            if (applyColour)
+                sb.append(ChatColor.AQUA);
+
+            if (overworld > 0)
+                sb.append("\nOverworld: ").append(overworld);
+            if (nether > 0)
+                sb.append("\nNether: ").append(nether);
+            if (end > 0)
+                sb.append("\nEnd: ").append(end);
+
+            if (applyColour)
+                sb.append(ChatColor.GOLD);
+            if (listHasVanishedPlayer)
+                sb.append("\n*These players are vanished.");
+
+            sender.sendMessage(sb.toString().trim());
         }
-        if (!staff.isEmpty()) {
-            if (!players.isEmpty())
-                sb.append(ChatColor.GOLD).append("- Staff -\n");
-
-            staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                    .append(rank.getName()).append(": ").append(ChatColor.GOLD)
-                    .append(String.join(", ", staff.get(rank))).append('\n'));
-        }
-
-        boolean applyColour = overworld > 0 || nether > 0 || end > 0;
-        if (applyColour)
-            sb.append(ChatColor.AQUA);
-
-        if (overworld > 0)
-            sb.append("\nOverworld: ").append(overworld);
-        if (nether > 0)
-            sb.append("\nNether: ")   .append(nether);
-        if (end > 0)
-            sb.append("\nEnd: ")      .append(end);
-
-        if (applyColour)
-            sb.append(ChatColor.GOLD);
-        if (listHasVanishedPlayer)
-            sb.append("\n*These players are vanished.");
-
-        sender.sendMessage(sb.toString().trim());
 
         return true;
     }

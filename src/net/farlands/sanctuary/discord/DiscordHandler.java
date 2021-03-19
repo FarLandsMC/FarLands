@@ -3,10 +3,7 @@ package net.farlands.sanctuary.discord;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.*;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -32,6 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -145,6 +143,14 @@ public class DiscordHandler extends ListenerAdapter {
                 sb.append(((TextComponent) bc).getText());
         }
         sendMessage(channel, sb.toString());
+    }
+
+    public void sendMessageEmbed(DiscordChannel channel, EmbedBuilder embedBuilder) {
+        getChannel(channel).sendMessage(embedBuilder.build()).queue();
+    }
+
+    public void sendMessageEmbed(DiscordChannel channel, EmbedBuilder embedBuilder, Consumer<? super Message> success) {
+        getChannel(channel).sendMessage(embedBuilder.build()).queue(success);
     }
 
     public MessageChannel getChannel(DiscordChannel channel) {

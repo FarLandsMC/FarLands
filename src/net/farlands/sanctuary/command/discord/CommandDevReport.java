@@ -2,11 +2,13 @@ package net.farlands.sanctuary.command.discord;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.TimeInterval;
 
@@ -33,15 +35,28 @@ public class CommandDevReport extends DiscordCommand {
         }
 
         String body = joinArgsBeyond(0, " ", args).replaceAll("`", "`\u200B");
-        String message;
+        String title;
+        EmbedBuilder embedBuilder = new EmbedBuilder().setDescription("```" + body + "```");
+
         if ("suggest".equalsIgnoreCase(args[0])) {
-            message = "Suggestion from `" + sender.getName() + "`:```" + body + "```";
-            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.SUGGESTIONS, message);
+            title = "Suggestion from `" + sender.getName() + "`";
+            embedBuilder.setTitle("➕ " + title).setColor(0x00AA00); // DARK_GREEN
+
         } else {
-            message = "Glitch/bug report from `" + sender.getName() + "`:```" + body + "```";
-            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.BUG_REPORTS, message);
+            title = "Bug Report from `" + sender.getName() + "`";
+            embedBuilder.setTitle("⚠ " + title).setColor(0xFFAA00); // Gold
         }
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEV_REPORTS, message);
+
+
+        FarLands.getDiscordHandler().sendMessageEmbed(
+            "suggest".equalsIgnoreCase(args[0]) ? DiscordChannel.SUGGESTIONS : DiscordChannel.BUG_REPORTS,
+            embedBuilder,
+            (message) ->
+                FarLands.getDiscordHandler().sendMessageEmbed(
+                    DiscordChannel.DEV_REPORTS,
+                    embedBuilder.setTitle(title, message.getJumpUrl())
+                )
+        );
 
         globalCooldown.reset();
         return true;

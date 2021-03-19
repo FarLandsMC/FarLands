@@ -133,7 +133,7 @@ public class Chat extends Mechanic {
 
     public static void chat(OfflineFLPlayer senderFlp, Player sender, String message) {
         Rank displayedRank = senderFlp.getDisplayRank();
-        String playerStats = CommandStats.playerInfo(senderFlp, false);
+        String playerStats = CommandStats.formatStats(CommandStats.playerInfoMap(senderFlp, false), senderFlp);
 
         String displayPrefix = "{" + displayedRank.getColor() + "" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName() +
                 " {$(hover," + playerStats + "," + "%0%1:)}} ";
@@ -424,7 +424,7 @@ public class Chat extends Mechanic {
                     flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
                 }
 
-                String hover = "{$(hover,&(green)" + CommandStats.playerInfo(flp, false) + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
+                String hover = "{$(hover,&(green)" + CommandStats.formatStats(CommandStats.playerInfoMap(flp, false), flp) + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
                 newMessage.append(hover).append(word.substring(name.length() + 1)).append(" ");
             } else
                 newMessage.append(word).append(" ");
