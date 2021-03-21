@@ -5,6 +5,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
@@ -34,7 +35,9 @@ public class CommandRenameItem extends PlayerCommand {
         ItemMeta meta = stack.getItemMeta();
         meta.setDisplayName(Chat.applyColorCodes(Rank.SPONSOR, rawName));
         stack.setItemMeta(meta);
-        ((CraftPlayer) sender).getHandle().levelDown(-1);
+        if (sender.getGameMode() != GameMode.CREATIVE) {
+            ((CraftPlayer) sender).getHandle().levelDown(-1);
+        }
         return true;
     }
 }

@@ -36,11 +36,12 @@ public class CommandDevReport extends DiscordCommand {
 
         String body = joinArgsBeyond(0, " ", args).replaceAll("`", "`\u200B");
         String title;
-        EmbedBuilder embedBuilder = new EmbedBuilder().setDescription("```" + body + "```");
+        String description = "```" + body + "```";
+        EmbedBuilder embedBuilder = new EmbedBuilder().setDescription(description);
 
         if ("suggest".equalsIgnoreCase(args[0])) {
             title = "Suggestion from `" + sender.getName() + "`";
-            embedBuilder.setTitle("➕ " + title).setColor(0x00AA00); // DARK_GREEN
+            embedBuilder.setTitle(title).setColor(0x00AA00); // DARK_GREEN
 
         } else {
             title = "Bug Report from `" + sender.getName() + "`";
@@ -54,7 +55,9 @@ public class CommandDevReport extends DiscordCommand {
             (message) ->
                 FarLands.getDiscordHandler().sendMessageEmbed(
                     DiscordChannel.DEV_REPORTS,
-                    embedBuilder.setTitle(title, message.getJumpUrl())
+                    embedBuilder
+                        .setTitle(title, message.getJumpUrl())
+                        .setDescription("[Public Message](" + message.getJumpUrl() + ")\n" + description)
                 )
         );
 

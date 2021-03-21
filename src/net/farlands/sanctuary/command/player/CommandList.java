@@ -89,7 +89,8 @@ public class CommandList extends Command {
 
             EmbedBuilder eb = new EmbedBuilder()
                 .setTitle(+ total + " Player" + (total == 1 ? "" : "s") + " Online")
-                .setDescription(String.join(" | ", embedDesc))
+                .setDescription(String.join(" | ", embedDesc) +
+                        (listHasVanishedPlayer ? "\n*\\*These players are vanished*" : ""))
                 .setColor(0x00AAAA); // DARK_AQUA
 
             if (!players.isEmpty()) {
@@ -100,10 +101,9 @@ public class CommandList extends Command {
 
             if (!staff.isEmpty()) {
                 if (!players.isEmpty())
-                    eb.addField("— Staff —", staff.keySet().size() + "Staff Member" +
+                    eb.addField("— Staff —", staff.keySet().size() + " Staff Member" +
                             (staff.keySet().size() == 1 ? "" : "s")
-                            + " Online" +
-                            (listHasVanishedPlayer ? "\n*\\*These players are vanished*" : ""), false);
+                            + " Online", false);
 
                 staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
                         eb.addField(rank.getName(), String.join(", ", staff.get(rank)), false)

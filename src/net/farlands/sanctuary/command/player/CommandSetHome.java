@@ -29,7 +29,7 @@ public class CommandSetHome extends PlayerCommand {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         // Check home count
-        if (flp.numHomes() >= flp.rank.getHomes()) {
+        if (!flp.canAddHome()) {
             sendFormatted(sender, "&(red)You have reached the maximum number of homes you can have at your current rank.");
             return true;
         }

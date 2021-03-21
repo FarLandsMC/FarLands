@@ -50,6 +50,7 @@ public class FLPlayerSession {
             flightDetectorMute,
             flyAlertCooldown,
             mailCooldown,
+            sharehomeCooldown,
             spamCooldown;
     private final Map<Class<? extends Command>, Integer> commandCooldowns;
 
@@ -81,6 +82,7 @@ public class FLPlayerSession {
         this.afkCheckInitializerCooldown = null;
         this.afkCheckCooldown = new Cooldown(30L * 20L);
         this.mailCooldown = new Cooldown(60L * 20L);
+        this.sharehomeCooldown = new Cooldown(60L * 20L);
         this.spamCooldown = new Cooldown(160L);
         this.flyAlertCooldown = new Cooldown(10L);
         this.flightDetectorMute = new Cooldown(0L);
@@ -114,6 +116,7 @@ public class FLPlayerSession {
         this.afkCheckInitializerCooldown = null;
         this.afkCheckCooldown = new Cooldown(30L * 20L);
         this.mailCooldown = new Cooldown(60L * 20L);
+        this.sharehomeCooldown = new Cooldown(60L * 20L);
         this.spamCooldown = new Cooldown(160L);
         this.flyAlertCooldown = new Cooldown(10L);
         this.flightDetectorMute = new Cooldown(0L);
@@ -137,6 +140,7 @@ public class FLPlayerSession {
         lastMessageSender.discard();
         lastDeletedHomeName.discard();
         mailCooldown.cancel();
+        sharehomeCooldown.cancel();
         spamCooldown.cancel();
         flyAlertCooldown.cancel();
         flightDetectorMute.cancel();
@@ -229,6 +233,24 @@ public class FLPlayerSession {
         if (!handle.mail.isEmpty() && sendMessages && mailCooldown.isComplete()) {
             mailCooldown.reset();
             TextUtils.sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read,{&(gray)Click to Run},&(yellow)/mail read)");
+        }
+
+        if (!handle.pendingSharehomes.isEmpty() && sendMessages && sharehomeCooldown.isComplete()) {
+            sharehomeCooldown.reset();
+
+            List<String> pendingHomes = new ArrayList<>();
+
+            handle.pendingSharehomes.forEach((k, v) -> {
+                String message = v.message == null ? "" : "&(gold)Message: &(aqua)" + v.message.replaceAll(",", " ") + "\n";
+                pendingHomes.add("${hover,&(gold)Sender: &(aqua)" + k + "\n" + message + "&(gold)Name: &(aqua)" + v.home.getName() + ",&(aqua)" + k + "}");
+            });
+
+            TextUtils.sendFormatted(player,
+                    "&(gold)You have pending homes from %0 $(inflect,noun,0,player): %1\n" +
+                    "Hover over the $(inflect,noun,0,name) to view more info.",
+                    handle.pendingSharehomes.size(),
+                    String.join(", ", pendingHomes)
+            );
         }
     }
 

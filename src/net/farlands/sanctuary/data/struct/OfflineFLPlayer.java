@@ -66,6 +66,7 @@ public class OfflineFLPlayer {
     public Rank            rank;
 
     public Map<UUID, IgnoreStatus> ignoreStatusMap;
+    public Map<String, ShareHome>  pendingSharehomes;
     public List<Home>              homes;
     public List<MailMessage>       mail;
     public List<Punishment>        punishments;
@@ -127,6 +128,7 @@ public class OfflineFLPlayer {
         this.notes = new ArrayList<>();
         this.punishments = new ArrayList<>();
         this.homes = new ArrayList<>();
+        this.pendingSharehomes = new HashMap<>();
         this.mail = new ArrayList<>();
 
         this.ignoredPlayers = new HashSet<>();
@@ -447,6 +449,35 @@ public class OfflineFLPlayer {
     public void renameHome(String oldName, String newName) {
         Home home = homes.stream().filter(h -> oldName.equals(h.getName())).findAny().orElse(null);
         home.setName(newName);
+    }
+
+    public boolean canAddHome() {
+        return homes.size() < rank.getHomes();
+    }
+
+    public boolean addSharehome(String sender, ShareHome shareHome) {
+        if (pendingSharehomes.containsKey(sender)) {
+            return false;
+        }
+
+        Player player = getOnlinePlayer();
+        if (player != null) { // If the player is online, notify
+            sendFormatted(player,
+                "&(gold){&(aqua)%0} has sent you a home: {&(aqua)%1}%2" +
+                    "\nYou can accept it with ${hovercmd,/sharehome accept %0,&(aqua)Click to Run,&(aqua)/sharehome accept %0}.",
+                sender,
+                shareHome.home.getName(),
+                shareHome.message == null ? "" : "\nMessage: {&(aqua)%3}",
+                shareHome.message
+            );
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
+        }
+
+        pendingSharehomes.put(sender, shareHome);
+        return true;
+    }
+    public boolean removeShareHome(String sender) {
+        return pendingSharehomes.remove(sender) != null;
     }
 
     public void addMail(String sender, String message) {

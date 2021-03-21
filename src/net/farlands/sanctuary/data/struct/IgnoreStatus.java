@@ -23,6 +23,10 @@ public class IgnoreStatus {
         return isSet(IgnoreType.PACKAGES) || includesAll();
     }
 
+    public boolean includesSharehomes() {
+        return isSet(IgnoreType.SHAREHOMES) || includesAll();
+    }
+
     public boolean includesAll() {
         return isSet(IgnoreType.ALL);
     }
@@ -58,6 +62,7 @@ public class IgnoreStatus {
         CHAT,
         TELEPORTS,
         PACKAGES,
+        SHAREHOMES,
         ALL;
 
         private int flag() {

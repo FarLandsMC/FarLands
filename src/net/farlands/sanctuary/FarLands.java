@@ -68,7 +68,10 @@ public class FarLands extends JavaPlugin {
         discordHandler.startBot();
         Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
                 instance.getDescription().getVersion() + "."), 50L);
-        Bukkit.getScheduler().runTaskLater(this, () -> Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "headdatabase:hdb r"), 60L);
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "headdatabase:hdb r");
+            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "petblocks:petblockreload");
+        }, 60L);
     }
 
     @Override
