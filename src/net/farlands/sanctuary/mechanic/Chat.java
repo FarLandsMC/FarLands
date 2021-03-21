@@ -384,8 +384,7 @@ public class Chat extends Mechanic {
 
         // Make TextUtils happy
         String saveName = name;
-        name = name.replace("{", "").replace("}", "").replace("(", "")
-                .replace(")", "").replace("$", "").replace("%", "");
+        name = name.replaceAll("[{}()$%]", "");
         // Change the item display name to remove TextUtils characters, we'll put them back later
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Chat.colorize(name));
@@ -408,9 +407,11 @@ public class Chat extends Mechanic {
 
     public static String atPlayer(String message, UUID player, boolean silent) {
         StringBuilder newMessage = new StringBuilder();
-        for (String word : message.replace("{", "").replace("}", "").split(" ")) {
+        for (String word : message.replaceAll("[{}]", "").split(" ")) {
             if (word.startsWith("@")) {
                 String name = word.substring(1).replaceAll("[^a-zA-Z]", "").toLowerCase();
+                if (name.length() < 4)
+                    continue;
                 OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(name);
                 if (flp == null) {
                     newMessage.append(word).append(" ");
