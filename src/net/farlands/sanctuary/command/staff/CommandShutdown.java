@@ -12,6 +12,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -36,6 +37,7 @@ public class CommandShutdown extends Command {
             .put(2, "Server restarting in 2...")
             .put(1, "Server restarting in 1...")
             .build();
+    private static final List<Integer> DISCORD_NOTIFICATION_TIMES = Arrays.asList(3600, 1800, 600, 60, 10, 3, 2, 1);
     private static final int MAX_DELAY = 8 * 60 * 60; // Can't restart more than 8 hours in advance
     private static final List<String> TYPES = Arrays.asList("stop", "restart", "backup");
 
@@ -78,7 +80,11 @@ public class CommandShutdown extends Command {
         NOTIFICATION_TIMES.entrySet().stream().filter(e -> e.getKey() <= seconds).forEach(e -> {
             int delay = seconds - e.getKey();
             if(delay > 0)
-                FarLands.getScheduler().scheduleSyncDelayedTask(() -> Logging.broadcastFormatted(e.getValue(), true), 20L * delay);
+                FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
+                    Logging.broadcastFormatted(e.getValue(), false);
+                    if (DISCORD_NOTIFICATION_TIMES.contains(e.getKey()))
+                        Logging.broadcastIngameDiscord(e.getValue(), ChatColor.GOLD.getColor());
+                }, 20L * delay);
             else
                 Logging.broadcastFormatted(e.getValue(), true);
         });

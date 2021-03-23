@@ -1,24 +1,29 @@
 package net.farlands.sanctuary.data.struct;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.md_5.bungee.api.ChatColor;
 
 public class Proposal {
     private long messageID;
     private long dateEnds;
     private String message;
+    private String issuer;
     private transient boolean resolved;
 
     public static final String VOTE_YES = "\u2705";
     public static final String VOTE_NO = "\u274C";
 
     private void init(String issuer) {
-        String formattedMessage = "@everyone A new proposal was issued by **" + issuer + "**:```" + message +
-                "```This vote will expire 48 hours after it was issued. Votes required to pass: " +
-                ((staffCount() + 1) / 2);
-        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).sendMessage(formattedMessage).complete();
+
+        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).sendMessage(
+            messageEmbed(message, issuer, ((staffCount() + 1) / 2))
+        ).complete();
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, "@everyone");
         messageID = messageObj.getIdLong();
         messageObj.addReaction(VOTE_YES).queue(unused -> messageObj.addReaction(VOTE_NO).queue());
     }
@@ -26,6 +31,7 @@ public class Proposal {
     public Proposal(String issuer, String message) {
         this.dateEnds = System.currentTimeMillis() + 48L * 60L * 60L * 1000L;
         this.message = message;
+        this.issuer = issuer;
         this.resolved = false;
         init(issuer);
     }
@@ -68,8 +74,9 @@ public class Proposal {
                     no.removeReaction().queue();
             }
         }
-        String contentRaw = messageObj.getContentRaw();
-        messageObj.editMessage(contentRaw.substring(0, contentRaw.lastIndexOf(':') + 2) + (votesRequired - yesVotes)).queue();
+
+        messageObj.editMessage(messageEmbed(message, issuer, (votesRequired - yesVotes))).queue();
+
         if (yesVotes >= votesRequired)
             resolve(0);
         else if (noVotes >= votesRequired)
@@ -104,5 +111,15 @@ public class Proposal {
 
     private static int staffCount() {
         return (int) FarLands.getDataHandler().getOfflineFLPlayers().stream().filter(flp -> flp.rank.isStaff()).count();
+    }
+
+    private static MessageEmbed messageEmbed(String message, String issuer, int amountToPass) {
+        return new EmbedBuilder()
+            .setColor(ChatColor.YELLOW.getColor())
+            .setTitle("New Proposal")
+            .setDescription("```" + message + "```")
+            .addField("Issued By", issuer, false)
+            .addField("Votes to Pass", "" + amountToPass, false)
+            .build();
     }
 }

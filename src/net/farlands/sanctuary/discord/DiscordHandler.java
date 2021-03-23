@@ -229,7 +229,23 @@ public class DiscordHandler extends ListenerAdapter {
             return;
 
         DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel());
-        String message = event.getMessage().getContentDisplay();
+
+        String[] contentRaw = event.getMessage().getContentRaw().split(" ");
+        String[] contentDisplay = event.getMessage().getContentDisplay().split(" ");
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < contentRaw.length; i++) {
+            String wordRaw = contentRaw[i];
+            String wordDisplay = contentDisplay[i];
+
+            if (wordRaw.matches("^<@!?(\\d+)>$")) {
+                sb.append(wordRaw).append(" ");
+                continue;
+            }
+            sb.append(wordDisplay).append(" ");
+        }
+        String message = sb.toString().strip();
+
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
         message = TextUtils.escapeExpression(Chat.removeColorCodes(message));
@@ -251,15 +267,17 @@ public class DiscordHandler extends ListenerAdapter {
             hoverText = TextUtils.escapeExpression(Chat.removeColorCodes(hoverText));
 
             OfflineFLPlayer refFlp = FarLands.getDataHandler().getOfflineFLPlayer(
-                            new DiscordSender(refMessage.getMember(), event.getChannel())
-                    );
+                new DiscordSender(refMessage.getMember(), event.getChannel())
+            );
 
-            String prefix = "";
-            if(!refMessage.getAuthor().isBot()){
+            String prefix;
+            if (refMessage.getAuthor().isBot() || refFlp == null) {
+                prefix = "$(white)" + refMessage.getAuthor().getName();
+            } else {
                 prefix = "&(" + (refFlp.rank.isStaff() ? "bold," : "") +
-                        refFlp.rank.getColor().getName() + ")" +
-                        refFlp.rank.getName() + "&(!bold) " +
-                        refFlp.username + ":&(white) ";
+                    refFlp.rank.getColor().getName() + ")" +
+                    refFlp.rank.getName() + "&(!bold) " +
+                    refFlp.username + ":&(white) ";
             }
 
             hoverText = prefix + hoverText;

@@ -2,6 +2,7 @@ package net.farlands.sanctuary.mechanic;
 
 import com.kicas.rp.util.TextUtils;
 
+import net.dv8tion.jda.api.entities.User;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
 import net.farlands.sanctuary.command.player.CommandShrug;
@@ -408,13 +409,30 @@ public class Chat extends Mechanic {
     public static String atPlayer(String message, UUID player, boolean silent) {
         StringBuilder newMessage = new StringBuilder();
         for (String word : message.replaceAll("[{}]", "").split(" ")) {
-            if (word.startsWith("@")) {
-                String name = word.substring(1).replaceAll("[^a-zA-Z]", "").toLowerCase();
-                if (name.length() < 4)
-                    continue;
-                OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(name);
+            if (word.startsWith("@") || word.matches("^<@!?(\\d+)>$")) {
+                OfflineFLPlayer flp;
+                if (word.startsWith("@")) {
+                    String name = word.substring(1).replaceAll("[^a-zA-Z_-]", "").toLowerCase();
+                    if (name.length() < 4)
+                        continue;
+                    flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(name);
+                } else {
+                    flp = FarLands.getDataHandler().getOfflineFLPlayer(
+                        Long.parseLong(
+                            word.replaceAll("(<@!?)|>", "")
+                        )
+                    );
+                }
                 if (flp == null) {
-                    newMessage.append(word).append(" ");
+                    String name = "";
+                    if (word.startsWith("<@")) {
+                        String id = word.replaceAll("(<@!?)|>", "");
+                        User user =  FarLands.getDiscordHandler().getNativeBot().retrieveUserById(id).complete();
+                        if (user != null) {
+                            name = "@" + user.getName();
+                        }
+                    }
+                    newMessage.append(name.isEmpty() ? word : name).append(" ");
                     continue;
                 }
 
@@ -427,8 +445,8 @@ public class Chat extends Mechanic {
                     flp.getOnlinePlayer().playSound(flp.getOnlinePlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
                 }
 
-                String hover = "{$(hover,&(green)" + CommandStats.formatStats(CommandStats.playerInfoMap(flp, false), flp) + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
-                newMessage.append(hover).append(word.substring(name.length() + 1)).append(" ");
+                String hover = "{$(hover,&(green)" + CommandStats.getFormattedStats(flp, false) + "," + flp.rank.getNameColor() + "@" + flp.username + ")}";
+                newMessage.append(hover + " ")/*.append(word.substring(name.length() + 1)).append(" ")*/;
             } else
                 newMessage.append(word).append(" ");
         }
@@ -446,8 +464,8 @@ public class Chat extends Mechanic {
      */
     public static String formUrls(String message) {
         return message.replaceAll(
-                "(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])",
-                "\\$(hoverlink,$1,&(aqua)Follow Link,&(aqua)$1)"
+            "(?<link>https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]+\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*))",
+            "\\$(hoverlink,${link},&(aqua)Follow Link,&(aqua)${link})"
         );
     }
 

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -11,7 +12,9 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.SkipSerializing;
+import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
+import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
@@ -286,8 +289,15 @@ public class OfflineFLPlayer {
         Player player = getOnlinePlayer();
         boolean online = player != null;
         if (rank.specialCompareTo(this.rank) > 0) {
-            Logging.broadcast(ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
-                    " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ", true);
+            String message = ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
+                " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ";
+            Logging.broadcastFormatted(message, false);
+            FarLands.getDiscordHandler().sendMessageEmbed(
+                DiscordChannel.IN_GAME,
+                new EmbedBuilder()
+                    .setTitle(Chat.applyDiscordFilters(message))
+                    .setColor(rank.getColor().getColor())
+            );
             if (online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
         }

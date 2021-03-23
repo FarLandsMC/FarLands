@@ -30,6 +30,7 @@ public class CommandRealName extends Command {
         args[0] = args[0].toLowerCase();
         List<String> matches = new ArrayList<>();
         for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
+            if (flp.nickname == null) { continue; }
             String nickname = Chat.removeColorCodes(flp.nickname.toLowerCase());
 
             // Match ignoring case, via containment, +(ignoring case)

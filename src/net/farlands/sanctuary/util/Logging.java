@@ -2,16 +2,22 @@ package net.farlands.sanctuary.util;
 
 import com.kicas.rp.util.TextUtils;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.mechanic.Chat;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.intellij.lang.annotations.RegExp;
 
+import javax.annotation.RegEx;
+import java.awt.*;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -21,11 +27,35 @@ public final class Logging {
         Bukkit.getConsoleSender().spigot().sendMessage(message);
     }
 
+    /**
+     * Broadcast an embed to #in-game on the Discord server
+     * @param message The message to broadcast
+     * @param color The color of the embed
+     */
+    public static void broadcastIngameDiscord(String message, Color color) {
+        FarLands.getDiscordHandler().sendMessageEmbed(
+            DiscordChannel.IN_GAME,
+            new EmbedBuilder()
+                .setTitle(Chat.applyDiscordFilters(message))
+                .setColor(ChatColor.GOLD.getColor())
+        );
+    }
+
+    public static void broadcastIngameDiscord(BaseComponent[] message, Color color, String removeRegEx) {
+        StringBuilder sb = new StringBuilder();
+        for (BaseComponent bc : message) {
+            if (bc instanceof TextComponent)
+                sb.append(((TextComponent) bc).getText());
+        }
+        broadcastIngameDiscord(sb.toString().replaceFirst(removeRegEx, ""), color);
+    }
+
     public static void broadcastFormatted(String message, boolean sendToDiscord, Object... values) {
         BaseComponent[] formatted = TextUtils.format("{&(gold,bold) > }&(aqua)" + message, values);
         broadcastIngame(formatted);
-        if (sendToDiscord)
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, formatted);
+        if (sendToDiscord){
+            broadcastIngameDiscord(formatted, ChatColor.GOLD.getColor(), "^( > )");
+        }
     }
 
     public static void broadcast(String input, Object... values) {

@@ -102,22 +102,22 @@ public class Restrictions extends Mechanic {
                 }
             }, 60L);
 
-            List<Punishment> alterablePunishments =
+            List<Punishment> alertablePunishments =
                 flp.punishments.stream()
-                    .filter(Punishment::notAlerted)
+                    .filter(p -> p.getType().isRejoinAlert() && p.notAlerted())
                     .collect(Collectors.toList());
 
-            if(!alterablePunishments.isEmpty()){
+            if(!alertablePunishments.isEmpty()){
                 Logging.broadcastStaff(
                     TextUtils.format(ChatColor.RED + "%0 has joined for the first time since receiving the following punishment%1: %2",
                         flp.username,
-                        alterablePunishments.size() == 1 ? "" : "s",
-                        alterablePunishments.stream()
+                        alertablePunishments.size() == 1 ? "" : "s",
+                        alertablePunishments.stream()
                             .map(punishment -> punishment.getType().getHumanName())
                             .collect(Collectors.joining(", "))
                     ),
                     DiscordChannel.ALERTS);
-                alterablePunishments.forEach(Punishment::alertSent);
+                alertablePunishments.forEach(Punishment::alertSent);
             }
 
 

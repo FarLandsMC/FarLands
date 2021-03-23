@@ -49,9 +49,7 @@ public class CommandStats extends Command {
                 }
                 ((DiscordSender) sender).getChannel().sendMessage(embedBuilder.build()).queue();
             } else {
-                sender.sendMessage(formatStats(
-                    playerInfoMap(flp, isPersonal && sender instanceof Player),
-                flp));
+                sender.sendMessage(getFormattedStats(flp, isPersonal && sender instanceof Player));
             }
         });
         return true;
@@ -121,6 +119,10 @@ public class CommandStats extends Command {
         }
 
         return String.join("\n", out);
+    }
+
+    public static String getFormattedStats(OfflineFLPlayer flp, boolean showDonated) {
+        return formatStats(playerInfoMap(flp, showDonated), flp);
     }
 
     @Override
