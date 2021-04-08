@@ -206,7 +206,7 @@ public class Chat extends Mechanic {
                 session.replyToggleRecipient = null;
             }
         }
-        final String lmessage = limitCaps(limitFlood(message)),
+        final String lmessage = limitCaps(limitFlood(message)).replaceAll(" }$", "}"),
                      fmessage = displayPrefix + lmessage,
                 censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
@@ -217,7 +217,11 @@ public class Chat extends Mechanic {
                     else
                         TextUtils.sendFormatted(session.player, senderFlp.rank.isStaff(), fmessage,      senderFlp.rank.getNameColor(), senderFlp.getDisplayName());
                 });
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, TextUtils.format(fmessage, senderFlp.rank.getNameColor(), senderFlp.getDisplayName()));
+        FarLands.getDiscordHandler().sendIngameChatMessage(
+            TextUtils.format(fmessage, senderFlp.rank.getNameColor(), ChatColor.stripColor(senderFlp.getDisplayName())),
+            senderFlp.rank.getName().length() + ChatColor.stripColor(senderFlp.getDisplayName()).length() + 1
+        );
+
         // never send the nickname to console/logs
         TextUtils.sendFormatted(Bukkit.getConsoleSender(), fmessage, senderFlp.rank.getNameColor(), senderFlp.username);
     }
@@ -276,13 +280,16 @@ public class Chat extends Mechanic {
         return MESSAGE_FILTER;
     }
 
-    public static String applyDiscordFilters(String message) {
+    public static String applyDiscordFilters(String message, int start) {
         for (String c : DISCORD_CHARS) {
             message = message.replaceAll(String.valueOf(new char[] {'\\', c.charAt(0)}), "\\\\" + c);
         }
         message = message.replaceAll("@", "@\u200B");
-        int firstColon = Math.max(message.indexOf(':'), 0);
-        return removeColorCodes(MarkdownProcessor.mcToMarkdown(message, firstColon));
+        return removeColorCodes(MarkdownProcessor.mcToMarkdown(message, start));
+    }
+
+    public static String applyDiscordFilters(String message){
+        return applyDiscordFilters(message, 0);
     }
 
     public static String removeColorCodes(String message) {
@@ -465,7 +472,7 @@ public class Chat extends Mechanic {
     public static String formUrls(String message) {
         return message.replaceAll(
             "(?<link>https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]+\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*))",
-            "\\$(hoverlink,${link},&(aqua)Follow Link,&(aqua)${link})"
+            "\\$(hoverlink,${link},&(aqua)Follow Link,&(aqua,underline)${link})"
         );
     }
 

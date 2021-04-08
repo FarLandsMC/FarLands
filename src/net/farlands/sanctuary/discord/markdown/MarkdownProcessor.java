@@ -65,7 +65,7 @@ public class MarkdownProcessor {
             outText.append(CHATCOLOR_MARKDOWN.get(usedColors.get(j)));
         }
 
-        return text.substring(0, start) + outText.toString();
+        return text.substring(0, start) + outText.toString() + (skipNext ? "" : text.charAt(text.length()-1));
     }
 
     /**

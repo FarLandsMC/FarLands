@@ -154,7 +154,7 @@ public class XRayStore {
         if ((abs(dy) <= 3 && (abs(dx) <= 2 || abs(dz) <= 2)) || (a >= mined || mined >= b)) {
             FarLands.getDebugger().echo(debugMessage.toString());
             if (sendAlerts)
-                AntiCheat.broadcast(alertMessage.toString(), false);
+                FarLands.getDiscordHandler().sendMessage(DiscordChannel.ALERTS, alertMessage.toString());
         } else {
             alertMessage.setLength(0);
             if (ORES.contains(minedBlock.getType())) {
@@ -166,7 +166,7 @@ public class XRayStore {
             }
             FarLands.getDebugger().echo(debugMessage.toString());
             if (sendAlerts) {
-                FarLands.getDiscordHandler().sendMessage(DiscordChannel.ALERTS, alertMessage.toString());
+                AntiCheat.sendDiscordAlert(alertMessage.toString());
                 AntiCheat.broadcast(alertMessage.append(ChatColor.RED).append(" @ ")
                         .append(last.getBlockX()).append(" ")
                         .append(last.getBlockY()).append(" ")

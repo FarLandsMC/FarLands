@@ -11,6 +11,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.mechanic.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -95,7 +96,11 @@ public class CommandList extends Command {
 
             if (!players.isEmpty()) {
                 players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
-                    eb.addField(rank.getName(), String.join(", ", players.get(rank)), false)
+                    eb.addField(
+                        rank.getName(),
+                        Chat.applyDiscordFilters(String.join(", ", players.get(rank))),
+                        false
+                    )
                 );
             }
 
@@ -106,7 +111,11 @@ public class CommandList extends Command {
                             + " Online", false);
 
                 staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
-                        eb.addField(rank.getName(), String.join(", ", staff.get(rank)), false)
+                        eb.addField(
+                            rank.getName(),
+                            Chat.applyDiscordFilters(String.join(", ", staff.get(rank))),
+                            false
+                        )
                 );
             }
 

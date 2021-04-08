@@ -2,7 +2,6 @@ package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
-import com.kicas.rp.util.TextUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -96,6 +95,9 @@ public class CommandStats extends Command {
         if (flp.birthday != null) {
             statsMap.put(PlayerStat.BIRTHDAY, flp.birthday.toFormattedString());
         }
+        if (flp.timezone != null && !flp.timezone.isEmpty()) {
+            statsMap.put(PlayerStat.TIMEZONE, flp.timezone + " (" + ChatColor.GREEN + flp.currentTime() +  ChatColor.AQUA + ")");
+        }
         statsMap.put(PlayerStat.VOTES_THIS_MONTH, flp.monthVotes);
         statsMap.put(PlayerStat.TOTAL_SEASON_VOTES, flp.totalSeasonVotes);
         statsMap.put(PlayerStat.TOTAL_VOTES, flp.totalVotes);
@@ -137,6 +139,7 @@ public class CommandStats extends Command {
         TIME_PLAYED("Time Played"),
         AMOUNT_DONATED("Amount Donated"),
         BIRTHDAY("Birthday"),
+        TIMEZONE("Time Zone"),
         DEATHS("Deaths"),
         VOTES_THIS_MONTH("Votes This Month"),
         TOTAL_SEASON_VOTES("Total Votes This Season"),

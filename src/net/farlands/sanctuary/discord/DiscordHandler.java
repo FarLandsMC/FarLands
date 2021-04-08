@@ -120,6 +120,15 @@ public class DiscordHandler extends ListenerAdapter {
         return Activity.of(Activity.ActivityType.DEFAULT, status);
     }
 
+    public void sendIngameChatMessage(BaseComponent[] message, int start) {
+        StringBuilder sb = new StringBuilder();
+        for (BaseComponent bc : message) {
+            if (bc instanceof TextComponent)
+                sb.append(((TextComponent) bc).getText());
+        }
+        sendMessageRaw(DiscordChannel.IN_GAME, Chat.applyDiscordFilters(sb.toString(), start));
+    }
+
     public void sendMessage(MessageChannel channel, String message) {
         channelHandler.sendMessage(channel, message);
     }

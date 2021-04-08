@@ -20,7 +20,7 @@ public class CommandBirthday extends Command {
 
     public CommandBirthday() {
         super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Register your birthday, or view upcoming birthdays.",
-                "/birthday <register|upcoming> [month/day|week|month]", "birthday");
+                "/birthday <register|upcoming> [month/day|week|month]", "birthday", "birthdays");
     }
 
     @Override

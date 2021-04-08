@@ -32,6 +32,7 @@ public class OfflineFLPlayer {
     public String lastIP;
     public String nickname;
     public String username;
+    public String timezone;
 
     public long discordID;
     public long lastLogin;
@@ -91,6 +92,7 @@ public class OfflineFLPlayer {
         this.lastIP = "";
         this.nickname = "";
         this.username = username;
+        this.timezone = "";
 
         this.discordID = 0;
         this.lastLogin = System.currentTimeMillis();
@@ -501,6 +503,37 @@ public class OfflineFLPlayer {
 
     public void clearMail() {
         mail.clear();
+    }
+
+    public void setTimeZone(String id) {
+        this.timezone = id;
+    }
+
+    /**
+     * Gets the formatted version of the player's current time
+     * @return the formatted time, null if no timezone set
+     */
+    public String currentTime() {
+        if(timezone == null || timezone.isEmpty()) {
+            return null;
+        }
+        Calendar cal = Calendar.getInstance();
+
+        TimeZone tz = TimeZone.getTimeZone(timezone);
+
+        cal.setTimeZone(tz);
+
+        int hour = cal.get(Calendar.HOUR);
+        int min = cal.get(Calendar.MINUTE);
+
+        if(hour == 0) {
+            hour = 12;
+        }
+
+        String ampm = cal.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM";
+
+        return String.format("%d:%02d %s", hour, min, ampm);
+
     }
 
     @Override

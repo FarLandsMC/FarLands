@@ -2,13 +2,13 @@ package net.farlands.sanctuary.mechanic.anticheat;
 
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
-
+import net.dv8tion.jda.api.entities.Message;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
-
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -20,6 +20,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRegisterChannelEvent;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,12 @@ import java.util.UUID;
 public class AntiCheat extends Mechanic {
     private final Map<UUID, XRayStore> xray;
     private final Map<UUID, FlightStore> flight;
+
+    private static String  lastAlertText    = null;
+    private static Message lastAlertMessage = null;
+    private static int     lastAlertCount   = 0;
+
+    private static final long ALERT_RESET_DELAY = 5 * 60L; // Max seconds between alerts to stack messages
 
     public AntiCheat() {
         this.xray = new HashMap<>();
@@ -99,12 +106,34 @@ public class AntiCheat extends Mechanic {
     public static void broadcast(String message, boolean sendToAlerts) {
         Logging.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
         if(sendToAlerts)
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.ALERTS, message);
+            sendDiscordAlert(message);
     }
 
     public static void broadcast(String playerName, String message) {
         broadcast(playerName + " " + message, true);
         promptToSpec(playerName);
+    }
+
+    public static void sendDiscordAlert(String alertText) {
+        if (alertText.equalsIgnoreCase(lastAlertText)) {
+            long messageDelay = lastAlertMessage.isEdited() ?
+                OffsetDateTime.now().toEpochSecond() - lastAlertMessage.getTimeEdited().toEpochSecond() :
+                OffsetDateTime.now().toEpochSecond() - lastAlertMessage.getTimeCreated().toEpochSecond();
+            if (messageDelay < ALERT_RESET_DELAY) {
+                lastAlertMessage.editMessage(
+                    Chat.applyDiscordFilters(alertText) +
+                        " (x" + (++lastAlertCount) + ")"
+                ).queue();
+                return;
+            }
+        }
+        lastAlertText = alertText;
+        lastAlertMessage = FarLands.getDiscordHandler().getChannel(DiscordChannel.ALERTS)
+            .sendMessage(
+                Chat.applyDiscordFilters(alertText)
+            )
+            .complete();
+        lastAlertCount = 1;
     }
 
     public static void promptToSpec(String playerName) {
