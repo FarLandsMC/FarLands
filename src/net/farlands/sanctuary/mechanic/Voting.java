@@ -2,12 +2,14 @@ package net.farlands.sanctuary.mechanic;
 
 import com.vexsoftware.votifier.model.VotifierEvent;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.DataHandler;
 import net.farlands.sanctuary.data.VoteConfig;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.struct.ItemReward;
+import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
 
@@ -47,7 +49,16 @@ public class Voting extends Mechanic {
         --pluginData.votesUntilParty;
         Logging.broadcastFormatted("&(gold){&(aqua)%0} just voted $(link,%1,{&(aqua,underline)here}) and received a reward!" +
                         (pluginData.votesUntilParty > 0 ? " {&(aqua)%2} more $(inflect,noun,2,vote) until a vote party!" : ""),
-                true, flp.username, voteConfig.voteLink, pluginData.votesUntilParty);
+                false, flp.username, voteConfig.voteLink, pluginData.votesUntilParty);
+        EmbedBuilder eb = new EmbedBuilder()
+            .setTitle(flp.username + " just voted here and received a reward!", voteConfig.voteLink)
+            .setColor(ChatColor.YELLOW.asBungee().getColor());
+
+        if (pluginData.votesUntilParty > 0) {
+            eb.setDescription(pluginData.votesUntilParty + " more vote" + (pluginData.votesUntilParty == 1 ? "" : "s") + " until a vote party!");
+        }
+
+        FarLands.getDiscordHandler().sendMessageEmbed(DiscordChannel.IN_GAME, eb);
 
         updateTopVoter();
         updateVoteParty();

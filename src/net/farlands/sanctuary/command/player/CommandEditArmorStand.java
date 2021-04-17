@@ -21,6 +21,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -94,8 +96,14 @@ public class CommandEditArmorStand extends PlayerCommand {
                     }
 
                     if (selected != null) {
-                        ((ArmorStand) selected).setMarker(marker);
+                        ArmorStand stand = (ArmorStand) selected;
+                        stand.setMarker(marker);
                         sender.sendMessage(ChatColor.GOLD + "Toggled marker tag " + (marker ? "on." : "off."));
+                        stand.setInvisible(!stand.isInvisible());
+                        FarLands.getScheduler().scheduleSyncDelayedTask(
+                            () -> stand.setInvisible(!stand.isInvisible()),
+                            20
+                        );
                     } else {
                         sender.sendMessage(ChatColor.RED + "Please stand near and look at the armor stand you on which you " +
                                 "wish to toggle the marker tag.");

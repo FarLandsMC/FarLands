@@ -243,6 +243,7 @@ public class DiscordHandler extends ListenerAdapter {
         String[] contentDisplay = event.getMessage().getContentDisplay().split(" ");
 
         StringBuilder sb = new StringBuilder();
+
         for (int i = 0; i < contentRaw.length; i++) {
             String wordRaw = contentRaw[i];
             String wordDisplay = contentDisplay[i];
@@ -253,6 +254,7 @@ public class DiscordHandler extends ListenerAdapter {
             }
             sb.append(wordDisplay).append(" ");
         }
+
         String message = sb.toString().strip();
 
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
@@ -302,7 +304,11 @@ public class DiscordHandler extends ListenerAdapter {
         }
 
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
-        final String fmessage = Chat.atPlayer(Chat.limitFlood(Chat.limitCaps(MarkdownProcessor.markdownToMC(message))), sender.getFlp().uuid, staffChat);
+
+        final String fmessage = Chat.atPlayer(
+            Chat.limitFlood(Chat.limitCaps(MarkdownProcessor.markdownToMC(message))), sender.getFlp().uuid,
+            channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() != event.getChannel().getIdLong()
+        );
 
         if (staffChat) {
             TextUtils.sendFormatted(

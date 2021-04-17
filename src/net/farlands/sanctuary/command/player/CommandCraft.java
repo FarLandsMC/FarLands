@@ -10,10 +10,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
@@ -87,6 +84,9 @@ public class CommandCraft extends PlayerCommand {
                 break;
             crafted += additional;
         }
+
+        // Update stats to match the newly crafted items
+        sender.setStatistic(Statistic.CRAFT_ITEM, item, sender.getStatistic(Statistic.CRAFT_ITEM, item) + crafted);
 
         cache.give(item, crafted, true);
         sender.updateInventory();

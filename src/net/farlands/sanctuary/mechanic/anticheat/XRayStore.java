@@ -154,7 +154,7 @@ public class XRayStore {
         if ((abs(dy) <= 3 && (abs(dx) <= 2 || abs(dz) <= 2)) || (a >= mined || mined >= b)) {
             FarLands.getDebugger().echo(debugMessage.toString());
             if (sendAlerts)
-                FarLands.getDiscordHandler().sendMessage(DiscordChannel.ALERTS, alertMessage.toString());
+                AntiCheat.broadcast(alertMessage.toString(), false);
         } else {
             alertMessage.setLength(0);
             if (ORES.contains(minedBlock.getType())) {
