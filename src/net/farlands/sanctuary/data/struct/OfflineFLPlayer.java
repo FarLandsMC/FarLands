@@ -15,6 +15,7 @@ import net.farlands.sanctuary.data.SkipSerializing;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.mechanic.GeneralMechanics;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
@@ -373,6 +374,7 @@ public class OfflineFLPlayer {
             else
                 lastLocation = spawn;
         }
+        GeneralMechanics.recentlyPunished.add(this);
         return p.totalTime(validPunishments.size() - 1);
     }
 

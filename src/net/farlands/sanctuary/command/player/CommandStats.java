@@ -1,21 +1,21 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
-
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandStats extends Command {
 
@@ -46,6 +46,16 @@ public class CommandStats extends Command {
                         embedBuilder.addField(stat.humanName, ChatColor.stripColor(value), false);
                     }
                 }
+
+                String textureUrl = FLUtils.getSkinUrl(flp);
+
+                if (textureUrl != null) {
+                    String headUrl = "https://minecraft-heads.com/scripts/3d-head.php?hrh=00&aa=true&headOnly=true&ratio=6&imageUrl=" +
+                        textureUrl.substring(textureUrl.lastIndexOf('/') + 1);
+                    embedBuilder.setThumbnail(headUrl);
+                }
+
+
                 ((DiscordSender) sender).getChannel().sendMessage(embedBuilder.build()).queue();
             } else {
                 sender.sendMessage(getFormattedStats(flp, isPersonal && sender instanceof Player));

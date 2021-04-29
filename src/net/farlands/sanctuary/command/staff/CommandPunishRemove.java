@@ -1,13 +1,13 @@
 package net.farlands.sanctuary.command.staff;
 
-import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
-import net.minecraft.server.v1_16_R3.Tuple;
+import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.mechanic.Chat;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -75,7 +75,12 @@ public class CommandPunishRemove extends Command {
             }
             if (flp.removePunishment(pt)) {
                 sendFormatted(sender, "&(gold)Removed punishment {&(aqua)%0} from {&(aqua)%1}'s record.",
-                        Utils.formattedName(pt), flp.username);
+                    Utils.formattedName(pt), flp.username
+                );
+
+                FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK,
+                    Chat.applyDiscordFilters(sender.getName()) + " removed the punishment " + Utils.formattedName(pt) +
+                        " from " + Chat.applyDiscordFilters(flp.username));
             } else {
                 sendFormatted(sender, "&(red)This player does not have that punishment on record.");
             }

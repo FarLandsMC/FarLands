@@ -35,6 +35,7 @@ public class AntiCheat extends Mechanic {
     private static int     lastAlertCount   = 0;
 
     private static final long ALERT_RESET_DELAY = 5 * 60L; // Max seconds between alerts to stack messages
+    private static final int MAX_ALERT_STACK = 5; // Max amount that alerts can stack to before sending a new message
 
     public AntiCheat() {
         this.xray = new HashMap<>();
@@ -119,7 +120,7 @@ public class AntiCheat extends Mechanic {
             long messageDelay = lastAlertMessage.isEdited() ?
                 OffsetDateTime.now().toEpochSecond() - lastAlertMessage.getTimeEdited().toEpochSecond() :
                 OffsetDateTime.now().toEpochSecond() - lastAlertMessage.getTimeCreated().toEpochSecond();
-            if (messageDelay < ALERT_RESET_DELAY) {
+            if (messageDelay < ALERT_RESET_DELAY && lastAlertCount < MAX_ALERT_STACK) {
                 lastAlertMessage.editMessage(
                     Chat.applyDiscordFilters(alertText) +
                         " (x" + (++lastAlertCount) + ")"

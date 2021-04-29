@@ -6,16 +6,15 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.kicas.rp.util.Pair;
-
 import net.farlands.sanctuary.FarLands;
-
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.minecraft.server.v1_16_R3.*;
-
-import org.bukkit.*;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
@@ -31,9 +30,11 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -48,6 +49,24 @@ public final class FLUtils {
     public static final double DEGREES_TO_RADIANS = Math.PI / 180;
 
     private FLUtils() { }
+
+    public static String getSkinUrl(OfflineFLPlayer flp) {
+        try {
+            URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + flp.uuid);
+            InputStreamReader reader = new InputStreamReader(url.openStream());
+            JsonObject textureProperty = new JsonParser().parse(reader).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
+            return new JsonParser().parse(
+                new String(Base64.getDecoder()
+                    .decode(textureProperty.get("value").getAsString())
+                )
+            ).getAsJsonObject()
+                .get("textures").getAsJsonObject()
+                .get("SKIN").getAsJsonObject()
+                .get("url").getAsString();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
     public static boolean isPersistent(Entity entity) {
         net.minecraft.server.v1_16_R3.Entity handle = ((CraftEntity) entity).getHandle();

@@ -76,6 +76,9 @@ public class GeneralMechanics extends Mechanic {
     private List<UUID> leashedEntities;
     private BukkitTask nightSkipTask;
 
+    // Recently punished players (since server restart)
+    public static final List<OfflineFLPlayer> recentlyPunished = new ArrayList<>();
+
     public GeneralMechanics() {
         this.fireworkLaunches = new HashMap<>();
         this.joinMessage = new BaseComponent[0];

@@ -1,8 +1,10 @@
 package net.farlands.sanctuary.discord;
 
 import com.kicas.rp.util.TextUtils;
-
-import net.dv8tion.jda.api.*;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -10,20 +12,17 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.PluginData;
-import net.farlands.sanctuary.data.struct.Proposal;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.data.struct.Proposal;
 import net.farlands.sanctuary.discord.markdown.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.Logging;
-
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -271,30 +270,38 @@ public class DiscordHandler extends ListenerAdapter {
                     "too long so it was shortened for in-game chat.");
         }
 
+        String prefix = "";
         Message refMessage = event.getMessage().getReferencedMessage();
-        if(event.getMessage().getType() == MessageType.INLINE_REPLY && refMessage != null){
+        if (event.getMessage().getType() == MessageType.INLINE_REPLY && refMessage != null) {
             String hoverText = refMessage.getContentDisplay();
-            hoverText = hoverText.replace(",", "\\,");
+            if(hoverText.length() > 60) { // Limit to 60 chars to prevent issues in chat
+                hoverText = hoverText.substring(0, 60) + "...";
+            }
+            hoverText = hoverText.replaceAll(",", "");
             hoverText = TextUtils.escapeExpression(Chat.removeColorCodes(hoverText));
 
-            OfflineFLPlayer refFlp = FarLands.getDataHandler().getOfflineFLPlayer(
-                new DiscordSender(refMessage.getMember(), event.getChannel())
-            );
+            OfflineFLPlayer refFlp = FarLands.getDataHandler().getOfflineFLPlayer(refMessage.getAuthor().getIdLong());
 
-            String prefix;
-            if (refMessage.getAuthor().isBot() || refFlp == null) {
-                prefix = "$(white)" + refMessage.getAuthor().getName();
+
+            String pf;
+            if (refMessage.getAuthor().isBot()) {
+                pf = "&(white)";
+            } else if (refFlp == null) {
+                pf = "&(white)" + refMessage.getAuthor().getName() + ": ";
             } else {
-                prefix = "&(" + (refFlp.rank.isStaff() ? "bold," : "") +
+                pf = "&(" + (refFlp.rank.isStaff() ? "bold," : "") +
                     refFlp.rank.getColor().getName() + ")" +
                     refFlp.rank.getName() + "&(!bold) " +
                     refFlp.username + ":&(white) ";
             }
 
-            hoverText = prefix + hoverText;
+            hoverText = pf + hoverText;
 
-            message = "$(hover," + hoverText + ",{&(gray,bold)[Reply]}) " + message.replace("\\", "");
+            prefix = "$(hover," + hoverText + ",{&(gray,bold)[Reply]}) ";
         }
+        message = MarkdownProcessor.markdownToMC(message);
+        message = prefix + message;
+        message = message.replaceAll("\\\\", ""); // Replace single \s
 
         if (!event.getMessage().getAttachments().isEmpty()) {
             if (message.isEmpty())
@@ -306,7 +313,7 @@ public class DiscordHandler extends ListenerAdapter {
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
 
         final String fmessage = Chat.atPlayer(
-            Chat.limitFlood(Chat.limitCaps(MarkdownProcessor.markdownToMC(message))), sender.getFlp().uuid,
+            Chat.limitFlood(Chat.limitCaps(message)), sender.getFlp().uuid,
             channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() != event.getChannel().getIdLong()
         );
 
@@ -376,14 +383,5 @@ public class DiscordHandler extends ListenerAdapter {
                 );
             }
         }
-    }
-
-    public static String cleanUp(String string){
-        string = string.replaceAll("@", "@ ");
-        string = string.replaceAll("\\*", "\\*");
-        string = string.replaceAll("_", "\\_");
-        string = string.replaceAll("~", "\\~");
-        string = string.replaceAll("\\|", "\\|");
-        return string;
     }
 }
