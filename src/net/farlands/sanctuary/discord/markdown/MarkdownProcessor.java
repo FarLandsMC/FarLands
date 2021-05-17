@@ -1,26 +1,25 @@
 package net.farlands.sanctuary.discord.markdown;
 
+import com.google.common.collect.ImmutableMap;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class MarkdownProcessor {
     private static final CharacterProtector HTML_PROTECTOR = new CharacterProtector();
     private static final CharacterProtector CHAR_PROTECTOR = new CharacterProtector();
-    public static final Map<ChatColor, String> CHATCOLOR_MARKDOWN = new HashMap<>();
-
-    static {
-        CHATCOLOR_MARKDOWN.put(ChatColor.BOLD, "**");
-        CHATCOLOR_MARKDOWN.put(ChatColor.ITALIC, "*");
-        CHATCOLOR_MARKDOWN.put(ChatColor.UNDERLINE, "__");
-        CHATCOLOR_MARKDOWN.put(ChatColor.STRIKETHROUGH, "~~");
-    }
+    public static final Map<ChatColor, String> CHATCOLOR_MARKDOWN = (new ImmutableMap.Builder<ChatColor, String>())
+        .put(ChatColor.BOLD, "**")
+        .put(ChatColor.ITALIC, "*")
+        .put(ChatColor.UNDERLINE, "__")
+        .put(ChatColor.STRIKETHROUGH, "~~")
+        .build();
 
     /**
-     * Perform the conversion from Minecraft's formatting to Markdown
-     * @param text The formatted text to convert
-     * @return     The converted markdown
+     * Perform the conversion from Minecraft's formatting to Discord's Markdown
+     * @param text  The formatted text to convert
+     * @param start The index to start parsing from
+     * @return      The converted markdown
      */
     public static String mcToMarkdown(String text, int start) {
         if (start >= text.length()) {
@@ -61,23 +60,24 @@ public class MarkdownProcessor {
             }
 
         }
+        outText.append(skipNext ? "" : text.charAt(text.length() - 1));
         for (int j = usedColors.size() - 1; j >= 0; j--) {
             outText.append(CHATCOLOR_MARKDOWN.get(usedColors.get(j)));
         }
 
-        return text.substring(0, start) + outText.toString() + (skipNext ? "" : text.charAt(text.length()-1));
+        return text.substring(0, start) + outText;
     }
 
     /**
-     * Perform the conversion from Markdown to Minecraft's formatting.
+     * Perform the conversion from Discord's Markdown to Minecraft's formatting.
      *
      * <ul>
      * Currently Handles:
-     *     <li>**txt** -> Bold</li>
-     *     <li>__txt__ -> Underline</li>
-     *     <li>*txt* and _txt_ -> Italics</li>
-     *     <li>~~txt~~ -> Strikethrough</li>
-     *     <li>`txt` -> In-Line Code</li>
+     *     <li>**txt** -> <b>Bold</b></li>
+     *     <li>__txt__ -> <un>Underline</un></li>
+     *     <li>*txt* and _txt_ -> <i>Italics</i></li>
+     *     <li>~~txt~~ -> <span style="text-decoration: line-through">Strikethrough</span></li>
+     *     <li>`txt` -> <code>In-Line Code</code></li>
      *     <li>||txt|| -> Spoiler</li>
      * </ul>
      *

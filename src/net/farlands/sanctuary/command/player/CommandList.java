@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -9,7 +7,6 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 import org.bukkit.Bukkit;
@@ -17,7 +14,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandList extends Command {
     public CommandList() {
@@ -31,19 +33,29 @@ public class CommandList extends Command {
                         FarLands.getFLConfig().discordBotConfig.channels.get(DiscordChannel.STAFF_COMMANDS)
                 : Rank.getRank(sender).isStaff();
 
-        Map<Rank, List<String>> players = new HashMap<>(), staff = new HashMap<>(), bucket;
-        int total = 0, overworld = 0, nether = 0, end = 0;
+        Map<Rank, List<String>>
+            players = new HashMap<>(),
+            staff = new HashMap<>(),
+            bucket;
+
+        int total = 0,
+            staffTotal = 0,
+            overworld = 0,
+            nether = 0,
+            end = 0;
         boolean listHasVanishedPlayer = false;
         OfflineFLPlayer flp;
         for (Player player : Bukkit.getOnlinePlayers()) {
             flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
 
-            if (!flp.rank.isStaff() && !flp.vanished)
+            if (!flp.rank.isStaff() && !flp.vanished) {
                 bucket = players;
-            else if (flp.rank.isStaff() && (!flp.vanished || showVanished))
+            } else if (flp.rank.isStaff() && (!flp.vanished || showVanished)) {
                 bucket = staff;
-            else
+                ++staffTotal;
+            } else {
                 continue;
+            }
 
             String name = flp.username;
             if (flp.vanished) {
@@ -106,7 +118,7 @@ public class CommandList extends Command {
 
             if (!staff.isEmpty()) {
                 if (!players.isEmpty())
-                    eb.addField("— Staff —", staff.keySet().size() + " Staff Member" +
+                    eb.addField("— Staff —", staffTotal + " Staff Member" +
                             (staff.keySet().size() == 1 ? "" : "s")
                             + " Online", false);
 

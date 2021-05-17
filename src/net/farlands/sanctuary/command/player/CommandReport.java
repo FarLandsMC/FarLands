@@ -45,9 +45,9 @@ public class CommandReport extends Command {
         else {
             Location l = ((Player) sender).getLocation();
             tpCmd = "/tl "+
-                Math.floor(l.getX()) + 0.5 + " " +
+                (l.getBlockX() + 0.5) + " " +
                 (int) l.getY() + " " +
-                Math.floor(l.getZ()) + 0.5 + " " +
+                (l.getBlockZ() + 0.5) + " " +
                 (int) l.getYaw() + " " +
                 (int) l.getPitch() + " " +
                 l.getWorld().getName();

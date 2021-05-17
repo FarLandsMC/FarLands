@@ -478,7 +478,8 @@ public class OfflineFLPlayer {
         if (player != null) { // If the player is online, notify
             sendFormatted(player,
                 "&(gold){&(aqua)%0} has sent you a home: {&(aqua)%1}%2" +
-                    "\nYou can accept it with ${hovercmd,/sharehome accept %0,&(aqua)Click to Run,&(aqua)/sharehome accept %0}.",
+                    "\nYou can accept it with ${hovercmd,/sharehome accept %0,&(aqua)Click to Run,&(aqua)/sharehome accept %0} " +
+                    "and decline with ${hovercmd,/sharehome decline %0,&(aqua)Click to Run,&(aqua)/sharehome decline %0}",
                 sender,
                 shareHome.home.getName(),
                 shareHome.message == null ? "" : "\nMessage: {&(aqua)%3}",

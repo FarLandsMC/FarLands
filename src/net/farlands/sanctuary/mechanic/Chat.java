@@ -331,7 +331,7 @@ public class Chat extends Mechanic {
     // Pattern matching funny's need for 3 char hex
     private static final Pattern HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
 
-    private static String colorize(String string) {
+    public static String colorize(String string) {
         // Do 6 char first since the 3 char pattern will also match 6 char occurrences
         StringBuffer sb6 = new StringBuffer();
         Matcher matcher6 = HEX_COLOR_PATTERN_SIX.matcher(string);

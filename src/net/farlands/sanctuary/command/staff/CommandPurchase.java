@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.staff;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -55,7 +56,16 @@ public class CommandPurchase extends Command {
             commandCooldowns.put(flp.uuid, System.currentTimeMillis());
 
         Logging.broadcastFormatted("&(gold){&(aqua)%0} just donated to the server! Consider donating $(link,%1,{&(aqua,underline)here}).",
-                true, flp.username, FarLands.getFLConfig().donationLink);
+                false, flp.username, FarLands.getFLConfig().donationLink);
+
+        FarLands.getDiscordHandler().sendMessageEmbed(
+            DiscordChannel.IN_GAME,
+            new EmbedBuilder()
+                .setTitle(
+                    flp.username + " just donated to the sever! Consider donating here.",
+                    FarLands.getFLConfig().donationLink
+                )
+        );
 
         Rank rank = FLUtils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
         double price = args.length >= 4 ? Double.parseDouble(args[3]) : 0;

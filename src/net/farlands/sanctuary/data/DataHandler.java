@@ -3,22 +3,21 @@ package net.farlands.sanctuary.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.data.struct.Package;
+import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FileSystem;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.FLUtils;
-
+import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_16_R3.NBTCompressedStreamTools;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import net.minecraft.server.v1_16_R3.NBTTagList;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -161,9 +160,37 @@ public class DataHandler extends Mechanic {
             DataHandler dh = FarLands.getDataHandler();
             if (dh.arePatchnotesDifferent()) {
                 try {
-                    FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.ANNOUNCEMENTS, "Patch **#" + dh.getCurrentPatch() +
-                            "** has been released!\n```" + Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"),
-                            StandardCharsets.UTF_8)) + "```");
+                    String patchNotes = Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"), StandardCharsets.UTF_8));
+                    String[] lines = patchNotes.split("\n");
+
+                    String currentSection = "\u200B"; // Default to 0-width space if no section name provided
+                    Map<String, List<String>> sections = new HashMap<>(); // Store the sections
+                    List<String> sectionsList = new ArrayList<>(); // This is to keep the sections in order
+
+                    for (String line : lines) { // break it apart to find each section
+                        if (line.matches("^[\\w\\d .,]+:$")) { // Match `Name:`
+                            currentSection = line.replaceAll(":$", "");
+                            sectionsList.add(currentSection);
+                        } else {
+                            sections.putIfAbsent(currentSection, new ArrayList<>());
+                            sections.get(currentSection).add(line);
+                        }
+                    }
+
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setTitle("Patch Notes")
+                        .setDescription("Patch **#" + dh.getCurrentPatch() + "** has been released!")
+                        .setColor(ChatColor.GOLD.getColor());
+
+                    sectionsList.forEach(s -> {
+                        String v = String.join("\n", sections.get(s));
+                        if (v.length() >= 1018) {
+                            v = v.substring(0, 1014) + "...";
+                        }
+                        eb.addField(s, "```" + v + "```", false);
+                    });
+
+                    FarLands.getDiscordHandler().sendMessageEmbed(DiscordChannel.ANNOUNCEMENTS, eb);
                     flPlayerMap.values().forEach(flp -> flp.viewedPatchnotes = false);
                 } catch (IOException ex) {
                     Logging.error("Failed to post patch notes to #announcements");

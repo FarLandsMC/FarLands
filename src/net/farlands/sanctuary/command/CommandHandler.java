@@ -222,7 +222,7 @@ public class CommandHandler extends Mechanic {
         String rawStringCommand = message.getContentDisplay();
 
         // Notify staff
-        Logging.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + rawStringCommand);
+        Logging.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + Chat.colorize(rawStringCommand));
 
         // Parse out the command name
         String commandName = rawStringCommand.substring(
@@ -397,7 +397,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))))
-            Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + fullCommand);
+            Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
         if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
                 !COMMAND_LOG_BLACKLIST.contains(command.toLowerCase()))
             FarLands.getDiscordHandler().sendMessage(
@@ -432,7 +432,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if(!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))) || sender instanceof BlockCommandSender))
-            Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + fullCommand);
+            Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
         if(c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
