@@ -11,8 +11,8 @@ import net.farlands.sanctuary.util.ReflectionHelper;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPig;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPig;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -54,9 +54,14 @@ public class CommandSit extends PlayerCommand {
         seat.setAI(false);
         seat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
         seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,         Integer.MAX_VALUE, 1));
-        ReflectionHelper.setFieldValue("vehicle", net.minecraft.server.v1_16_R3.Entity.class,
-                ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
-        ((CraftPig) seat).getHandle().passengers.add(((CraftPlayer) sender).getHandle());
+
+        // Throws error
+        //ReflectionHelper.setFieldValue("au", net.minecraft.world.entity.Entity.class,  // vehicle field is now au
+        //        ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
+
+        // Seems to work?
+        ((CraftPlayer) sender).getHandle().a(((CraftPig) seat).getHandle(), true);
+        ((CraftPig) seat).setPassenger(sender);
 
         return true;
     }

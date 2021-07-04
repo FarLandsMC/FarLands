@@ -4,7 +4,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.ReflectionHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
@@ -168,6 +168,6 @@ public class GuiVillagerEditor extends Gui {
         // Now, since spigot is dumb, it ignores the rewardExp flag in the MerchantRecipe object, so we have to set it manually
         villager.getHandle().setSilent(true);
         villager.getHandle().getOffers().forEach(recipe -> ReflectionHelper.setFieldValue("rewardExp",
-                net.minecraft.server.v1_16_R3.MerchantRecipe.class, recipe, false));
+                net.minecraft.world.item.trading.MerchantRecipe.class, recipe, false));
     }
 }

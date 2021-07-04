@@ -19,10 +19,10 @@ import net.farlands.sanctuary.util.FLUtils;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
+import net.minecraft.nbt.NBTTagCompound;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -398,8 +398,8 @@ public class Chat extends Mechanic {
         meta.setDisplayName(Chat.colorize(name));
         item.setItemMeta(meta);
 
-        net.minecraft.server.v1_16_R3.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(item);
-        net.minecraft.server.v1_16_R3.NBTTagCompound compound = new NBTTagCompound();
+        net.minecraft.world.item.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(item);
+        net.minecraft.nbt.NBTTagCompound compound = new NBTTagCompound();
         compound = nmsItemStack.save(compound);
         String json = compound.toString(); // standard object
 

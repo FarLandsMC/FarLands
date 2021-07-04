@@ -29,8 +29,9 @@ import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 
-import net.minecraft.server.v1_16_R3.*;
-
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.npc.EntityVillager;
+import net.minecraft.world.entity.npc.EntityVillagerAbstract;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.Material;
@@ -39,8 +40,8 @@ import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -356,7 +357,7 @@ public class GeneralMechanics extends Mechanic {
             }
         } else if (FarLands.getDataHandler().getPluginData().isSpawnTrader(event.getRightClicked().getUniqueId())) {
             event.setCancelled(true);
-            EntityVillager handle = ((CraftVillager) event.getRightClicked()).getHandle(), duplicate = new EntityVillager(EntityTypes.VILLAGER, handle.world);
+            EntityVillager handle = ((CraftVillager) event.getRightClicked()).getHandle(), duplicate = new EntityVillager(EntityTypes.aV, handle.getWorld());
             duplicate.setPosition(0.0, 0.0, 0.0);
             duplicate.setCustomName(handle.getCustomName());
             duplicate.setVillagerData(handle.getVillagerData());

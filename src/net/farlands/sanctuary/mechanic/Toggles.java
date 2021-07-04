@@ -18,13 +18,18 @@ import net.farlands.sanctuary.util.ReflectionHelper;
 
 import net.md_5.bungee.api.ChatMessageType;
 
-import net.minecraft.server.v1_16_R3.*;
-
+import net.minecraft.advancements.Advancement;
+import net.minecraft.network.chat.ChatComponentText;
+import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo;
+import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
+import net.minecraft.network.protocol.status.ServerPing;
+import net.minecraft.world.level.EnumGamemode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_16_R3.advancement.CraftAdvancement;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.advancement.CraftAdvancement;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -70,13 +75,14 @@ public class Toggles extends Mechanic {
                 PacketPlayOutPlayerInfo packet = (PacketPlayOutPlayerInfo) event.getPacket().getHandle();
                 PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper
                         .getFieldValue("a", packet.getClass(), packet);
-                if ((PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_GAME_MODE.equals(action) ||
-                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER.equals(action)) &&
+                if ((PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b.equals(action) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
+                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a.equals(action)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
                         !Rank.getRank(event.getPlayer()).isStaff()) {
                     List infoList = (List) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
                     for (Object infoData : infoList) {
-                        if (EnumGamemode.SPECTATOR == ReflectionHelper.invoke("c", infoData.getClass(), infoData)) {
-                            ReflectionHelper.setFieldValue("c", infoData.getClass(), infoData, EnumGamemode.SURVIVAL);
+                        // EnumGamemode.d = spectator and EnumGamemode.a = survival
+                        if (EnumGamemode.d == ReflectionHelper.invoke("c", infoData.getClass(), infoData)) {
+                            ReflectionHelper.setFieldValue("c", infoData.getClass(), infoData, EnumGamemode.a);
                         }
                     }
                 }
@@ -89,7 +95,7 @@ public class Toggles extends Mechanic {
                 PacketStatusOutServerInfo packet = (PacketStatusOutServerInfo) event.getPacket().getHandle();
                 ServerPing ping = (ServerPing) ReflectionHelper.getFieldValue("b", PacketStatusOutServerInfo.class, packet);
                 ServerPing.ServerPingPlayerSample playerSample = (ServerPing.ServerPingPlayerSample)
-                        ReflectionHelper.getFieldValue("b", ServerPing.class, ping);
+                        ReflectionHelper.getFieldValue("d", ServerPing.class, ping);
                 ReflectionHelper.setFieldValue("b", ServerPing.ServerPingPlayerSample.class, playerSample,
                         (int) Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getOfflineFLPlayer)
                                 .filter(flp -> !flp.vanished).count());
@@ -222,8 +228,8 @@ public class Toggles extends Mechanic {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             if (GameMode.SPECTATOR == player.getGameMode()) {
                 Bukkit.getOnlinePlayers().stream().filter(p -> Rank.getRank(p).isStaff()).forEach(p ->
-                    ((CraftPlayer)p).getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(
-                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_GAME_MODE, ((CraftPlayer)player).getHandle()
+                    ((CraftPlayer)p).getHandle().b.sendPacket(new PacketPlayOutPlayerInfo(
+                        PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b, ((CraftPlayer)player).getHandle()
                     ))
                 );
             }
