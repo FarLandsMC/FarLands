@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.PacketEvent;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import com.comphenix.protocol.wrappers.WrappedServerPing;
 import com.mojang.authlib.GameProfile;
 
 import net.farlands.sanctuary.FarLands;
@@ -89,17 +90,13 @@ public class Toggles extends Mechanic {
             }
         });
 
+        // Set the amount of online players to exclude vanished staff
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Status.Server.SERVER_INFO) {
             @Override
             public void onPacketSending(PacketEvent event) {
-                PacketStatusOutServerInfo packet = (PacketStatusOutServerInfo) event.getPacket().getHandle();
-                ServerPing ping = (ServerPing) ReflectionHelper.getFieldValue("b", PacketStatusOutServerInfo.class, packet);
-                ServerPing.ServerPingPlayerSample playerSample = (ServerPing.ServerPingPlayerSample)
-                        ReflectionHelper.getFieldValue("d", ServerPing.class, ping);
-                ReflectionHelper.setFieldValue("b", ServerPing.ServerPingPlayerSample.class, playerSample,
-                        (int) Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getOfflineFLPlayer)
-                                .filter(flp -> !flp.vanished).count());
-                ReflectionHelper.setFieldValue("c", ServerPing.ServerPingPlayerSample.class, playerSample, new GameProfile[0]);
+                WrappedServerPing ping = event.getPacket().getServerPings().read(0);
+                ping.setPlayersOnline((int) Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getOfflineFLPlayer)
+                    .filter(flp -> !flp.vanished).count());
             }
         });
     }
