@@ -8,14 +8,13 @@ import com.comphenix.protocol.events.PacketEvent;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import com.comphenix.protocol.wrappers.WrappedServerPing;
-import com.mojang.authlib.GameProfile;
 
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.ReflectionHelper;
 
 import net.md_5.bungee.api.ChatMessageType;
 
@@ -23,8 +22,6 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.network.chat.ChatComponentText;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo;
-import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
-import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.world.level.EnumGamemode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -72,6 +69,7 @@ public class Toggles extends Mechanic {
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Play.Server.PLAYER_INFO) {
             @Override
+            @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
                 PacketPlayOutPlayerInfo packet = (PacketPlayOutPlayerInfo) event.getPacket().getHandle();
                 PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper
@@ -79,11 +77,18 @@ public class Toggles extends Mechanic {
                 if ((PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b.equals(action) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
                         PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a.equals(action)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
                         !Rank.getRank(event.getPlayer()).isStaff()) {
-                    List infoList = (List) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
-                    for (Object infoData : infoList) {
-                        // EnumGamemode.d = spectator and EnumGamemode.a = survival
-                        if (EnumGamemode.d == ReflectionHelper.invoke("c", infoData.getClass(), infoData)) {
-                            ReflectionHelper.setFieldValue("c", infoData.getClass(), infoData, EnumGamemode.a);
+                    List<PacketPlayOutPlayerInfo.PlayerInfoData> infoList = (List<PacketPlayOutPlayerInfo.PlayerInfoData>) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
+                    for (int i = 0; i < infoList.size(); ++i) {
+                        PacketPlayOutPlayerInfo.PlayerInfoData currentInfoData = infoList.get(i);
+                        if (EnumGamemode.d == currentInfoData.c()) {
+                            // EnumGamemode.d = spectator and EnumGamemode.a = survival
+                            PacketPlayOutPlayerInfo.PlayerInfoData newInfoData = new PacketPlayOutPlayerInfo.PlayerInfoData(
+                                    currentInfoData.a(),
+                                    currentInfoData.b(),
+                                    EnumGamemode.a,
+                                    currentInfoData.d()
+                            );
+                            infoList.set(i, newInfoData);
                         }
                     }
                 }

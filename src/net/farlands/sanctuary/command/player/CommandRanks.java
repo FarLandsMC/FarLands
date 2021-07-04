@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.command.player;
 
+import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -8,7 +9,6 @@ import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.TimeInterval;
 
 import org.bukkit.ChatColor;

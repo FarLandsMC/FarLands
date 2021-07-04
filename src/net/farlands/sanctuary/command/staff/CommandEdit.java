@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableMap;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.Location;
@@ -216,7 +216,7 @@ public class CommandEdit extends Command {
             Object val = parseValue(value, f.getType());
             if (val == null && !"null".equals(value))
                 return null;
-            ReflectionHelper.setFieldValue(f, target, val);
+            ReflectionHelper.setNonFinalFieldValue(f, target, val);
             return val == null ? new Object() : val; // Never returns null unless something went wrong
         }
     }
@@ -224,7 +224,7 @@ public class CommandEdit extends Command {
     private static List<String> getFieldNames(String partialName, Object target) {
         return target == null
                 ? Collections.emptyList()
-                : Arrays.stream(ReflectionHelper.getFields(target.getClass())).filter(field -> !Modifier.isStatic(field.getModifiers()))
+                : Arrays.stream(target.getClass().getFields()).filter(field -> !Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
                 .map(Field::getName).filter(name -> name.startsWith(partialName)).collect(Collectors.toList());
     }
 

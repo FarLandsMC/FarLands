@@ -5,6 +5,7 @@ import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
 
+import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
 
 import net.farlands.sanctuary.FarLands;
@@ -23,7 +24,6 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
 import net.minecraft.commands.CommandDispatcher;

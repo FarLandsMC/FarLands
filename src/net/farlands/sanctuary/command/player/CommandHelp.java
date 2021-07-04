@@ -2,12 +2,12 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
+import com.kicas.rp.util.ReflectionHelper;
 import com.kicas.rp.util.TextUtils;
 import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

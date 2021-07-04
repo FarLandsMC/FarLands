@@ -1,7 +1,7 @@
 package net.farlands.sanctuary.gui;
 
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
@@ -167,7 +167,7 @@ public class GuiVillagerEditor extends Gui {
 
         // Now, since spigot is dumb, it ignores the rewardExp flag in the MerchantRecipe object, so we have to set it manually
         villager.getHandle().setSilent(true);
-        villager.getHandle().getOffers().forEach(recipe -> ReflectionHelper.setFieldValue("rewardExp",
+        villager.getHandle().getOffers().forEach(recipe -> ReflectionHelper.setNonFinalFieldValue("f",
                 net.minecraft.world.item.trading.MerchantRecipe.class, recipe, false));
     }
 }

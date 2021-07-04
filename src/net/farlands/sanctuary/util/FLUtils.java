@@ -9,6 +9,7 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kicas.rp.util.Pair;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,6 +35,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -113,11 +115,18 @@ public final class FLUtils {
 
     public static MerchantRecipeList copyRecipeList(MerchantRecipeList list) {
         MerchantRecipeList copy = new MerchantRecipeList();
-        Field[] fields = MerchantRecipe.class.getFields();
         list.forEach(recipe -> {
-            MerchantRecipe r = new MerchantRecipe(recipe.getBuyItem1(), recipe.getBuyItem2(), 1, 1, 1F);
-            for(Field f : fields)
-                ReflectionHelper.setFieldValue(f, r, ReflectionHelper.getFieldValue(f, recipe));
+            MerchantRecipe r = new MerchantRecipe(
+                    recipe.getBuyItem1(),
+                    recipe.getBuyItem2(),
+                    recipe.getSellingItem(),
+                    recipe.getUses(),
+                    recipe.getMaxUses(),
+                    recipe.getXp(),
+                    recipe.getPriceMultiplier(),
+                    recipe.getDemand()
+            );
+            ReflectionHelper.setNonFinalFieldValue("f", MerchantRecipe.class, r, ReflectionHelper.getFieldValue("f", Recipe.class, recipe));
             copy.add(r);
         });
         return copy;

@@ -7,7 +7,6 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.ReflectionHelper;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;

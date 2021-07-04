@@ -13,6 +13,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
+import com.kicas.rp.util.ReflectionHelper;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
@@ -23,7 +24,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.SkullCreator;
 import net.farlands.sanctuary.gui.GuiVillagerEditor;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
 import net.farlands.sanctuary.util.TimeInterval;
@@ -361,7 +361,7 @@ public class GeneralMechanics extends Mechanic {
             duplicate.setPosition(0.0, 0.0, 0.0);
             duplicate.setCustomName(handle.getCustomName());
             duplicate.setVillagerData(handle.getVillagerData());
-            ReflectionHelper.setFieldValue("trades", EntityVillagerAbstract.class, duplicate, FLUtils.copyRecipeList(handle.getOffers()));
+            ReflectionHelper.setNonFinalFieldValue("bT", EntityVillagerAbstract.class, duplicate, FLUtils.copyRecipeList(handle.getOffers()));
             event.getPlayer().openMerchant(new CraftVillager((CraftServer) Bukkit.getServer(), duplicate), true);
         } else if (ent instanceof Tameable) {
             Tameable pet = (Tameable) ent;
