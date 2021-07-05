@@ -78,6 +78,7 @@ public class FarLands extends JavaPlugin {
     public void onDisable() {
         scheduler.interrupt();
         discordHandler.setActive(false);
+        discordHandler.getNativeBot().shutdown();
     }
 
     public static void executeScript(String script, String... args) {
