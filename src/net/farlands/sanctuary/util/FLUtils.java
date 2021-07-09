@@ -81,14 +81,14 @@ public final class FLUtils {
     public static boolean isPersistent(Entity entity) {
         net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityInsentient)
-            return ((EntityInsentient) handle).bZ; // bZ = persistent field
+            return ((EntityInsentient) handle).ca; // ca = persistent field
         return false;
     }
 
     public static void setPersistent(Entity entity, boolean persistent) {
         net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityInsentient)
-            ((EntityInsentient) handle).bZ = persistent; // bZ = persistent field
+            ((EntityInsentient) handle).ca = persistent; // ca = persistent field
     }
 
     public static ChatModifier chatModifier(String color) {
