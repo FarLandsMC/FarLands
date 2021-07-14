@@ -60,7 +60,9 @@ public class FarLands extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
+        // TODO: reinstate seed
+        // farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
+        farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).generateStructures(true).createWorld();
         dataHandler.preStartup();
         Rank.createTeams();
         scheduler.start();

@@ -420,7 +420,8 @@ public class GeneralMechanics extends Mechanic {
     public void onFireworkExplode(FireworkExplodeEvent event) {
         if (fireworkLaunches.containsKey(event.getEntity().getUniqueId())) {
             Player player = fireworkLaunches.get(event.getEntity().getUniqueId());
-            if (player.isValid() && !"farlands".equals(player.getWorld().getName()))
+            // TODO: reinstate restriction for 1.18 update
+            if (player.isValid() /* && !"farlands".equals(player.getWorld().getName()) */)
                 player.setGliding(true);
         }
     }

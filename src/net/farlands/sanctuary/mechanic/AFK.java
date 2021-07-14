@@ -142,7 +142,8 @@ public class AFK extends Mechanic {
 
         session.afkCheckInitializerCooldown.reset(() -> {
             if (player.isOnline()) {
-                if ("farlands".equals(player.getWorld().getName()) || player.isGliding() || session.isInEvent) {
+                // TODO: reinstate AFK bypass after 1.18
+                if (/* "farlands".equals(player.getWorld().getName()) || */ player.isGliding() || session.isInEvent) {
                     setAFKCooldown(player);
                     return;
                 }
