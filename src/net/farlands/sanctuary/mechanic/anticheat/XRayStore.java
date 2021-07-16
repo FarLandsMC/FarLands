@@ -23,7 +23,7 @@ public class XRayStore {
     private static final List<BlockFace> SIDES = Arrays.asList(
         BlockFace.WEST, BlockFace.EAST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.DOWN, BlockFace.UP
     );
-    private static final List<Material> ORES;
+    public static final List<Material> ORES; // Used in /mined
 
     static {
         ORES = Materials.materialsEndingWith("_ORE");

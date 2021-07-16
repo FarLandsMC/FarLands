@@ -7,6 +7,7 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 
+import net.farlands.sanctuary.mechanic.anticheat.XRayStore;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandMined extends PlayerCommand {
     public CommandMined() {
@@ -29,8 +31,16 @@ public class CommandMined extends PlayerCommand {
         if (args.length == 1 || "preview".equals(args[1])) {
             FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
             session.allowCoRollback();
-            sender.chat("/co rollback u:" + args[0] + " r:50 b:redstone_ore,diamond_ore,iron_ore,emerald_ore,gold_ore," +
-                    "lapis_ore,coal_ore,ancient_debris,nether_gold_ore t:14d #preview");
+
+            // Includes stone variants, deepslate variants, nether gold ore, and ancient debris
+            sender.chat(
+                "/co rollback u:" + args[0] + " r:50 b:" +
+                    XRayStore.ORES.stream()
+                        .map(Enum::name)
+                        .map(String::toLowerCase)
+                        .collect(Collectors.joining(","))
+                + " t:14d #preview"
+            );
             session.resetCoRollback();
             sendFormatted(sender, "&(green)Type $(hovercmd,/co cancel,{&(gray)Cancel Preview},&(aqua)/co cancel) when done.");
         } else if ("rollback".equals(args[1])) {
