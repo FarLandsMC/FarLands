@@ -142,7 +142,8 @@ public class AFK extends Mechanic {
 
         session.afkCheckInitializerCooldown.reset(() -> {
             if (player.isOnline()) {
-                if ("farlands".equals(player.getWorld().getName()) || player.isGliding() || session.isInEvent) {
+                // TODO: reinstate AFK bypass after 1.18
+                if (/* "farlands".equals(player.getWorld().getName()) || */ player.isGliding() || session.isInEvent) {
                     setAFKCooldown(player);
                     return;
                 }
@@ -150,7 +151,7 @@ public class AFK extends Mechanic {
                 if (session.handle.rank.isStaff()) {
                     // Put the player into vanish
                     if (!session.handle.vanished) {
-                        FarLands.getCommandHandler().getCommand(CommandVanish.class).execute(session.player, null);
+                        FarLands.getCommandHandler().getCommand(CommandVanish.class).execute(session.player, new String[0]);
                         Logging.broadcastStaff(
                                 TextUtils.format("&(red)%0 has gone AFK and is now vanished.", session.handle.username),
                                 DiscordChannel.ALERTS

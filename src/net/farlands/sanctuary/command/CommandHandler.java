@@ -5,6 +5,7 @@ import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
 
+import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
 
 import net.farlands.sanctuary.FarLands;
@@ -23,18 +24,23 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.commands.CommandDispatcher;
+import net.minecraft.commands.CommandListenerWrapper;
+import net.minecraft.network.chat.ChatComponentText;
+import net.minecraft.server.MinecraftServer;
 
+import net.minecraft.world.level.World;
+import net.minecraft.world.phys.Vec2F;
+import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -272,11 +278,11 @@ public class CommandHandler extends Mechanic {
                     CommandListenerWrapper wrapper = new CommandListenerWrapper(
                             sender,
                             // Position
-                            server.getWorldServer(World.OVERWORLD) == null
-                                    ? Vec3D.ORIGIN
-                                    : Vec3D.b(server.getWorldServer(World.OVERWORLD).getSpawn()),
-                            Vec2F.a, // Rotation
-                            server.getWorldServer(World.OVERWORLD), // World
+                            server.getWorldServer(World.f) == null
+                                    ? Vec3D.a
+                                    : Vec3D.b(server.getWorldServer(World.f).getSpawn()), // World.f = World.OVERWORLD
+                            Vec2F.a, // Rotation Vec2F.a = Vec2f.ORIGIN
+                            server.getWorldServer(World.f), // World
                             sender.isOp() ? 4 : 0, // Permission level
                             // Name (required twice apparently)
                             sender.getName(),

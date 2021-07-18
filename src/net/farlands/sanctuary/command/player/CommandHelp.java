@@ -2,12 +2,12 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
+import com.kicas.rp.util.ReflectionHelper;
 import com.kicas.rp.util.TextUtils;
 import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,7 +15,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 
 import java.util.*;
 import java.util.stream.Collectors;

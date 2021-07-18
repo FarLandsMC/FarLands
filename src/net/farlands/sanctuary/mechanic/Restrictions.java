@@ -15,6 +15,7 @@ import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
 
 import com.kicasmads.cs.event.ShopTransactionEvent;
+import net.coreprotect.CoreProtect;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.struct.Punishment;
@@ -203,8 +204,9 @@ public class Restrictions extends Mechanic {
         int sellAmount = event.getShop().getSellAmount();
         ItemStack sold = event.getShop().getSellItem();
 
-        Logging.log(player.getName() + " bought " + sellAmount + "x" + sold.getType() + " with " + buyAmount + "x" +
-                bought.getType());
+        CoreProtect.getInstance().getAPI().logContainerTransaction("[SHOP] " + player.getName(), event.getShop().getChestLocation());
+        Logging.log(player.getName() + " bought " + sellAmount + " " + sold.getType().toString().toLowerCase()
+                + " with " + buyAmount + " " + bought.getType().toString().toLowerCase());
     }
 
     @EventHandler(ignoreCancelled = true)

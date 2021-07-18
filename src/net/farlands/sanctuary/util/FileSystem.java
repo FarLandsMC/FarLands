@@ -2,6 +2,7 @@ package net.farlands.sanctuary.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 
 import java.io.*;
@@ -85,7 +86,7 @@ public final class FileSystem {
     public static String readUTF8(File file) throws IOException {
         if (!file.exists())
             return "";
-        return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+        return Files.readString(file.toPath());
     }
 
     public static <T> T loadJson(Class<T> clazz, File file) {

@@ -9,23 +9,33 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kicas.rp.util.Pair;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.minecraft.server.v1_16_R3.*;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.chat.ChatClickable;
+import net.minecraft.network.chat.ChatHexColor;
+import net.minecraft.network.chat.ChatHoverable;
+import net.minecraft.network.chat.ChatModifier;
+import net.minecraft.resources.MinecraftKey;
+import net.minecraft.world.entity.EntityInsentient;
+import net.minecraft.world.item.trading.MerchantRecipe;
+import net.minecraft.world.item.trading.MerchantRecipeList;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -69,16 +79,16 @@ public final class FLUtils {
     }
 
     public static boolean isPersistent(Entity entity) {
-        net.minecraft.server.v1_16_R3.Entity handle = ((CraftEntity) entity).getHandle();
+        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityInsentient)
-            return ((EntityInsentient) handle).persistent;
+            return ((EntityInsentient) handle).ca; // ca = persistent field
         return false;
     }
 
     public static void setPersistent(Entity entity, boolean persistent) {
-        net.minecraft.server.v1_16_R3.Entity handle = ((CraftEntity) entity).getHandle();
+        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityInsentient)
-            ((EntityInsentient) handle).persistent = persistent;
+            ((EntityInsentient) handle).ca = persistent; // ca = persistent field
     }
 
     public static ChatModifier chatModifier(String color) {
@@ -105,11 +115,18 @@ public final class FLUtils {
 
     public static MerchantRecipeList copyRecipeList(MerchantRecipeList list) {
         MerchantRecipeList copy = new MerchantRecipeList();
-        Field[] fields = MerchantRecipe.class.getFields();
         list.forEach(recipe -> {
-            MerchantRecipe r = new MerchantRecipe(recipe.getBuyItem1(), recipe.getBuyItem2(), 1, 1, 1F);
-            for(Field f : fields)
-                ReflectionHelper.setFieldValue(f, r, ReflectionHelper.getFieldValue(f, recipe));
+            MerchantRecipe r = new MerchantRecipe(
+                    recipe.getBuyItem1(),
+                    recipe.getBuyItem2(),
+                    recipe.getSellingItem(),
+                    recipe.getUses(),
+                    recipe.getMaxUses(),
+                    recipe.getXp(),
+                    recipe.getPriceMultiplier(),
+                    recipe.getDemand()
+            );
+            ReflectionHelper.setNonFinalFieldValue("f", MerchantRecipe.class, r, ReflectionHelper.getFieldValue("f", Recipe.class, recipe));
             copy.add(r);
         });
         return copy;
@@ -117,7 +134,7 @@ public final class FLUtils {
 
     public static double serverMspt() {
         long totalMspt = 0;
-        long[] mspts = ((CraftServer)Bukkit.getServer()).getServer().h;
+        long[] mspts = ((CraftServer)Bukkit.getServer()).getServer().n; // n = mspts field
         for(long v : mspts)
             totalMspt += v;
         return totalMspt / (mspts.length * 1000000.0);
@@ -288,7 +305,7 @@ public final class FLUtils {
     }
 
     public static ItemStack applyTag(NBTTagCompound nbt, ItemStack stack) {
-        net.minecraft.server.v1_16_R3.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
+        net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
         nmsStack.setTag(nbt);
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
@@ -382,7 +399,7 @@ public final class FLUtils {
 
     public static ItemStack itemStackFromNBT(NBTTagCompound nbt) {
         return nbt == null || nbt.isEmpty() ? null: CraftItemStack.asBukkitCopy(ReflectionHelper
-                .instantiate(net.minecraft.server.v1_16_R3.ItemStack.class, nbt));
+            .instantiate(net.minecraft.world.item.ItemStack.class, nbt));
     }
 
     public static NBTTagCompound itemStackToNBT(ItemStack stack) {

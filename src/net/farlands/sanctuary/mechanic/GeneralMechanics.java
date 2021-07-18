@@ -13,6 +13,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
+import com.kicas.rp.util.ReflectionHelper;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
@@ -23,14 +24,14 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.SkullCreator;
 import net.farlands.sanctuary.gui.GuiVillagerEditor;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.ReflectionHelper;
 import net.farlands.sanctuary.util.FLUtils;
 
 import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
 
-import net.minecraft.server.v1_16_R3.*;
-
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.npc.EntityVillager;
+import net.minecraft.world.entity.npc.EntityVillagerAbstract;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.Material;
@@ -39,8 +40,8 @@ import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -356,11 +357,11 @@ public class GeneralMechanics extends Mechanic {
             }
         } else if (FarLands.getDataHandler().getPluginData().isSpawnTrader(event.getRightClicked().getUniqueId())) {
             event.setCancelled(true);
-            EntityVillager handle = ((CraftVillager) event.getRightClicked()).getHandle(), duplicate = new EntityVillager(EntityTypes.VILLAGER, handle.world);
+            EntityVillager handle = ((CraftVillager) event.getRightClicked()).getHandle(), duplicate = new EntityVillager(EntityTypes.aV, handle.getWorld());
             duplicate.setPosition(0.0, 0.0, 0.0);
             duplicate.setCustomName(handle.getCustomName());
             duplicate.setVillagerData(handle.getVillagerData());
-            ReflectionHelper.setFieldValue("trades", EntityVillagerAbstract.class, duplicate, FLUtils.copyRecipeList(handle.getOffers()));
+            ReflectionHelper.setNonFinalFieldValue("bT", EntityVillagerAbstract.class, duplicate, FLUtils.copyRecipeList(handle.getOffers()));
             event.getPlayer().openMerchant(new CraftVillager((CraftServer) Bukkit.getServer(), duplicate), true);
         } else if (ent instanceof Tameable) {
             Tameable pet = (Tameable) ent;
@@ -419,7 +420,8 @@ public class GeneralMechanics extends Mechanic {
     public void onFireworkExplode(FireworkExplodeEvent event) {
         if (fireworkLaunches.containsKey(event.getEntity().getUniqueId())) {
             Player player = fireworkLaunches.get(event.getEntity().getUniqueId());
-            if (player.isValid() && !"farlands".equals(player.getWorld().getName()))
+            // TODO: reinstate restriction for 1.18 update
+            if (player.isValid() /* && !"farlands".equals(player.getWorld().getName()) */)
                 player.setGliding(true);
         }
     }

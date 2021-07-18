@@ -36,7 +36,11 @@ public class CommandSetHome extends PlayerCommand {
 
         // Check to make sure they're not setting a home in an off-limits dimension
         Location location = sender.getLocation();
-        if (!("world".equals(location.getWorld().getName()) || "world_nether".equals(location.getWorld().getName()))) {
+        if (!(
+                "world".equals(location.getWorld().getName()) ||
+                "world_nether".equals(location.getWorld().getName()) ||
+                "farlands".equals(location.getWorld().getName())
+        )) {
             sendFormatted(sender, "&(red)You can only set homes in the overworld and nether.");
             return true;
         }

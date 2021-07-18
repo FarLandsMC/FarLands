@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -44,7 +44,7 @@ public class CommandWhyLag extends Command {
                 sendFormatted(sender, "&(red)Could not find player {&(gray)%0} in game", args[1]);
                 return true;
             }
-            int ping = (craftPlayer).getHandle().ping;
+            int ping = (craftPlayer).getHandle().e; // EntityPlayer#e = EntityPlayer#ping
             sender.sendMessage(ChatColor.GOLD + (args.length > 1 ? craftPlayer.getName() + "'s " : "Your ") + "ping: " +
                     FLUtils.color(ping, PING_COLORING) + ping + "ms");
             return true;
@@ -56,7 +56,7 @@ public class CommandWhyLag extends Command {
         if ("tps".equals(args[0]))
             return true;
         if (sender instanceof Player) {
-            int ping = ((CraftPlayer) sender).getHandle().ping;
+            int ping = ((CraftPlayer) sender).getHandle().e;
             sender.sendMessage(ChatColor.GOLD + "Your ping: " + FLUtils.color(ping, PING_COLORING) + ping + "ms");
         }
         int flying = (int) Bukkit.getOnlinePlayers().stream().filter(Player::isGliding).count();

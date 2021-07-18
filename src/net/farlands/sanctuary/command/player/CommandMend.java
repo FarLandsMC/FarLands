@@ -6,12 +6,12 @@ import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
 
+import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -90,7 +90,7 @@ public class CommandMend extends PlayerCommand {
     private static int totalExp(Player player) {
         int level = player.getLevel();
         EntityPlayer handle = ((CraftPlayer) player).getHandle();
-        int points = (int) (handle.exp * handle.getExpToLevel());
+        int points = (int) (handle.ck * handle.getExpToLevel()); // EntityPlayer#ck = EntityPlayer#exp
 
         if (level <= 16)
             return level * level + 6 * level + points;

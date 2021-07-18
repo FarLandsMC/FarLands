@@ -1,19 +1,16 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.data.struct.Home;
-import net.minecraft.server.v1_16_R3.FoodMetaData;
+import net.minecraft.world.food.FoodMetaData;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -41,13 +38,13 @@ public class CommandEat extends PlayerCommand {
         int index = 0;
         Inventory inv = sender.getInventory();
         FoodMetaData foodData = ((CraftPlayer) sender).getHandle().getFoodData();
-        if (foodData.foodLevel >= 20) {
+        if (foodData.getFoodLevel() >= 20) { // getFoodLevel should work but the field is FoodMetaData#a for reference
             sendFormatted(sender, "&(green)You already have full hunger.");
             return true;
         }
 
         if (args.length == 1 && args[0].equalsIgnoreCase("hand")) {
-            while (foodData.foodLevel < 20) {
+            while (foodData.getFoodLevel() < 20) {
                 ItemStack food = sender.getInventory().getItemInMainHand();
                 int location = sender.getInventory().getHeldItemSlot();
                 // Try both hands
@@ -60,7 +57,7 @@ public class CommandEat extends PlayerCommand {
                     }
                 }
                 // Eat one of the item
-                net.minecraft.server.v1_16_R3.ItemStack copy = CraftItemStack.asNMSCopy(food);
+                net.minecraft.world.item.ItemStack copy = CraftItemStack.asNMSCopy(food);
                 foodData.a(copy.getItem(), copy);
 
                 // Use the item
@@ -71,7 +68,7 @@ public class CommandEat extends PlayerCommand {
                 hasEaten = true;
             }
         }
-        while (index < inv.getSize() && foodData.foodLevel < 20) {
+        while (index < inv.getSize() && foodData.getFoodLevel() < 20) {
             ItemStack stack = inv.getItem(index);
             if (stack == null || !stack.getType().isEdible() || BLACKLIST.contains(stack.getType())) {
                 ++index;
@@ -79,7 +76,7 @@ public class CommandEat extends PlayerCommand {
             }
 
             // Eat one of the item
-            net.minecraft.server.v1_16_R3.ItemStack copy = CraftItemStack.asNMSCopy(stack);
+            net.minecraft.world.item.ItemStack copy = CraftItemStack.asNMSCopy(stack);
             foodData.a(copy.getItem(), copy);
 
             // Use the item

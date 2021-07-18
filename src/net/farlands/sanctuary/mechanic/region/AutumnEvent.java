@@ -15,15 +15,15 @@ import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.FLUtils;
 
-import net.minecraft.server.v1_16_R3.Items;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.NBTTagList;
-import net.minecraft.server.v1_16_R3.NBTTagString;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -3037,7 +3037,8 @@ public class AutumnEvent extends Mechanic {
         properties.set("textures", textures);
         skullOwner.set("Properties", properties);
         tag.set("SkullOwner", skullOwner);
-        net.minecraft.server.v1_16_R3.ItemStack dropCB = new net.minecraft.server.v1_16_R3.ItemStack(Items.PLAYER_HEAD, 1);
+        // TODO: 7/3/21 This player head item needs to be tested. It may not be the right item
+        net.minecraft.world.item.ItemStack dropCB = new net.minecraft.world.item.ItemStack(Items.pg, 1);
         dropCB.setTag(tag);
         return CraftItemStack.asBukkitCopy(dropCB);
     }
