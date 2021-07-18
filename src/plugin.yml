@@ -1,4 +1,4 @@
-api-version: 1.16
+api-version: 1.17
 main: net.farlands.sanctuary.FarLands
 name: FarLands
 description: FarLands version 3 - Sanctuary
