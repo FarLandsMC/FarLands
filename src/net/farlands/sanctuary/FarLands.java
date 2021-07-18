@@ -79,8 +79,10 @@ public class FarLands extends JavaPlugin {
     @Override
     public void onDisable() {
         scheduler.interrupt();
+        if (discordHandler.isActive()) {
+            discordHandler.getNativeBot().shutdown();
+        }
         discordHandler.setActive(false);
-        discordHandler.getNativeBot().shutdown();
     }
 
     public static void executeScript(String script, String... args) {

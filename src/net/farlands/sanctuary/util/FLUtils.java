@@ -42,7 +42,6 @@ import org.bukkit.util.Vector;
 
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.security.MessageDigest;
@@ -81,7 +80,7 @@ public final class FLUtils {
     public static boolean isPersistent(Entity entity) {
         net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
         if (handle instanceof EntityInsentient)
-            return ((EntityInsentient) handle).ca; // ca = persistent field
+            return ((EntityInsentient) handle).isPersistent();
         return false;
     }
 
@@ -398,8 +397,7 @@ public final class FLUtils {
     }
 
     public static ItemStack itemStackFromNBT(NBTTagCompound nbt) {
-        return nbt == null || nbt.isEmpty() ? null: CraftItemStack.asBukkitCopy(ReflectionHelper
-            .instantiate(net.minecraft.world.item.ItemStack.class, nbt));
+        return nbt == null || nbt.isEmpty() ? null: CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.a(nbt));
     }
 
     public static NBTTagCompound itemStackToNBT(ItemStack stack) {
