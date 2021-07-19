@@ -40,11 +40,7 @@ public class CommandSpawn extends Command {
                 return true;
             }
 
-            Player player = flp.getOnlinePlayer();
-            if (player == null)
-                flp.lastLocation = spawn;
-            else
-                player.teleport(spawn.asLocation());
+            flp.moveToSpawn();
 
             sendFormatted(sender, "&(green)Moved player to spawn.");
         } else {

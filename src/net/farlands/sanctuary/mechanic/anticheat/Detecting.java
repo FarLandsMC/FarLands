@@ -9,21 +9,15 @@ import java.util.stream.Collectors;
 
 public enum Detecting {
 
-    ANCIENT_DEBRIS("world_nether", 128, ChatColor.LIGHT_PURPLE, Material.ANCIENT_DEBRIS),
-    DIAMOND(new String[]{"world", "farlands"}, 16, ChatColor.AQUA, Material.DIAMOND_ORE, Material.DEEPSLATE_DIAMOND_ORE),
-    EMERALD(new String[]{"world", "farlands"}, 32, ChatColor.GREEN, Material.EMERALD_ORE, Material.DEEPSLATE_EMERALD_ORE);
+    ANCIENT_DEBRIS (new String[]{"world_nether"},      128, ChatColor.LIGHT_PURPLE, Material.ANCIENT_DEBRIS),
+    DIAMOND        (new String[]{"world", "farlands"}, 16,  ChatColor.AQUA,         Material.DIAMOND_ORE, Material.DEEPSLATE_DIAMOND_ORE),
+    EMERALD        (new String[]{"world", "farlands"}, 32,  ChatColor.GREEN,        Material.EMERALD_ORE, Material.DEEPSLATE_EMERALD_ORE),
+    AMETHYST       (new String[]{"world", "farlands"}, 75,  ChatColor.DARK_PURPLE,  Material.AMETHYST_BLOCK, Material.CALCITE, Material.BUDDING_AMETHYST);
 
     String[]   worldNames;
     int        maxYSpawn;
     Material[] materials;
     ChatColor  color;
-
-    Detecting(String worldName, int maxYSpawn, ChatColor color, Material... materials) {
-        this.worldNames = new String[]{worldName};
-        this.maxYSpawn  = maxYSpawn;
-        this.color      = color;
-        this.materials  = materials;
-    }
 
     Detecting(String[] worldNames, int maxYSpawn, ChatColor color, Material... materials) {
         this.worldNames = worldNames;

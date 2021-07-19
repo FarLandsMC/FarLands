@@ -75,7 +75,7 @@ public class CommandSetHome extends PlayerCommand {
         }
 
         // Make sure the home name is valid
-        if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]))) {
+        if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]) || args[0].matches("[&$%]"))) {
             sendFormatted(sender, "&(red)You cannot set a home with that name.");
             return true;
         }

@@ -57,7 +57,10 @@ public class CommandStack extends PlayerCommand {
             new Material[] {COAL_BLOCK, COAL},
             new Material[] {EMERALD_BLOCK, EMERALD},
             new Material[] {GOLD_BLOCK, GOLD_INGOT, GOLD_NUGGET},
-            new Material[] {LAPIS_BLOCK, LAPIS_LAZULI}
+            new Material[] {LAPIS_BLOCK, LAPIS_LAZULI},
+            new Material[] {RAW_COPPER_BLOCK, RAW_COPPER},
+            new Material[] {RAW_IRON_BLOCK, RAW_IRON},
+            new Material[] {RAW_GOLD_BLOCK, RAW_GOLD}
     );
 
     private static final List<Material> ACCEPTED_CONTAINERS = new ArrayList<>();

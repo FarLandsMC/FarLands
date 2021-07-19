@@ -41,6 +41,7 @@ public class CommandList extends Command {
         int total = 0,
             staffTotal = 0,
             overworld = 0,
+            farlands = 0,
             nether = 0,
             end = 0;
         boolean listHasVanishedPlayer = false;
@@ -67,7 +68,10 @@ public class CommandList extends Command {
                 bucket.put(flp.rank, new ArrayList<>());
 
             switch (player.getWorld().getName()) {
-                case "farlands":
+                case "farlands": {
+                    ++farlands;
+                    break;
+                }
                 case "world": {
                     ++overworld;
                     break;
@@ -95,6 +99,8 @@ public class CommandList extends Command {
             List<String> embedDesc = new ArrayList<>();
             if (overworld > 0)
                 embedDesc.add("Overworld: " + overworld);
+            if (farlands > 0)
+                embedDesc.add("Pocket: " + farlands);
             if (nether > 0)
                 embedDesc.add("Nether: " + nether);
             if (end > 0)
@@ -152,12 +158,14 @@ public class CommandList extends Command {
                         .append(String.join(", ", staff.get(rank))).append('\n'));
             }
 
-            boolean applyColour = overworld > 0 || nether > 0 || end > 0;
+            boolean applyColour = overworld > 0 || nether > 0 || end > 0 || farlands > 0;
             if (applyColour)
                 sb.append(ChatColor.AQUA);
 
             if (overworld > 0)
                 sb.append("\nOverworld: ").append(overworld);
+            if (farlands > 0)
+                sb.append("\nPocket: ").append(farlands);
             if (nether > 0)
                 sb.append("\nNether: ").append(nether);
             if (end > 0)

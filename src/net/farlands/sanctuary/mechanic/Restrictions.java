@@ -214,27 +214,33 @@ public class Restrictions extends Mechanic {
         FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getCachedOwner().getId()).removeShop();
     }
 
-    @EventHandler(ignoreCancelled = true) // Prevent portals from forming in spawn
+    @EventHandler(ignoreCancelled = true)
     public void onPortalCreation(PortalCreateEvent event) {
-        if (PortalCreateEvent.CreateReason.NETHER_PAIR == event.getReason() && event.getBlocks().stream()
-                .map(block -> block.getBlock().getLocation()).anyMatch(FLUtils::isInSpawn)) {
-            event.setCancelled(true);
+        switch(event.getReason()) {
+            case NETHER_PAIR: // Prevent portals forming in spawn
+                if(event.getBlocks()
+                    .stream()
+                    .map(block -> block.getBlock().getLocation())
+                    .anyMatch(FLUtils::isInSpawn)
+                ) {
+                    event.setCancelled(true);
+                }
+            case FIRE: // Prevent portals forming in the pocket world
+                if(event.getWorld().getName().equals("farlands")) {
+                    event.setCancelled(true);
+                }
         }
     }
 
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
-        StringBuilder sb = new StringBuilder();
-        for (String line : event.getLines()) {
-            if (!line.isEmpty())
-                sb.append(line).append("\n").append(ChatColor.GRAY);
-        }
-        String text = sb.toString().trim();
-        if (!text.isEmpty()) {
-            Location location = event.getBlock().getLocation();
-            Logging.broadcastStaff(ChatColor.GRAY + event.getPlayer().getName() + " placed a sign at " +
-                    location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + ":\n" +
-                    text);
+        if(event.getLines().length > 0) {
+            Location loc = event.getBlock().getLocation();
+            Logging.broadcastStaff(
+                ChatColor.GRAY + event.getPlayer().getName() + " placed a sign at " +
+                    loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ":\n" +
+                    String.join("\n" + ChatColor.GRAY, event.getLines())
+            );
         }
     }
 

@@ -4,10 +4,9 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.command.player.CommandSpawn;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -29,22 +28,36 @@ public class CommandPartyReset extends Command {
 
     @Override
     protected boolean execute(CommandSender sender, String[] args) {
-
-        if (needsConfirm.contains(FarLands.getDataHandler().getOfflineFLPlayer(sender)) && args.length > 0
-                && args[0].equalsIgnoreCase("confirm")) {
+        int playersWithHomes = 0;
+        int removedHomes = 0;
+        int movedPlayers = 0;
+        if (
+            needsConfirm.contains(FarLands.getDataHandler().getOfflineFLPlayer(sender)) &&
+            args.length > 0 &&
+            args[0].equalsIgnoreCase("confirm")
+        ) {
             for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
                 // Remove all homes in the party world - this does work
-                flp.homes.stream().filter(home -> home.getLocation().getWorld().getName().equalsIgnoreCase("farlands"))
-                        .collect(Collectors.toList()).forEach(home -> flp.removeHome(home.getName()));
+                List<Home> partyHomes = flp.homes // Get all homes in party world
+                    .stream()
+                    .filter(home -> home.getLocation().getWorld().getName().equalsIgnoreCase("farlands"))
+                    .collect(Collectors.toList());
+
+                partyHomes.forEach(home -> flp.removeHome(home.getName())); // Remove the homes
+
+                if (partyHomes.size() > 0) ++playersWithHomes; // Add to the amount of players with changed homes
+                removedHomes += partyHomes.size(); // Add to the amount of removed homes
+
                 // Teleport them to spawn if needed
-                // TODO: 7/17/21 For some reason this isn't working. The player stays in the same place in my testing - Majek
                 if (flp.lastLocation.asLocation().getWorld().getName().equalsIgnoreCase("farlands")) {
-                    flp.lastLocation = FarLands.getDataHandler().getPluginData().spawn;
-                    Logging.error("location set to spawn for " + flp.nickname);
+                    flp.moveToSpawn();
+                    ++movedPlayers;
                 }
             }
             needsConfirm.remove(FarLands.getDataHandler().getOfflineFLPlayer(sender));
-            TextUtils.sendFormatted(sender, "&(green)1.17 world reset.");
+            TextUtils.sendFormatted(sender, "&(green)1.17 world reset. " +
+                "Removed %0 $(inflect,noun,0,home) from %1 $(inflect,noun,1,player) and " +
+                "moved %2 $(inflect,noun,2,player) to spawn.", removedHomes, playersWithHomes, movedPlayers);
         } else {
             TextUtils.sendFormatted(sender, "&(gold)Please confirm this command with {&(aqua)/partyreset confirm}.");
             needsConfirm.add(FarLands.getDataHandler().getOfflineFLPlayer(sender));

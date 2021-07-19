@@ -539,6 +539,15 @@ public class OfflineFLPlayer {
 
     }
 
+    public void moveToSpawn() {
+        LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
+        Player player = getOnlinePlayer();
+        if (player != null) // If the player is online, teleport them to spawn
+            player.teleport(spawn.asLocation());
+        else // Otherwise move their last location
+            lastLocation = spawn;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(uuid);
