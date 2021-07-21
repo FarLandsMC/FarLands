@@ -13,9 +13,10 @@ import com.kicas.rp.util.TextUtils;
 
 import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
-
 import com.kicasmads.cs.event.ShopTransactionEvent;
+
 import net.coreprotect.CoreProtect;
+
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.struct.Punishment;
@@ -307,11 +308,14 @@ public class Restrictions extends Mechanic {
 
     private void checkClaim(Player delegate, Region region, Cancellable event) {
         Location min = region.getMin(),
-                max = region.getMax();
+                 max = region.getMax();
+        final int NETHER_CLAIM_LIMIT = 15000;
         if (region.getWorld().getEnvironment() == World.Environment.NETHER &&
-                (Math.abs(min.getBlockX()) > 15000 || Math.abs(min.getBlockZ()) > 15000 ||
-                        Math.abs(max.getBlockX()) > 15000 || Math.abs(max.getBlockZ()) > 15000))
-        {
+                (
+                        Math.abs(min.getBlockX()) > NETHER_CLAIM_LIMIT || Math.abs(min.getBlockZ()) > NETHER_CLAIM_LIMIT ||
+                        Math.abs(max.getBlockX()) > NETHER_CLAIM_LIMIT || Math.abs(max.getBlockZ()) > NETHER_CLAIM_LIMIT
+                )
+        ) {
             if (delegate != null)
                 delegate.sendMessage(ChatColor.RED + "You cannot create a claim more than 15k blocks from 0,0.");
             event.setCancelled(true);
