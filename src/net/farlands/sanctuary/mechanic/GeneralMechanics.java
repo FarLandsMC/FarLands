@@ -24,10 +24,12 @@ import net.farlands.sanctuary.gui.GuiVillagerEditor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
+
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.EntityVillager;
 import net.minecraft.world.entity.npc.EntityVillagerAbstract;
+
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.block.Beehive;
@@ -408,10 +410,25 @@ public class GeneralMechanics extends Mechanic {
     // Send items from the end to the correct location
     @EventHandler(ignoreCancelled = true)
     public void onEntityTeleport(EntityPortalEvent event) {
-        if (event.getEntity().getType() == EntityType.DROPPED_ITEM &&
+        if (
+                event.getEntityType() != EntityType.PLAYER &&
                 "world_the_end".equals(event.getFrom().getWorld().getName()) &&
-                "world".equals(event.getTo().getWorld().getName())) {
-            event.setTo(FarLands.getDataHandler().getPluginData().spawn.asLocation());
+                "world".equals(event.getTo().getWorld().getName())
+        ) {
+            Location end = new Location(event.getFrom().getWorld(), 0, 58, 0);
+            double minDist = 576, // (24 * 24) only players close to 0 0
+                   dist;
+            Player player = null;
+            for (Player player1 : event.getFrom().getWorld().getPlayers()) {
+                if ((dist = end.distanceSquared(player1.getLocation())) < minDist) {
+                    minDist = dist;
+                    player = player1;
+                }
+            }
+            if (player != null && player.getBedSpawnLocation() != null)
+                event.setTo(player.getBedSpawnLocation());
+            else
+                event.setTo(FarLands.getDataHandler().getPluginData().spawn.asLocation());
         }
     }
 

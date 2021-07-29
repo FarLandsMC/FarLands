@@ -2,7 +2,6 @@ package net.farlands.sanctuary.command.staff;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
-import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.Utils;
 
 import net.farlands.sanctuary.FarLands;
