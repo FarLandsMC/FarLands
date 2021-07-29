@@ -10,29 +10,27 @@ import com.kicas.rp.event.ClaimCreationEvent;
 import com.kicas.rp.event.ClaimResizeEvent;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
-
 import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
-
 import com.kicasmads.cs.event.ShopTransactionEvent;
 import net.coreprotect.CoreProtect;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
-import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -42,8 +40,9 @@ import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
@@ -234,12 +233,13 @@ public class Restrictions extends Mechanic {
 
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
-        if(event.getLines().length > 0) {
+        String signText = String.join("\n" + ChatColor.GRAY, event.getLines());
+        if (!signText.isBlank()) {
             Location loc = event.getBlock().getLocation();
             Logging.broadcastStaff(
                 ChatColor.GRAY + event.getPlayer().getName() + " placed a sign at " +
                     loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ":\n" +
-                    String.join("\n" + ChatColor.GRAY, event.getLines())
+                    signText
             );
         }
     }

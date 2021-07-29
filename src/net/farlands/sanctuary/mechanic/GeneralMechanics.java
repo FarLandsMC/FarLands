@@ -1,10 +1,7 @@
 package net.farlands.sanctuary.mechanic;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-import static com.kicas.rp.util.TextUtils.format;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
-
 import com.kicas.rp.data.Region;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.WorldData;
@@ -13,38 +10,32 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
+import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.ReflectionHelper;
-import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
+import net.farlands.sanctuary.command.player.CommandStack;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.SkullCreator;
 import net.farlands.sanctuary.gui.GuiVillagerEditor;
-import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
-
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.EntityVillager;
 import net.minecraft.world.entity.npc.EntityVillagerAbstract;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
-import org.bukkit.Material;
-import org.bukkit.Statistic;
-import org.bukkit.World;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -52,10 +43,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -65,6 +58,9 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.format;
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class GeneralMechanics extends Mechanic {
     private final Map<UUID, Player> fireworkLaunches;
@@ -130,6 +126,7 @@ public class GeneralMechanics extends Mechanic {
             if (flp.birthday != null && flp.birthday.isToday()) {
                 sendFormatted(player, "&(gold)Happy Birthday!");
             }
+            flp.updateDeaths(); // Just to be sure that deaths count is accurate
         }, 125L);
 
         if (isNew) {
@@ -383,27 +380,29 @@ public class GeneralMechanics extends Mechanic {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent event) { // Allow teleporting with leashed entities
-        if (event.getFrom().getWorld().equals(event.getTo().getWorld())) {
-            event.getPlayer().getNearbyEntities(10.0, 10.0, 10.0).stream()
-                    .filter(e -> e instanceof LivingEntity)
-                    .map(e -> (LivingEntity) e)
-                    .filter(e -> e.isLeashed() && event.getPlayer().equals(e.getLeashHolder()))
-                    .forEach(e -> {
-                e.setLeashHolder(null);
-                final boolean persistent = FLUtils.isPersistent(e);
-                FLUtils.setPersistent(e, true);
-                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                    e.getLocation().getChunk().load();
-                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                        e.teleport(event.getTo());
-                        e.setLeashHolder(event.getPlayer());
-                        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> FLUtils.setPersistent(e, persistent), 1);
-                    }, 1);
-                }, 1);
-            });
-        } else
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
             updateNightSkip(false);
+        }
+
+        // Teleport Leashed entities
+        event.getPlayer().getNearbyEntities(10.0, 10.0, 10.0).stream()
+                .filter(e -> e instanceof LivingEntity)
+                .map(e -> (LivingEntity) e)
+                .filter(e -> e.isLeashed() && event.getPlayer().equals(e.getLeashHolder()))
+                .forEach(e -> {
+            e.setLeashHolder(null);
+            final boolean persistent = FLUtils.isPersistent(e);
+            FLUtils.setPersistent(e, true);
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                e.getLocation().getChunk().load();
+                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                    e.teleport(event.getTo());
+                    e.setLeashHolder(event.getPlayer());
+                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> FLUtils.setPersistent(e, persistent), 1);
+                }, 1);
+            }, 1);
+        });
     }
 
     // Send items from the end to the correct location
@@ -463,9 +462,14 @@ public class GeneralMechanics extends Mechanic {
                 Bukkit.getOfflinePlayer(event.getEntity().getUniqueId()).decrementStatistic(Statistic.DEATHS);
             }, 5L);
         }
-        // Drop a player skull with lore when a player is killed by another player
+
         Player player = event.getEntity();
         Player killer = event.getEntity().getKiller();
+
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+            FarLands.getDataHandler().getOfflineFLPlayer(player).updateDeaths();
+        }, 10L);
+        // Drop a player skull with lore when a player is killed by another player
         if (killer != null && killer != player) {
             ItemStack killingWeapon = event.getEntity().getKiller().getInventory().getItemInMainHand();
             String weaponName;
@@ -485,8 +489,8 @@ public class GeneralMechanics extends Mechanic {
             ItemStack skull = SkullCreator.skullFromUuid(player.getUniqueId());
             ItemMeta meta = skull.getItemMeta();
             meta.setDisplayName(ChatColor.RED + player.getName() + "'s Head");
-            meta.setLore(Collections.singletonList(Chat.applyColorCodes( "&6Slain by &b" + killer.getName() +
-                    " &6using " + weaponName)));
+            meta.setLore(Collections.singletonList(ChatColor.GOLD + "Slain by " + ChatColor.AQUA + killer.getName() +
+                ChatColor.GOLD + " using " + weaponName));
             skull.setItemMeta(meta);
             killer.getWorld().dropItemNaturally(player.getLocation(), skull);
         }
@@ -617,6 +621,121 @@ public class GeneralMechanics extends Mechanic {
                 return;
         }
 
+
+    }
+
+    @EventHandler
+    // Allow overstacking in inventory and moving overstacked items
+    public void onInventoryClick(InventoryClickEvent event) {
+        ItemStack current = event.getCurrentItem();
+        ItemStack cursor = event.getCursor();
+        Inventory inv = event.getClickedInventory();
+        Player player = Bukkit.getPlayer(event.getWhoClicked().getUniqueId());
+        boolean isEsquire = FarLands.getDataHandler().getOfflineFLPlayer(player)
+            .rank
+            .compareTo(
+                FarLands.getCommandHandler().getCommand(CommandStack.class).getMinRankRequirement()
+            ) > 0;
+        // This gets funky with creative players and it doesn't matter, so don't bother
+        if (
+            player.getGameMode() == GameMode.CREATIVE ||
+            cursor == null || current == null || inv == null
+        ) return;
+
+        boolean cursorOverstacked = cursor.getAmount() > cursor.getMaxStackSize();
+        boolean currentOverstacked = current.getAmount() > current.getMaxStackSize();
+
+        switch(event.getAction()) {
+            case PLACE_ALL: {
+                if (cursorOverstacked && event.getClickedInventory() != null) {
+                    event.getView().setCursor(null);
+                    event.setCurrentItem(null);
+                    Bukkit.getScheduler().runTaskLater(
+                        FarLands.getInstance(),
+                        () -> {
+                            event.getClickedInventory().setItem(event.getSlot(), cursor.clone());
+                        },
+                        1L
+                    );
+                }
+            } // Allow movement of overstacked items within inventory
+            break;
+            case NOTHING:
+            case PICKUP_SOME:
+            case PLACE_SOME: {
+                if(!cursor.isSimilar(current) || cursor.getType() == Material.AIR || current.getType() == Material.AIR) return;
+                if(!isEsquire) return;
+                int amt = current.getAmount() + cursor.getAmount();
+                if(amt > cursor.getMaxStackSize() && amt < 128 && current.getAmount() < 64) {
+
+                    if (amt <= 64) {
+                        event.getView().setCursor(null);
+                    }
+
+                    event.setCurrentItem(null);
+                    Bukkit.getScheduler().runTaskLater(
+                        FarLands.getInstance(),
+                        () -> {
+                            ItemStack item = cursor.clone();
+                            item.setAmount(Math.min(amt, 64));
+                            inv.setItem(event.getSlot(), item);
+
+                            if(amt > 64) {
+                                ItemStack newCursor = cursor.clone();
+                                newCursor.setAmount(amt - 64);
+                                event.getView().setCursor(newCursor);
+                            }
+                        },
+                        1L
+                    );
+                }
+            } // Allow stacking within inventory
+            break;
+            case COLLECT_TO_CURSOR: {
+                if(cursor.getMaxStackSize() >= 64 || !isEsquire) return;
+                int count = cursor.getAmount();
+                int lastSlot = -1;
+                ItemStack lastItem = null;
+
+                List<Pair<Integer, ItemStack>> validSlots = new ArrayList<>();
+                for (int slot = 0; slot < inv.getContents().length; slot ++) {
+                    ItemStack stack = inv.getContents()[slot];
+                    if(stack != null && stack.isSimilar(cursor)) {
+                        validSlots.add(new Pair<>(slot, stack));
+                    }
+                }
+
+                int totalInInv = validSlots.stream().map(Pair::getSecond).map(ItemStack::getAmount).reduce(0, Integer::sum);
+
+                if (totalInInv <= 64 - count) {
+                    validSlots.forEach((p) -> {
+                        inv.setItem(p.getFirst(), null);
+                    });
+                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                        cursor.setAmount(totalInInv + count);
+
+                    }, 1L);
+
+                } else {
+                    int c = cursor.getAmount();
+                    for (Pair<Integer, ItemStack> p : validSlots) {
+                        ItemStack stack = p.getSecond();
+                        if (c + stack.getAmount() <= 64) {
+                            c += stack.getAmount();
+                            inv.setItem(p.getFirst(), null);
+                                                    } else {
+                            p.getSecond().setAmount(p.getSecond().getAmount() - (64 - c));
+                            c = 64;
+                            break;
+                        }
+                    }
+                    cursor.setAmount(c);
+                }
+
+
+            } // Allow stacking within inventory
+            break;
+        }
 
     }
 }

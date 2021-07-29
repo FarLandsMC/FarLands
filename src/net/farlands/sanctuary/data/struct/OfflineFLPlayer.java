@@ -48,6 +48,7 @@ public class OfflineFLPlayer {
     public int voteRewards;
     public int secondsPlayed;
     public int shops;
+    public int deaths;
 
     public double amountDonated;
 
@@ -108,6 +109,7 @@ public class OfflineFLPlayer {
         this.voteRewards = 0;
         this.secondsPlayed = 0;
         this.shops = 0;
+        this.shops = -1;
 
         this.amountDonated = 0;
 
@@ -546,6 +548,10 @@ public class OfflineFLPlayer {
             player.teleport(spawn.asLocation());
         else // Otherwise move their last location
             lastLocation = spawn;
+    }
+
+    public void updateDeaths() {
+        deaths = Bukkit.getOfflinePlayer(uuid).getStatistic(Statistic.DEATHS);
     }
 
     @Override

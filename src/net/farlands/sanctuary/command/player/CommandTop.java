@@ -170,18 +170,19 @@ public class CommandTop extends Command {
             }
 
             case DEATHS: {
-                List<OfflinePlayer> topDeaths = Arrays.stream(Bukkit.getOfflinePlayers())
-                        .filter(player -> player.getStatistic(Statistic.DEATHS) > 0)
-                        .sorted(Collections.reverseOrder(Comparator.comparingInt(player -> player.getStatistic(Statistic.DEATHS))))
-                        .collect(Collectors.toList());
+                List<OfflineFLPlayer> topDeaths = FarLands.getDataHandler().getOfflineFLPlayers()
+                    .stream()
+                    .filter(flp -> flp.deaths > 0)
+                    .sorted(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.deaths)))
+                    .collect(Collectors.toList());
 
                 pageMax = topDeaths.size() / 10 + 1;
                 int offset = getOffset(sender, pageMax, args);
                 if (offset == -1)
                     return true;
 
-                OfflinePlayer senderOfflinePlayer = Bukkit.getOfflinePlayer(FarLands.getDataHandler().getOfflineFLPlayer(sender).uuid);
-                int position = position(senderOfflinePlayer, topDeaths, OfflinePlayer::getUniqueId);
+                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+                int position = position(senderFlp, topDeaths, flp -> flp.uuid);
 
                 sendFormatted(sender, "&(gold)Showing the players with the most deaths (page %0/%1):", offset / 10 + 1, pageMax);
                 for (int i = offset; i < Math.min(topDeaths.size(), offset + 10); ++i) {
@@ -190,8 +191,8 @@ public class CommandTop extends Command {
                             "&(gold){&(%0)%1:} &(aqua)%2 - %3 $(inflect,noun,3,death)",
                             i == position ? "green" : "gold",
                             i + 1,
-                            topDeaths.get(i).getName(),
-                            topDeaths.get(i).getStatistic(Statistic.DEATHS)
+                            topDeaths.get(i).username,
+                            topDeaths.get(i).deaths
                     );
                 }
                 if (position != -1) {
@@ -199,7 +200,7 @@ public class CommandTop extends Command {
                             sender,
                             "&(gold)You are {&(green)#%0} - %1 $(inflect,noun,1,death)",
                             position + 1,
-                            senderOfflinePlayer.getStatistic(Statistic.DEATHS)
+                            senderFlp.deaths
                     );
                 }
                 break;

@@ -59,7 +59,7 @@ public class CommandHandler extends Mechanic {
     private final List<Command> commands;
     private static final List<String> COMMAND_LOG_BLACKLIST = Arrays.asList(
             "hdb", "headdb", "heads",
-            "shops", "shopsearch",
+            "shops", "searchshops",
             "petblock", "petblocks", "petblockreload",
             "trigger");
 

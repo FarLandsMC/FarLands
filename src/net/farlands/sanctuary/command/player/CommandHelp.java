@@ -3,7 +3,7 @@ package net.farlands.sanctuary.command.player;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.ReflectionHelper;
-import com.kicas.rp.util.TextUtils;
+import com.kicas.rp.util.TextUtils2;
 import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -31,17 +31,20 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean execute(CommandSender sender, String[] args) {
+    public boolean execute(CommandSender sender, String[] args) throws TextUtils2.ParserError {
         // Show list of categories
         if (args.length == 0) {
-            TextUtils.sendFormatted(
-                    sender,
-                    "&(gold)Commands are organized by category:\n" + Stream.of(Category.VALUES)
-                            .filter(category -> category != Category.STAFF)
-                            .map(category -> "$(hovercmd,/help " + Utils.formattedName(category) + "," +
-                                    "{&(gray)Click to view this category}," + category.getAlias() + "): " +
-                                    "{&(white)" + category.getDescription() + "}")
-                            .collect(Collectors.joining("\n"))
+            TextUtils2.sendFormatted(
+                sender,
+                "&(gold)Commands are organized by category:\n" + Stream.of(Category.VALUES)
+                    .filter(category -> category != Category.STAFF)
+                    .map(category -> String.format(
+                        "{$(click:run_command,%s)$(hover:show_text,%s)%s}",
+                        "/help " + Utils.formattedName(category),
+                        "{&(gray)Click to view this category}",
+                        "&(gold)" + category.getAlias() + ": {&(white)" + category.getDescription() + "}"
+                    ))
+                    .collect(Collectors.joining("\n"))
             );
             return true;
         }
@@ -56,7 +59,7 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
                 return true;
             }
 
-            TextUtils.sendFormatted(
+            TextUtils2.sendFormatted(
                     sender,
                     "&(gold)Showing info for command {&(aqua)%0}:\nUsage: %1\nDescription: {&(white)%2}",
                     command.getName(),
@@ -102,28 +105,34 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
 
             int maxPageIndex = (commands.size() - 1) / COMMANDS_PER_PAGE;
             if (page > maxPageIndex) {
-                TextUtils.sendFormatted(sender, "&(red)This category only has %0 $(inflect,noun,0,page).", maxPageIndex + 1);
+                TextUtils2.sendFormatted(sender, "&(red)This category only has %0 $(inflect,noun,0,page).", maxPageIndex + 1);
                 return true;
             }
 
-            TextUtils.sendFormatted(
+            TextUtils2.sendFormatted(
                     sender,
                     "&(gold)[%0] %1 - Page %2/%3 [%4]\n%5",
-                    page == 0 ? "{&(gray)Prev}" : "$(command,/help " + args[0] + " " + page + ",{&(aqua)Prev})",
+                    page == 0 ? "{&(gray)Prev}" : "{$(click:run_command,/help " + args[0] + " " + page + ")&(aqua)Prev})",
                     category.getAlias(),
                     page + 1,
                     maxPageIndex + 1,
-                    page == maxPageIndex ? "{&(gray)Next}" : "$(command,/help " + args[0] + " " + (page + 2) + ",{&(aqua)Next})",
+                    page == maxPageIndex ? "{&(gray)Next}" : "{$(click:run_command,/help " + args[0] + " " + (page + 2) + ")&(aqua)Next}",
                     commands.stream().skip(page * COMMANDS_PER_PAGE).limit(COMMANDS_PER_PAGE)
-                            .map(command -> "$(hover,{&(gray)" + command.getDescription() + "},{" + formatUsage(command.getUsage()) + "})")
-                            .collect(Collectors.joining("\n"))
+                        .map(cmd -> String.format(
+                            "{$(click:suggest_command,/%s)$(hover:show_text,%s)%s}",
+                            cmd.getLabel(),
+                            "{&(gold)" + formatUsage(cmd.getUsage()) + "}\n" +
+                            "{&(gray)" + cmd.getDescription() + "}",
+                            formatUsage(cmd.getUsage())
+                        ))
+                        .collect(Collectors.joining("\n"))
             );
         }
 
         return true;
     }
 
-    private static String formatUsage(String usage) {
+    public static String formatUsage(String usage) {
         return Arrays.stream(usage.split(" ")).map(arg -> {
             if (arg.startsWith("<") && arg.endsWith(">") || arg.startsWith("[") && arg.endsWith("]")) {
                 String inner = arg.substring(1, arg.length() - 1).replaceAll("\\|", "{&(gold)|}").replaceAll("=", "{&(gold)=}");

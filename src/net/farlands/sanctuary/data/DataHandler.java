@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
 
 /**
  * This class serves as and API to interact with FarLands' data.
@@ -619,6 +620,8 @@ public class DataHandler extends Mechanic {
         FileSystem.loadJson(new TypeToken<Collection<OfflineFLPlayer>>() { }, Collections.emptyList(),
                 FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE)).forEach(flp -> {
             flPlayerMap.put(flp.uuid, flp);
+            if (flp.deaths <= 0 && flp.secondsPlayed > 30 * 60) // Check players with less than 1 death and more than 30 minutes of playtime
+                flp.updateDeaths();
             if (flp.isDiscordVerified())
                 discordMap.put(flp.discordID, flp);
         });

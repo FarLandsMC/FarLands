@@ -58,6 +58,7 @@ public class CommandStack extends PlayerCommand {
             new Material[] {EMERALD_BLOCK, EMERALD},
             new Material[] {GOLD_BLOCK, GOLD_INGOT, GOLD_NUGGET},
             new Material[] {LAPIS_BLOCK, LAPIS_LAZULI},
+            new Material[] {COPPER_BLOCK, COPPER_INGOT},
             new Material[] {RAW_COPPER_BLOCK, RAW_COPPER},
             new Material[] {RAW_IRON_BLOCK, RAW_IRON},
             new Material[] {RAW_GOLD_BLOCK, RAW_GOLD}

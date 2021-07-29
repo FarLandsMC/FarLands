@@ -1,6 +1,6 @@
 package net.farlands.sanctuary.discord;
 
-import com.kicas.rp.util.TextUtils;
+import com.kicas.rp.util.TextUtils2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -24,13 +24,10 @@ import net.farlands.sanctuary.util.Logging;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class DiscordHandler extends ListenerAdapter {
     private DiscordBotConfig config;
@@ -123,9 +120,9 @@ public class DiscordHandler extends ListenerAdapter {
         StringBuilder sb = new StringBuilder();
         for (BaseComponent bc : message) {
             if (bc instanceof TextComponent)
-                sb.append(((TextComponent) bc).getText());
+                sb.append(bc.toLegacyText());
         }
-        sendMessageRaw(DiscordChannel.IN_GAME, Chat.applyDiscordFilters(sb.toString(), start));
+        sendMessageRaw(DiscordChannel.IN_GAME, Chat.applyDiscordFilters(sb.toString().replaceAll("(?i)§[0-9a-f]", ""), start));
     }
 
     public void sendMessage(MessageChannel channel, String message) {
@@ -258,13 +255,17 @@ public class DiscordHandler extends ListenerAdapter {
 
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
-        message = TextUtils.escapeExpression(Chat.removeColorCodes(message));
+        message = TextUtils2.escapeExpression(Chat.removeColorCodes(message));
+        message = MarkdownProcessor.markdownToMC(message);
         message = message.trim();
         if (message.length() > 256 && (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong()
                 == event.getChannel().getIdLong())) {
             message = message.substring(0, 232);
-            message = message.trim() + "&(gray)... View more on $(hoverlink,https://discord.gg/gYmpZqZ," +
-                    "&(gold)Click to join our Discord server.,&(aqua,underline)Discord)}";
+            message = message.trim() + "&(gray)... View more on {" +
+                "$(click:open_url,https://discord.gg/gYmpZq)" +
+                "$(hover:show_text,&(gold)Click to join our Discord server.)" +
+                "&(aqua,underline)Discord" +
+                "}";
             // Notify sender their message was too long
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, "Your message was " +
                     "too long so it was shortened for in-game chat.");
@@ -278,7 +279,7 @@ public class DiscordHandler extends ListenerAdapter {
                 hoverText = hoverText.substring(0, 60) + "...";
             }
             hoverText = hoverText.replaceAll(",", "");
-            hoverText = TextUtils.escapeExpression(Chat.removeColorCodes(hoverText));
+            hoverText = Chat.removeColorCodes(hoverText);
 
             OfflineFLPlayer refFlp = FarLands.getDataHandler().getOfflineFLPlayer(refMessage.getAuthor().getIdLong());
 
@@ -295,19 +296,24 @@ public class DiscordHandler extends ListenerAdapter {
                     refFlp.username + ":&(white) ";
             }
 
-            hoverText = pf + hoverText;
+            hoverText = TextUtils2.escapeExpression(pf + hoverText);
 
-            prefix = "$(hover," + hoverText + ",{&(gray,bold)[Reply]}) ";
+            prefix = "{$(hover:show_text," + hoverText + ")&(gray,bold)[Reply]} ";
         }
-        message = MarkdownProcessor.markdownToMC(message);
         message = prefix + message;
         message = message.replaceAll("\\\\", ""); // Replace single \s
 
         if (!event.getMessage().getAttachments().isEmpty()) {
             if (message.isEmpty())
-                message = "[Image]";
+                message = "";
             else
-                message += " [Image]";
+                message += " ";
+
+            message += "{" +
+                "$(hover:show_text,&(aqua)Open image URL)" +
+                "$(click:open_url," + event.getMessage().getAttachments().get(0).getUrl() + ")" +
+                "&(gray,bold)[Image]" +
+            "}";
         }
 
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
@@ -318,22 +324,32 @@ public class DiscordHandler extends ListenerAdapter {
         );
 
         if (staffChat) {
-            TextUtils.sendFormatted(
+            try {
+                TextUtils2.sendFormatted(
                     Bukkit.getConsoleSender(),
-                    "&(red)[SC] {&(dark_gray,bold)D} %0: %1",
+                    "&(red)[SC] {&(dark_gray,bold)DISCORD} %0: %1",
                     sender.getName(),
                     fmessage
-            );
+                );
+            } catch (TextUtils2.ParserError e) {
+                e.printStackTrace();
+            }
 
             FarLands.getDataHandler().getSessions().stream()
-                    .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
-                    .forEach(session -> sendFormatted(
+                .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+                .forEach(session -> {
+                    try {
+                        TextUtils2.sendFormatted(
                             session.player,
-                            "&(%0)[SC] {&(dark_gray)Discord} %1: %2",
+                            "&(%0)[SC] {&(dark_gray)DISCORD} %1: %2",
                             session.handle.staffChatColor.name(),
                             sender.getName(),
                             fmessage
-                    ));
+                        );
+                    } catch (TextUtils2.ParserError parserError) {
+                        parserError.printStackTrace();
+                    }
+                });
         }
 
         else if (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong()) {
@@ -356,31 +372,42 @@ public class DiscordHandler extends ListenerAdapter {
                     return;
                 }
 
+                FarLands.getDebugger().echo(fmessage);
                 String censorMessage = Chat.getMessageFilter().censor(fmessage);
                 Bukkit.getOnlinePlayers()
-                        .stream()
-                        .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
-                        .forEach(p ->
-                            TextUtils.sendFormatted(
-                                    p,
-                                    "&(dark_gray)DISCORD %1%0%2%1%3: &(white)%4",
-                                    rank.isStaff() ? ChatColor.BOLD : "",
-                                    rank.getNameColor(),
-                                    rank.isStaff() ? rank.getName() + " " : "",
-                                    flp.username,
-                                    FarLands.getDataHandler().getOfflineFLPlayer(p).censoring ? censorMessage : fmessage
-                            )
-                        );
+                    .stream()
+                    .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
+                    .forEach(p ->
+                             {
+                                 try {
+                                     TextUtils2.sendFormatted(
+                                         p,
+                                         "&(dark_gray)DISCORD &(%1){%0%2}%3: &(white)%4",
+                                         rank.isStaff() ? "&(bold)" : "",
+                                         rank.getNameColor().getName(),
+                                         rank.isStaff() ? rank.getName() + " " : "",
+                                         flp.username,
+                                         FarLands.getDataHandler().getOfflineFLPlayer(p).censoring ? censorMessage : fmessage
+                                     );
+                                 } catch (TextUtils2.ParserError parserError) {
+                                     parserError.printStackTrace();
+                                 }
+                             }
+                    );
 
-                TextUtils.sendFormatted(
+                try {
+                    TextUtils2.sendFormatted(
                         Bukkit.getConsoleSender(),
-                        "&(dark_gray)DISCORD %1%0%2%1%3: &(white)%4",
-                        rank.isStaff() ? ChatColor.BOLD : "",
-                        rank.getNameColor(),
+                        "&(dark_gray)DISCORD &(%1){%0%2}%3: &(white)%4",
+                        rank.isStaff() ? "&(bold)" : "",
+                        rank.getNameColor().getName(),
                         rank.isStaff() ? rank.getName() + " " : "",
                         flp.username,
                         fmessage
-                );
+                    );
+                } catch (TextUtils2.ParserError parserError) {
+                    parserError.printStackTrace();
+                }
             }
         }
     }

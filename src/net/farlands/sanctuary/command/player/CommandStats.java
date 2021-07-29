@@ -20,7 +20,7 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 public class CommandStats extends Command {
 
     public CommandStats() {
-        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Show the stats of a player.", "/stats", "stats");
+        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Show the stats of a player.", "/stats [playername]", "stats");
     }
 
     @Override
@@ -101,7 +101,7 @@ public class CommandStats extends Command {
         if (showDonated && flp.amountDonated > 0) {
             statsMap.put(PlayerStat.AMOUNT_DONATED, "$" + flp.amountDonated);
         }
-        statsMap.put(PlayerStat.DEATHS, offlinePlayer.getStatistic(Statistic.DEATHS));
+        statsMap.put(PlayerStat.DEATHS, flp.deaths);
         if (flp.birthday != null) {
             statsMap.put(PlayerStat.BIRTHDAY, flp.birthday.toFormattedString());
         }
