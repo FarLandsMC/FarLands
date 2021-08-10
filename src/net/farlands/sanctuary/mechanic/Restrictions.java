@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.mechanic;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.Region;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class Restrictions extends Mechanic {
 
@@ -212,7 +212,7 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onShopDestroyed(ShopRemoveEvent event) {
-        FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getCachedOwner().getId()).removeShop();
+        FarLands.getDataHandler().getOfflineFLPlayer(event.getShop().getOwner()).removeShop();
     }
 
     @EventHandler(ignoreCancelled = true)

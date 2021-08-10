@@ -372,7 +372,6 @@ public class DiscordHandler extends ListenerAdapter {
                     return;
                 }
 
-                FarLands.getDebugger().echo(fmessage);
                 String censorMessage = Chat.getMessageFilter().censor(fmessage);
                 Bukkit.getOnlinePlayers()
                     .stream()
