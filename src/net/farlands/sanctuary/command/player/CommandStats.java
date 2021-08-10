@@ -35,7 +35,7 @@ public class CommandStats extends Command {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.updateAll(false); // Make sure our stats are fresh
             if (sender instanceof DiscordSender) {
-                Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, false);
+                Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, false, true);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("`" + flp.username + "`'s stats")
                     .setColor(flp.getDisplayRank().getColor().getColor());
@@ -85,7 +85,7 @@ public class CommandStats extends Command {
      * @param showDonated Whether to show amount of money donated
      * @return the properly formatted text
      */
-    public static Map<PlayerStat, Object> playerInfoMap(OfflineFLPlayer flp, boolean showDonated) {
+    public static Map<PlayerStat, Object> playerInfoMap(OfflineFLPlayer flp, boolean showDonated, boolean showTimezone) {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
 
         Map<PlayerStat, Object> statsMap = new HashMap<>();
@@ -105,7 +105,8 @@ public class CommandStats extends Command {
         if (flp.birthday != null) {
             statsMap.put(PlayerStat.BIRTHDAY, flp.birthday.toFormattedString());
         }
-        if (flp.timezone != null && !flp.timezone.isEmpty()) {
+        // TODO: Fix Chat#atPlayer and remove showTimezone param
+        if (showTimezone && flp.timezone != null && !flp.timezone.isEmpty()) {
             statsMap.put(PlayerStat.TIMEZONE, flp.timezone + " (" + ChatColor.GREEN + flp.currentTime() +  ChatColor.AQUA + ")");
         }
         statsMap.put(PlayerStat.VOTES_THIS_MONTH, flp.monthVotes);
@@ -134,7 +135,11 @@ public class CommandStats extends Command {
     }
 
     public static String getFormattedStats(OfflineFLPlayer flp, boolean showDonated) {
-        return formatStats(playerInfoMap(flp, showDonated), flp);
+        return formatStats(playerInfoMap(flp, showDonated, true), flp);
+    }
+
+    public static String getFormattedStats(OfflineFLPlayer flp, boolean showDonated, boolean showTimezone) {
+        return formatStats(playerInfoMap(flp, showDonated, showTimezone), flp);
     }
 
     @Override

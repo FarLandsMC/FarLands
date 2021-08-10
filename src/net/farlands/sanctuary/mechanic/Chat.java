@@ -164,7 +164,7 @@ public class Chat extends Mechanic {
 
     public static String generatePrefix(OfflineFLPlayer senderFlp) {
         Rank displayedRank = senderFlp.getDisplayRank();
-        String playerStats = CommandStats.formatStats(CommandStats.playerInfoMap(senderFlp, false), senderFlp);
+        String playerStats = CommandStats.getFormattedStats(senderFlp, false).replaceAll("([()])", "\\\\$1");
         String rank = "&(" + displayedRank.getColor().getName() + ")" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName();
         return "{" + rank + " {$(click:suggest_command,/msg " + senderFlp.username + " )$(hover:show_text," + playerStats + ")&(%0)%1:}} ";
 //        chat(senderFlp, sender, displayPrefix, message.trim());
@@ -504,11 +504,11 @@ public class Chat extends Mechanic {
 
     private static String playerMention(OfflineFLPlayer flp) {
         String messageCommand = flp.getOnlinePlayer() == null ? "/mail send " : "/msg ";
-        String hoverText = CommandStats.getFormattedStats(flp, false);
+        String hoverText = CommandStats.getFormattedStats(flp, false, false).replaceAll("([()])", "\\\\$1");
         return
             "{" +
                 "\\$(click:suggest_command," + messageCommand + flp.username + " )" +
-                "\\$(hover:show_text," + hoverText + "\n&(gray)Click to message)" +
+                "\\$(hover:show_text," + hoverText + ")" +
                 "&(" + flp.getDisplayRank().getNameColor().getName() + ")@" + flp.username +
             "}";
     }
