@@ -240,17 +240,20 @@ public class Chat extends Mechanic {
                 session.replyToggleRecipient = null;
             }
         }
-        final String lmessage = limitCaps(limitFlood(message)),
-                     fmessage = displayPrefix + lmessage,
-                censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
+
+        String lmessage = limitCaps(limitFlood(message));
+        String fmessage = displayPrefix + lmessage;
+        String censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
+        String name = convertChatColorHex(senderFlp.getDisplayName());
+
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
                 .filter(session -> !session.handle.getIgnoreStatus(senderFlp).includesChat())
                 .forEach(session -> {
                     try {
                         if (session.handle.censoring) {
-                            TextUtils2.sendFormatted(session.player, censorMessage, senderFlp.rank.getNameColor().getName(), senderFlp.getDisplayName());
+                            TextUtils2.sendFormatted(session.player, censorMessage, senderFlp.rank.getNameColor().getName(), name);
                         } else {
-                            TextUtils2.sendFormatted(session.player, fmessage, senderFlp.rank.getNameColor().getName(), senderFlp.getDisplayName());
+                            TextUtils2.sendFormatted(session.player, fmessage, senderFlp.rank.getNameColor().getName(), name);
                         }
                     } catch (TextUtils2.ParserError e) {
                         e.printStackTrace();
@@ -271,6 +274,20 @@ public class Chat extends Mechanic {
         } catch (TextUtils2.ParserError parserError) {
             parserError.printStackTrace();
         }
+    }
+
+    /**
+     * Converts from ChatColor hex (§-§-§-§-§-§-) to TextUtils hex (&(#------))
+     * @param chatColorHex The string to convert
+     * @return The converted value
+     */
+    public static String convertChatColorHex(String chatColorHex) {
+        return Pattern.compile("(?i)(§x(§[a-f0-9]){6})")
+            .matcher(chatColorHex)
+            .replaceAll(
+                s ->
+                    "&(#" + s.group(1).replaceAll(ChatColor.COLOR_CHAR + "x?", "") + ")"
+            );
     }
 
     public void spamUpdate(Player player, String message) {
