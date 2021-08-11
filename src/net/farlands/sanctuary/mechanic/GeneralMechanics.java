@@ -662,6 +662,8 @@ public class GeneralMechanics extends Mechanic {
         boolean cursorOverstacked = cursor.getAmount() > cursor.getMaxStackSize();
         boolean currentOverstacked = current.getAmount() > current.getMaxStackSize();
 
+        if(cursor.getMaxStackSize() == 64 || current.getMaxStackSize() == 64) return;
+
         switch(event.getAction()) {
             case PLACE_ALL: {
                 if (cursorOverstacked && event.getClickedInventory() != null) {

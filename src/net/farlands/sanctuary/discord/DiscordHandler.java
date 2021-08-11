@@ -24,9 +24,11 @@ import net.farlands.sanctuary.util.Logging;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DiscordHandler extends ListenerAdapter {
@@ -103,15 +105,16 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     private Activity getStats() {
-        long online = Bukkit.getOnlinePlayers().stream()
-                .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
-                .count();
+        List<Player> onlinePlayers = Bukkit.getOnlinePlayers()
+            .stream()
+            .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
+            .collect(Collectors.toList());
 
         String status = "with ";
-        if (online == 1)
-            status += Bukkit.getOnlinePlayers().iterator().next().getName();
+        if (onlinePlayers.size() == 1)
+            status += onlinePlayers.iterator().next().getName();
         else
-            status += online + " online players";
+            status += onlinePlayers.size() + " online players";
 
         return Activity.of(Activity.ActivityType.DEFAULT, status);
     }

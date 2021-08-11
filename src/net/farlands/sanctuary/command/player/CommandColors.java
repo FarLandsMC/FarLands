@@ -24,6 +24,7 @@ public class CommandColors extends PlayerCommand {
                 .filter(color -> !Chat.ILLEGAL_COLORS.contains(color) && !ChatColor.RESET.equals(color))
                 .map(color -> color + color.toString().replace("\u00A7", "\\&") + ChatColor.RESET + ChatColor.WHITE)
                 .collect(Collectors.joining(" ")));
+        sendFormatted(sender, "&(gold)Hexadecimal Colors: \\&#rrggbb or \\&#rgb, like {&(#92b9bd)\\&#92b9bd} or {&(#55ff77)\\&#5f7}.");
         return true;
     }
 }

@@ -170,22 +170,54 @@ public class Chat extends Mechanic {
 //        chat(senderFlp, sender, displayPrefix, message.trim());
     }
 
-    public static void chat(OfflineFLPlayer senderFlp, Player sender, String displayPrefix, String message) {
-        if (!senderFlp.rank.isStaff() && MESSAGE_FILTER.autoCensor(removeColorCodes(message))) {
-            message = applyColorCodes(senderFlp.rank, message);
+    public static void autoCensorAlert(Player sender, String formattedMessage, String rawMessage, OfflineFLPlayer flp) {
+        boolean fakeMsg = flp.secondsPlayed < 60 * 15; // Played for more than 15 minutes
+        if (fakeMsg) {
             // Make it seem like the message went through for the sender
             try {
                 TextUtils2.sendFormatted(
-                        sender,
-                        displayPrefix + TextUtils2.escapeExpression(message),
-                        senderFlp.rank.getNameColor(),
-                        senderFlp.getDisplayName()
+                    sender,
+                    formattedMessage,
+                    flp.rank.getNameColor(),
+                    flp.getDisplayName()
                 );
             } catch (TextUtils2.ParserError e) {
                 e.printStackTrace();
             }
-            Logging.broadcastStaff(String.format(ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s",
-                    sender.getDisplayName(), message), DiscordChannel.ALERTS);
+        } else {
+            // Let the sender know that their message wasn't sent
+            try {
+                TextUtils2.sendFormatted(
+                    sender,
+                    "&(red)You message was not sent as it may have contained words or phrases that may be offensive to some."
+                );
+            } catch (TextUtils2.ParserError e) {
+                e.printStackTrace();
+            }
+        }
+        Logging.broadcastStaff(
+            String.format(
+                ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s - " + ChatColor.RED + "%s",
+                sender.getDisplayName(),
+                rawMessage,
+                fakeMsg ? "False message sent to player." : "Notified player."
+            ),
+            DiscordChannel.ALERTS
+        );
+    }
+
+    public static void chat(OfflineFLPlayer senderFlp, Player sender, String displayPrefix, String message) {
+        if (!senderFlp.rank.isStaff() && MESSAGE_FILTER.autoCensor(removeColorCodes(message))) {
+            message = applyColorCodes(senderFlp.rank, message);
+
+            // Handle Auto Censor
+            autoCensorAlert(
+                sender,
+                displayPrefix + TextUtils2.escapeExpression(message),
+                message,
+                senderFlp
+            );
+
             return;
         }
 

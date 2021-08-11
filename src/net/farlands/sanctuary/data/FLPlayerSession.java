@@ -4,22 +4,24 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.util.TextUtils;
-
+import com.kicas.rp.util.TextUtils2;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.data.struct.Package;
+import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.mechanic.Toggles;
 import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FLPlayerSession {
@@ -242,15 +244,32 @@ public class FLPlayerSession {
 
             handle.pendingSharehomes.forEach((k, v) -> {
                 String message = v.message == null ? "" : "&(gold)Message: &(aqua)" + v.message.replaceAll(",", " ") + "\n";
-                pendingHomes.add("${hover,&(gold)Sender: &(aqua)" + k + "\n" + message + "&(gold)Name: &(aqua)" + v.home.getName() + ",&(aqua)" + k + "}");
+                pendingHomes.add(
+                    "{" +
+                        "$(click:suggest_command,/sharehome accept " + k + " )" +
+                        "$(hover:show_text," +
+                            "&(gold)Sender: &(aqua)" + k + "\n" +
+                            message + "&(gold)Name: &(aqua)" + v.home.getName() + "\n" +
+                            "&(" +
+                        "gray)Click to accept" +
+                        ")&(aqua)" + k +
+                    "}"
+                );
             });
 
-            TextUtils.sendFormatted(player,
-                    "&(gold)You have pending homes from %0 $(inflect,noun,0,player): %1\n" +
-                    "Hover over the $(inflect,noun,0,name) to view more info.",
+            try {
+                TextUtils2.sendFormatted(
+                    player,
+                    "&(gold)You have pending homes from %0 %1: %2\n" +
+                        "Hover over the %3 to view more info.",
                     handle.pendingSharehomes.size(),
-                    String.join(", ", pendingHomes)
-            );
+                    handle.pendingSharehomes.size() == 1 ? "player" : "players",
+                    String.join(", ", pendingHomes),
+                    handle.pendingSharehomes.size() == 1 ? "name" : "names"
+                );
+            } catch (TextUtils2.ParserError e) {
+                e.printStackTrace();
+            }
         }
     }
 
