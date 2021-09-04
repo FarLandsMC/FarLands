@@ -43,6 +43,7 @@ import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -235,7 +236,11 @@ public class Restrictions extends Mechanic {
 
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
-        String signText = String.join("\n" + ChatColor.GRAY, event.getLines());
+        String signText = Arrays.stream(event.getLines())
+            .filter(s -> !s.isBlank())
+            .map(s -> ChatColor.GRAY + s)
+            .collect(Collectors.joining("\n"));
+
         if (!signText.isBlank()) {
             Location loc = event.getBlock().getLocation();
             Logging.broadcastStaff(

@@ -265,13 +265,12 @@ public class DiscordHandler extends ListenerAdapter {
                 == event.getChannel().getIdLong())) {
             message = message.substring(0, 232);
             message = message.trim() + "&(gray)... View more on {" +
-                "$(click:open_url,https://discord.gg/gYmpZq)" +
+                "$(click:open_url," + FarLands.getFLConfig().discordInvite + ")" +
                 "$(hover:show_text,&(gold)Click to join our Discord server.)" +
                 "&(aqua,underline)Discord" +
                 "}";
             // Notify sender their message was too long
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, "Your message was " +
-                    "too long so it was shortened for in-game chat.");
+            event.getMessage().reply("Your message was too long, so it was shortened for in-game chat.").queue();
         }
 
         String prefix = "";

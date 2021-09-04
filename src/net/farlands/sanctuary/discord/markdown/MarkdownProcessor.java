@@ -3,7 +3,10 @@ package net.farlands.sanctuary.discord.markdown;
 import com.google.common.collect.ImmutableMap;
 import net.md_5.bungee.api.ChatColor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class MarkdownProcessor {
     private static final CharacterProtector HTML_PROTECTOR = new CharacterProtector();
@@ -135,10 +138,14 @@ public class MarkdownProcessor {
     }
 
     private static TextEditor formUrls(TextEditor markup) {
-        return markup.replaceAll(
+        return markup
+            .replaceAll(
                 "(https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|])",
-                "\\$(hoverlink,$1,&(aqua)Follow Link,&(aqua)$1)"
-        );
+                "{" +
+                        "\\$(hover:show\\_text,&(aqua)Follow Link)" +
+                        "\\$(click:open\\_url,$1)&(aqua)$1" +
+                    "}"
+            );
     }
 
     private static TextEditor unEscapeSpecialChars(TextEditor ed) {
@@ -154,8 +161,8 @@ public class MarkdownProcessor {
         text = escapeSpecialCharsWithinTagAttributes(text);
         text = encodeBackslashEscapes(text);
         text = escapeSpecialCharsWithinTagAttributes(text);
-        text = formUrls(text);
         text = doMCFormat(text);
+        text = formUrls(text);
         return text;
     }
 

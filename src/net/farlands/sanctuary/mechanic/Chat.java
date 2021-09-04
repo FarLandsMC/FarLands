@@ -616,7 +616,7 @@ public class Chat extends Mechanic {
 
     public static String applyEmotes(String message) {
         for (CommandShrug.TextEmote emote : CommandShrug.TextEmote.values) {
-            message = message.replaceAll("(?i)" + Pattern.quote(emote.name()), emote.getValue());
+            message = message.replaceAll("(?i)(?<!\\\\)(:" + Pattern.quote(emote.name()) + ":)", TextUtils2.escapeExpression(emote.getValue()));
         }
         return message;
     }

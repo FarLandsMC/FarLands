@@ -10,11 +10,9 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
-import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
-import net.farlands.sanctuary.command.player.CommandStack;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -40,17 +38,12 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDropItemEvent;
-import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -638,123 +631,6 @@ public class GeneralMechanics extends Mechanic {
                 return;
         }
 
-
     }
 
-    @EventHandler
-    // Allow overstacking in inventory and moving overstacked items
-    public void onInventoryClick(InventoryClickEvent event) {
-        ItemStack current = event.getCurrentItem();
-        ItemStack cursor = event.getCursor();
-        Inventory inv = event.getClickedInventory();
-        Player player = Bukkit.getPlayer(event.getWhoClicked().getUniqueId());
-        boolean isEsquire = FarLands.getDataHandler().getOfflineFLPlayer(player)
-            .rank
-            .compareTo(
-                FarLands.getCommandHandler().getCommand(CommandStack.class).getMinRankRequirement()
-            ) > 0;
-        // This gets funky with creative players and it doesn't matter, so don't bother
-        if (
-            player.getGameMode() == GameMode.CREATIVE ||
-            cursor == null || current == null || inv == null
-        ) return;
-
-        boolean cursorOverstacked = cursor.getAmount() > cursor.getMaxStackSize();
-        boolean currentOverstacked = current.getAmount() > current.getMaxStackSize();
-
-        if(cursor.getMaxStackSize() == 64 || current.getMaxStackSize() == 64) return;
-
-        switch(event.getAction()) {
-            case PLACE_ALL: {
-                if (cursorOverstacked && event.getClickedInventory() != null) {
-                    event.getView().setCursor(null);
-                    event.setCurrentItem(null);
-                    Bukkit.getScheduler().runTaskLater(
-                        FarLands.getInstance(),
-                        () -> {
-                            event.getClickedInventory().setItem(event.getSlot(), cursor.clone());
-                        },
-                        1L
-                    );
-                }
-            } // Allow movement of overstacked items within inventory
-            break;
-            case NOTHING:
-            case PICKUP_SOME:
-            case PLACE_SOME: {
-                if(!cursor.isSimilar(current) || cursor.getType() == Material.AIR || current.getType() == Material.AIR) return;
-                if(!isEsquire) return;
-                int amt = current.getAmount() + cursor.getAmount();
-                if(amt > cursor.getMaxStackSize() && amt < 128 && current.getAmount() < 64) {
-
-                    if (amt <= 64) {
-                        event.getView().setCursor(null);
-                    }
-
-                    event.setCurrentItem(null);
-                    Bukkit.getScheduler().runTaskLater(
-                        FarLands.getInstance(),
-                        () -> {
-                            ItemStack item = cursor.clone();
-                            item.setAmount(Math.min(amt, 64));
-                            inv.setItem(event.getSlot(), item);
-
-                            if(amt > 64) {
-                                ItemStack newCursor = cursor.clone();
-                                newCursor.setAmount(amt - 64);
-                                event.getView().setCursor(newCursor);
-                            }
-                        },
-                        1L
-                    );
-                }
-            } // Allow stacking within inventory
-            break;
-            case COLLECT_TO_CURSOR: {
-                if(cursor.getMaxStackSize() >= 64 || !isEsquire) return;
-                int count = cursor.getAmount();
-                int lastSlot = -1;
-                ItemStack lastItem = null;
-
-                List<Pair<Integer, ItemStack>> validSlots = new ArrayList<>();
-                for (int slot = 0; slot < inv.getContents().length; slot ++) {
-                    ItemStack stack = inv.getContents()[slot];
-                    if(stack != null && stack.isSimilar(cursor)) {
-                        validSlots.add(new Pair<>(slot, stack));
-                    }
-                }
-
-                int totalInInv = validSlots.stream().map(Pair::getSecond).map(ItemStack::getAmount).reduce(0, Integer::sum);
-
-                if (totalInInv <= 64 - count) {
-                    validSlots.forEach((p) -> {
-                        inv.setItem(p.getFirst(), null);
-                    });
-                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                        cursor.setAmount(totalInInv + count);
-
-                    }, 1L);
-
-                } else {
-                    int c = cursor.getAmount();
-                    for (Pair<Integer, ItemStack> p : validSlots) {
-                        ItemStack stack = p.getSecond();
-                        if (c + stack.getAmount() <= 64) {
-                            c += stack.getAmount();
-                            inv.setItem(p.getFirst(), null);
-                                                    } else {
-                            p.getSecond().setAmount(p.getSecond().getAmount() - (64 - c));
-                            c = 64;
-                            break;
-                        }
-                    }
-                    cursor.setAmount(c);
-                }
-
-
-            } // Allow stacking within inventory
-            break;
-        }
-
-    }
 }
