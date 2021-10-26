@@ -7,6 +7,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.commands.ICommandListener;
@@ -98,18 +99,23 @@ public class DiscordSender implements CommandSender, ICommandListener {
     }
 
     @Override
-    public Server getServer() {
+    public @NotNull Server getServer() {
         return Bukkit.getServer();
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return getMember().getEffectiveName();
     }
 
     @Override
-    public Spigot spigot() {
+    public @NotNull Spigot spigot() {
         return spigot;
+    }
+
+    @Override
+    public @NotNull Component name() {
+        return Component.text("DiscordSender");
     }
 
     @Override
