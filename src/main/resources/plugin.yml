@@ -3,6 +3,6 @@ main: net.farlands.sanctuary.FarLands
 name: FarLands
 description: FarLands version 3 - Sanctuary
 authors: [xCassyx, Kishiko73, SuperAnimeBoi, funnyboy_roks, Majekdor]
-version: ${project.version}
+version: 2
 depend: [ChestShops, ProtocolLib, RegionProtection, Votifier, CoreProtect]
 loadbefore: [RegionProtection]

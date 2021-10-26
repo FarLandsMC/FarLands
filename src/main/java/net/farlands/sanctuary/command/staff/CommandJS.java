@@ -10,9 +10,9 @@ import net.farlands.sanctuary.command.Command;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,9 +29,8 @@ public class CommandJS extends Command {
         ClassLoader previousClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(FarLands.getInstance().getClass().getClassLoader());
 
-        ScriptEngineManager manager = new ScriptEngineManager();
-        System.out.println(manager.getEngineFactories());
-        engine = manager.getEngineByName("nashorn");
+        NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
+        engine = factory.getScriptEngine();
 
         try {
             engine.eval(new String(FarLands.getDataHandler().getResource("boot.js"), StandardCharsets.UTF_8)); // Load bootstrap script

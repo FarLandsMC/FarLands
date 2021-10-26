@@ -181,7 +181,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandFly());              // Media
         registerCommand(new CommandGameMode());         // Jr_Builder
         registerCommand(new CommandGod());              // Jr_Builder
-        //registerCommand(new CommandJS());             // Admin (Requires JS Permission)
+        registerCommand(new CommandJS());             // Admin (Requires JS Permission)
         registerCommand(new CommandKick());             // Jr_Builder
         registerCommand(new CommandMined());            // Builder
         registerCommand(new CommandMoveSchems());       // Builder
