@@ -32,7 +32,7 @@ public abstract class PlayerCommand extends Command {
 
     @Override
     public final boolean execute(CommandSender sender, String[] args) {
-        return execute((Player)sender, args);
+        return execute((Player) sender, args);
     }
 
     public boolean canUse(Player player) {
@@ -41,10 +41,10 @@ public abstract class PlayerCommand extends Command {
 
     @Override
     public boolean canUse(CommandSender sender) {
-        if(!(sender instanceof Player)) {
+        if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
             return false;
         }
-        return canUse((Player)sender);
+        return canUse((Player) sender);
     }
 }

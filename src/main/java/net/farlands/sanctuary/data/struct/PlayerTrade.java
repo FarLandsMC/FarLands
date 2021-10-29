@@ -9,6 +9,9 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.*;
 
+/**
+ * A player trade posted in /tradepost.
+ */
 public class PlayerTrade {
     public UUID owner;
     public int clicks;
@@ -37,7 +40,7 @@ public class PlayerTrade {
         while (!tradeMessage.isEmpty()) {
             // Try to find a space to break at
             int index = 40;
-            for (;index < 48 && index < tradeMessage.length(); ++index) {
+            for (; index < 48 && index < tradeMessage.length(); ++index) {
                 if (tradeMessage.charAt(index) == ' ')
                     break;
             }

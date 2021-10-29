@@ -5,6 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+/**
+ * Event for plugin shutdown.
+ */
 public class FLShutdownEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 

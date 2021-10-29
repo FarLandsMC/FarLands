@@ -10,6 +10,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
+/**
+ * Gui for player evidence lockers.
+ */
 public class GuiEvidenceLocker extends Gui {
     private final OfflineFLPlayer flp;
     private final EvidenceLocker locker;
@@ -31,8 +34,8 @@ public class GuiEvidenceLocker extends Gui {
     private void saveInventory() {
         List<ItemStack> subLocker = locker.getSubLocker(flp.punishments.get(currentPunishment));
         subLocker.clear();
-        for(int i = 0;i < 54;++ i) {
-            if(clickActions.containsKey(i))
+        for (int i = 0; i < 54; i++) {
+            if (clickActions.containsKey(i))
                 subLocker.add(null);
             else
                 subLocker.add(clone(inv.getItem(i)));
@@ -48,15 +51,15 @@ public class GuiEvidenceLocker extends Gui {
     @Override
     protected void populateInventory() {
         List<ItemStack> subLocker = locker.getSubLocker(flp.punishments.get(currentPunishment));
-        for(int i = 0;i < subLocker.size();++ i)
+        for (int i = 0; i < subLocker.size(); i++)
             inv.setItem(i, clone(subLocker.get(i)));
 
-        if(currentPunishment < flp.punishments.size() - 1)
+        if (currentPunishment < flp.punishments.size() - 1)
             addActionItem(53, Material.EMERALD_BLOCK, ChatColor.GOLD.toString() + ChatColor.BOLD + "Next", () -> changeInventory(1));
         else
             addLabel(53, Material.REDSTONE_BLOCK, ChatColor.RED.toString() + ChatColor.BOLD + "No Next Locker");
 
-        if(currentPunishment > 0)
+        if (currentPunishment > 0)
             addActionItem(45, Material.EMERALD_BLOCK, ChatColor.GOLD.toString() + ChatColor.BOLD + "Previous", () -> changeInventory(-1));
         else
             addLabel(45, Material.REDSTONE_BLOCK, ChatColor.RED.toString() + ChatColor.BOLD + "No Previous Locker");

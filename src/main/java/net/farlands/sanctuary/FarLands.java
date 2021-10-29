@@ -1,20 +1,16 @@
 package net.farlands.sanctuary;
 
 import com.google.gson.*;
-
-import com.kicas.rp.RegionProtection;
 import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.data.DataHandler;
 import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.Debugger;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.gui.GuiHandler;
 import net.farlands.sanctuary.mechanic.MechanicHandler;
 import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -36,11 +32,11 @@ public class FarLands extends JavaPlugin {
     private final GuiHandler guiHandler;
     private World farlandsWorld;
 
-    private static Gson gson;
+    private static final Gson gson;
     private static FarLands instance;
 
     static {
-        gson = (new GsonBuilder()).setPrettyPrinting().create();
+        gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     public FarLands() {

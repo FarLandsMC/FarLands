@@ -55,6 +55,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles command registration, querying, and Discord command execution.
+ */
 public class CommandHandler extends Mechanic {
     private final List<Command> commands;
     private static final List<String> COMMAND_LOG_BLACKLIST = Arrays.asList(
@@ -207,12 +210,12 @@ public class CommandHandler extends Mechanic {
 
     private void registerCommand(Command command) {
         commands.add(command);
-        ((CraftServer)Bukkit.getServer()).getCommandMap().register("farlands", command);
+        ((CraftServer) Bukkit.getServer()).getCommandMap().register("farlands", command);
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Command> T getCommand(Class<T> clazz) {
-        return (T)commands.stream().filter(c -> clazz.equals(c.getClass())).findAny().orElse(null);
+        return (T) commands.stream().filter(c -> clazz.equals(c.getClass())).findAny().orElse(null);
     }
 
     public Command getCommand(String alias) {
@@ -246,8 +249,8 @@ public class CommandHandler extends Mechanic {
         // Ensure the command was sent in a channel where we accept commands
         if (
                 (!(command instanceof DiscordCommand)) &&
-                FarLands.getDiscordHandler().getChannel(DiscordChannel.IN_GAME).getIdLong() != message.getChannel().getIdLong() &&
-                FarLands.getDiscordHandler().getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() != message.getChannel().getIdLong()
+                        FarLands.getDiscordHandler().getChannel(DiscordChannel.IN_GAME).getIdLong() != message.getChannel().getIdLong() &&
+                        FarLands.getDiscordHandler().getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() != message.getChannel().getIdLong()
         ) {
             return false;
         }
@@ -361,10 +364,10 @@ public class CommandHandler extends Mechanic {
         return true;
     }
 
-    @EventHandler(priority=EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         Rank senderRank = Rank.getRank(event.getPlayer());
-        if((event.getMessage().startsWith("/minecraft:") && !senderRank.isStaff()) || event.getMessage().startsWith("/farlands:")) {
+        if ((event.getMessage().startsWith("/minecraft:") && !senderRank.isStaff()) || event.getMessage().startsWith("/farlands:")) {
             event.setCancelled(true);
             return;
         }
@@ -375,7 +378,7 @@ public class CommandHandler extends Mechanic {
             return;
         }
 
-        if(event.getMessage().startsWith("/trust"))
+        if (event.getMessage().startsWith("/trust"))
             event.getPlayer().sendMessage(ChatColor.GOLD + "Be careful trusting player on your claim as they are your responsibility.");
 
         if (event.getMessage().trim().equalsIgnoreCase("/co cancel")) {
@@ -402,15 +405,15 @@ public class CommandHandler extends Mechanic {
                 : new String[0];
         Command c = getCommand(command);
         // Notify staff of usage
-        if(!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
+        if (!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))))
             Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
-        if(senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
+        if (senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
                 !COMMAND_LOG_BLACKLIST.contains(command.toLowerCase()))
             FarLands.getDiscordHandler().sendMessage(
                     DiscordChannel.COMMAND_LOG, event.getPlayer().getName() + ": " + fullCommand
             );
-        if(c == null)
+        if (c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             if (shouldNotExecute(c, player))
@@ -423,9 +426,9 @@ public class CommandHandler extends Mechanic {
         event.setCancelled(true);
     }
 
-    @EventHandler(priority=EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onServerCommand(ServerCommandEvent event) {
-        if(event.getCommand().startsWith("/farlands:")) {
+        if (event.getCommand().startsWith("/farlands:")) {
             event.setCancelled(true);
             return;
         }
@@ -437,10 +440,10 @@ public class CommandHandler extends Mechanic {
         String[] args = fullCommand.contains(" ") ? fullCommand.substring(fullCommand.indexOf(' ') + 1).split(" ") : new String[0];
         Command c = getCommand(command);
         // Notify staff of usage
-        if(!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
+        if (!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))) || sender instanceof BlockCommandSender))
             Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
-        if(c == null)
+        if (c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             if (shouldNotExecute(c, sender))

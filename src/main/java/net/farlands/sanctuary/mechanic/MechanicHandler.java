@@ -17,6 +17,9 @@ import org.bukkit.event.server.PluginEnableEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles all plugin mechanics.
+ */
 public class MechanicHandler implements Listener {
     private final List<Mechanic> mechanics;
 

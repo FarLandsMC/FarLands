@@ -49,9 +49,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-
+/**
+ * Handles events related to plugin restrictions.
+ */
 public class Restrictions extends Mechanic {
-
     private final HashSet<UUID> endWarnings = new HashSet<>();
 
     @Override
@@ -110,7 +111,7 @@ public class Restrictions extends Mechanic {
                     .filter(p -> p.getType().isRejoinAlert() && p.notAlerted())
                     .collect(Collectors.toList());
 
-            if(!alertablePunishments.isEmpty()){
+            if (!alertablePunishments.isEmpty()) {
                 Logging.broadcastStaff(
                     TextUtils.format(ChatColor.RED + "%0 has joined for the first time since receiving the following punishment%1: %2",
                         flp.username,
@@ -218,7 +219,7 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onPortalCreation(PortalCreateEvent event) {
-        switch(event.getReason()) {
+        switch (event.getReason()) {
             case NETHER_PAIR: // Prevent portals forming in spawn
                 if(event.getBlocks()
                     .stream()

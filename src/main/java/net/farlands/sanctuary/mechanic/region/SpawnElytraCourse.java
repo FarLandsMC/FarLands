@@ -17,6 +17,9 @@ import org.bukkit.util.Vector;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * FarLands spawn elytra course.
+ */
 public class SpawnElytraCourse extends ElytraCourse<SpawnElytraCourse.PlayerData> {
     // TODO: Get start location
     private static final Location START = new Location(Bukkit.getWorld("world"), 0, 0, 0);
@@ -90,7 +93,7 @@ public class SpawnElytraCourse extends ElytraCourse<SpawnElytraCourse.PlayerData
         }
     }
 
-    protected class PlayerData extends ElytraCourse.PlayerData {
+    protected static class PlayerData extends ElytraCourse.PlayerData {
         Cooldown timer;
 
         PlayerData() {

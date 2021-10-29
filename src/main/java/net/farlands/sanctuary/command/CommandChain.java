@@ -20,34 +20,34 @@ public class CommandChain extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length == 0)
+        if (args.length == 0)
             return false;
         String input = String.join(" ", args);
         List<String> commands = new LinkedList<>();
         int index = 0;
-        while(index < input.length()) {
-            if('{' == input.charAt(index)) {
+        while (index < input.length()) {
+            if ('{' == input.charAt(index)) {
                 Pair<String, Integer> command = FLUtils.getEnclosed(index, input);
-                if(command == null || command.getSecond() < 0)
+                if (command == null || command.getSecond() < 0)
                     return false;
                 commands.add(command.getFirst());
                 index = command.getSecond();
                 continue;
             }
-            ++ index;
+            ++index;
         }
 
         List<String> badCommands = new LinkedList<>();
-        for(String cmd : commands){
+        for (String cmd : commands) {
             String cmdName = cmd.split(" ")[0];
             Command command = FarLands.getCommandHandler().getCommand(cmdName);
-            if(command == null || command.canUse(sender, false)){
+            if (command == null || command.canUse(sender, false)) {
                 Bukkit.dispatchCommand(sender, cmd);
-            }else{
+            } else {
                 badCommands.add(cmdName);
             }
         }
-        if(!badCommands.isEmpty()){
+        if (!badCommands.isEmpty()) {
             TextUtils.sendFormatted(
                     sender,
                     "&(red)You do not have permission to run the following $(inflect,noun,0,command): %1",

@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Easier creation of paginated text in chat.
+ */
 public class Paginate {
     private final int pages;
     private int currentPage;
@@ -87,7 +90,7 @@ public class Paginate {
         StringBuilder buildLines = new StringBuilder();
         for (String line : lines)
             buildLines.append("\n").append(line);
-        page = page + buildLines.toString();
+        page = page + buildLines;
         return page;
     }
 }

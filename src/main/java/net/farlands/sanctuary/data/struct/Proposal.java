@@ -8,6 +8,9 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.md_5.bungee.api.ChatColor;
 
+/**
+ * Handles a proposal.
+ */
 public class Proposal {
     private long messageID;
     private long dateEnds;
@@ -21,7 +24,7 @@ public class Proposal {
     private void init(String issuer) {
 
         Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).sendMessage(
-            messageEmbed(message, issuer, ((staffCount() + 1) / 2))
+                messageEmbed(message, issuer, ((staffCount() + 1) / 2))
         ).complete();
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, "@everyone");
         messageID = messageObj.getIdLong();
@@ -115,11 +118,11 @@ public class Proposal {
 
     private static MessageEmbed messageEmbed(String message, String issuer, int amountToPass) {
         return new EmbedBuilder()
-            .setColor(ChatColor.YELLOW.getColor())
-            .setTitle("New Proposal")
-            .setDescription("```" + message + "```")
-            .addField("Issued By", issuer, false)
-            .addField("Votes to Pass", "" + amountToPass, false)
-            .build();
+                .setColor(ChatColor.YELLOW.getColor())
+                .setTitle("New Proposal")
+                .setDescription("```" + message + "```")
+                .addField("Issued By", issuer, false)
+                .addField("Votes to Pass", "" + amountToPass, false)
+                .build();
     }
 }

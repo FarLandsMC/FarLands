@@ -6,6 +6,9 @@ import org.bukkit.Bukkit;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles plugin scheduling
+ */
 public class Scheduler extends Thread {
     private final List<TaskBase> tasks;
     private int currentTaskUid;
@@ -19,14 +22,14 @@ public class Scheduler extends Thread {
 
     @Override
     public void run() {
-        while(running) {
-            synchronized(this) {
+        while (running) {
+            synchronized (this) {
                 tasks.forEach(TaskBase::tick);
                 tasks.removeIf(TaskBase::isComplete);
             }
             try {
                 sleep(50L - (System.currentTimeMillis() % 50L)); // Account for execution time
-            }catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
                 ex.printStackTrace(System.out);
             }
         }

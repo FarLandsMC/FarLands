@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Base cheat prevention class.
+ */
 public class AntiCheat extends Mechanic {
     private final Map<UUID, XRayStore> xray;
     private final Map<UUID, FlightStore> flight;
@@ -43,7 +46,7 @@ public class AntiCheat extends Mechanic {
     }
 
     public void muteFlightDetector(Player player, long ticks) {
-        if(flight.containsKey(player.getUniqueId()))
+        if (flight.containsKey(player.getUniqueId()))
             flight.get(player.getUniqueId()).mute(ticks);
     }
 
@@ -79,7 +82,7 @@ public class AntiCheat extends Mechanic {
 
     @EventHandler
     public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
-        if(event.getDamager().getType() == EntityType.ENDER_DRAGON && event.getEntityType() == EntityType.PLAYER)
+        if (event.getDamager().getType() == EntityType.ENDER_DRAGON && event.getEntityType() == EntityType.PLAYER)
             muteFlightDetector((Player)event.getEntity(), 10);
     }
 
@@ -91,7 +94,7 @@ public class AntiCheat extends Mechanic {
 
     @EventHandler
     public void onChannelRegister(PlayerRegisterChannelEvent event) {
-        if(!event.getChannel().equalsIgnoreCase("WDL|INIT"))
+        if (!event.getChannel().equalsIgnoreCase("WDL|INIT"))
             return;
         broadcast(event.getPlayer().getName() + " was kicked for using World Downloader.", true);
         event.getPlayer().kickPlayer(ChatColor.RED + "Please disable World Downloader.");
@@ -99,14 +102,14 @@ public class AntiCheat extends Mechanic {
 
     @EventHandler(ignoreCancelled=true)
     public void onPlayerMove(PlayerMoveEvent event) {
-        if(GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && flight.containsKey(event.getPlayer().getUniqueId()))
+        if (GameMode.SURVIVAL.equals(event.getPlayer().getGameMode()) && flight.containsKey(event.getPlayer().getUniqueId()))
             flight.get(event.getPlayer().getUniqueId()).onUpdate();
     }
 
     // Formats a message for Anti Cheat
     public static void broadcast(String message, boolean sendToAlerts) {
         Logging.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
-        if(sendToAlerts)
+        if (sendToAlerts)
             sendDiscordAlert(message);
     }
 

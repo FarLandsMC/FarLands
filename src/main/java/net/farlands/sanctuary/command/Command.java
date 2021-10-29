@@ -20,6 +20,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Base class for all plugin commands.
+ */
 public abstract class Command extends org.bukkit.command.Command {
     protected static final List<String> TRUE_OR_FALSE = Arrays.asList("true", "false");
 
@@ -59,24 +62,24 @@ public abstract class Command extends org.bukkit.command.Command {
         try {
             // Add the alias to the args array if needed
             String[] args = requiresAlias ? new String[args0.length + 1] : args0;
-            if(requiresAlias) {
+            if (requiresAlias) {
                 args[0] = alias.toLowerCase();
                 System.arraycopy(args0, 0, args, 1, args0.length);
             }
             try {
-                if(!execute(sender, args))
+                if (!execute(sender, args))
                     showUsage(sender);
-            }catch(TextUtils.SyntaxException ex) {
+            } catch (TextUtils.SyntaxException ex) {
                 sender.sendMessage(ChatColor.RED + ex.getMessage());
             }
-        }catch(Throwable ex) {
+        } catch (Throwable ex) {
             sender.sendMessage("There was an error executing this command.");
             StringBuilder error = new StringBuilder();
             error.append(ex.getClass().getName()).append(": ").append(ex.getMessage()).append('\n');
-            for(StackTraceElement ste : ex.getStackTrace())
+            for (StackTraceElement ste : ex.getStackTrace())
                 error.append("    ").append(ste.toString()).append('\n');
             String errorString = error.toString();
-            if(showErrorsOnDiscord()) {
+            if (showErrorsOnDiscord()) {
                 Logging.error("Error executing command " + getName() + " from " + sender.getName() + ": `" +
                         alias.toLowerCase() + " " + String.join(" ", args0) + "`");
                 FarLands.getDebugger().echo(errorString.length() > 1994 ? errorString.substring(0, 1991) + "..." : errorString);
@@ -105,11 +108,11 @@ public abstract class Command extends org.bukkit.command.Command {
         return canUse(sender, true);
     }
 
-    public boolean canUse(CommandSender sender, boolean alertSender){
+    public boolean canUse(CommandSender sender, boolean alertSender) {
         if (Rank.getRank(sender).specialCompareTo(minimumRankRequirement) < 0) {
-            if(alertSender)
+            if (alertSender)
                 sender.sendMessage(ChatColor.RED + "You must be at least rank " +
-                    FLUtils.capitalize(minimumRankRequirement.toString()) + " to use this command.");
+                        FLUtils.capitalize(minimumRankRequirement.toString()) + " to use this command.");
             return false;
         }
         return true;
@@ -138,7 +141,7 @@ public abstract class Command extends org.bukkit.command.Command {
     public static <T> T parseNumber(String input, Function<String, T> parser, T onFail) {
         try {
             return parser.apply(input);
-        }catch(Throwable t) {
+        } catch (Throwable t) {
             return onFail;
         }
     }

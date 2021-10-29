@@ -2,6 +2,9 @@ package net.farlands.sanctuary.data.struct;
 
 import java.util.Arrays;
 
+/**
+ * Handles player pronouns.
+ */
 public class Pronouns {
 
     public final SubjectPronoun subject;
@@ -9,13 +12,13 @@ public class Pronouns {
 
     public boolean showOnDiscord;
 
-    public Pronouns (SubjectPronoun subject, ObjectPronoun object, boolean showOnDiscord) {
+    public Pronouns(SubjectPronoun subject, ObjectPronoun object, boolean showOnDiscord) {
         this.subject = subject;
         this.object = object;
         this.showOnDiscord = showOnDiscord;
     }
 
-    public Pronouns (SubjectPronoun subject, ObjectPronoun object) {
+    public Pronouns(SubjectPronoun subject, ObjectPronoun object) {
         this(subject, object, false);
     }
 
@@ -29,13 +32,13 @@ public class Pronouns {
             return null;
         }
         return parenthesis ? (
-            subject.hasNoObject() || object == null ?
-            "(" + subject.getHumanName() + ")" :
-            "(" + subject.getHumanName() + "/" + object.getHumanName() + ")"
+                subject.hasNoObject() || object == null ?
+                        "(" + subject.getHumanName() + ")" :
+                        "(" + subject.getHumanName() + "/" + object.getHumanName() + ")"
         ) : (
-            subject.hasNoObject() || object == null ?
-            subject.getHumanName() :
-            subject.getHumanName() + "/" + object.getHumanName()
+                subject.hasNoObject() || object == null ?
+                        subject.getHumanName() :
+                        subject.getHumanName() + "/" + object.getHumanName()
         );
     }
 
@@ -56,12 +59,12 @@ public class Pronouns {
         private final String humanName;
         private final boolean noObject; // If there is no object that goes with this subject, like "Other"
 
-        SubjectPronoun (String humanName, boolean noObject){
+        SubjectPronoun(String humanName, boolean noObject) {
             this.humanName = humanName;
             this.noObject = noObject;
         }
 
-        SubjectPronoun (String humanName) {
+        SubjectPronoun(String humanName) {
             this(humanName, false);
         }
 
@@ -98,7 +101,7 @@ public class Pronouns {
 
         private final String humanName;
 
-        ObjectPronoun(String humanName){
+        ObjectPronoun(String humanName) {
             this.humanName = humanName;
         }
 

@@ -2,6 +2,9 @@ package net.farlands.sanctuary.command;
 
 import net.farlands.sanctuary.util.FLUtils;
 
+/**
+ * Command categories.
+ */
 public enum Category {
     HOMES("our /home commands"),
     CLAIMS("commands related to creating and modifying claims"),

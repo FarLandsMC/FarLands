@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles markdown processing.
+ */
 public class MarkdownProcessor {
     private static final CharacterProtector HTML_PROTECTOR = new CharacterProtector();
     private static final CharacterProtector CHAR_PROTECTOR = new CharacterProtector();

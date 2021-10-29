@@ -13,7 +13,7 @@ public class CommandDelay extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if(args.length < 2)
+        if (args.length < 2)
             return false;
         long delay = TimeInterval.parseSeconds(args[0]) * 20L;
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> Bukkit.dispatchCommand(sender, joinArgsBeyond(0, " ", args)), delay);

@@ -64,8 +64,8 @@ public class GeneralMechanics extends Mechanic {
     private static final List<EntityType> LEASHABLE_ENTITIES = Arrays.asList(EntityType.SKELETON_HORSE,
             EntityType.VILLAGER, EntityType.TURTLE, EntityType.PANDA, EntityType.FOX);
 
-    private Cooldown nightSkip;
-    private List<UUID> leashedEntities;
+    private final Cooldown nightSkip;
+    private final List<UUID> leashedEntities;
     private BukkitTask nightSkipTask;
 
     // Recently punished players (since server restart)
@@ -355,8 +355,7 @@ public class GeneralMechanics extends Mechanic {
             duplicate.setVillagerData(handle.getVillagerData());
             ReflectionHelper.setNonFinalFieldValue("bT", EntityVillagerAbstract.class, duplicate, FLUtils.copyRecipeList(handle.getOffers()));
             event.getPlayer().openMerchant(new CraftVillager((CraftServer) Bukkit.getServer(), duplicate), true);
-        } else if (ent instanceof Tameable) {
-            Tameable pet = (Tameable) ent;
+        } else if (ent instanceof Tameable pet) {
             if (!(pet.isTamed() && pet.getOwner() != null && (event.getPlayer().getUniqueId().equals(pet.getOwner().getUniqueId()) ||
                     Rank.getRank(event.getPlayer()).isStaff())))
                 return;
@@ -449,18 +448,16 @@ public class GeneralMechanics extends Mechanic {
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         switch (event.getEntityType()) {
-            case ENDER_DRAGON:
+            case ENDER_DRAGON -> {
                 event.setDroppedExp(4000);
                 Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     Block block = event.getEntity().getWorld().getBlockAt(0, 75, 0);
                     block.setType(Material.DRAGON_EGG);
                     block.getWorld().getNearbyEntities(block.getLocation(), 50, 50, 50)
-                            .forEach(e -> sendFormatted(e, "&(gray)As the dragon dies, an egg forms below."));
+                        .forEach(e -> sendFormatted(e, "&(gray)As the dragon dies, an egg forms below."));
                 }, 15L * 20L);
-                break;
-            case VILLAGER:
-                FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
-                break;
+            }
+            case VILLAGER -> FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
         }
     }
 
@@ -468,9 +465,8 @@ public class GeneralMechanics extends Mechanic {
     public void onPlayerDeath(PlayerDeathEvent event) {
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getEntity().getLocation());
         if (flags != null && flags.isAdminOwned()  && !(flags instanceof WorldData)) {
-            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                Bukkit.getOfflinePlayer(event.getEntity().getUniqueId()).decrementStatistic(Statistic.DEATHS);
-            }, 5L);
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () ->
+                Bukkit.getOfflinePlayer(event.getEntity().getUniqueId()).decrementStatistic(Statistic.DEATHS), 5L);
         }
 
         Player player = event.getEntity();
@@ -579,20 +575,21 @@ public class GeneralMechanics extends Mechanic {
     private String uuidsToStealInfo(List<UUID> uuids) {
         return uuids.size() > 0 ? uuids.stream().map(uuid -> {
             OfflineFLPlayer player = FarLands.getDataHandler().getOfflineFLPlayer(uuid);
-            if(player == null){
+            if (player == null) {
                 return "Unknown Player";
             }
-            return player.username + "(Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() - player.getLastLogin(), true, TimeInterval.DAY) + ")";
+            return player.username + "(Last Seen: " + TimeInterval.formatTime(System.currentTimeMillis() -
+                player.getLastLogin(), true, TimeInterval.DAY) + ")";
         }).collect(Collectors.joining(", ")) : "none";
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onClaimAbandoned(ClaimAbandonEvent event) {
-        if(event.getRegions().size() == 0){
+        if (event.getRegions().size() == 0) {
             return;
         }
 
-        switch(event.getRegions().size()){
+        switch (event.getRegions().size()){
             case 0:
                 return;
             case 1:
@@ -628,9 +625,6 @@ public class GeneralMechanics extends Mechanic {
                        .append(rg.isRecentlyStolen());
                 });
                 FarLands.getDebugger().echo(sb.toString());
-                return;
         }
-
     }
-
 }

@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles different discord channels.
+ */
 public class MessageChannelHandler {
     private final Map<DiscordChannel, MessageChannel> channels;
     private final Map<DiscordChannel, List<String>> buffers;
@@ -26,19 +29,19 @@ public class MessageChannelHandler {
         StringBuilder sb = new StringBuilder();
         channels.forEach((channel, messageChannel) -> {
             buffers.get(channel).forEach(messageBuffer -> {
-                if(sb.length() + messageBuffer.length() > 1999) {
-                    for(int i = 0;i < messageBuffer.length();i += 1999) {
-                        if(sb.length() > 0) {
+                if (sb.length() + messageBuffer.length() > 1999) {
+                    for (int i = 0; i < messageBuffer.length(); i += 1999) {
+                        if (sb.length() > 0) {
                             messageChannel.sendMessage(sb).queue();
                             sb.setLength(0);
                         }
                         sb.append(messageBuffer.substring(i, Math.min(i + 1999, messageBuffer.length())).trim()).append('\n');
                     }
-                }else
+                } else
                     sb.append(messageBuffer.trim()).append('\n');
             });
 
-            if(sb.length() > 0 && !sb.toString().matches("\\s+")) {
+            if (sb.length() > 0 && !sb.toString().matches("\\s+")) {
                 messageChannel.sendMessage(sb).queue();
                 sb.setLength(0);
             }
@@ -58,7 +61,7 @@ public class MessageChannelHandler {
 
     public synchronized void sendMessage(MessageChannel channel, String message) {
         DiscordChannel key = FLUtils.getKey(channels, channel);
-        if(key == null)
+        if (key == null)
             channel.sendMessage(message).queue();
         else
             sendMessage(key, message);
@@ -66,7 +69,7 @@ public class MessageChannelHandler {
 
     public synchronized void sendMessage(DiscordChannel channel, String message) {
         List<String> buffer = buffers.get(channel);
-        if(buffer == null)
+        if (buffer == null)
             return;
 
         buffer.add(message);

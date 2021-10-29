@@ -7,7 +7,7 @@ import org.bukkit.Location;
 import java.util.UUID;
 
 /**
- * This class will play nice with Gson.
+ * Wrapper for Bukkit {@link Location} that will play nice with Gson.
  */
 public class LocationWrapper {
     protected final UUID world;
@@ -44,14 +44,13 @@ public class LocationWrapper {
 
     @Override
     public boolean equals(Object other) {
-        if(other == this)
+        if (other == this)
             return true;
-        if(other == null)
+        if (other == null)
             return false;
-        if(other instanceof LocationWrapper) {
-            LocationWrapper wrapper = (LocationWrapper)other;
+        if (other instanceof LocationWrapper wrapper) {
             return world.equals(wrapper.world) && x == wrapper.x && y == wrapper.y && z == wrapper.z;
-        }else
+        } else
             return false;
     }
 

@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Handles toggle for an online player.
+ */
 public class FLPlayerSession {
     public final Player player;
     public final OfflineFLPlayer handle;
@@ -215,7 +218,7 @@ public class FLPlayerSession {
         }
         if (!handle.rank.isStaff() && (
                 FarLands.getWorld().equals(player.getWorld()) ||
-                "world_the_end".equals(player.getWorld().getName()))
+                        "world_the_end".equals(player.getWorld().getName()))
         ) {
             flying = false;
         }
@@ -245,27 +248,27 @@ public class FLPlayerSession {
             handle.pendingSharehomes.forEach((k, v) -> {
                 String message = v.message == null ? "" : "&(gold)Message: &(aqua)" + v.message.replaceAll(",", " ") + "\n";
                 pendingHomes.add(
-                    "{" +
-                        "$(click:suggest_command,/sharehome accept " + k + " )" +
-                        "$(hover:show_text," +
-                            "&(gold)Sender: &(aqua)" + k + "\n" +
-                            message + "&(gold)Name: &(aqua)" + v.home.getName() + "\n" +
-                            "&(" +
-                        "gray)Click to accept" +
-                        ")&(aqua)" + k +
-                    "}"
+                        "{" +
+                                "$(click:suggest_command,/sharehome accept " + k + " )" +
+                                "$(hover:show_text," +
+                                "&(gold)Sender: &(aqua)" + k + "\n" +
+                                message + "&(gold)Name: &(aqua)" + v.home.getName() + "\n" +
+                                "&(" +
+                                "gray)Click to accept" +
+                                ")&(aqua)" + k +
+                                "}"
                 );
             });
 
             try {
                 TextUtils2.sendFormatted(
-                    player,
-                    "&(gold)You have pending homes from %0 %1: %2\n" +
-                        "Hover over the %3 to view more info.",
-                    handle.pendingSharehomes.size(),
-                    handle.pendingSharehomes.size() == 1 ? "player" : "players",
-                    String.join(", ", pendingHomes),
-                    handle.pendingSharehomes.size() == 1 ? "name" : "names"
+                        player,
+                        "&(gold)You have pending homes from %0 %1: %2\n" +
+                                "Hover over the %3 to view more info.",
+                        handle.pendingSharehomes.size(),
+                        handle.pendingSharehomes.size() == 1 ? "player" : "players",
+                        String.join(", ", pendingHomes),
+                        handle.pendingSharehomes.size() == 1 ? "name" : "names"
                 );
             } catch (TextUtils2.ParserError e) {
                 e.printStackTrace();

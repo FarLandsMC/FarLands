@@ -13,6 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
+/**
+ * Handles writing and reading FL files.
+ */
 public final class FileSystem {
     private FileSystem() {
     }
@@ -45,7 +48,7 @@ public final class FileSystem {
         if (!file.exists())
             return;
         if (file.isDirectory()) {
-            Files.walkFileTree(file.toPath(), new FileVisitor<Path>() {
+            Files.walkFileTree(file.toPath(), new FileVisitor<>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                     return FileVisitResult.CONTINUE;

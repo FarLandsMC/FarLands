@@ -2,6 +2,10 @@ package net.farlands.sanctuary.data;
 
 import net.farlands.sanctuary.FarLands;
 
+/**
+ * A transient field.
+ * @param <T> object
+ */
 public class TransientField<T> {
     private T value;
     private int expirationTaskUid;

@@ -1,5 +1,8 @@
 package net.farlands.sanctuary.discord;
 
+/**
+ * All discord channels.
+ */
 public enum DiscordChannel {
     NOTEBOOK,
     REPORTS,

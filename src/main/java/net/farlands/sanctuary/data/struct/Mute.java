@@ -4,9 +4,12 @@ import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+/**
+ * Handles player mutes.
+ */
 public final class Mute {
-    private long dateEnds; // In milliseconds since epoch
-    private String reason;
+    private final long dateEnds; // In milliseconds since epoch
+    private final String reason;
 
     public Mute(int duration, String reason) {
         this.dateEnds = System.currentTimeMillis() + duration * 1000L;
@@ -44,8 +47,8 @@ public final class Mute {
 
     public void sendMuteMessage(CommandSender sender) {
         sender.sendMessage(
-            ChatColor.RED + "You may not type in chat. You were muted for: " + ChatColor.GOLD + reason +
-            ChatColor.RED + " Your mute expires in " + TimeInterval.formatTime(timeRemaining(), false) + "."
+                ChatColor.RED + "You may not type in chat. You were muted for: " + ChatColor.GOLD + reason +
+                        ChatColor.RED + " Your mute expires in " + TimeInterval.formatTime(timeRemaining(), false) + "."
         );
     }
 }

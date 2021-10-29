@@ -5,6 +5,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 
+/**
+ * A collection of items.
+ */
 public class ItemCollection {
     private final Map<String, JsonItemStack> namedItems;
     private final GameRewardSet gameRewardSet;

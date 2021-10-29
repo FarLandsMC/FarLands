@@ -7,10 +7,13 @@ import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * An item stack with nbt.
+ */
 public class JsonItemStack {
-    private String itemName;
-    private int count;
-    private String nbt;
+    private final String itemName;
+    private final int count;
+    private final String nbt;
     private transient ItemStack stack;
 
     public JsonItemStack() {

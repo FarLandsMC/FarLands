@@ -45,8 +45,11 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
+/**
+ * Handles plugin toggles.
+ */
 public class Toggles extends Mechanic {
-    private Map<UUID, List<Advancement>> lastAdvancementMessage;
+    private final Map<UUID, List<Advancement>> lastAdvancementMessage;
 
     public Toggles() {
         this.lastAdvancementMessage = new HashMap<>();
@@ -54,18 +57,16 @@ public class Toggles extends Mechanic {
 
     @Override
     public void onStartup() {
-        FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
-            Bukkit.getOnlinePlayers().forEach(player -> {
-                FLPlayerSession session = FarLands.getDataHandler().getSession(player);
-                if (session.autoSendStaffChat)
-                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)Staff chat auto-messaging is toggled on.");
-                else if (session.handle.vanished)
-                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are vanished.");
-                else if (session.replyToggleRecipient != null)
-                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are messaging %0.",
-                            session.replyToggleRecipient.getName());
-            });
-        }, 0L, 40L);
+        FarLands.getScheduler().scheduleSyncRepeatingTask(() -> Bukkit.getOnlinePlayers().forEach(player -> {
+            FLPlayerSession session = FarLands.getDataHandler().getSession(player);
+            if (session.autoSendStaffChat)
+                sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)Staff chat auto-messaging is toggled on.");
+            else if (session.handle.vanished)
+                sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are vanished.");
+            else if (session.replyToggleRecipient != null)
+                sendFormatted(player, ChatMessageType.ACTION_BAR, "&(gray)You are messaging %0.",
+                        session.replyToggleRecipient.getName());
+        }), 0L, 40L);
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Play.Server.PLAYER_INFO) {
             @Override
@@ -189,8 +190,7 @@ public class Toggles extends Mechanic {
             return;
 
         Player damager = event.getDamager() instanceof Player ? (Player) event.getDamager() : null;
-        if (damager == null && event.getDamager() instanceof Projectile) {
-            Projectile p = (Projectile) event.getDamager();
+        if (damager == null && event.getDamager() instanceof Projectile p) {
             damager = p.getShooter() instanceof Player ? (Player) p.getShooter() : null;
         }
         if (damager == null || damager == event.getEntity())

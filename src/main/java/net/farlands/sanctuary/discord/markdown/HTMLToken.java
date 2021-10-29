@@ -1,5 +1,8 @@
 package net.farlands.sanctuary.discord.markdown;
 
+/**
+ * An HTML token.
+ */
 public class HTMLToken {
     private final boolean isTag;
     private final String text;

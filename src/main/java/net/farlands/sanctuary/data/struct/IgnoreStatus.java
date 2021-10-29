@@ -2,6 +2,9 @@ package net.farlands.sanctuary.data.struct;
 
 import com.kicas.rp.util.Utils;
 
+/**
+ * Ignore options and status.
+ */
 public class IgnoreStatus {
     private int flags;
 
@@ -39,12 +42,12 @@ public class IgnoreStatus {
         // Toggle all on or all off
         if (type == IgnoreType.ALL)
             flags = value ? ~0 : 0;
-        // Toggle one flag on or off
+            // Toggle one flag on or off
         else {
             // If all flags are on, then toggle off the "all" flag and the specified flag
             if (includesAll() && !value)
                 flags = ~(type.flag() | IgnoreType.ALL.flag());
-            // Toggle on or off the single flag
+                // Toggle on or off the single flag
             else {
                 if (value)
                     flags |= type.flag();

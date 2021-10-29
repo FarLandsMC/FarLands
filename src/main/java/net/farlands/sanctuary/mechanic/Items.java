@@ -27,6 +27,9 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Handles events related to items.
+ */
 public class Items extends Mechanic {
     private final Map<UUID, TNTArrow> tntArrows;
 
@@ -78,7 +81,7 @@ public class Items extends Mechanic {
             if ((inv.getItemInMainHand().getType() == Material.BOW
                     ? inv.getItemInMainHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0
                     : inv.getItemInOffHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0) &&
-                    arrowIndex >= 0 && ((Player) event.getEntity()).getGameMode() == GameMode.SURVIVAL) {
+                    ((Player) event.getEntity()).getGameMode() == GameMode.SURVIVAL) {
                 if (arrow.getAmount() == 1)
                     inv.setItem(arrowIndex, null);
                 else

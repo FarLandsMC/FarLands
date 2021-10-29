@@ -1,5 +1,8 @@
 package net.farlands.sanctuary.scheduling;
 
+/**
+ * Base class for tasks.
+ */
 public abstract class TaskBase {
     protected final int uid;
     protected final Runnable task;
@@ -32,7 +35,7 @@ public abstract class TaskBase {
     public abstract long timeRemaining();
 
     public final void tick() {
-        if(complete)
+        if (complete)
             return;
         update();
     }

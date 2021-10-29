@@ -1,5 +1,8 @@
 package net.farlands.sanctuary.scheduling;
 
+/**
+ * Represents a task that runs multiple times.
+ */
 public class RepeatingTask extends TaskBase {
     private final long cycleTime;
     private long delay;
@@ -14,13 +17,13 @@ public class RepeatingTask extends TaskBase {
 
     @Override
     protected void update() {
-        if(delay <= 0) {
-            if(initialDelayComplete) {
+        if (delay <= 0) {
+            if (initialDelayComplete) {
                 task.run();
                 delay = cycleTime;
-            }else
+            } else
                 initialDelayComplete = true;
-        }else
+        } else
             -- delay;
     }
 

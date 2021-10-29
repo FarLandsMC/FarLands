@@ -14,13 +14,14 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.intellij.lang.annotations.RegExp;
 
-import javax.annotation.RegEx;
 import java.awt.*;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+/**
+ * General logging methods.
+ */
 public final class Logging {
     public static void broadcastIngame(BaseComponent[] message) {
         Bukkit.getOnlinePlayers().stream().map(Player::spigot).forEach(spigot -> spigot.sendMessage(message));

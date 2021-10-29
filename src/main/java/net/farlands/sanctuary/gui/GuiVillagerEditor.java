@@ -16,6 +16,9 @@ import static org.bukkit.entity.Villager.Profession.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Gui for the villager editor.
+ */
 public class GuiVillagerEditor extends Gui {
     private final CraftVillager villager;
     private final List<List<ItemStack>> screens;
@@ -28,10 +31,10 @@ public class GuiVillagerEditor extends Gui {
         FarLands.getDataHandler().getPluginData().addSpawnTrader(villager.getUniqueId());
 
         // Initialize the trade editing windows
-        for(int i = 0;i < 4;++ i) {
+        for (int i = 0; i < 4; i++) {
             List<ItemStack> screen = new ArrayList<>();
             // 12 trades per window
-            for(int j = i * 12;j < Math.min(villager.getRecipeCount(), 12 * (i + 1));++ j) {
+            for (int j = i * 12; j < Math.min(villager.getRecipeCount(), 12 * (i + 1)); j++) {
                 MerchantRecipe recipe = villager.getRecipe(j);
                 screen.add(recipe.getIngredients().get(0));
                 screen.add(recipe.getIngredients().size() == 2 ? recipe.getIngredients().get(1) : null);
@@ -56,7 +59,7 @@ public class GuiVillagerEditor extends Gui {
     private void changeScreen(int newScreen) {
         saveScreen();
         screen = newScreen;
-        if(screen == screens.size())
+        if (screen == screens.size())
             newInventory(27, SCREEN_NAMES[SCREEN_NAMES.length - 1]);
         else
             newInventory(54, SCREEN_NAMES[newScreen]);
@@ -73,7 +76,7 @@ public class GuiVillagerEditor extends Gui {
         addActionItem(size - 3, Material.IRON_INGOT, ChatColor.GOLD + SCREEN_NAMES[3], () -> changeScreen(3));
         addActionItem(size - 1, Material.PAPER, ChatColor.GOLD + SCREEN_NAMES[4], () -> changeScreen(screens.size()));
 
-        if(screen == screens.size()) { // Settings
+        if (screen == screens.size()) { // Settings
             // Profession options
             addActionItem(0, Material.WHEAT, ChatColor.GOLD + "Farmer", () -> villager.setProfession(FARMER));
             addActionItem(1, Material.ENCHANTED_BOOK, ChatColor.GOLD + "Librarian", () -> villager.setProfession(LIBRARIAN));
@@ -95,17 +98,17 @@ public class GuiVillagerEditor extends Gui {
                 setLore(10, "Value: " + villager.getHandle().isNoGravity());
             }, "Value: " + villager.getHandle().isNoGravity());
             addActionItem(11, Material.GLASS, ChatColor.GOLD + "Invisible", () -> {
-                if(villager.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                if (villager.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                     villager.removePotionEffect(PotionEffectType.INVISIBILITY);
                     setLore(11, "Value: false");
-                }else{
+                } else {
                     villager.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false), true);
                     setLore(11, "Value: true");
                 }
             }, "Value: " + villager.hasPotionEffect(PotionEffectType.INVISIBILITY));
-        }else{
+        } else {
             // Add the labels at the top
-            for(int i = 0;i < 9;i += 3) {
+            for (int i = 0; i < 9; i += 3) {
                 addLabel(i, Material.DIAMOND, ChatColor.BLUE + "Buy 1");
                 addLabel(i + 1, Material.DIAMOND, ChatColor.BLUE + "Buy 2");
                 addLabel(i + 2, Material.LEATHER_HELMET, ChatColor.BLUE + "Sell", "Right-click the sold item for a trade", "to remove that trade.");
@@ -116,7 +119,7 @@ public class GuiVillagerEditor extends Gui {
     }
 
     private void populateTrades(List<ItemStack> stacks) {
-        for(int i = 9;i < stacks.size() + 9;++ i)
+        for (int i = 9; i < stacks.size() + 9; i++)
             inv.setItem(i, stacks.get(i - 9));
     }
 
@@ -125,9 +128,9 @@ public class GuiVillagerEditor extends Gui {
         super.onItemClick(event);
 
         int slot = event.getRawSlot();
-        if(event.isCancelled() || slot > 44 || screen == screens.size())
+        if (event.isCancelled() || slot > 44 || screen == screens.size())
             return;
-        if(event.isRightClick() && slot % 3 == 2) { // Remove the current trade
+        if (event.isRightClick() && slot % 3 == 2) { // Remove the current trade
             inv.setItem(slot - 2, null);
             inv.setItem(slot - 1, null);
             inv.setItem(slot, null);
@@ -135,10 +138,10 @@ public class GuiVillagerEditor extends Gui {
     }
 
     private void saveScreen() { // Take the items from the inventory and save them in the item lists
-        if(screen == screens.size())
+        if (screen == screens.size())
             return;
         screens.get(screen).clear();
-        for(int i = 9;i < 45;++ i)
+        for (int i = 9; i < 45; i++)
             screens.get(screen).add(inv.getItem(i));
     }
 
@@ -148,18 +151,18 @@ public class GuiVillagerEditor extends Gui {
 
         // Compound all the trades into one list
         List<ItemStack> screen = screens.get(0);
-        for(int i = 1;i < screens.size();++ i)
+        for (int i = 1;i < screens.size();++ i)
             screen.addAll(screens.get(i));
 
         // Convert the items into trades
         List<MerchantRecipe> recipes = new ArrayList<>();
-        for(int i = 0;i < screen.size();i += 3) {
+        for (int i = 0; i < screen.size(); i += 3) {
             ItemStack buy = screen.get(i), buyB = screen.get(i + 1), sell = screen.get(i + 2);
-            if(buy == null || sell == null)
+            if (buy == null || sell == null)
                 continue;
             MerchantRecipe recipe = new MerchantRecipe(sell, 0, 9999999, false);
             recipe.addIngredient(buy);
-            if(buyB != null)
+            if (buyB != null)
                 recipe.addIngredient(buyB);
             recipes.add(recipe);
         }

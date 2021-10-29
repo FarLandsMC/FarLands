@@ -46,6 +46,9 @@ import org.spigotmc.event.entity.EntityDismountEvent;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * FarLands Autumn Event.
+ */
 public class AutumnEvent extends Mechanic {
 
     private static final List<GraveZombie> GRAVE_ZOMBIES = Arrays.asList(

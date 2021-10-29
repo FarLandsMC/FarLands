@@ -1,5 +1,8 @@
 package net.farlands.sanctuary.data.struct;
 
+/**
+ * Represents a shared home.
+ */
 public class ShareHome {
 
     public final String sender;
@@ -15,8 +18,8 @@ public class ShareHome {
     @Override
     public String toString() {
         return "HomeShare[" +
-            "sender:'" + sender + "'" +
-            ", message:'" + message + "'" +
-            ", home:" + home + ']';
+                "sender:'" + sender + "'" +
+                ", message:'" + message + "'" +
+                ", home:" + home + ']';
     }
 }

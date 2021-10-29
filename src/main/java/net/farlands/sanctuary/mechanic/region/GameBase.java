@@ -10,6 +10,10 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Base class for plugin games.
+ * @param <T> the game
+ */
 public abstract class GameBase<T> extends Mechanic {
     protected final Map<Player, T> playerData;
     protected final Region gameRegion;

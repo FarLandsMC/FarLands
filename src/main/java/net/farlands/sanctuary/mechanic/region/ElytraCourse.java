@@ -10,6 +10,10 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base class for elytra courses.
+ * @param <T> the elytra course
+ */
 public abstract class ElytraCourse<T extends ElytraCourse.PlayerData> extends GameBase<T> {
     protected final List<Ring> rings;
 

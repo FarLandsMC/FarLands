@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Config for discord bot.
+ */
 public class DiscordBotConfig {
     public String token;
     public long serverID;

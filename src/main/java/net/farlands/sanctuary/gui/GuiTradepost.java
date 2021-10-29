@@ -8,6 +8,9 @@ import org.bukkit.Material;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Gui for /tradepost.
+ */
 public class GuiTradepost extends Gui {
     private int page;
 
@@ -33,12 +36,12 @@ public class GuiTradepost extends Gui {
 
         int totalPages = totalPages();
 
-        if(page < totalPages - 1)
+        if (page < totalPages - 1)
             addActionItem(53, Material.EMERALD_BLOCK, ChatColor.GOLD.toString() + ChatColor.BOLD + "Next", () -> changeInventory(1));
         else
             addLabel(53, Material.REDSTONE_BLOCK, ChatColor.RED.toString() + ChatColor.BOLD + "No Next Page");
 
-        if(page > 0)
+        if (page > 0)
             addActionItem(45, Material.EMERALD_BLOCK, ChatColor.GOLD.toString() + ChatColor.BOLD + "Previous", () -> changeInventory(-1));
         else
             addLabel(45, Material.REDSTONE_BLOCK, ChatColor.RED.toString() + ChatColor.BOLD + "No Previous Page");

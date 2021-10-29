@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Base class for guis.
+ */
 public abstract class Gui {
     protected final String guiName;
     protected final Map<Integer, Pair<Runnable, Boolean>> clickActions;
@@ -112,9 +115,9 @@ public abstract class Gui {
     }
 
     public void onInventoryClosed() {
-        if(ignoreClose) {
+        if (ignoreClose) {
             ignoreClose = false;
-        }else{
+        } else {
             onClose();
             FarLands.getGuiHandler().removeActiveGui(this);
         }

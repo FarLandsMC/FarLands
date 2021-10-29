@@ -5,6 +5,9 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 
+/**
+ * Handles particles.
+ */
 public class Particles {
     private Particle type;
     private ParticleLocation location;

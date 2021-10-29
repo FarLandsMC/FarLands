@@ -4,7 +4,6 @@ import com.kicas.rp.data.Region;
 
 import net.farlands.sanctuary.command.FLCommandEvent;
 import net.farlands.sanctuary.command.player.CommandSetHome;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Mechanic;
 
 import org.bukkit.*;
@@ -12,8 +11,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 
+/**
+ * Handles FarLands Spawn.
+ */
 public class Spawn extends Mechanic {
 
     private static final Region END_PORTAL = new Region(

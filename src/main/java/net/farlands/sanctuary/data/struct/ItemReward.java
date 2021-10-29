@@ -9,8 +9,11 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * A reward!
+ */
 public class ItemReward extends JsonItemStack implements Comparable<ItemReward> {
-    private int rarity;
+    private final int rarity;
 
     public ItemReward() {
         super();

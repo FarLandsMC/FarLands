@@ -14,7 +14,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.*;
 
-
+/**
+ * Create a parkour course.
+ */
 public class ParkourCourse extends Mechanic {
     private final String rewardSetName;
     private final List<Location> nodes;

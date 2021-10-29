@@ -35,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * This class serves as and API to interact with FarLands' data.
@@ -60,13 +59,13 @@ public class DataHandler extends Mechanic {
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
     private static final List<String> SCRIPTS = Arrays.asList("artifact.sh", "server.sh", "backup.sh", "restart.sh");
-    private static final String MAIN_CONFIG_FILE      = "mainConfig.json";
-    private static final String PLUGIN_DATA_FILE      = Directory.DATA        + File.separator + "private.json";
-    private static final String PLAYER_DATA_FILE      = Directory.PLAYER_DATA + File.separator + "playerdata.json";
-    private static final String EVIDENCE_LOCKERS_FILE = Directory.DATA        + File.separator + "evidenceLockers.nbt";
-    private static final String DEATH_DATABASE        = Directory.DATA        + File.separator + "deaths.nbt";
-    private static final String PACKAGES_FILE         = Directory.DATA        + File.separator + "packages.nbt";
-    private static final String ITEMS_FILE            = Directory.DATA        + File.separator + "items.json";
+    private static final String MAIN_CONFIG_FILE = "mainConfig.json";
+    private static final String PLUGIN_DATA_FILE = Directory.DATA + File.separator + "private.json";
+    private static final String PLAYER_DATA_FILE = Directory.PLAYER_DATA + File.separator + "playerdata.json";
+    private static final String EVIDENCE_LOCKERS_FILE = Directory.DATA + File.separator + "evidenceLockers.nbt";
+    private static final String DEATH_DATABASE = Directory.DATA + File.separator + "deaths.nbt";
+    private static final String PACKAGES_FILE = Directory.DATA + File.separator + "packages.nbt";
+    private static final String ITEMS_FILE = Directory.DATA + File.separator + "items.json";
 
     private void init() {
         SCRIPTS.forEach(script -> {
@@ -180,8 +179,8 @@ public class DataHandler extends Mechanic {
 
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.setTitle("Patch Notes")
-                        .setDescription("Patch **#" + dh.getCurrentPatch() + "** has been released!")
-                        .setColor(ChatColor.GOLD.getColor());
+                            .setDescription("Patch **#" + dh.getCurrentPatch() + "** has been released!")
+                            .setColor(ChatColor.GOLD.getColor());
 
                     sectionsList.forEach(s -> {
                         String v = String.join("\n", sections.get(s));
@@ -549,7 +548,7 @@ public class DataHandler extends Mechanic {
         });
         rtsPackages.forEach(lPackage -> addPackage(lPackage.senderUuid,
                 new Package(null, "FarLands Packaging Service",
-                lPackage.item, "Return To Sender", true)
+                        lPackage.item, "Return To Sender", true)
         ));
     }
 
@@ -607,17 +606,18 @@ public class DataHandler extends Mechanic {
     }
 
     public void loadCriticalData() {
-        config =     FileSystem.loadJson(Config.class,     FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
+        config = FileSystem.loadJson(Config.class, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         pluginData = FileSystem.loadJson(PluginData.class, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
     }
 
     public void saveCriticalData() {
-        FileSystem.saveJson(config,     FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
+        FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
         FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
     }
 
     public void loadData() {
-        FileSystem.loadJson(new TypeToken<Collection<OfflineFLPlayer>>() { }, Collections.emptyList(),
+        FileSystem.loadJson(new TypeToken<Collection<OfflineFLPlayer>>() {
+                            }, Collections.emptyList(),
                 FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE)).forEach(flp -> {
             flPlayerMap.put(flp.uuid, flp);
             if (flp.deaths <= 0 && flp.secondsPlayed > 30 * 60) // Check players with less than 1 death and more than 30 minutes of playtime
@@ -653,7 +653,8 @@ public class DataHandler extends Mechanic {
             t.printStackTrace(System.out);
         }
 
-        itemData = FileSystem.loadJson(new TypeToken<>() { }, new HashMap<>(), FileSystem.getFile(rootDirectory, ITEMS_FILE));
+        itemData = FileSystem.loadJson(new TypeToken<>() {
+        }, new HashMap<>(), FileSystem.getFile(rootDirectory, ITEMS_FILE));
         loadEvidenceLockers();
         loadDeathDatabase();
         loadPackages();

@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Methods for debugging plugin issues.
+ */
 public class Debugger {
     private final Map<String, Function<String[], String>> posts;
 
@@ -21,7 +24,7 @@ public class Debugger {
 
     public void echo(String key, Supplier<String> data) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if(FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
+            if (FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + key + ": " + ChatColor.GREEN + data.get());
         });
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + key + ": " + data.get() + "```");
@@ -34,7 +37,7 @@ public class Debugger {
 
     public void echo(String msg) {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            if(FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
+            if (FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
                 player.sendMessage(ChatColor.AQUA + "[DEBUG] " + msg);
         });
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + msg + "```");

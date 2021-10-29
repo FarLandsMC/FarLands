@@ -12,6 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+/**
+ * Checks for players fly hacking.
+ */
 public class FlightStore {
     private final Player player;
     private final boolean sendAlerts;

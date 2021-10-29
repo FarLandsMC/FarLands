@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Handles players going afk, including afk check and kicking.
+ */
 public class AFK extends Mechanic {
     private final Map<UUID, Pair<String, Integer>> afkCheckList;
 

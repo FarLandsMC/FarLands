@@ -4,24 +4,28 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
+/**
+ * Represents a package being sent to another player.
+ */
 public class Package {
     public static final int expirationTime = 1000 * 60 * 60 * 24 * 7;
 
-    public final UUID      senderUuid;
-    public final String    senderName;
+    public final UUID senderUuid;
+    public final String senderName;
     public final ItemStack item;
-    public final String    message;
-    public final long      sentTime;
-    public final boolean   forceSend;
+    public final String message;
+    public final long sentTime;
+    public final boolean forceSend;
 
     public Package(UUID senderUuid, String senderName, ItemStack item, String message, long sentTime, boolean forceSend) {
         this.senderUuid = senderUuid;
         this.senderName = senderName;
-        this.item =       item;
-        this.message =    message;
-        this.sentTime =   sentTime;
-        this.forceSend =  forceSend;
+        this.item = item;
+        this.message = message;
+        this.sentTime = sentTime;
+        this.forceSend = forceSend;
     }
+
     public Package(UUID senderUuid, String senderName, ItemStack item, String message, boolean forceSend) {
         this(senderUuid, senderName, item, message, System.currentTimeMillis(), forceSend);
     }

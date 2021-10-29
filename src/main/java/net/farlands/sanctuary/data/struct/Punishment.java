@@ -8,18 +8,21 @@ import org.bukkit.ChatColor;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Handles a player punishment.
+ */
 public final class Punishment {
     private static final SimpleDateFormat SDF = new SimpleDateFormat("MM/dd/yyyy");
 
-    private PunishmentType punishmentType;
-    private long dateIssued;
-    private String message;
+    private final PunishmentType punishmentType;
+    private final long dateIssued;
+    private final String message;
     private boolean pardoned;
     private boolean hasAlerted;
 
     public static final int[] PUNISHMENT_DURATIONS = {24, 72, 168}; // In hours
 
-    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned, boolean hasAlerted){
+    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned, boolean hasAlerted) {
         this.punishmentType = punishmentType;
         this.dateIssued = dateIssued;
         this.message = message;
@@ -27,7 +30,7 @@ public final class Punishment {
         this.hasAlerted = hasAlerted;
     }
 
-    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned){
+    public Punishment(PunishmentType punishmentType, long dateIssued, String message, boolean pardoned) {
         this(punishmentType, dateIssued, message, pardoned, true);
     }
 
@@ -43,7 +46,7 @@ public final class Punishment {
         return !pardoned;
     }
 
-    public boolean pardon(){
+    public boolean pardon() {
         boolean out = !pardoned;
         pardoned = true;
         return out;
@@ -74,7 +77,7 @@ public final class Punishment {
         StringBuilder sb = new StringBuilder();
         sb.append(ChatColor.RED).append("You are banned from FarLands!\n");
         sb.append("Reason: ").append(ChatColor.GOLD).append(punishmentType.getHumanName()).append('\n').append(ChatColor.RED);
-        if(message != null && !message.isEmpty())
+        if (message != null && !message.isEmpty())
             sb.append("Staff Message: ").append(ChatColor.GOLD).append(message).append('\n').append(ChatColor.RED);
         long time = totalTime ? totalTime(index) : timeRemaining(index);
         String exp = time >= 0 ? TimeInterval.formatTime(time, true, TimeInterval.MINUTE) : "Never";
@@ -112,14 +115,15 @@ public final class Punishment {
 
     /**
      * Returns a formatted string with colour codes- used in /seen and /punishments.
+     *
      * @param index The punishment #
      * @return String formatted with ChatColors
      */
     public String toFormattedString(int index) {
         String suffix = null;
-        if(pardoned)
+        if (pardoned)
             suffix = ChatColor.GREEN + "[Pardoned]";
-        if(isActive(index) && suffix == null)
+        if (isActive(index) && suffix == null)
             suffix = ChatColor.RED + "[Active]";
 
         return ChatColor.GOLD + punishmentType.getHumanName() +

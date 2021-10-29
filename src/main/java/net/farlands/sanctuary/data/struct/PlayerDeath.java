@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Stores a player death.
+ */
 public class PlayerDeath {
     private final long time;
     private final Location location;
@@ -36,7 +39,7 @@ public class PlayerDeath {
         this.xpLevels = nbt.getInt("xpLevels");
         this.xpPoints = nbt.getFloat("xpPoints");
         this.inventory = new ArrayList<>();
-        nbt.getList("inv", 10).stream().map(base -> FLUtils.itemStackFromNBT((NBTTagCompound)base)).forEach(this.inventory::add);
+        nbt.getList("inv", 10).stream().map(base -> FLUtils.itemStackFromNBT((NBTTagCompound) base)).forEach(this.inventory::add);
     }
 
     public long getTime() {

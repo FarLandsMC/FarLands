@@ -1,5 +1,8 @@
 package net.farlands.sanctuary.scheduling;
 
+/**
+ * Represents a task that will run later.
+ */
 public class DelayedTask extends TaskBase {
     private final long delayConst;
     private long delay;
@@ -12,7 +15,7 @@ public class DelayedTask extends TaskBase {
 
     @Override
     protected void update() {
-        if(delay <= 0) {
+        if (delay <= 0) {
             complete();
             return;
         }

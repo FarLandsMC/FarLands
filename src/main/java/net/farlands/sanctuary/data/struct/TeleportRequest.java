@@ -9,6 +9,9 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
+/**
+ * Represents a pending teleport request.
+ */
 public final class TeleportRequest implements Runnable {
     private final TeleportType type;
     private final Player sender, recipient, teleporter, anchor;
@@ -32,7 +35,7 @@ public final class TeleportRequest implements Runnable {
         TeleportRequest recipientReqToSender = FarLands.getDataHandler().getSession(recipient).outgoingTeleportRequest;
         if (recipientReqToSender != null &&
                 (sender.getUniqueId().equals(recipientReqToSender.teleporter.getUniqueId()) ||
-                sender.getUniqueId().equals(recipientReqToSender.anchor.getUniqueId()))
+                        sender.getUniqueId().equals(recipientReqToSender.anchor.getUniqueId()))
         ) {
             recipientReqToSender.accept();
             return;

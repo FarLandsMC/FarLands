@@ -4,7 +4,6 @@ import com.vexsoftware.votifier.model.VotifierEvent;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.data.DataHandler;
 import net.farlands.sanctuary.data.VoteConfig;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.PluginData;
@@ -22,6 +21,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Comparator;
 
+/**
+ * Handles plugin events related to voting.
+ */
 public class Voting extends Mechanic {
     private final PluginData pluginData;
     private final VoteConfig voteConfig;

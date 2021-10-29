@@ -31,6 +31,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Main discord handler.
+ */
 public class DiscordHandler extends ListenerAdapter {
     private DiscordBotConfig config;
     private final MessageChannelHandler channelHandler;
@@ -277,7 +280,7 @@ public class DiscordHandler extends ListenerAdapter {
         Message refMessage = event.getMessage().getReferencedMessage();
         if (event.getMessage().getType() == MessageType.INLINE_REPLY && refMessage != null) {
             String hoverText = refMessage.getContentDisplay();
-            if(hoverText.length() > 60) { // Limit to 60 chars to prevent issues in chat
+            if (hoverText.length() > 60) { // Limit to 60 chars to prevent issues in chat
                 hoverText = hoverText.substring(0, 60) + "...";
             }
             hoverText = hoverText.replaceAll(",", "");

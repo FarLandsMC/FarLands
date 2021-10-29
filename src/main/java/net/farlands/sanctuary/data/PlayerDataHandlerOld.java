@@ -24,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Old SQL data handler.
+ */
 public class PlayerDataHandlerOld {
     private final Map<String, String> queries;
     private final Map<UUID, OfflineFLPlayer> cache;
@@ -33,14 +36,15 @@ public class PlayerDataHandlerOld {
     private void initQueries() {
         List<String> flpFields = new ArrayList<>();
         Stream.of(OfflineFLPlayer.class.getDeclaredFields()).filter(f -> !Modifier.isStatic(f.getModifiers())).forEach(field -> {
-            if(OfflineFLPlayer.SQL_SER_INFO.get("ignored").contains(field.getName()) || OfflineFLPlayer.SQL_SER_INFO.get("constants").contains(field.getName()))
+            if (OfflineFLPlayer.SQL_SER_INFO.get("ignored").contains(field.getName())
+                    || OfflineFLPlayer.SQL_SER_INFO.get("constants").contains(field.getName()))
                 return;
-            if(OfflineFLPlayer.SQL_SER_INFO.get("objects").contains(field.getName()))
+            if (OfflineFLPlayer.SQL_SER_INFO.get("objects").contains(field.getName()))
                 Stream.of(field.getType().getDeclaredFields()).map(Field::getName).forEach(f -> flpFields.add(field.getName() + "_" + f));
-            else if(boolean.class.equals(field.getType())) {
-                if(!flpFields.contains("flags"))
+            else if (boolean.class.equals(field.getType())) {
+                if (!flpFields.contains("flags"))
                     flpFields.add("flags");
-            }else
+            } else
                 flpFields.add(field.getName());
         });
         queries.put("newFlp", "INSERT INTO playerdata (uuid,username," + String.join(",", flpFields) + ") " +
@@ -102,7 +106,7 @@ public class PlayerDataHandlerOld {
             statement.close();
             connection.commit();
             active = true;
-        }catch(Exception ex) {
+        } catch (Exception ex) {
             System.out.println("Failed to connect to player data database.");
             ex.printStackTrace(System.out);
             active = false;
@@ -120,7 +124,7 @@ public class PlayerDataHandlerOld {
         saveCache(true);
         try {
             return connection.createStatement().executeQuery(sql);
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -141,7 +145,7 @@ public class PlayerDataHandlerOld {
 
     public synchronized void updateOnline(UUID uuid) {
         OfflineFLPlayer flp = cache.get(uuid);
-        if(flp != null && flp.isOnline())
+        if (flp != null && flp.isOnline())
             flp.updateSessionIfOnline(true);
     }
 
@@ -154,7 +158,7 @@ public class PlayerDataHandlerOld {
             ps.close();
             connection.commit();
             Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> updateOnline(uuid));
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -168,7 +172,7 @@ public class PlayerDataHandlerOld {
             ps.close();
             connection.commit();
             Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> updateOnline(uuid));
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -182,8 +186,8 @@ public class PlayerDataHandlerOld {
     }
 
     public synchronized void saveCache(boolean update) {
-        if(!cache.isEmpty()) {
-            if(update)
+        if (!cache.isEmpty()) {
+            if (update)
                 cache.values().forEach(flp -> flp.updateSessionIfOnline(false));
             try {
                 PreparedStatement ps = connection.prepareStatement(queries.get("saveFlp"));
@@ -207,7 +211,7 @@ public class PlayerDataHandlerOld {
     }
 
     public synchronized OfflineFLPlayer getFLPlayer(Player player) {
-        if(cache.containsKey(player.getUniqueId()))
+        if (cache.containsKey(player.getUniqueId()))
             return cache.get(player.getUniqueId());
         OfflineFLPlayer flp = getFLPlayer(player.getUniqueId(), player.getName());
         cache.put(player.getUniqueId(), flp);
@@ -216,21 +220,21 @@ public class PlayerDataHandlerOld {
 
     public synchronized OfflineFLPlayer getFLPlayerMatching(String name) {
         Pair<UUID, String> ids = getPlayerIds(name);
-        if(ids == null)
+        if (ids == null)
             return null;
-        if(cache.containsKey(ids.getFirst()))
+        if (cache.containsKey(ids.getFirst()))
             return cache.get(ids.getFirst());
         return loadFLPlayer(ids.getFirst(), null);
     }
 
     public synchronized OfflineFLPlayer getFLPlayer(UUID uuid) {
-        if(cache.containsKey(uuid))
+        if (cache.containsKey(uuid))
             return cache.get(uuid);
         return loadFLPlayer(uuid, null);
     }
 
     public synchronized OfflineFLPlayer getFLPlayer(UUID uuid, String username) { // Creates new player data (if needed)
-        if(cache.containsKey(uuid))
+        if (cache.containsKey(uuid))
             return cache.get(uuid);
         return loadFLPlayer(uuid, username);
     }
@@ -240,43 +244,43 @@ public class PlayerDataHandlerOld {
             PreparedStatement ps = connection.prepareStatement(queries.get("getUuid"));
             ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            if (!rs.next())
                 return null;
             byte[] uuid = rs.getBytes("uuid");
             rs.close();
             ps.close();
             return loadFLPlayer(FLUtils.getUuid(uuid, 0), null);
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
     public synchronized OfflineFLPlayer getFLPlayer(CommandSender sender) {
-        if(sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender)
+        if (sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender)
             return null;
         return sender instanceof DiscordSender
-                ? ((DiscordSender)sender).getFlp()
-                : getFLPlayer((Player)sender);
+                ? ((DiscordSender) sender).getFlp()
+                : getFLPlayer((Player) sender);
     }
 
     public synchronized OfflineFLPlayer getFLPlayer(long discordID) { // Note: does not create new player data
-        if(discordID == 0)
+        if (discordID == 0)
             return null;
         OfflineFLPlayer flp = cache.values().stream().filter(flp0 -> flp0.discordID == discordID).findAny().orElse(null);
-        if(flp != null)
+        if (flp != null)
             return flp;
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getUuidByDiscordID"));
             ps.setLong(1, discordID);
             ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            if (!rs.next())
                 return null;
             byte[] uuid = rs.getBytes("uuid");
             rs.close();
             ps.close();
             return loadFLPlayer(FLUtils.getUuid(uuid, 0), null);
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -287,70 +291,70 @@ public class PlayerDataHandlerOld {
         try {
             ResultSet rs = query("SELECT uuid FROM playerdata WHERE lastIP=\"" +
                     getFLPlayer(player).lastIP + "\" AND rank<" + Rank.JR_BUILDER.ordinal());
-            while(rs.next()) {
+            while (rs.next()) {
                 UUID uuid = FLUtils.getUuid(rs.getBytes("uuid"), 0);
-                if(!player.equals(uuid))
+                if (!player.equals(uuid))
                     alts.add(getFLPlayer(uuid));
             }
             rs.close();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
         return alts;
     }
 
     public synchronized String getUsername(UUID uuid) {
-        if(cache.containsKey(uuid))
+        if (cache.containsKey(uuid))
             return cache.get(uuid).username;
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getUsername"));
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            if (!rs.next())
                 return null;
             String username = rs.getString("username");
             rs.close();
             ps.close();
             return username;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
     public synchronized String getEffectiveName(UUID uuid) {
-        if(cache.containsKey(uuid))
+        if (cache.containsKey(uuid))
             return cache.get(uuid).getDisplayName();
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getEffectiveName"));
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            if (!rs.next())
                 return null;
             String nickname = rs.getString("nickname");
             rs.close();
             ps.close();
             return nickname == null || nickname.isEmpty() ? getUsername(uuid) : nickname;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
     public synchronized Rank getRank(UUID uuid) {
-        if(cache.containsKey(uuid))
+        if (cache.containsKey(uuid))
             return cache.get(uuid).rank;
         try {
             PreparedStatement ps = connection.prepareStatement(queries.get("getRankByUuid"));
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            if (!rs.next())
                 return Rank.INITIATE;
             int rank = rs.getInt("rank");
             rs.close();
             ps.close();
             return Rank.VALUES[rank];
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -361,35 +365,35 @@ public class PlayerDataHandlerOld {
             PreparedStatement ps = connection.prepareStatement(queries.get("getRankByDiscordID"));
             ps.setLong(1, discordId);
             ResultSet rs = ps.executeQuery();
-            if(!rs.next())
+            if (!rs.next())
                 return Rank.INITIATE;
             int rank = rs.getInt("rank");
             rs.close();
             ps.close();
             return Rank.VALUES[rank];
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
     public synchronized UUID getUuid(CommandSender sender) {
-        if(sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender)
+        if (sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender)
             return null;
-        if(sender instanceof Player)
-            return ((Player)sender).getUniqueId();
-        if(sender instanceof DiscordSender) {
+        if (sender instanceof Player)
+            return ((Player) sender).getUniqueId();
+        if (sender instanceof DiscordSender) {
             try {
                 PreparedStatement ps = connection.prepareStatement(queries.get("getUuidByDiscordID"));
-                ps.setLong(1, ((DiscordSender)sender).getUserID());
+                ps.setLong(1, ((DiscordSender) sender).getUserID());
                 ResultSet rs = ps.executeQuery();
-                if(!rs.next())
+                if (!rs.next())
                     return null;
                 byte[] uuid = rs.getBytes("uuid");
                 rs.close();
                 ps.close();
                 return FLUtils.getUuid(uuid, 0);
-            }catch(SQLException ex) {
+            } catch (SQLException ex) {
                 ex.printStackTrace();
                 return null;
             }
@@ -405,7 +409,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
         saveFLPlayerComplete(flp);
@@ -433,7 +437,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             flp.mail.forEach(m -> addMail(flp.uuid, m.getSender(), m.getMessage()));
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -445,7 +449,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -466,11 +470,11 @@ public class PlayerDataHandlerOld {
             int flags = (flp.flightPreference ? 1 : 0) << 7 | (flp.god ? 1 : 0) << 6 | (flp.vanished ? 1 : 0) << 5 |
                     (flp.censoring ? 1 : 0) << 4 | (flp.pvp ? 1 : 0) << 3 | (flp.topVoter ? 1 : 0) << 2 |
                     (flp.viewedPatchnotes ? 1 : 0) << 1 | (flp.debugging ? 1 : 0);
-            saveFlp.setInt(12, (byte)flags);
-            if(flp.particles == null) {
+            saveFlp.setInt(12, (byte) flags);
+            if (flp.particles == null) {
                 saveFlp.setInt(13, -1);
                 saveFlp.setInt(14, -1);
-            }else{
+            } else {
                 saveFlp.setInt(13, flp.particles.getType().ordinal());
                 saveFlp.setInt(14, flp.particles.getLocation().ordinal());
             }
@@ -481,29 +485,29 @@ public class PlayerDataHandlerOld {
             saveFlp.setDouble(19, flp.getLastLocation().getZ());
             saveFlp.setFloat(20, flp.getLastLocation().getYaw());
             saveFlp.setFloat(21, flp.getLastLocation().getPitch());
-            if(flp.currentMute == null) {
+            if (flp.currentMute == null) {
                 saveFlp.setLong(22, 0);
                 saveFlp.setString(23, "");
-            }else{
+            } else {
                 saveFlp.setLong(22, flp.currentMute.getDateEnds());
                 saveFlp.setString(23, flp.currentMute.getReason());
             }
             byte[] ignored = new byte[flp.ignoreStatusMap.size() * 16];
             int i = 0;
-            for(UUID uid : flp.ignoreStatusMap.keySet()) {
+            for (UUID uid : flp.ignoreStatusMap.keySet()) {
                 FLUtils.serializeUuid(uid, ignored, i);
                 i += 16;
             }
-            if(ignored.length == 0)
+            if (ignored.length == 0)
                 saveFlp.setNull(24, Types.BLOB);
             else
                 saveFlp.setBytes(24, ignored);
 
             saveFlp.setBytes(25, FLUtils.serializeUuid(flp.uuid));
 
-            if(batch)
+            if (batch)
                 saveFlp.addBatch();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -517,8 +521,8 @@ public class PlayerDataHandlerOld {
             ResultSet rs = ps.executeQuery();
 
             OfflineFLPlayer flp = new OfflineFLPlayer(uuid, username);
-            if(!rs.next()) {
-                if(username == null)
+            if (!rs.next()) {
+                if (username == null)
                     return null;
                 rs.close();
                 ps.close();
@@ -533,7 +537,7 @@ public class PlayerDataHandlerOld {
 
             int rankOrdinal = rs.getInt("rank");
 
-            if(username == null)
+            if (username == null)
                 flp.username = rs.getString("username");
             flp.discordID = rs.getLong("discordID");
             flp.lastLogin = rs.getLong("lastLogin");
@@ -557,7 +561,7 @@ public class PlayerDataHandlerOld {
             flp.rank = rankOrdinal >= 8 ? Rank.VALUES[rankOrdinal] : Rank.INITIATE;
             flp.setLastLocation(Bukkit.getWorld("world").getUID(), 0, 0, 0, 0, 0);
             byte[] ignoredPlayers = rs.getBytes("ignoredPlayers");
-            if(ignoredPlayers != null) {
+            if (ignoredPlayers != null) {
                 for (int i = 0; i + 15 < ignoredPlayers.length; i += 16)
                     flp.updateIgnoreStatus(FLUtils.getUuid(ignoredPlayers, i), IgnoreStatus.IgnoreType.ALL, true);
             }
@@ -568,7 +572,7 @@ public class PlayerDataHandlerOld {
             ps.close();
 
             return flp;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -587,7 +591,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -605,7 +609,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -618,7 +622,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -629,14 +633,14 @@ public class PlayerDataHandlerOld {
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<Home> homes = new ArrayList<>();
-            while(rs.next()) {
+            while (rs.next()) {
                 homes.add(new Home(rs.getString("name"), Bukkit.getWorld("world").getUID(), rs.getDouble("x"),
                         rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch")));
             }
             rs.close();
             ps.close();
             return homes;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return Collections.emptyList();
         }
@@ -653,7 +657,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -666,7 +670,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -677,14 +681,14 @@ public class PlayerDataHandlerOld {
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<Punishment> ret = new ArrayList<>();
-            while(rs.next()) {
+            while (rs.next()) {
                 ret.add(new Punishment(Punishment.PunishmentType.VALUES[rs.getInt("punishmentType")], rs.getLong("dateIssued"),
                         rs.getString("message")));
             }
             rs.close();
             ps.close();
             return ret;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             return null;
         }
     }
@@ -698,7 +702,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -710,7 +714,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -721,12 +725,12 @@ public class PlayerDataHandlerOld {
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<MailMessage> ret = new ArrayList<>();
-            while(rs.next())
+            while (rs.next())
                 ret.add(new MailMessage(rs.getString("sender"), rs.getString("message")));
             rs.close();
             ps.close();
             return ret;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             return null;
         }
     }
@@ -741,7 +745,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -753,7 +757,7 @@ public class PlayerDataHandlerOld {
             ps.executeUpdate();
             ps.close();
             connection.commit();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }
@@ -764,12 +768,12 @@ public class PlayerDataHandlerOld {
             ps.setBytes(1, FLUtils.serializeUuid(uuid));
             ResultSet rs = ps.executeQuery();
             List<String> ret = new ArrayList<>();
-            while(rs.next())
+            while (rs.next())
                 ret.add(FLUtils.dateToString(rs.getLong("dateTaken"), "MM/dd/yyyy") + " " + rs.getString("sender") + ": " + rs.getString("note"));
             rs.close();
             ps.close();
             return ret;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -777,18 +781,18 @@ public class PlayerDataHandlerOld {
 
     public synchronized Pair<UUID, String> getPlayerIds(Object id) {
         try {
-            if(id instanceof String) {
-                String username = (String)id;
+            if (id instanceof String) {
+                String username = (String) id;
                 PreparedStatement ps = connection.prepareStatement(queries.get("getFlpIds"));
                 ResultSet rs = ps.executeQuery();
                 byte[] match = null;
                 String matchName = null;
                 String name;
-                while(rs.next()) {
+                while (rs.next()) {
                     name = rs.getString("username");
-                    if(username.equalsIgnoreCase(name))
+                    if (username.equalsIgnoreCase(name))
                         return new Pair<>(FLUtils.getUuid(rs.getBytes("uuid"), 0), name);
-                    else if(name.toLowerCase().contains(username.toLowerCase())) {
+                    else if (name.toLowerCase().contains(username.toLowerCase())) {
                         match = rs.getBytes("uuid");
                         matchName = name;
                     }
@@ -796,31 +800,31 @@ public class PlayerDataHandlerOld {
                 rs.close();
                 ps.close();
                 return match == null ? null : new Pair<>(FLUtils.getUuid(match, 0), matchName);
-            }else if(id instanceof UUID) {
+            } else if (id instanceof UUID) {
                 PreparedStatement ps = connection.prepareStatement(queries.get("getUsername"));
-                ps.setBytes(1, FLUtils.serializeUuid((UUID)id));
+                ps.setBytes(1, FLUtils.serializeUuid((UUID) id));
                 ResultSet rs = ps.executeQuery();
-                if(!rs.next())
+                if (!rs.next())
                     return null;
                 rs.close();
                 ps.close();
-                return new Pair<>((UUID)id, rs.getString("username"));
-            }else
+                return new Pair<>((UUID) id, rs.getString("username"));
+            } else
                 return null;
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             return null;
         }
     }
 
     public synchronized void onShutdown() {
-        if(!active)
+        if (!active)
             return;
 
         saveCache(false);
 
         try {
             connection.close();
-        }catch(SQLException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
         }
     }

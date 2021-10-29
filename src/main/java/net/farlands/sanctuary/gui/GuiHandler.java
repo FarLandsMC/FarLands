@@ -8,6 +8,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Handles active guis.
+ */
 public class GuiHandler extends Mechanic {
     private final List<Gui> activeGuis;
 

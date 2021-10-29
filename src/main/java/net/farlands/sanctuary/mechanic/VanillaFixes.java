@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The FarLands custom fixes for Vanilla bugs
+ * FarLands custom fixes for Vanilla bugs.
  */
 public class VanillaFixes extends Mechanic {
 
@@ -30,8 +30,7 @@ public class VanillaFixes extends Mechanic {
     public void onBlockSpread(BlockSpreadEvent event) {
         Block block = event.getBlock();
         switch (event.getNewState().getType()) {
-            case KELP:
-            case KELP_PLANT: {
+            case KELP, KELP_PLANT -> {
                 /*
                  * Water Level Meanings:
                  * 0: Source Block
@@ -69,12 +68,11 @@ public class VanillaFixes extends Mechanic {
         }
 
         boolean cursorOverstacked = cursor.getAmount() > cursor.getMaxStackSize();
-        boolean currentOverstacked = current.getAmount() > current.getMaxStackSize();
 
         if (cursor.getMaxStackSize() == 64 || current.getMaxStackSize() == 64) return;
 
         switch (event.getAction()) {
-            case PLACE_ALL: { // Allow movement of overstacked items within inventory
+            case PLACE_ALL -> { // Allow movement of overstacked items within inventory
                 if (cursorOverstacked && event.getClickedInventory() != null) {
                     event.getView().setCursor(null);
                     event.setCurrentItem(null);
@@ -82,11 +80,7 @@ public class VanillaFixes extends Mechanic {
                     event.setCancelled(true);
                 }
             }
-            break;
-            case NOTHING:
-            case PICKUP_SOME:
-            case PICKUP_ONE:
-            case PLACE_SOME: { // Allow stacking within inventory
+            case NOTHING, PICKUP_SOME, PICKUP_ONE, PLACE_SOME -> { // Allow stacking within inventory
                 if (!cursor.isSimilar(current) || cursor.getType() == Material.AIR || current.getType() == Material.AIR) {
                     return;
                 }
@@ -111,12 +105,9 @@ public class VanillaFixes extends Mechanic {
                     }
                 }
             }
-            break;
-            case COLLECT_TO_CURSOR: { // Allow stacking within the inventory
+            case COLLECT_TO_CURSOR -> { // Allow stacking within the inventory
                 if (cursor.getMaxStackSize() >= 64 || !isEsquire) return;
                 int count = cursor.getAmount();
-                int lastSlot = -1;
-                ItemStack lastItem = null;
 
                 List<Pair<Integer, ItemStack>> validSlots = new ArrayList<>();
                 for (int slot = 0; slot < inv.getContents().length; slot++) {
@@ -129,9 +120,7 @@ public class VanillaFixes extends Mechanic {
                 int totalInInv = validSlots.stream().map(Pair::getSecond).map(ItemStack::getAmount).reduce(0, Integer::sum);
 
                 if (totalInInv <= 64 - count) {
-                    validSlots.forEach((p) -> {
-                        inv.setItem(p.getFirst(), null);
-                    });
+                    validSlots.forEach((p) -> inv.setItem(p.getFirst(), null));
                     cursor.setAmount(totalInInv + count);
 
                 } else {
@@ -149,11 +138,7 @@ public class VanillaFixes extends Mechanic {
                     }
                     cursor.setAmount(c);
                 }
-
-
             }
-            break;
         }
-
     }
 }

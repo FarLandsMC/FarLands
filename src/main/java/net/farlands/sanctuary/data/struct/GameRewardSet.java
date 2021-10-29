@@ -11,6 +11,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
+/**
+ * Used for giving game rewards.
+ */
 public class GameRewardSet {
     private final List<ItemReward> rewards;
     private final double rewardBias;

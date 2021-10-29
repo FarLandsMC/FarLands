@@ -6,6 +6,9 @@ import net.farlands.sanctuary.data.struct.JsonItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FarLands voting configuration.
+ */
 public class VoteConfig {
     public int votePartyRequirement;
     public int voteXPBoost;

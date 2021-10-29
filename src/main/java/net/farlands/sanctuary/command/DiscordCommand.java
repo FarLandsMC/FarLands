@@ -2,6 +2,9 @@ package net.farlands.sanctuary.command;
 
 import net.farlands.sanctuary.data.Rank;
 
+/**
+ * A command that can only be run from Discord.
+ */
 public abstract class DiscordCommand extends Command {
     protected DiscordCommand(Rank minRank, Category category, String description, String usage, boolean requiresAlias,
                              String name, String... aliases) {

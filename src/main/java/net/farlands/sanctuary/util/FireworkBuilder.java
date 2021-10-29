@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Handles creating new custom fireworks.
+ */
 public class FireworkBuilder {
     private final List<Explosion> explosions;
     private final int lifetime;
@@ -35,7 +38,7 @@ public class FireworkBuilder {
     public static FireworkBuilder randomFirework(int lifetime, int flight, int numExplosions) {
         FireworkBuilder builder = new FireworkBuilder(lifetime, flight);
         Random rng = new Random();
-        for(int i = 0;i < numExplosions;++ i) {
+        for (int i = 0;i < numExplosions;++ i) {
             builder.addExplosion(FireworkExplosionType.randomType(rng), randomColors(rng.nextInt(3) + 1, rng))
                     .setFlicker(rng.nextBoolean())
                     .setTrail(rng.nextBoolean())
@@ -46,10 +49,10 @@ public class FireworkBuilder {
     }
 
     private static int[] randomColors(int numColors, Random random) {
-        if(numColors == 0)
+        if (numColors == 0)
             return new int[] {255, 255, 255};
         int[] colors = new int[numColors * 3];
-        for(int i = 0;i < numColors;++ i)
+        for (int i = 0;i < numColors;++ i)
             System.arraycopy(FLUtils.hsv2rgb(360 * random.nextDouble(), random.nextDouble() * 0.5 + 0.5, 1.0), 0, colors, i, 3);
         // (RGB_OPTIONS[random.nextInt(3)] << 16) | (RGB_OPTIONS[random.nextInt(3)] << 8) | RGB_OPTIONS[random.nextInt(3)]
         return colors;
@@ -82,7 +85,7 @@ public class FireworkBuilder {
 
     private static int[] condenseRGB(int... rgb) {
         int[] colors = new int[rgb.length / 3];
-        for(int i = 0;i < rgb.length;i += 3)
+        for (int i = 0;i < rgb.length;i += 3)
             colors[i / 3] = (rgb[i] << 16) | (rgb[i + 1] << 8) | rgb[i + 2];
         return colors;
     }

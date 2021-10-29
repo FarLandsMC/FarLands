@@ -4,7 +4,6 @@ import com.kicas.rp.util.Materials;
 import com.kicas.rp.util.Pair;
 
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.discord.DiscordChannel;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -17,7 +16,9 @@ import static java.lang.Math.abs;
 
 import java.util.*;
 
-
+/**
+ * Handles x-ray prevention and detection.
+ */
 public class XRayStore {
 
     private static final List<BlockFace> SIDES = Arrays.asList(
@@ -38,8 +39,8 @@ public class XRayStore {
     private int strikes;
     private Location last;
     private int mined;
-    private HashMap<Material, Integer> obtained;
-    private List<Pair<Detecting, Location>> nodes;
+    private final HashMap<Material, Integer> obtained;
+    private final List<Pair<Detecting, Location>> nodes;
 
     public XRayStore(String playerName, boolean sendAlerts) {
         this.playerName = playerName;

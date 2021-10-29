@@ -19,6 +19,9 @@ import org.bukkit.scoreboard.Team;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * FarLands ranks.
+ */
 public enum Rank {
     /* Player Ranks */
 

@@ -4,7 +4,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * Event for a command being run.
+ */
 public class FLCommandEvent extends Event implements Cancellable {
     private static final HandlerList HANDLER_LIST = new HandlerList();
     private final Class<? extends Command> command;
@@ -26,7 +30,7 @@ public class FLCommandEvent extends Event implements Cancellable {
     }
 
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLER_LIST;
     }
 

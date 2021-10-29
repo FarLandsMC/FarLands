@@ -7,6 +7,9 @@ import org.bukkit.block.Block;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * Different things to detect for cheating.
+ */
 public enum Detecting {
 
     ANCIENT_DEBRIS (new String[]{"world_nether"},      128, ChatColor.LIGHT_PURPLE, Material.ANCIENT_DEBRIS),

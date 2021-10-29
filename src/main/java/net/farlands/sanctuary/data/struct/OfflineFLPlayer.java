@@ -27,6 +27,9 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * All data related to a FarLands player.
+ */
 public class OfflineFLPlayer {
     public UUID uuid;
 
@@ -62,21 +65,21 @@ public class OfflineFLPlayer {
     public boolean vanished;
     public boolean viewedPatchnotes;
 
-    public Birthday        birthday;
-    public ChatColor       staffChatColor;
+    public Birthday birthday;
+    public ChatColor staffChatColor;
     public LocationWrapper lastLocation;
-    public Mute            currentMute;
-    public PackageToggle   packageToggle;
-    public Particles       particles;
-    public Pronouns        pronouns;
-    public Rank            rank;
+    public Mute currentMute;
+    public PackageToggle packageToggle;
+    public Particles particles;
+    public Pronouns pronouns;
+    public Rank rank;
 
     public Map<UUID, IgnoreStatus> ignoreStatusMap;
-    public Map<String, ShareHome>  pendingSharehomes;
-    public List<Home>              homes;
-    public List<MailMessage>       mail;
-    public List<Punishment>        punishments;
-    public List<String>            notes;
+    public Map<String, ShareHome> pendingSharehomes;
+    public List<Home> homes;
+    public List<MailMessage> mail;
+    public List<Punishment> punishments;
+    public List<String> notes;
 
     // Legacy
     @SkipSerializing
@@ -147,8 +150,8 @@ public class OfflineFLPlayer {
     }
 
     /*
-    * WARNING: DO NOT PUT ANY CALLS TO THE FARLANDS SCHEDULER IN THESE UPDATE METHODS OR IT WILL CAUSE SERVER CRASHES
-    */
+     * WARNING: DO NOT PUT ANY CALLS TO THE FARLANDS SCHEDULER IN THESE UPDATE METHODS OR IT WILL CAUSE SERVER CRASHES
+     */
 
     public synchronized void updateAll(boolean sendMessages) {
         updateDiscord();
@@ -170,7 +173,7 @@ public class OfflineFLPlayer {
 
             boolean nickIsUser = username.equals(member.getNickname());
             boolean pronounsEnabled = pronouns != null && pronouns.showOnDiscord;
-            boolean nickIsUserPronouns = pronounsEnabled && (username + " " + pronouns.toString()).equals(member.getNickname());
+            boolean nickIsUserPronouns = pronounsEnabled && (username + " " + pronouns).equals(member.getNickname());
 
             if ((!nickIsUser && !pronounsEnabled) || (pronounsEnabled && !nickIsUserPronouns))
                 member.modifyNickname(username + (pronounsEnabled ? " " + pronouns.toString() : "")).queue();
@@ -295,13 +298,13 @@ public class OfflineFLPlayer {
         boolean online = player != null;
         if (rank.specialCompareTo(this.rank) > 0) {
             String message = ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
-                " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ";
+                    " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ";
             Logging.broadcastFormatted(message, false);
             FarLands.getDiscordHandler().sendMessageEmbed(
-                DiscordChannel.IN_GAME,
-                new EmbedBuilder()
-                    .setTitle(Chat.applyDiscordFilters(message))
-                    .setColor(rank.getColor().getColor())
+                    DiscordChannel.IN_GAME,
+                    new EmbedBuilder()
+                            .setTitle(Chat.applyDiscordFilters(message))
+                            .setColor(rank.getColor().getColor())
             );
             if (online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
@@ -418,7 +421,7 @@ public class OfflineFLPlayer {
                 validPunishments.get(validPunishments.size() - 1);
     }
 
-    public Punishment getMostRecentPunishmentAll(){
+    public Punishment getMostRecentPunishmentAll() {
         return punishments.isEmpty() ? null : punishments.get(punishments.size() - 1);
     }
 
@@ -445,7 +448,7 @@ public class OfflineFLPlayer {
     public Location getHome(String name) {
         Home home = homes.stream().filter(h -> name.equals(h.getName())).findAny().orElse(null);
         if (home == null)
-            home = homes.stream().filter(h -> name.toLowerCase().equals(h.getName().toLowerCase())).findAny().orElse(null);
+            home = homes.stream().filter(h -> name.equalsIgnoreCase(h.getName())).findAny().orElse(null);
         return home == null ? null : home.getLocation();
     }
 
@@ -479,13 +482,13 @@ public class OfflineFLPlayer {
         Player player = getOnlinePlayer();
         if (player != null) { // If the player is online, notify
             sendFormatted(player,
-                "&(gold){&(aqua)%0} has sent you a home: {&(aqua)%1}%2" +
-                    "\nYou can accept it with ${hovercmd,/sharehome accept %0,&(aqua)Click to Run,&(aqua)/sharehome accept %0} " +
-                    "and decline with ${hovercmd,/sharehome decline %0,&(aqua)Click to Run,&(aqua)/sharehome decline %0}",
-                sender,
-                shareHome.home.getName(),
-                shareHome.message == null ? "" : "\nMessage: {&(aqua)%3}",
-                shareHome.message
+                    "&(gold){&(aqua)%0} has sent you a home: {&(aqua)%1}%2" +
+                            "\nYou can accept it with ${hovercmd,/sharehome accept %0,&(aqua)Click to Run,&(aqua)/sharehome accept %0} " +
+                            "and decline with ${hovercmd,/sharehome decline %0,&(aqua)Click to Run,&(aqua)/sharehome decline %0}",
+                    sender,
+                    shareHome.home.getName(),
+                    shareHome.message == null ? "" : "\nMessage: {&(aqua)%3}",
+                    shareHome.message
             );
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
         }
@@ -493,6 +496,7 @@ public class OfflineFLPlayer {
         pendingSharehomes.put(sender, shareHome);
         return true;
     }
+
     public boolean removeShareHome(String sender) {
         return pendingSharehomes.remove(sender) != null;
     }
@@ -516,10 +520,11 @@ public class OfflineFLPlayer {
 
     /**
      * Gets the formatted version of the player's current time
+     *
      * @return the formatted time, null if no timezone set
      */
     public String currentTime() {
-        if(timezone == null || timezone.isEmpty()) {
+        if (timezone == null || timezone.isEmpty()) {
             return null;
         }
         Calendar cal = Calendar.getInstance();
@@ -531,7 +536,7 @@ public class OfflineFLPlayer {
         int hour = cal.get(Calendar.HOUR);
         int min = cal.get(Calendar.MINUTE);
 
-        if(hour == 0) {
+        if (hour == 0) {
             hour = 12;
         }
 
@@ -561,7 +566,7 @@ public class OfflineFLPlayer {
 
     @Override
     public boolean equals(Object other) {
-        return other == this || other instanceof OfflineFLPlayer && uuid.equals(((OfflineFLPlayer)other).uuid);
+        return other == this || other instanceof OfflineFLPlayer && uuid.equals(((OfflineFLPlayer) other).uuid);
     }
 
     @Override

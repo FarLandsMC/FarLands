@@ -7,6 +7,9 @@ import org.bukkit.Location;
 
 import java.util.UUID;
 
+/**
+ * A player home.
+ */
 public final class Home extends LocationWrapper {
     private String name;
 

@@ -19,11 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Handles pointing a compass to a player's most recent death.
+ */
 public class CompassMechanic extends Mechanic {
 
     private static final String[] deathStringIndex = {"", "second to ", "third to "};
 
-    private Map<UUID, Integer> selectedCompass;
+    private final Map<UUID, Integer> selectedCompass;
 
     public CompassMechanic() {
         this.selectedCompass = new HashMap<>();
@@ -43,6 +46,7 @@ public class CompassMechanic extends Mechanic {
     private void updateCompass(Player player) {
         updateCompass(player, selectedCompass.getOrDefault(player.getUniqueId(), 0));
     }
+
     // From most recent death = 0..2
     private void updateCompass(Player player, int death) {
         List<PlayerDeath> deaths = FarLands.getDataHandler().getDeaths(player.getUniqueId());

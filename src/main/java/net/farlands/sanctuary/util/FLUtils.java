@@ -51,10 +51,14 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * General utility methods.
+ */
 public final class FLUtils {
     public static final Random RNG = new Random();
     public static final Runnable NO_ACTION = () -> { };
-    private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.RED, ChatColor.DARK_RED};
+    private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW,
+        ChatColor.RED, ChatColor.DARK_RED};
     public static final double DEGREES_TO_RADIANS = Math.PI / 180;
 
     private FLUtils() { }
@@ -63,8 +67,9 @@ public final class FLUtils {
         try {
             URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + flp.uuid);
             InputStreamReader reader = new InputStreamReader(url.openStream());
-            JsonObject textureProperty = new JsonParser().parse(reader).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
-            return new JsonParser().parse(
+            JsonObject textureProperty = JsonParser.parseReader(reader).getAsJsonObject().get("properties")
+                .getAsJsonArray().get(0).getAsJsonObject();
+            return JsonParser.parseString(
                 new String(Base64.getDecoder()
                     .decode(textureProperty.get("value").getAsString())
                 )
@@ -134,7 +139,7 @@ public final class FLUtils {
     public static double serverMspt() {
         long totalMspt = 0;
         long[] mspts = ((CraftServer)Bukkit.getServer()).getServer().n; // n = mspts field
-        for(long v : mspts)
+        for (long v : mspts)
             totalMspt += v;
         return totalMspt / (mspts.length * 1000000.0);
     }
@@ -156,28 +161,28 @@ public final class FLUtils {
     }
 
     public static boolean isWithin(Location loc, List<Pair<Location, Location>> region) {
-        for(Pair<Location, Location> subregion : region) {
-            if(isWithin(loc, subregion))
+        for (Pair<Location, Location> subregion : region) {
+            if (isWithin(loc, subregion))
                 return true;
         }
         return false;
     }
 
     public static boolean passedThrough(Location from, Location to, List<Pair<Location, Location>> region) {
-        if(isWithin(from, region))
+        if (isWithin(from, region))
             return false;
-        if(isWithin(to, region))
+        if (isWithin(to, region))
             return true;
-        else{ // Take small steps and check each one, account for high velocities
+        else { // Take small steps and check each one, account for high velocities
             double xs = to.getX() - from.getX(), ys = to.getY() - from.getY(), zs = to.getZ() - from.getZ();
             double div = Stream.of(xs, ys, zs).map(Math::abs).max(Double::compare).get() * 1.1;
             xs /= div;
             ys /= div;
             zs /= div;
             Location loc = from.clone();
-            while(loc.distanceSquared(to) > 0.95) {
+            while (loc.distanceSquared(to) > 0.95) {
                 loc = loc.add(xs, ys, zs);
-                if(isWithin(loc, region))
+                if (isWithin(loc, region))
                     return true;
             }
             return false;
@@ -188,13 +193,13 @@ public final class FLUtils {
     public static Pair<String, Integer> getEnclosed(int start, String string) {
         boolean curved = string.charAt(start) == '('; // ()s or {}s
         int depth = 1, i = start + 1;
-        while(depth > 0) { // Exits when there are no pairs of open brackets
-            if(i == string.length()) // Avoid index out of bound errors
+        while (depth > 0) { // Exits when there are no pairs of open brackets
+            if (i == string.length()) // Avoid index out of bound errors
                 return new Pair<>(null, -1);
             char c = string.charAt(i++);
-            if(c == (curved ? ')' : '}')) // We've closed off a pair
+            if (c == (curved ? ')' : '}')) // We've closed off a pair
                 -- depth;
-            else if(c == (curved ? '(' : '{')) // We've started a pair
+            else if (c == (curved ? '(' : '{')) // We've started a pair
                 ++ depth;
         }
         // Return the stuff inside the brackets, and the index of the char after the last bracket
@@ -202,8 +207,8 @@ public final class FLUtils {
     }
 
     public static ChatColor color(double value, double[] coloring) {
-        for(int i = 0;i < coloring.length;++ i) {
-            if(value <= coloring[i])
+        for (int i = 0;i < coloring.length;++ i) {
+            if (value <= coloring[i])
                 return COLORING[i];
         }
         return COLORING[COLORING.length - 1];
@@ -218,15 +223,15 @@ public final class FLUtils {
         double x = c * (1 - Math.abs(((h / 60.0) % 2.0) - 1));
         double m = v - c;
         double[] prgb;
-        if(h < 60)
+        if (h < 60)
             prgb = new double[] {c, x, 0};
-        else if(h < 120)
+        else if (h < 120)
             prgb = new double[] {x, c, 0};
-        else if(h < 180)
+        else if (h < 180)
             prgb = new double[] {0, c, x};
-        else if(h < 240)
+        else if (h < 240)
             prgb = new double[] {0, x, c};
-        else if(h < 300)
+        else if (h < 300)
             prgb = new double[] {x, 0, c};
         else
             prgb = new double[] {c, 0, x};
@@ -238,7 +243,7 @@ public final class FLUtils {
     }
 
     public static void changeBlocksAsync(Player player, Map<Block, WrappedBlockData> changes) {
-        if(changes.isEmpty())
+        if (changes.isEmpty())
             return;
 
         Map<Chunk, Map<Block, WrappedBlockData>> byChunk = new HashMap<>();
@@ -247,10 +252,10 @@ public final class FLUtils {
 
         int delay = 1;
         final Chunk[] chunks = byChunk.keySet().toArray(new Chunk[0]);
-        for(int i = 0;i < chunks.length;i += 4) { // Send packets for the blocks modified in each chunk.
+        for (int i = 0;i < chunks.length;i += 4) { // Send packets for the blocks modified in each chunk.
             final int i0 = i;
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                for(int j = i0;j < Math.min(chunks.length, i0 + 4);++ j) {
+                for (int j = i0;j < Math.min(chunks.length, i0 + 4);++ j) {
                     Map<Block, WrappedBlockData> send = byChunk.get(chunks[j]);
                     PacketContainer pc = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
                     MultiBlockChangeInfo[] blockData = new MultiBlockChangeInfo[send.size()];
@@ -273,7 +278,7 @@ public final class FLUtils {
     }
 
     public static void changeBlocks(Player player, Map<Block, WrappedBlockData> changes) {
-        if(changes.isEmpty())
+        if (changes.isEmpty())
             return;
 
         Map<Chunk, Map<Block, WrappedBlockData>> byChunk = new HashMap<>();
@@ -294,7 +299,7 @@ public final class FLUtils {
                 pc.getMultiBlockChangeInfoArrays().write(0, blockData);
                 ProtocolLibrary.getProtocolManager().sendServerPacket(player, pc);
             }
-        }catch(InvocationTargetException ex) {
+        } catch (InvocationTargetException ex) {
             ex.printStackTrace();
         }
     }
@@ -311,10 +316,10 @@ public final class FLUtils {
 
     public static <K, V> V getAndPutIfAbsent(Map<K, V> map, K key, V value) {
         V val = map.get(key);
-        if(val == null) {
+        if( val == null) {
             map.put(key, value);
             return value;
-        }else
+        } else
             return val;
     }
 
@@ -402,13 +407,13 @@ public final class FLUtils {
 
     public static NBTTagCompound itemStackToNBT(ItemStack stack) {
         NBTTagCompound nbt = new NBTTagCompound();
-        if(stack != null)
+        if (stack != null)
             CraftItemStack.asNMSCopy(stack).save(nbt);
         return nbt;
     }
 
     public static boolean isWithin(Location loc, Pair<Location, Location> region) {
-        if(loc == null || region == null || region.getFirst() == null || region.getSecond() == null ||
+        if (loc == null || region == null || region.getFirst() == null || region.getSecond() == null ||
                 !loc.getWorld().equals(region.getFirst().getWorld()))
             return false;
         Location f = region.getFirst(), s = region.getSecond();
@@ -427,11 +432,11 @@ public final class FLUtils {
     }
 
     public static void giveItem(CommandSender recipient, Inventory inv, Location location, ItemStack stack, boolean sendMessage) {
-        if(inv.firstEmpty() > -1)
+        if (inv.firstEmpty() > -1)
             inv.addItem(stack.clone());
-        else{
+        else {
             location.getWorld().dropItem(location, stack);
-            if(sendMessage)
+            if (sendMessage)
                 recipient.sendMessage(ChatColor.RED + "Your inventory was full, so you dropped the item.");
         }
     }
@@ -449,7 +454,7 @@ public final class FLUtils {
     }
 
     public static double constrain(double d, double min, double max) {
-        return d < min ? min : (d > max ? max : d);
+        return d < min ? min : (Math.min(d, max));
     }
 
     public static String toStringTruncated(double d) {
@@ -463,8 +468,8 @@ public final class FLUtils {
     }
 
     public static <K, V> K getKey(Map<K, V> map, V value) {
-        for(Map.Entry<K, V> entry : map.entrySet()) {
-            if(Objects.equals(value, entry.getValue()))
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (Objects.equals(value, entry.getValue()))
                 return entry.getKey();
         }
         return null;
@@ -481,10 +486,10 @@ public final class FLUtils {
 
     public static String matchCase(String original, String other) {
         String[] ogwords = original.split(" "), owords = other.split(" ");
-        for(int i = 0;i < Math.min(ogwords.length, owords.length);++ i) {
+        for (int i = 0;i < Math.min(ogwords.length, owords.length);++ i) {
             char[] ogwc = ogwords[i].toCharArray(), owc = owords[i].toCharArray();
-            for(int j = 0;j < Math.min(ogwc.length, owc.length);++ j) {
-                if(Character.isUpperCase(ogwc[j]))
+            for (int j = 0;j < Math.min(ogwc.length, owc.length);++ j) {
+                if (Character.isUpperCase(ogwc[j]))
                     owc[j] = Character.toUpperCase(owc[j]);
                 else
                     owc[j] = Character.toLowerCase(owc[j]);
@@ -497,17 +502,17 @@ public final class FLUtils {
     public static <T> T safeValueOf(Function<String, T> valueOf, String name) {
         try {
             return valueOf.apply(name);
-        }catch(Throwable t) {
+        } catch (Throwable t) {
             return null;
         }
     }
 
     public static String capitalize(String x) {
-        if(x == null || x.isEmpty())
+        if (x == null || x.isEmpty())
             return x;
         String[] split = x.split(" ");
-        for(int i = 0;i < split.length;++ i) {
-            if(!split[i].isEmpty())
+        for (int i = 0;i < split.length;++ i) {
+            if (!split[i].isEmpty())
                 split[i] = Character.toUpperCase(split[i].charAt(0)) + split[i].substring(1).toLowerCase();
         }
         return String.join(" ", split);
@@ -533,10 +538,10 @@ public final class FLUtils {
 
     @SafeVarargs
     public static <K, V> Map<K, V> asMap(Pair<K, V>... entries) {
-        if(entries.length == 0)
+        if (entries.length == 0)
             return Collections.emptyMap();
         Map<K, V> map = new HashMap<>(entries.length);
-        for(Pair<K, V> entry : entries)
+        for (Pair<K, V> entry : entries)
             map.put(entry.getFirst(), entry.getSecond());
         return map;
     }
@@ -545,7 +550,7 @@ public final class FLUtils {
         MessageDigest md;
         try {
             md = MessageDigest.getInstance("MD5");
-        }catch(NoSuchAlgorithmException ex) {
+        } catch (NoSuchAlgorithmException ex) {
             throw new InternalError(ex);
         }
         return md.digest(data);
