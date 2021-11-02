@@ -1,15 +1,13 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.TimeInterval;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -33,8 +31,12 @@ public class CommandShovel extends PlayerCommand {
         // Check cooldown
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            sendFormatted(sender, "&(red)You can use this command again in %0",
-                    TimeInterval.formatTime(cooldownTime * 50L, false));
+            sender.sendMessage(
+                ComponentColor.green(
+                    "You can use this command in %s.",
+                    TimeInterval.formatTime(cooldownTime * 50L, false)
+                )
+            );
             return true;
         }
 

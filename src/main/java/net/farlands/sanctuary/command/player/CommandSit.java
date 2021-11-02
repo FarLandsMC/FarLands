@@ -1,13 +1,11 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPig;
@@ -26,7 +24,7 @@ public class CommandSit extends PlayerCommand {
     @Override
     public boolean canUse(Player sender) {
         if (sender.getVehicle() != null && FarLands.getDataHandler().getSession(sender).seatExit == null) {
-            sendFormatted(sender, "&(red)You are already sitting");
+            sender.sendMessage(ComponentColor.red("You are already sitting"));
             return false;
         }
         return super.canUse(sender);
@@ -40,7 +38,7 @@ public class CommandSit extends PlayerCommand {
 
         if (!sender.isOnGround() || // can't go in canUse as it prevents /sit exit
                 sender.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR) { // Check if player is standing directly on top of block, not off of a side
-            sendFormatted(sender, "&(red)You must be on the ground to use this command.");
+            sender.sendMessage(ComponentColor.red("You must be on the ground to use this command."));
             return true;
         }
 

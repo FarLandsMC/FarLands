@@ -8,14 +8,13 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandRenameHome extends PlayerCommand {
     public CommandRenameHome() {
@@ -33,29 +32,35 @@ public class CommandRenameHome extends PlayerCommand {
         String newName = args[1];
 
         if (!flp.hasHome(oldName)) {
-            sendFormatted(sender, "&(red)You do not have a home named %0.", oldName);
+            sender.sendMessage(ComponentColor.red("You do not have a home named %s.", oldName));
             return true;
         }
 
         // Make sure the home name is valid
         if (args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(newName)) {
-            sendFormatted(sender, "&(red)You cannot set a home with that name.");
+            sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
             return true;
         }
 
         if (newName.length() > 32) {
-            sendFormatted(sender, "&(red)Home names are limited to 32 characters. Please choose a different name.");
+            sender.sendMessage(ComponentColor.red("Home names are limited to 32 characters. Please choose a different name."));
             return true;
         }
 
         // Make sure the player doesn't already have a home with the new name
         if (flp.hasHome(newName)) {
-            sendFormatted(sender, "&(red)You have already set a home with this name.");
+            sender.sendMessage(ComponentColor.red("You have already set a home with this name."));
             return true;
         }
 
         flp.renameHome(oldName, newName);
-        sendFormatted(sender, "&(green)Successfully renamed home {&(aqua)%0} to {&(aqua)%1}.", oldName, newName);
+        sender.sendMessage(
+            ComponentColor.green("Successfully renamed home ")
+                .append(ComponentColor.aqua(oldName))
+                .append(ComponentColor.green(" to "))
+                .append(ComponentColor.aqua(newName))
+                .append(ComponentColor.green("."))
+        );
         return true;
     }
 

@@ -9,6 +9,9 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.WeatherType;
 import org.bukkit.command.CommandSender;
@@ -33,27 +36,36 @@ public class CommandPWeather extends PlayerCommand {
         // Parse and check the weather type
         CustomWeatherType weatherType = Utils.valueOfFormattedName(args[0], CustomWeatherType.class);
         if (weatherType == null) {
-            sendFormatted(sender, "&(red)Invalid weather type, please specify one of the following: %0",
-                    Arrays.stream(CustomWeatherType.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
+            sender.sendMessage(
+                ComponentColor.red(
+                    "Invalid weather type, please specify one of the following: %s",
+                    Arrays.stream(CustomWeatherType.VALUES)
+                        .map(Utils::formattedName)
+                        .collect(Collectors.joining(", "))
+                )
+            );
             return true;
         }
 
         // Change the player's weather
         switch (weatherType) {
-            case CLEAR:
+            case CLEAR -> {
                 FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).pweather = true;
                 sender.setPlayerWeather(WeatherType.CLEAR);
-                break;
-
-            case RESET:
+            }
+            case RESET -> {
                 FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).pweather = false;
                 sender.resetPlayerWeather();
-                sendFormatted(sender, "&(green)Weather synchronized to world weather.");
+                sender.sendMessage(ComponentColor.green("Weather synchronized to world weather."));
                 return true;
+            }
         }
 
-        sendFormatted(sender, "&(green)Personal weather set. Use $(hovercmd,/pweather reset,{&(gray)Click to Run}" +
-                ",&(aqua)/pweather reset) to synchronize your weather to the world weather.");
+        sender.sendMessage(
+            ComponentColor.green("Personal weather set. Use ")
+                .append(ComponentUtils.command("/pweather reset"))
+                .append(Component.text(" to synchronize your weather to the world weather."))
+        );
 
         return true;
     }

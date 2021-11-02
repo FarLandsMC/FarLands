@@ -1,7 +1,6 @@
 package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.escapeExpression;
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import static com.kicas.rp.util.TextUtils.format;
 
 import net.farlands.sanctuary.FarLands;
@@ -12,8 +11,13 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Logging;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -46,7 +50,7 @@ public class CommandMessage extends PlayerCommand {
             // Check to make sure they have a recent conversation to reply to
             CommandSender recipient = senderSession.lastMessageSender.getValue();
             if (recipient == null) {
-                sendFormatted(sender, "&(red)You have no recent messages to reply to.");
+                sender.sendMessage(ComponentColor.red("You have no recent messages to reply to."));
                 return true;
             }
 
@@ -64,20 +68,27 @@ public class CommandMessage extends PlayerCommand {
                 if (currentReplyToggle == null) {
                     // They do not have a recent conversation, so we don't know who to set the reply toggle to
                     if (lastMessageSender == null)
-                        sendFormatted(sender, "&(red)You do not have an active reply toggle currently.");
+                        sender.sendMessage(ComponentColor.red("You do not have an active reply toggle currently."));
                     // Set the recipient to the person they were last chatting with
                     else {
                         senderSession.replyToggleRecipient = lastMessageSender;
-                        sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}. Type " +
-                                "$(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
-                                "or start your message with {&(aqua)!} to send it to public chat.",
-                                lastMessageSender.getName());
+                        Component c = Component.text()
+                            .content("You are now messaging ")
+                            .color(NamedTextColor.GOLD)
+                            .append(ComponentColor.aqua(lastMessageSender.getName()))
+                            .append(ComponentColor.gold(". Type "))
+                            .append(ComponentUtils.command("/m"))
+                            .append(ComponentColor.gold(" to toggle off, or start your message with "))
+                            .append(ComponentColor.aqua("!"))
+                            .append(ComponentColor.gold(" to send it to public chat."))
+                            .build();
+                        sender.sendMessage(c);
                     }
                 }
                 // Disable auto-messaging since it's already active
                 else {
                     senderSession.replyToggleRecipient = null;
-                    sendFormatted(sender, "&(gold)You are no longer messaging %0", currentReplyToggle.getName());
+                    sender.sendMessage(ComponentColor.gold("You are no longer messaging " + currentReplyToggle.getName()));
                 }
 
                 return true;
@@ -86,7 +97,7 @@ public class CommandMessage extends PlayerCommand {
             // Get the recipient and make sure they exist
             CommandSender recipient = getPlayer(args[1], sender);
             if (recipient == null) {
-                sendFormatted(sender, "&(red)Player not found.");
+                sender.sendMessage(ComponentColor.red("Player not found."));
                 return true;
             }
 
@@ -97,15 +108,26 @@ public class CommandMessage extends PlayerCommand {
                 // The name the specified matches who they are currently replying to, so disable auto-reply
                 if (toggled != null && toggled.equals(recipient)) {
                     senderSession.replyToggleRecipient = null;
-                    sendFormatted(sender, "&(gold)You are no longer messaging %0", toggled.getName());
+                    sender.sendMessage(ComponentColor.gold("You are no longer messaging " + toggled.getName()));
                 }
                 // They specified a different person so switch to the new player
                 else {
                     senderSession.replyToggleRecipient = recipient;
-                    sendFormatted(sender, "&(gold)You are now messaging {&(aqua)%0}" +
-                            (toggled == null ? "" : " and no longer messaging {&(aqua)" + toggled.getName() + "}") +
-                            ". Type $(hovercmd,/m,{&(gray)Click to Run},&(aqua)/m) to toggle off, " +
-                            "or start your message with {&(aqua)!} to send it to public chat.", recipient.getName());
+
+                    TextComponent.Builder c = Component.text()
+                        .content("You are now messaging ")
+                        .color(NamedTextColor.GOLD)
+                        .append(ComponentColor.aqua(recipient.getName()))
+                        .append(ComponentColor.gold(". Type "));
+                    if (toggled != null) {
+                        c.append(Component.text(" and no longer messaging "))
+                            .append(ComponentColor.aqua(toggled.getName()));
+                    }
+                    c.append(ComponentUtils.command("/m"))
+                        .append(ComponentColor.gold(" to toggle off, or start your message with "))
+                        .append(ComponentColor.aqua("!"))
+                        .append(ComponentColor.gold(" to send it to public chat."));
+                    sender.sendMessage(c.build());
                 }
 
                 return true;
@@ -161,7 +183,7 @@ public class CommandMessage extends PlayerCommand {
 
             // Check for AFK toggle
             if (recipientSession.afk)
-                sendFormatted(sender, "&(red)This player is AFK, so they may not receive your message.");
+                sender.sendMessage(ComponentColor.red("This player is AFK, so they may not receive your message."));
 
             // Play a sound for the recipient if they're online to notify them of the message
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
@@ -180,7 +202,11 @@ public class CommandMessage extends PlayerCommand {
     }
 
     private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {
-        sendFormatted(recipient, "&(dark_gray)%0 &(gray)%1%2: &(reset)%3", prefix, rank.getNameColor(), escapeExpression(name), message);
+        recipient.sendMessage(
+            ComponentColor.darkGray(prefix)
+                .append(ComponentColor.gray(rank.getNameColor() + " " + name + " "))
+                .append(ComponentColor.white(message))
+        );
     }
 
     private static String getDisplayName(CommandSender sender) {

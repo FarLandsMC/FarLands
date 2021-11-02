@@ -116,6 +116,7 @@ public class CommandStats extends Command {
         return statsMap;
     }
 
+    // TODO: Update to use components when updating chat
     public static String formatStats(Map<PlayerStat, Object> statsMap, OfflineFLPlayer flp) {
         Rank displayedRank = flp.getDisplayRank();
 

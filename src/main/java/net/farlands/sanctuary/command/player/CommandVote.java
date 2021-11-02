@@ -1,14 +1,12 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
-
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,7 +18,11 @@ public class CommandVote extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if(sender instanceof Player)
-            sendFormatted(sender, "&(gold)Click $(link,%0,{&(aqua,underline)here}) to vote.", FarLands.getFLConfig().voteConfig.voteLink);
+            sender.sendMessage(
+                ComponentColor.gold("Click ")
+                    .append(ComponentUtils.link(FarLands.getFLConfig().voteConfig.voteLink, "here"))
+                    .append(ComponentColor.gold(" to vote."))
+            );
         else if(sender instanceof DiscordSender) {
             ((DiscordSender) sender)
                     .sendMessage(
@@ -28,8 +30,10 @@ public class CommandVote extends Command {
                         false
                     );
         } else {
-            sender.sendMessage(ChatColor.GOLD + "Follow this link to vote for the server: " + ChatColor.AQUA + ChatColor.UNDERLINE +
-                    FarLands.getFLConfig().voteConfig.voteLink);
+            sender.sendMessage(
+                ComponentColor.gold("Follow this link to vote for the server: ")
+                    .append(ComponentUtils.link(FarLands.getFLConfig().voteConfig.voteLink))
+            );
         }
         return true;
     }

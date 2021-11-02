@@ -1,90 +1,89 @@
-var eval = function(exp) {
-	return engine.eval(exp);
+const eval = (exp) => {
+    return engine.eval(exp);
 };
 
-/* Global Shortcuts */
-var org = Packages.org;
-var net = Packages.net;
-var fl = net.farlands.sanctuary;
-var FL = fl.FarLands;
-var plugin = FL.getInstance();
-var Bukkit = org.bukkit.Bukkit;
-var server = Bukkit.getServer();
-var ChatColor = org.bukkit.ChatColor;
-var RH = fl.util.ReflectionHelper;
-var Utils = fl.util.Utils;
-var DH = FL.getDataHandler();
+// Global Shortcuts
+const org = Packages.org;
+const net = Packages.net;
+const com = Packages.com;
 
-var invoke = function(method, target) {
-    return RH.invoke(method, target.getClass(), target);
-};
+const fl = net.farlands.sanctuary;
+const FL = fl.FarLands;
 
-var mechanic = function(clazz) {
-    return FL.getMechanicHandler().getMechanic(clazz);
-};
+const rp = com.kicas.rp;
+const RP = rp.RegionProtection;
 
-var getEntityById = function(uuid) {
-    entities = self.getWorld().getEntities();
-    for(var i = 0;i < entities.size();++ i) {
-        if(entities[i].getUniqueId().toString() === uuid)
-            return entities[i];
-    }
-    return null;
-};
+const cs = com.kicasmads.cs;
+const CS = cs.ChestShops;
 
-var getRegionFile = function() {
-    return "r." + (self.getLocation().getBlockX() >> 9) + "." + (self.getLocation().getBlockZ() >> 9) + ".mca"
-};
+const plugin = FL.getInstance();
+const RegionProtection = RP.getInstance();
+const ChestShops = CS.getInstance();
 
-var sendFormatted = function(recipient, input, values) {
+const Bukkit = org.bukkit.Bukkit;
+const server = Bukkit.getServer();
+const ChatColor = org.bukkit.ChatColor;
+const RH = fl.util.ReflectionHelper;
+const Utils = fl.util.FLUtils;
+const DH = FL.getDataHandler();
+
+// Helper Methods
+const uuid = java.util.UUID.fromString;
+
+const invoke = (method, target) =>
+    RH.invoke(method, target.getClass(), target);
+
+const mechanic = (clazz) =>
+    FL.getMechanicHandler().getMechanic(clazz);
+
+const getEntityById = (uuid) => // TODO: Invalid
+    self.getWorld().getEntities().find((e) => e.getUniqueId().toString() === uuid);
+
+const getRegionFile = () =>
+    'r.' + (self.getLocation().getBlockX() >> 9) + '.' + (self.getLocation().getBlockZ() >> 9) + '.mca';
+
+const sendFormatted = (recipient, input, values) =>
     recipient.spigot().sendMessage(fl.util.TextUtils.format(input, values));
-};
 
-var flp = function(name) {
-    return FL.getPDH().getFLPlayerMatching(name);
-};
+const flp = (name) =>
+    DH.getOfflineFLPlayer(name);
 
-var session = function(name) {
-    var p = player(name);
+
+
+const session = (name) => {
+    const p = player(name);
     return p == null ? null : FL.getDataHandler().getSession(p);
 }
 
-var flpLegacy = function(name) {
-    return DH.getFLPlayerLegacy(name);
-};
+const flpLegacy = (name) =>
+    DH.getFLPlayerLegacy(name);
 
-var player = function(name) {
-    return Bukkit.getPlayer(name);
-};
+const player = (name) =>
+    Bukkit.getPlayer(name);
 
-var getField = function(name, target) {
-    return RH.getFieldValue(name, target.class, target);
-};
+const getField = (name, target) =>
+    RH.getFieldValue(name, target.class, target);
 
-var listFields = function(o) {
-    var fields = o.class.getFields();
-    for(var i=0; i < fields.length; ++i) {
+const listFields = (obj) =>
+    obj.class.getFields().forEach((field) => {
         try {
-            print(fields[i].getName() + ": " + RH.getFieldValue(fields[i],o));
-        } catch(e) {}
-    }
-};
+            print(field.getName() + ': ' + RH.getFieldValue(field, obj));
+        } catch (ignored) {
+        }
+    });
 
-var print = function(x) {
-    self.sendMessage(x == null ? "null" : x.toString());
-};
+const print = log = (x) =>
+    self.sendMessage(x + '');
 
 /* Fit Native Functions to Bukkit API */
 
-var toTicks = function(millis) {
-    return Math.ceil(millis / 50);
-};
+const toTicks = (millis) =>
+    Math.ceil(millis / 50);
 
-var runTaskLater = function(callback, delayMS) {
-    return Bukkit.getScheduler().runTaskLater(plugin, callback, toTicks(delayMS));
-};
+const runTaskLater = (callback, delayMS) =>
+    Bukkit.getScheduler().runTaskLater(plugin, callback, toTicks(delayMS));
 
-var runTaskTimer = function(callback, intervalMS) {
-    var delayMS = toTicks(intervalMS);
+const runTaskTimer = (callback, intervalMS) => {
+    const delayMS = toTicks(intervalMS);
     return Bukkit.getScheduler().runTaskTimer(plugin, callback, delayMS, delayMS);
 };

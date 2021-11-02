@@ -1,12 +1,11 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
 
@@ -24,8 +23,10 @@ public class CommandAFK extends PlayerCommand {
 
         // Check the command cooldown
         if (!session.isCommandCooldownComplete(this)) {
-            sendFormatted(sender, "&(red)You can use this command again in %0.",
-                    TimeInterval.formatTime(session.commandCooldownTimeRemaining(this) * 50L, false));
+            sender.sendMessage(ComponentColor.red(
+                "You can use this command again in " +
+                    TimeInterval.formatTime(session.commandCooldownTimeRemaining(this) * 50L, false))
+            );
             return true;
         }
 

@@ -9,8 +9,12 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -141,42 +145,55 @@ public class CommandList extends Command {
 
         } else {
 
-            StringBuilder sb = new StringBuilder();
-            sb.append(ChatColor.GOLD).append("- ").append(total).append(" Player").append(total != 1 ? "s" : "")
-                    .append(" Online -\n");
+            TextComponent.Builder cb = Component.text()
+                .content("- " + total + " Player" + (total != 1 ? "s" : "") + " Online -\n")
+                .color(NamedTextColor.GOLD);
             if (!players.isEmpty()) {
-                players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                        .append(rank.getName()).append(": ").append(ChatColor.GOLD)
-                        .append(String.join(", ", players.get(rank))).append('\n'));
+                players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> {
+                    cb.append(
+                            Component.text(rank.getName() + ": ")
+                                .color(TextColor.color(rank.getColor().getColor().getRGB()))
+                        )
+                        .append(
+                            ComponentColor.gold(String.join(", ", players.get(rank)) + '\n')
+                        );
+                });
             }
             if (!staff.isEmpty()) {
                 if (!players.isEmpty())
-                    sb.append(ChatColor.GOLD).append("- Staff -\n");
+                    cb.append(ComponentColor.gold("- Staff -\n"));
 
-                staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> sb.append(rank.getColor())
-                        .append(rank.getName()).append(": ").append(ChatColor.GOLD)
-                        .append(String.join(", ", staff.get(rank))).append('\n'));
+                staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> {
+                    cb.append(
+                        Component.text(rank.getName() + ": ")
+                            .color(TextColor.color(rank.getColor().getColor().getRGB()))
+                    ).append(
+                        ComponentColor.gold(String.join(", ", staff.get(rank)) + "\n")
+                    );
+                });
             }
 
             boolean applyColour = overworld > 0 || nether > 0 || end > 0 || farlands > 0;
-            if (applyColour)
-                sb.append(ChatColor.AQUA);
+
+            StringBuilder worlds = new StringBuilder();
 
             if (overworld > 0)
-                sb.append("\nOverworld: ").append(overworld);
+                worlds.append("\nOverworld: ").append(overworld);
             if (farlands > 0)
-                sb.append("\nPocket: ").append(farlands);
+                worlds.append("\nPocket: ").append(farlands);
             if (nether > 0)
-                sb.append("\nNether: ").append(nether);
+                worlds.append("\nNether: ").append(nether);
             if (end > 0)
-                sb.append("\nEnd: ").append(end);
+                worlds.append("\nEnd: ").append(end);
 
-            if (applyColour)
-                sb.append(ChatColor.GOLD);
+            if (!worlds.isEmpty()) {
+                cb.append(ComponentColor.aqua(worlds.toString()));
+            }
+
             if (listHasVanishedPlayer)
-                sb.append("\n*These players are vanished.");
+                cb.append(ComponentColor.gold("\n*These players are vanished."));
 
-            sender.sendMessage(sb.toString().trim());
+            sender.sendMessage(cb.build());
         }
 
         return true;

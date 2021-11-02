@@ -1,8 +1,6 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
-
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -11,6 +9,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.Location;
@@ -31,7 +31,7 @@ public class CommandPackageAccept extends PlayerCommand {
     protected boolean execute(Player sender, String[] args) {
         List<Package> packages = FarLands.getDataHandler().getPackages(sender.getUniqueId());
         if (packages.isEmpty()) {
-            TextUtils.sendFormatted(sender, "&(red)You do not have any pending packages.");
+            sender.sendMessage(ComponentColor.red("You do not have any pending packages."));
             return true;
         }
 
@@ -53,7 +53,7 @@ public class CommandPackageAccept extends PlayerCommand {
                     }
                     packages.remove(0);
                 }else {
-                    TextUtils.sendFormatted(sender, "&(red)Please specify the package sender.");
+                    sender.sendMessage(ComponentColor.red("Please specify the package sender."));
                 }
                 return true;
             }
@@ -71,25 +71,31 @@ public class CommandPackageAccept extends PlayerCommand {
             }
         }
 
-        TextUtils.sendFormatted(sender, "&(red)The package sender specified was not correct.");
+        sender.sendMessage(ComponentColor.red("The package sender specified was not correct."));
         return true;
     }
 
     private void accept(Player sender, Package lPackage){
-        TextUtils.sendFormatted(
-                sender, "&(gold)Receiving package from {&(aqua){%0}}.",
-                lPackage.senderName
+        sender.sendMessage(
+            ComponentColor.gold("Receiving package from ")
+                .append(ComponentColor.aqua(lPackage.senderName))
+                .append(ComponentColor.gold("."))
         );
         final String message = lPackage.message;
-        if (message != null && !message.isEmpty())
-            TextUtils.sendFormatted(sender, "&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
-                    FLUtils.itemName(lPackage.item), message);
+        if (message != null && !message.isEmpty()) {
+            sender.sendMessage(
+                ComponentColor.gold("Item ")
+                    .append(ComponentUtils.item(lPackage.item))
+                    .append(ComponentColor.gold(" was sent with the following message "))
+                    .append(ComponentColor.aqua(message))
+            );
+        }
         FLUtils.giveItem(sender, lPackage.item, true);
     }
     private void decline(Player sender, Package lPackage){
-        TextUtils.sendFormatted(
-                sender, "&(gold)Returning package to {&(aqua){%0}}.",
-                lPackage.senderName
+        sender.sendMessage(
+            ComponentColor.gold("Returning package to ")
+                .append(ComponentColor.aqua(lPackage.senderName))
         );
         OfflineFLPlayer packageSenderFlp = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid);
         FarLands.getDataHandler().addPackage(packageSenderFlp.uuid,

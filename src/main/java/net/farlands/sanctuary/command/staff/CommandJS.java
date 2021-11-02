@@ -30,7 +30,7 @@ public class CommandJS extends Command {
         currentThread.setContextClassLoader(FarLands.getInstance().getClass().getClassLoader());
 
         NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
-        engine = factory.getScriptEngine();
+        engine = factory.getScriptEngine("--language=es6");
 
         try {
             engine.eval(new String(FarLands.getDataHandler().getResource("boot.js"), StandardCharsets.UTF_8)); // Load bootstrap script

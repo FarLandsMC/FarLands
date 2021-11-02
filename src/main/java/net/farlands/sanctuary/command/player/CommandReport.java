@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
@@ -12,6 +11,7 @@ import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -34,7 +34,7 @@ public class CommandReport extends Command {
         // Get and check the report type
         ReportType reportType = Utils.valueOfFormattedName(args[0], ReportType.class);
         if (reportType == null) {
-            sendFormatted(sender, "&(red)Invalid report type: %0", args[0]);
+            sender.sendMessage(ComponentColor.red("&(red)Invalid report type: %s", args[0]));
             return true;
         }
 
@@ -62,7 +62,7 @@ public class CommandReport extends Command {
         // If it's a player report add the player's name
         if (reportType == ReportType.PLAYER) {
             if (args.length < 3) {
-                sendFormatted(sender, "&(red)Usage: /report player <playerName> <description>");
+                sender.sendMessage(ComponentColor.red("Usage: /report player <playerName> <description>"));
                 return true;
             }
 
@@ -83,7 +83,7 @@ public class CommandReport extends Command {
             FarLands.getDiscordHandler().sendMessageEmbed(DiscordChannel.DEV_REPORTS, embedBuilder);
         }
 
-        sendFormatted(sender, "&(green)Report sent.");
+        sender.sendMessage(ComponentColor.green("Report sent."));
         return true;
     }
 

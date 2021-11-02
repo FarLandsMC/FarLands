@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.data.FlagContainer;
@@ -16,6 +15,9 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
 
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -38,7 +40,7 @@ public class CommandResetHome extends PlayerCommand {
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
+            sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
 
@@ -49,14 +51,14 @@ public class CommandResetHome extends PlayerCommand {
                 "world_nether".equals(location.getWorld().getName()) ||
                 "farlands".equals(location.getWorld().getName())
         )) {
-            sendFormatted(sender, "&(red)You can only move homes to the overworld and nether. Reset cancelled");
+            sender.sendMessage(ComponentColor.red("You can only move homes to the overworld and nether. Reset cancelled"));
             return true;
         }
 
         // Check for claims
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(location);
         if (!(flp.rank.isStaff() || flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
-            sendFormatted(sender, "&(red)You do not have permission to move a home into this claim.");
+            sender.sendMessage(ComponentColor.red("You do not have permission to move a home into this claim."));
             return true;
         }
 
@@ -66,8 +68,13 @@ public class CommandResetHome extends PlayerCommand {
             name = "home";
         else {
             if (args[0].equals("home")) {
-                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/movhome home} by typing " +
-                        "$(hovercmd,/movhome,{&(gray)Click to Run},&(dark_aqua)/movhome)!");
+                sender.sendMessage(
+                    ComponentColor.aqua("You can simplify ")
+                        .append(ComponentColor.darkAqua("/movhome home"))
+                        .append(ComponentColor.aqua(" by typing "))
+                        .append(ComponentUtils.command("/movhome", NamedTextColor.DARK_AQUA))
+                        .append(ComponentColor.aqua("!"))
+                );
             }
 
             name = args[0];
@@ -76,28 +83,35 @@ public class CommandResetHome extends PlayerCommand {
         // If the home already exists then move it
         if (flp.hasHome(name)) {
             flp.moveHome(name, location);
-            sendFormatted(sender, "&(green)Moved home with name {&(aqua)%0} to your location.", name);
+            sender.sendMessage(
+                ComponentColor.green("Moved home with name ")
+                    .append(ComponentColor.aqua(name))
+                    .append(ComponentColor.green(" to your location."))
+            );
         }
         // If the home does not exist try to make a new one
         else {
             if (moveUnownedHome) {
-                sendFormatted(sender, "&(red)%0 does not have a home with this name.", args[1]);
+                sender.sendMessage(ComponentColor.red("%s does not have a home with this name.", args[1]));
                 return true;
             }
 
             // Create the home if it doesn't exist and the user has enough homes to set another
             if (flp.numHomes() >= flp.rank.getHomes()) {
-                sendFormatted(sender, "&(red)This home does not exist and you do not have enough homes to set another.");
+                sender.sendMessage(ComponentColor.red("This home does not exist and you do not have enough homes to set another."));
                 return true;
             } else {
                 if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]))) {
-                    sendFormatted(sender, "&(red)This home does not exist. Unable to create home with that name.");
+                    sender.sendMessage(ComponentColor.red("This home does not exist. Unable to create home with that name."));
                     return true;
                 }
 
                 flp.addHome(name, location);
-                sendFormatted(sender, "&(green)This home does not exist, created a new home with name " +
-                        "{&(aqua)%0} at your current location.", name);
+                sender.sendMessage(
+                    ComponentColor.green("This home does not exist, created a new home with name ")
+                        .append(ComponentColor.aqua(name))
+                        .append(ComponentColor.green(" at your current location."))
+                );
             }
         }
 

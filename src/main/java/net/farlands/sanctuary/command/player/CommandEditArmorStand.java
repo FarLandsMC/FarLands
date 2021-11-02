@@ -10,10 +10,11 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ArmorStand;
@@ -21,8 +22,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -47,6 +46,7 @@ public class CommandEditArmorStand extends PlayerCommand {
                 for (String trigger : scoreboardTriggers) {
                     Bukkit.dispatchCommand(sender, "scoreboard players enable " + trigger + " as_trigger");
                 }
+                // TODO: Update this to use components
                 Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + "/editarmorstand enable " + args[1]);
             }
             return true;
@@ -54,7 +54,7 @@ public class CommandEditArmorStand extends PlayerCommand {
         }
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(sender.getLocation());
         if (flags != null && !flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.BUILD, flags)) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to edit armor stands here.");
+            sender.sendMessage(ComponentColor.red("You do not have permission to edit armor stands here."));
             return true;
         }
 
@@ -62,7 +62,7 @@ public class CommandEditArmorStand extends PlayerCommand {
             switch(args[0].toLowerCase()) {
                 case "marker":
                     if (args.length == 1) {
-                        sender.sendMessage(ChatColor.RED + "Please specify either \"on\" or \"off\"");
+                        sender.sendMessage(ComponentColor.red("Please specify either \"on\" or \"off\""));
                         return true;
                     }
                     boolean marker = "on".equalsIgnoreCase(args[1]);
@@ -98,27 +98,27 @@ public class CommandEditArmorStand extends PlayerCommand {
                     if (selected != null) {
                         ArmorStand stand = (ArmorStand) selected;
                         stand.setMarker(marker);
-                        sender.sendMessage(ChatColor.GOLD + "Toggled marker tag " + (marker ? "on." : "off."));
+                        sender.sendMessage(ComponentColor.gold("Toggled marker tag " + (marker ? "on." : "off.")));
                         stand.setInvisible(!stand.isInvisible());
                         FarLands.getScheduler().scheduleSyncDelayedTask(
                             () -> stand.setInvisible(!stand.isInvisible()),
                             20
                         );
                     } else {
-                        sender.sendMessage(ChatColor.RED + "Please stand near and look at the armor stand you on which you " +
-                                "wish to toggle the marker tag.");
+                        sender.sendMessage(ComponentColor.red("Please stand near and look at the armor stand you on which you " +
+                                "wish to toggle the marker tag."));
                     }
                     return true;
                 // /editarmourstand set <value> -> /trigger as_trigger set <value>
                 case "set":
                     if (args.length == 1) {
-                        sender.sendMessage(ChatColor.RED + "Please specify a value.");
+                        sender.sendMessage(ComponentColor.red("Please specify a value."));
                         return true;
                     }
                     try {
                         Integer.parseInt(args[1]);
                     } catch (Exception e) {
-                        sender.sendMessage(ChatColor.RED + "Invalid Value.");
+                        sender.sendMessage(ComponentColor.red("Invalid Value."));
                         return true;
                     }
                     sender.performCommand("trigger as_trigger set " + args[1]);

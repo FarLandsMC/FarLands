@@ -1,12 +1,13 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,10 +30,22 @@ public class CommandNightSkip extends Command {
         int sleeping = (int) online.stream().filter(Player::isSleeping).count();
         int required = Math.max(1, (online.size() + 1) / 2);
 
-        sendFormatted(sender,
-                "&(gold){&(aqua)%0} player%2 currently sleeping.\n" +
-                "{&(aqua)%1} player%3 required to sleep in order to skip the night.",
-                sleeping, required, sleeping == 1 ? " is" : "s are", required == 1 ? " is" : "s are");
+        Component c = Component.text()
+            .color(NamedTextColor.GOLD)
+            .append(
+                ComponentColor.aqua(sleeping + "")
+            )
+            .append(
+                Component.text(" player" + (sleeping == 1 ? " is" : "s are") + " currently sleeping.\n")
+            )
+            .append(
+                ComponentColor.aqua(required + "")
+            )
+            .append(
+                Component.text(" player" + (required == 1 ? " is" : "s are") + " required to sleep in order to skip the night.")
+            )
+            .build();
+        sender.sendMessage(c);
         return true;
     }
 }

@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 
 import net.farlands.sanctuary.FarLands;
@@ -10,7 +9,10 @@ import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -25,13 +27,13 @@ public class CommandDelHome extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        // Whether or not we're deleting someone else's home
+        // Whether we're deleting someone else's home
         boolean deleteUnownedHome = Rank.getRank(sender).isStaff() && args.length > 1;
 
         OfflineFLPlayer flp = deleteUnownedHome ? FarLands.getDataHandler().getOfflineFLPlayer(args[1])
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
+            sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
 
@@ -40,15 +42,22 @@ public class CommandDelHome extends PlayerCommand {
             name = "home";
         else {
             if (args[0].equals("home")) {
-                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/delhome home} by typing " +
-                        "$(hovercmd,/delhome,{&(gray)Click to Run},&(dark_aqua)/delhome)!");
+                Component c = Component.text().content("You can simplify ")
+                    .color(NamedTextColor.AQUA)
+                    .append(ComponentColor.darkAqua("/delhome home"))
+                    .append(ComponentColor.aqua(" by "))
+                    .append(ComponentUtils.command("/delhome", NamedTextColor.DARK_AQUA))
+                    .append(ComponentColor.aqua("!"))
+                    .build();
+
+                sender.sendMessage(c);
             }
             name = args[0];
         }
 
         if (!flp.hasHome(name)) {
-            sendFormatted(sender, "&(red)%0 not have a home named \"%1\"",
-                    deleteUnownedHome ? flp.username + " does" : "You do", name);
+            String user = deleteUnownedHome ? flp.username + " does" : "You do";
+            sender.sendMessage(ComponentColor.red(user + " not have a home named \"" + name + "\""));
             return false;
         }
 
@@ -58,7 +67,7 @@ public class CommandDelHome extends PlayerCommand {
         if (!deleteUnownedHome)
             FarLands.getDataHandler().getSession(sender).lastDeletedHomeName.setValue(name, 300L, null);
 
-        sender.sendMessage(ChatColor.GREEN + "Removed home " + ChatColor.AQUA + name);
+        sender.sendMessage(ComponentColor.green("Removed home ").append(ComponentColor.aqua(name)));
         return true;
     }
 

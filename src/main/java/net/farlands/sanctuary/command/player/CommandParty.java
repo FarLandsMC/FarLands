@@ -4,10 +4,10 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.region.AutumnEvent;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -21,13 +21,15 @@ public class CommandParty extends PlayerCommand {
 
     @Override
     public boolean execute(Player player, String[] args) {
-        if (AutumnEvent.isActive())
-            if (FarLands.getWorld().equals(player.getWorld()))
+        if (AutumnEvent.isActive()) {
+            if (FarLands.getWorld().equals(player.getWorld())) {
                 FLUtils.tpPlayer(player, AutumnEvent.getSpawn());
-            else
+            } else {
                 FLUtils.tpPlayer(player, TREE);
-        else
-            player.sendMessage(ChatColor.GOLD + "There are no server events active currently.");
+            }
+        } else {
+            player.sendMessage(ComponentColor.red("There are no server events active currently."));
+        }
         return true;
     }
 }

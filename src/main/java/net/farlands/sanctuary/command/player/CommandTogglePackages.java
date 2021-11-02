@@ -1,16 +1,14 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Utils;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.PackageToggle;
-
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,13 +31,16 @@ public class CommandTogglePackages extends PlayerCommand {
             toggle = Utils.safeValueOf(PackageToggle::valueOf, args[0].toUpperCase());
 
         if (toggle == null) {
-            TextUtils.sendFormatted(sender, "&(green)Your packages toggle is currently set to {&(aqua)%0}.",
-                    flp.packageToggle.toString());
+            sender.sendMessage(
+                ComponentColor.green("Your packages toggle is currently set to ")
+                    .append(ComponentColor.aqua(flp.packageToggle.toString()))
+                    .append(ComponentColor.green("."))
+            );
             return true;
         }
 
         flp.packageToggle = toggle;
-        TextUtils.sendFormatted(sender, "&(green)Toggle set to " + toggle.toString());
+        sender.sendMessage(ComponentColor.green("Toggle set to " + toggle));
         return true;
     }
 

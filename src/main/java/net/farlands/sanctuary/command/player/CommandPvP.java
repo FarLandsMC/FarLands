@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -9,6 +7,9 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,10 +28,14 @@ public class CommandPvP extends PlayerCommand {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         if (args.length == 0) {
-            sendFormatted(sender, "&(gold)Your PvP is currently %0. To %1 it, run {&(aqua)/pvp %2}.",
-                    (flp.pvp ? "on" : "off"),
-                    (flp.pvp ? "disable" : "enable"),
-                    (flp.pvp ? "off" : "on")
+            sender.sendMessage(
+                ComponentColor.gold(
+                        "Your PvP is currently %s. To %s it, run ",
+                        flp.pvp ? "on" : "off",
+                        flp.pvp ? "disable" : "enable"
+                    )
+                    .append(ComponentUtils.command("/pvp " + (flp.pvp ? "off" : "on")))
+                    .append(Component.text("."))
             );
             return true;
         }
@@ -41,7 +46,7 @@ public class CommandPvP extends PlayerCommand {
 
         flp.pvp = args[0].equals("on");
 
-        sendFormatted(sender, "&(green)PvP %0.", flp.pvp ? "enabled" : "disabled");
+        sender.sendMessage(ComponentColor.green("PvP %s.", flp.pvp ? "enabled" : "disabled"));
         return true;
     }
 

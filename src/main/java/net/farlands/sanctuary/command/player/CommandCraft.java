@@ -1,16 +1,17 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.Utils;
 import com.kicas.rp.util.Pair;
-
+import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-
-import org.bukkit.*;
+import net.farlands.sanctuary.util.ComponentColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;
@@ -53,7 +54,7 @@ public class CommandCraft extends PlayerCommand {
         // Craft a specific material
         Material item = Utils.valueOfFormattedName(args[0], Material.class);
         if (item == null) {
-            sendFormatted(sender, "&(red)Invalid item name: %0", args[0]);
+            sender.sendMessage(ComponentColor.red("Invalid item name: " + args[0]));
             return true;
         }
 
@@ -63,12 +64,12 @@ public class CommandCraft extends PlayerCommand {
             try {
                 amount = Integer.parseInt(args[1]);
             } catch (NumberFormatException ex) {
-                sendFormatted(sender, "&(red)Invalid amount: %0", args[1]);
+                sender.sendMessage(ComponentColor.red("Invalid amount: " + args[1]));
                 return true;
             }
 
             if (amount < 1) {
-                sendFormatted(sender, "&(red)The amount must be greater than or equal to one.");
+                sender.sendMessage(ComponentColor.red("The amount must be greater than or equal to one."));
                 return true;
             }
         }
@@ -92,9 +93,13 @@ public class CommandCraft extends PlayerCommand {
         sender.updateInventory();
 
         if (crafted == 0)
-            sender.sendMessage(ChatColor.RED + "You do not have enough resources to craft any of this item.");
+            sender.sendMessage(ComponentColor.red(
+                "You do not have enough resources to craft any of this item."
+            ));
         else if (crafted < amount)
-            sender.sendMessage(ChatColor.RED + "You only had enough resources to craft " + crafted + " of this item.");
+            sender.sendMessage(ComponentColor.red(
+                "You only had enough resources to craft " + crafted + " of this item."
+            ));
 
         long elapsed = System.nanoTime() - startTime;
         FarLands.getDebugger().echo("/craft " + String.join(" ", args) + " - Time: " + ((elapsed / 1000) / 1000.0) + "ms");
@@ -123,7 +128,7 @@ public class CommandCraft extends PlayerCommand {
         List<Recipe> recipes = RECIPES.get(material);
         if (recipes == null) {
             if (sendMessages)
-                sendFormatted(cache.player, "&(red)This item does not have a recipe.");
+                cache.player.sendMessage(ComponentColor.red("This item does not have a recipe."));
             cache.popStack();
             return 0;
         }
@@ -293,7 +298,9 @@ public class CommandCraft extends PlayerCommand {
                 if (index == -1) {
                     player.getWorld().dropItem(player.getLocation(), new ItemStack(material, stackSize));
                     if (sendMessages) {
-                        player.sendMessage(ChatColor.RED + "Your inventory was full, so you dropped the item.");
+                        player.sendMessage(ComponentColor.red(
+                            "Your inventory was full, so you dropped the item."
+                        ));
                         sendMessages = false;
                     }
                     amount -= stackSize;

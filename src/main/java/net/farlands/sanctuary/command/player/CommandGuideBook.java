@@ -8,6 +8,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
 
@@ -36,8 +37,10 @@ public class CommandGuideBook extends PlayerCommand {
         // Check the cooldown
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            sendFormatted(sender, "&(red)You can use this command again in %0.",
-                    TimeInterval.formatTime(cooldownTime * 50L, false));
+            sender.sendMessage(ComponentColor.red(
+                "You can use this command again in " +
+                    TimeInterval.formatTime(cooldownTime * 50L, false))
+            );
             return true;
         }
 
@@ -66,7 +69,8 @@ public class CommandGuideBook extends PlayerCommand {
     private static BookMeta writeBook(ItemStack writtenBook) {
         BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
         bookMeta.setTitle("Guide Book");
-        bookMeta.setAuthor("Farlands Staff");
+        bookMeta.setAuthor("FarLands Staff");
+        // ToDo: Convert to adventure text components
         bookMeta.setPages(loadBook());
         return bookMeta;
     }

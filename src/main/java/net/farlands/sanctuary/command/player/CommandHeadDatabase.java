@@ -3,7 +3,6 @@ package net.farlands.sanctuary.command.player;
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
 import org.bukkit.Bukkit;

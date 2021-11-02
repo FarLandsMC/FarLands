@@ -7,7 +7,10 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Birthday;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -34,14 +37,18 @@ public class CommandBirthday extends Command {
 
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             if (flp.birthday != null) {
-                sender.sendMessage(ChatColor.RED + "You have already registered your birthday! Contact a staff " +
-                        "member if it is registered incorrectly and should be reset.");
+                sender.sendMessage(ComponentColor.red("You have already registered your birthday! Contact a staff " +
+                        "member if it is registered incorrectly and should be reset."));
                 return true;
             }
 
             int slash = args[1].indexOf('/');
             if (slash < 0) {
-                sender.sendMessage(ChatColor.RED + "Please enter your birthday in the form month/day");
+                sender.sendMessage(
+                    ComponentColor.red(
+                        "Please enter your birthday in the form month/day"
+                    )
+                );
                 return true;
             }
 
@@ -51,21 +58,33 @@ public class CommandBirthday extends Command {
             try {
                 month = Integer.parseInt(monthString);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Invalid month number: " + monthString +
-                        ". Your birth month should be a number between 1 and 12.");
+                sender.sendMessage(
+                    ComponentColor.red(
+                        "Invalid month number: " + monthString +
+                            ". Your birth month should be a number between 1 and 12."
+                    )
+                );
                 return true;
             }
 
             try {
                 day = Integer.parseInt(dayString);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Invalid date number: " + monthString +
-                        ". Your birth date should be a number between 1 and 31.");
+                sender.sendMessage(
+                    ComponentColor.red(
+                        "Invalid date number: " + monthString +
+                            ". Your birth date should be a number between 1 and 31."
+                    )
+                );
                 return true;
             }
 
             if (month < 1 || month > 12) {
-                sender.sendMessage(ChatColor.RED + "Your birth month must be between 1 and 12.");
+                sender.sendMessage(
+                    ComponentColor.red(
+                        "Your birth month must be between 1 and 12."
+                    )
+                );
                 return true;
             }
 
@@ -79,12 +98,12 @@ public class CommandBirthday extends Command {
             }
 
             if (day < 1 || day > maxDays) {
-                sender.sendMessage(ChatColor.RED + "Your birth date must be between 1 and " + maxDays + " for this month.");
+                sender.sendMessage(ComponentColor.red("Your birth date must be between 1 and " + maxDays + " for this month."));
                 return true;
             }
 
             flp.birthday = new Birthday(month, day);
-            sender.sendMessage(ChatColor.GREEN + "Your birthday has been registered!");
+            sender.sendMessage(ComponentColor.green("Your birthday has been registered!"));
         } else if ("upcoming".equalsIgnoreCase(args[0])) {
             boolean nextMonth = args.length > 1 && "month".equalsIgnoreCase(args[1]);
             long timeDelta = nextMonth ? MONTH_DURATION : WEEK_DURATION;
@@ -99,17 +118,16 @@ public class CommandBirthday extends Command {
                     .collect(Collectors.toList());
 
             if (upcoming.isEmpty()) {
-                sender.sendMessage(ChatColor.GOLD + "There are no upcoming birthdays within the next " + (nextMonth ? "month" : "week"));
+                sender.sendMessage(ComponentColor.gold("There are no upcoming birthdays within the next " + (nextMonth ? "month" : "week")));
                 return true;
             }
 
-            StringBuilder sb = new StringBuilder();
-            sb.append(ChatColor.GOLD).append("Upcoming birthdays:\n");
+            TextComponent.Builder c = Component.text().content("Upcoming Birthdays:").color(NamedTextColor.GOLD);
             for (OfflineFLPlayer flp : upcoming) {
-                sb.append(flp.username).append(": ").append(ChatColor.AQUA).append(flp.birthday.toFormattedString(true)).append(ChatColor.GOLD)
-                        .append('\n');
+                c.append(ComponentColor.gold("\n" + flp.username + ": "))
+                    .append(ComponentColor.aqua(flp.birthday.toFormattedString(true)));
             }
-            sender.sendMessage(sb.toString().trim());
+            sender.sendMessage(c.build());
         } else
             return false;
 

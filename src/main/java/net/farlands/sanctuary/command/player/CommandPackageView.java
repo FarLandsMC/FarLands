@@ -1,16 +1,22 @@
 package net.farlands.sanctuary.command.player;
 
-import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.nbt.NBTTagCompound;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Location;
@@ -43,94 +49,141 @@ public class CommandPackageView extends Command {
         }
 
         if(searchPlayer == null){
-            TextUtils.sendFormatted(sender, "&(red)Unknown player " + args[1] + ".");
+            sender.sendMessage(ComponentColor.red("Unknown Player %s.", args[1]));
             return true;
         }
 
         List<Package> packages = FarLands.getDataHandler().getPackages(searchPlayer.uuid);
 
         if(packages.isEmpty()){
-            TextUtils.sendFormatted(sender, "&(red)" + (externalPlayer ? searchPlayer.username + " does" : "You do") + " not have any pending packages.");
+            sender.sendMessage(ComponentColor.red("%s not have any pending packages.", externalPlayer ? searchPlayer.username + " does" : "You do"));
             return true;
         }
 
         if(viewFlp == null && args.length >= 1 && !args[0].equalsIgnoreCase("all")){
-            TextUtils.sendFormatted(sender, "&(red)Unknown player \"" + args[0] + "\"");
+            sender.sendMessage(ComponentColor.red("Unknown Player \"%s\"", args[0]));
             return true;
         }
-        StringBuilder message = new StringBuilder("&(gold)- " + (externalPlayer ? searchPlayer + " has" : "") + " %0 ${inflect,noun,0,package} ");
+
+        List<Package> validPackages = packages.stream()
+            .filter(p -> {
+                String formattedSenderName = Chat.removeColorCodes(p.senderName.replaceAll("\\{+|}+", ""));;
+                return (args.length >= 1 && !args[0].equalsIgnoreCase("all") &&
+                    viewFlp.getDisplayName().equalsIgnoreCase(formattedSenderName)) ||
+                    args.length == 0 || args[0].equalsIgnoreCase("all");
+
+            })
+            .collect(Collectors.toList());
+
+        if(validPackages.isEmpty()){
+            sender.sendMessage(ComponentColor.red("No packages found."));
+            return true;
+        }
+
+        int pkgs = validPackages.size();
+
+        TextComponent.Builder component = Component.text()
+            .color(NamedTextColor.GOLD)
+            .content("- ")
+            .append(Component.text((externalPlayer ? searchPlayer + " has " : "")))
+            .append(Component.text(pkgs))
+            .append(Component.text(" " + (pkgs == 1 ? "package" : "packages")))
+            ;
 
         if(args.length == 0 || args[0].equalsIgnoreCase("all")){
-            message.append("-");
+            component.append(Component.text("-"));
         }else{
-            String accept = "${hovercmd,/paccept %2,&(dark_green)Accept %0 ${inflect,noun,0,package},&(dark_green,bold)[Accept]}";
-            String decline = "${hovercmd,/pdecline %2,&(dark_red)Decline %0 ${inflect,noun,0,package},&(dark_red,bold)[Decline]}";
-            message.append("from {&(green)%1} - " + (externalPlayer ? "" : accept + " " + decline));
+            String username = FarLands
+                .getDataHandler()
+                .getOfflineFLPlayer(
+                    validPackages.get(0).senderUuid
+                ).username;
+            Component accept = ComponentUtils.command(
+                "/paccept " + username,
+                ComponentColor.darkGreen("Accept " + pkgs + (pkgs == 1 ? "package" : "packages")),
+                ComponentColor.darkGreen("[Accept]").style(Style.style(TextDecoration.BOLD))
+            );
+            Component decline = ComponentUtils.command(
+                "/pdecline " + username,
+                ComponentColor.darkRed("Decline " + pkgs + (pkgs == 1 ? "package" : "packages")),
+                ComponentColor.darkRed("[Decline]").style(Style.style(TextDecoration.BOLD))
+            );
+
+            component.append(Component.text("from "))
+                .append(ComponentColor.green(username))
+                .append(Component.text(" - "));
+
+            if (!externalPlayer) {
+                component.append(accept)
+                    .append(Component.text(" "))
+                    .append(decline);
+            }
         }
 
 
-        List<Package> validPackages = new ArrayList<>();
         for (Package lPackage : packages) {
 
-            ItemStack item = lPackage.item.clone();
-            ItemMeta im = item.getItemMeta();
+            TextComponent.Builder line = Component.text()
+                .color(NamedTextColor.GOLD);
 
-            // Replace {( with [ and }) with ] to prevent bracket mismatch - escaping with '\}' doesn't work.
-            im.setDisplayName(im.getDisplayName().replaceAll("[{(]", "[").replaceAll("[})]", "]"));
-            item.setItemMeta(im);
+            Component itemDisplay = ComponentColor.gold(lPackage.item.getAmount() + " x [")
+                .append(ComponentUtils.item(lPackage.item))
+                .append(ComponentColor.gold("]"));
 
-            String json = CraftItemStack.asNMSCopy(item).save(new NBTTagCompound()).toString();
-            String name;
-            if (im.getDisplayName().equals("")) {
-                name = item.getType().name().replace("_", " ");
-                name = WordUtils.capitalizeFully(name);
-            } else {
-                name = im.getDisplayName();
-            }
-            name = name.replaceAll("[{(]", "[").replaceAll("[})]", "]");
-
-            String itemDisplay = item.getAmount() + " x ["  + "$(item," + json + "," + name + ")]";
             OfflineFLPlayer packageSender = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid);
-            String formattedSenderName = Chat.removeColorCodes(lPackage.senderName.replaceAll("\\{+|}+", ""));
+            String username = Chat.removeColorCodes(lPackage.senderName.replaceAll("\\{+|}+", ""));
 
-            if (args.length >= 1 && !args[0].equalsIgnoreCase("all") && viewFlp.getDisplayName().equalsIgnoreCase(formattedSenderName)) {
-
-                validPackages.add(lPackage);
-                message.append(String.format(
-                        "\n&(aqua)%s &(gold)- &(green)%s",
-                        itemDisplay,
-                        lPackage.message
-                ));
+            if (args.length >= 1 && !args[0].equalsIgnoreCase("all") && viewFlp.getDisplayName().equalsIgnoreCase(username)) {
+                line.append(itemDisplay)
+                    .append(ComponentColor.gold(" - "))
+                    .append(ComponentColor.green(lPackage.message));
 
             }
-            if(args.length == 0 || args[0].equalsIgnoreCase("all")){
-                validPackages.add(lPackage);
-                String accept = "${hovercmd,/paccept " + formattedSenderName + ",&(dark_green)Accept package,&(dark_green,bold)[Accept]}";
-                String decline = "${hovercmd,/pdecline " + formattedSenderName + ",&(dark_red)Decline package,&(dark_red,bold)[Decline]}";
+            if (args.length == 0 || args[0].equalsIgnoreCase("all")) {
+                line.append(
+                        ComponentUtils.hover(
+                            ComponentColor.aqua(packageSender.username),
+                            ComponentColor.aqua(lPackage.message)
+                        )
+                    )
+                    .append(ComponentColor.gold(": "))
+                    .append(itemDisplay);
 
-                message.append(String.format(
-                        "\n${hover,&(aqua)%s,&(green)%s}" +
-                                "&(gold): " +
-                                "&(aqua)%s %s",
-                        lPackage.message,
-                        packageSender.username,
-                        itemDisplay,
-                        externalPlayer ? "" : accept + " " + decline
-                ));
+                if (!externalPlayer) {
+                    Component accept = ComponentUtils.command( // [Accept]
+                        "/paccept " + username,
+                        ComponentColor.darkGreen("Accept package"),
+                        ComponentColor.darkGreen("[Accept]").style(Style.style(TextDecoration.BOLD))
+                    );
+                    Component decline = ComponentUtils.command( // [Decline]
+                        "/pdecline " + username,
+                        ComponentColor.darkRed("Decline package"),
+                        ComponentColor.darkRed("[Decline]").style(Style.style(TextDecoration.BOLD))
+                    );
+
+                    line.append(accept).append(Component.text(" ")).append(decline);
+                }
             }
+            component.append(
+                ComponentColor.gold("\n")
+                    .append(line)
+            );
+
         }
+
         if(validPackages.isEmpty()){
-            TextUtils.sendFormatted(sender, "&(red)No packages found.");
+            sender.sendMessage(ComponentColor.red("No packages found."));
             return true;
         }
 
-        TextUtils.sendFormatted(
-                sender,
-                message.toString(),
-                validPackages.size(),
-                FarLands.getDataHandler().getOfflineFLPlayer(validPackages.get(0).senderUuid).username,
-                Chat.removeColorCodes(validPackages.get(0).senderName.replaceAll("\\{+|}+", ""))
-        );
+//        TextUtils.sendFormatted(
+//                sender,
+//                message.toString(),
+//                validPackages.size(),
+//                FarLands.getDataHandler().getOfflineFLPlayer(validPackages.get(0).senderUuid).username,
+//                Chat.removeColorCodes(validPackages.get(0).senderName.replaceAll("\\{+|}+", ""))
+//        );
+        sender.sendMessage(component);
 
         return true;
     }

@@ -1,14 +1,18 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Pronouns;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.StringUtils;
@@ -27,10 +31,14 @@ public class CommandPronouns extends Command {
 
         if (args.length == 0) {
             if (flp.pronouns == null || flp.pronouns.subject == null) {
-                TextUtils.sendFormatted(sender, "&(red)Your pronouns are not set. You can set them with {&(aqua)/pronouns set <subject/object>}");
+                sender.sendMessage(
+                    ComponentColor.red("Your pronouns are not set. You can set them with ")
+                        .append(ComponentUtils.suggestCommand("/pronouns set <subject/object>", "/pronouns set "))
+                        .append(ComponentColor.red("."))
+                );
                 return true;
             }
-            TextUtils.sendFormatted(sender, "&(green)Your pronouns are currently set to %0", flp.pronouns.toString());
+            sender.sendMessage(ComponentColor.green("Your pronouns are currently set to %s", flp.pronouns.toString()));
             return true;
         }
 
@@ -98,7 +106,7 @@ public class CommandPronouns extends Command {
         if (!arg.contains("/")) {
             Pronouns.SubjectPronoun sp = FLUtils.safeValueOf(Pronouns.SubjectPronoun::findByHumanName, arg);
             if (sp == null) {
-                TextUtils.sendFormatted(sender, "&(red)Unknown pronoun. If this is one that you use, please contact a staff member.");
+                sender.sendMessage(ComponentColor.red("Unknown pronoun. If this is one that you use, please contact a staff member."));
                 return true;
             }
             if (sp.hasNoObject()) {
@@ -113,7 +121,7 @@ public class CommandPronouns extends Command {
             Pronouns.ObjectPronoun op = FLUtils.safeValueOf(Pronouns.ObjectPronoun::findByHumanName, objectString);
 
             if (sp == null || op == null) {
-                TextUtils.sendFormatted(sender, "&(red)Unknown pronoun. If this is one that you use, please contact a staff member.");
+                sender.sendMessage(ComponentColor.red("Unknown pronoun. If this is one that you use, please contact a staff member."));
                 return true;
             }
 
@@ -122,18 +130,25 @@ public class CommandPronouns extends Command {
 
         flp.updateDiscord();
 
-        TextUtils.sendFormatted(sender,
-                "&(green)Successfully updated your pronouns to {&(aqua)%0}!\n" +
-                        (
-                            flp.isDiscordVerified() ?
-                            "You have show-on-discord set to %1, if you want it %2, run $(hovercmd,%3,&(aqua)Run Command,&(aqua)%3)." :
-                            ""
-                        ),
-                flp.pronouns.toString(false),
-                flp.pronouns.showOnDiscord,
-                flp.pronouns.showOnDiscord ? "disabled" : "enabled",
-                "/pronouns show-on-discord " + (flp.pronouns.showOnDiscord ? "false" : "true")
-        );
+        TextComponent.Builder component = Component.text().content("Successfully updated your pronouns to ")
+            .color(NamedTextColor.GREEN)
+            .append(ComponentColor.aqua(flp.pronouns.toString(false)))
+            .append(Component.text("!"));
+
+        if (flp.isDiscordVerified()) {
+            component.append(
+                    Component.text(
+                        "You have show-on-discord set to " +
+                            flp.pronouns.showOnDiscord +
+                            ", if you want it " +
+                            (flp.pronouns.showOnDiscord ? "disabled" : "enabled") +
+                            ", run "
+                    )
+                )
+                .append(ComponentUtils.command("/pronouns show-on-discord " + (flp.pronouns.showOnDiscord ? "false" : "true")));
+        }
+
+        sender.sendMessage(component.build());
 
         return true;
     }
@@ -159,7 +174,7 @@ public class CommandPronouns extends Command {
                 value = false;
                 break;
             default:
-                TextUtils.sendFormatted(sender, "&(red)Usage: /pronouns show-on-discord <true|false>");
+                sender.sendMessage(ComponentColor.red("Usage: /pronouns show-on-discord <true|false>"));
                 return true;
         }
 
@@ -171,7 +186,7 @@ public class CommandPronouns extends Command {
 
         flp.updateDiscord();
 
-        TextUtils.sendFormatted(sender, "&(green)Set show-on-discord to %0!", flp.pronouns.showOnDiscord ? "enabled" : "disabled");
+        sender.sendMessage(ComponentColor.green("Set show-on-discord to %s!", flp.pronouns.showOnDiscord ? "enabled" : "disabled"));
 
         return true;
     }

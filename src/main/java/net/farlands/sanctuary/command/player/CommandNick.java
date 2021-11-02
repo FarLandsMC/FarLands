@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -9,6 +7,7 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
 
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,23 +36,23 @@ public class CommandNick extends PlayerCommand {
             String rawNick = Chat.removeColorCodes(args[1]);
             // Prevent whitespace and profanity
             if (args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(rawNick)) {
-                sendFormatted(sender, "&(red)You cannot set your nickname to this.");
+                sender.sendMessage(ComponentColor.red("You cannot set your nickname to this."));
                 return true;
             }
 
             // Check length
             int rawLen = rawNick.length();
             if (rawLen > 16) {
-                sendFormatted(sender, "&(red)That username is too long.");
+                sender.sendMessage(ComponentColor.red("That username is too long."));
                 return true;
             } else if (rawLen < 3) {
-                sendFormatted(sender, "&(red)Your nickname must be at least three characters long.");
+                sender.sendMessage(ComponentColor.red("Your nickname must be at least three characters long."));
                 return true;
             }
 
             // Make sure there are three word characters in a row
             if (!rawNick.matches("(.+)?(\\w\\w\\w)(.+)?")) {
-                sendFormatted(sender, "&(red)Your nickname must have at least three word characters in a row in it.");
+                sender.sendMessage(ComponentColor.red("Your nickname must have at least three word characters in a row in it."));
                 return true;
             }
 
@@ -67,7 +66,7 @@ public class CommandNick extends PlayerCommand {
 
             // Enforce 60% ASCII
             if (nonAscii / rawLen > 0.4) {
-                sendFormatted(sender, "&(red)Your nickname must be at least 60% ASCII characters.");
+                sender.sendMessage(ComponentColor.red("Your nickname must be at least 60% ASCII characters."));
                 return true;
             }
 
@@ -77,13 +76,13 @@ public class CommandNick extends PlayerCommand {
                     .filter(flpl -> !flpl.uuid.equals(sender.getUniqueId())).collect(Collectors.toList())
             ) {
                 if (rawNick.equalsIgnoreCase(flpl.username) || rawNick.equalsIgnoreCase(flpl.nickname)) {
-                    sendFormatted(sender, "&(red)Another player already has this name.");
+                    sender.sendMessage(ComponentColor.red("Another player already has this name."));
                     return true;
                 }
             }
 
             flp.nickname = Chat.applyColorCodes(Rank.getRank(sender), args[1]);
-            sendFormatted(sender, "&(green)Nickname set.");
+            sender.sendMessage(ComponentColor.green("Nickname set."));
         }
         // Remove nickname
         else {
@@ -93,13 +92,13 @@ public class CommandNick extends PlayerCommand {
 
                 // Make sure the player exists
                 if (flp == null) {
-                    sendFormatted(sender, "&(red)Player not found.");
+                    sender.sendMessage(ComponentColor.red("Player not found."));
                     return true;
                 }
 
                 // Make sure the player actually has a nickname to remove
                 if (flp.nickname == null || flp.nickname.isEmpty()) {
-                    sendFormatted(sender, "&(red)This person has no nickname to remove.");
+                    sender.sendMessage(ComponentColor.red("This person has no nickname to remove."));
                     return true;
                 }
 
@@ -108,13 +107,13 @@ public class CommandNick extends PlayerCommand {
             else {
                 // Make sure the player actually has a nickname to remove
                 if (flp.nickname == null || flp.nickname.isEmpty()) {
-                    sendFormatted(sender, "&(red)You have no nickname to remove.");
+                    sender.sendMessage(ComponentColor.red("You have no nickname to remove."));
                     return true;
                 }
             }
 
             flp.nickname = null;
-            sendFormatted(sender, "&(green)Removed nickname.");
+            sender.sendMessage(ComponentColor.green("Removed nickname."));
         }
 
         // Update their player's display name

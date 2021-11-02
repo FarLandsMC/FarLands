@@ -1,13 +1,11 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,7 +25,7 @@ public class CommandWarp extends PlayerCommand {
             return false;
         Location warp = FarLands.getDataHandler().getPluginData().getWarp(args[0]);
         if (warp == null) {
-            sendFormatted(sender, "&(red)Warp not found. Did you spell it correctly?");
+            sender.sendMessage(ComponentColor.red("Warp not found. Did you spell it correctly?"));
             return true;
         }
         FLUtils.tpPlayer(sender, warp);

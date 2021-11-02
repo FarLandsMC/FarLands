@@ -1,26 +1,23 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-import static com.kicas.rp.util.Utils.*;
-
-import static net.farlands.sanctuary.util.FLUtils.RNG;
-import static net.farlands.sanctuary.util.FLUtils.tpPlayer;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.TimeInterval;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-
-import net.md_5.bungee.api.ChatMessageType;
-
+import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+
+import static com.kicas.rp.util.Utils.*;
+import static net.farlands.sanctuary.util.FLUtils.RNG;
+import static net.farlands.sanctuary.util.FLUtils.tpPlayer;
 
 
 public class CommandWild extends PlayerCommand {
@@ -40,28 +37,28 @@ public class CommandWild extends PlayerCommand {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         long timeRemaining = session.commandCooldownTimeRemaining(this) * 50L;
         if (timeRemaining > 0L) {
-            sendFormatted(sender, "&(red)You can use the command again in " + TimeInterval.formatTime(timeRemaining, false) + ".");
+            sender.sendMessage(ComponentColor.red("You can use the command again in " + TimeInterval.formatTime(timeRemaining, false) + "."));
             return true;
         }
 
         if (!"world".equals(sender.getWorld().getName())) {
             if (session.handle.rank.specialCompareTo(Rank.DONOR) < 0) {
-                sendFormatted(sender, "&(red)You can only use this command in the overworld.");
+                sender.sendMessage(ComponentColor.red("You can only use this command in the overworld."));
                 return true;
             }
             if (!"world_nether".equals(sender.getWorld().getName())) {
-                sendFormatted(sender, "&(red)You can only use this command in the overworld and nether.");
+                sender.sendMessage(ComponentColor.red("You can only use this command in the overworld and nether."));
                 return true;
             }
         }
 
         if (FLUtils.serverMspt() > 80) {
-            sendFormatted(sender, "&(red)The server is too laggy right now to use this command.");
+            sender.sendMessage(ComponentColor.red("The server is too laggy right now to use this command."));
             return true;
         }
 
         if (!globalCooldown.isComplete()) {
-            sendFormatted(sender, "&(red)You cannot use this command right now. Try again in a few seconds.");
+            sender.sendMessage(ComponentColor.red("You cannot use this command right now. Try again in a few seconds."));
             return true;
         }
 
@@ -134,7 +131,7 @@ public class CommandWild extends PlayerCommand {
         if (safe == null) {
             // Pretty much never happens in practice
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
-            sendFormatted(player, "&(red)Your random teleport randomly failed :(");
+            player.sendMessage(ComponentColor.red("Your random teleport randomly failed :("));
             FarLands.getDebugger().echo(player.getName() + " /rtp -> fail");
             return;
         }
@@ -147,8 +144,11 @@ public class CommandWild extends PlayerCommand {
         tpPlayer(player, safe);
 
         if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
-           sendFormatted(player, ChatMessageType.ACTION_BAR, "&(aqua)You have no homes, use /sethome [name] " +
-                    "so you can safely return to your location!");
+            player.sendActionBar(
+                ComponentColor.aqua(
+                    "You have no homes, use /sethome [name] so you can return safely to your location!"
+                )
+            );
         }
     }
 

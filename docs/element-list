@@ -6,7 +6,6 @@ net.farlands.sanctuary.command.staff
 net.farlands.sanctuary.data
 net.farlands.sanctuary.data.struct
 net.farlands.sanctuary.discord
-net.farlands.sanctuary.discord.markdown
 net.farlands.sanctuary.gui
 net.farlands.sanctuary.mechanic
 net.farlands.sanctuary.mechanic.anticheat

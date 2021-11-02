@@ -1,15 +1,12 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
-
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,24 +26,24 @@ public class CommandTPA extends PlayerCommand {
             return false;
 
         if (FarLands.getDataHandler().getSession(sender).outgoingTeleportRequest != null) {
-            sender.sendMessage(ChatColor.RED + "You already have an outgoing teleport request.");
+            sender.sendMessage(ComponentColor.red("You already have an outgoing teleport request."));
             return true;
         }
 
         Player recipient = getPlayer(args[1], sender);
         if (recipient == null) {
-            sendFormatted(sender, "&(red)Player not found.");
+            sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
 
         if (sender.getUniqueId().equals(recipient.getUniqueId())) {
-            sendFormatted(sender, "&(red)You cannot teleport to yourself.");
+            sender.sendMessage(ComponentColor.red("You cannot teleport to yourself."));
             return true;
         }
 
         FLPlayerSession recipientSession = FarLands.getDataHandler().getSession(recipient);
         if (recipientSession.afk)
-            sendFormatted(sender, "&(red)This player is AFK, so they may not receive your request.");
+            sender.sendMessage(ComponentColor.red("This player is AFK, so they may not receive your request."));
 
         if (recipientSession.handle.getIgnoreStatus(sender).includesTeleports())
             return true;

@@ -4,6 +4,7 @@ import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.minecraft.world.food.FoodMetaData;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,8 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandEat extends PlayerCommand {
     private static final List<Material> BLACKLIST = Arrays.asList(
@@ -39,7 +38,7 @@ public class CommandEat extends PlayerCommand {
         Inventory inv = sender.getInventory();
         FoodMetaData foodData = ((CraftPlayer) sender).getHandle().getFoodData();
         if (foodData.getFoodLevel() >= 20) { // getFoodLevel should work but the field is FoodMetaData#a for reference
-            sendFormatted(sender, "&(green)You already have full hunger.");
+            sender.sendMessage(ComponentColor.green("You already have full hunger."));
             return true;
         }
 
@@ -52,7 +51,7 @@ public class CommandEat extends PlayerCommand {
                     food = sender.getInventory().getItemInOffHand();
                     location = 45; // off hand slot id
                     if (!food.getType().isEdible() || BLACKLIST.contains(food.getType())) {
-                        sendFormatted(sender, "&(red)You are not holding anything edible in either of your hands.");
+                        sender.sendMessage(ComponentColor.red("You are not holding anything edible in either of your hands."));
                         return true;
                     }
                 }
@@ -90,10 +89,10 @@ public class CommandEat extends PlayerCommand {
 
         sender.updateInventory();
         if (hasEaten) {
-            sendFormatted(sender, "&(green)Your hunger has been filled.");
+            sender.sendMessage(ComponentColor.green("Your hunger has been filled."));
             sender.playSound(sender.getLocation(), Sound.ENTITY_GENERIC_EAT, 1f, 1f);
         } else
-            sendFormatted(sender, "&(red)You didn't have any food to eat.");
+            sender.sendMessage(ComponentColor.red("You didn't have any food to eat."));
         return true;
     }
 

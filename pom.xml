@@ -78,10 +78,6 @@
                         <configuration>
                             <relocations>
                                 <relocation>
-                                    <pattern>net.kyori</pattern>
-                                    <shadedPattern>net.farlands.relocations.net.kyori</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>org.intellij</pattern>
                                     <shadedPattern>net.farlands.relocations.org.intellij</shadedPattern>
                                 </relocation>

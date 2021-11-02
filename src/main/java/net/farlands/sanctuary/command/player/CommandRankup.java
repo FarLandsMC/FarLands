@@ -1,21 +1,19 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
+import io.papermc.paper.advancement.AdvancementDisplay;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
 
-import net.minecraft.network.chat.ChatComponentText;
-import org.bukkit.craftbukkit.v1_17_R1.advancement.CraftAdvancement;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class CommandRankup extends PlayerCommand {
     public CommandRankup() {
@@ -32,26 +30,37 @@ public class CommandRankup extends PlayerCommand {
         // Rank-up failed so notify the player of the remaining time
         if (!flp.rank.equals(nextRank)) {
             if (!nextRank.isPlaytimeObtainable()) {
-                sendFormatted(sender, "&(gold)You can no longer rank up from playtime.");
+                sender.sendMessage(ComponentColor.gold("You can no longer rank up from playtime."));
                 return true;
             }
 
             if (!nextRank.hasPlaytime(flp)) {
-                sendFormatted(
-                        sender,
-                        "&(gold)You will rank up to {%0%1} in %2",
-                        nextRank.getColor(),
-                        nextRank.getName(),
-                        TimeInterval.formatTime(((nextRank.getPlayTimeRequired() - flp.totalSeasonVotes) * 3600 - flp.secondsPlayed) * 1000L, false)
+                sender.sendMessage(
+                    ComponentColor.gold("You will rank up to ")
+                        .append(Component.text(nextRank.getName())
+                                    .color(TextColor.color(nextRank.getColor().getColor().getRGB()))
+                        )
+                        .append(Component.text(" in " + TimeInterval.formatTime(((nextRank.getPlayTimeRequired() - flp.totalSeasonVotes) * 3600L - flp.secondsPlayed) * 1000L, false)))
                 );
             }
-
             if (!nextRank.completedAdvancement(sender)) {
-                ((CraftPlayer) sender).getHandle().sendMessage(
-                        new ChatComponentText("You must complete the advancement ").setChatModifier(FLUtils.chatModifier("gold"))
-                                .addSibling(((CraftAdvancement) nextRank.getAdvancement()).getHandle().j())
-                                .addSibling(new ChatComponentText(" to rankup.").setChatModifier(FLUtils.chatModifier("gold"))),
-                        new UUID(0L, 0L)
+                AdvancementDisplay advDisplay = nextRank.getAdvancement().getDisplay();
+                sender.sendMessage(
+                    ComponentColor.gold("You must complete the advancement ")
+                        .append(
+                            ComponentColor.green("[")
+                                .append(advDisplay.title())
+                                .append(Component.text("]"))
+                                .hoverEvent(
+                                    HoverEvent.showText(
+                                        advDisplay.title()
+                                            .append(Component.text("\n"))
+                                            .append(advDisplay.description())
+                                            .color(NamedTextColor.GREEN)
+                                    )
+                                )
+                        )
+                        .append(Component.text(" to rankup."))
                 );
             }
         }

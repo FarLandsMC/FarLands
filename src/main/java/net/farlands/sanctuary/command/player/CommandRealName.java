@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
@@ -9,6 +7,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -38,7 +37,14 @@ public class CommandRealName extends Command {
                 matches.add(flp.username);
         }
 
-        sendFormatted(sender, "&(green)Matches: %0", matches.isEmpty() ? "&(red)None" : "&(gold)" + String.join(", ", matches));
+        sender.sendMessage(
+            ComponentColor.green("Matches: ")
+                .append(
+                    matches.isEmpty() ?
+                        ComponentColor.red("None") :
+                        ComponentColor.gold(String.join(", ", matches))
+                )
+        );
         return true;
     }
 

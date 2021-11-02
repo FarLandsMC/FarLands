@@ -1,12 +1,12 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -50,18 +50,18 @@ public class CommandTimeZone extends Command {
                 }
                 flp.setTimeZone(tz.getID());
 
-                TextUtils.sendFormatted(sender, "&(gold)Time Zone set to %0! Current time: %1", tz.getID(), flp.currentTime());
+                sender.sendMessage(ComponentColor.gold("Time Zone set to %s! Current time: %s", tz.getID(), flp.currentTime()));
                 break;
             }
             case "get": { // Get the current time at a location
                 TimeZone tz = getTimeZoneById(args[1]);
 
                 if (tz == null) {
-                    TextUtils.sendFormatted(sender, "&(red)Invalid Time Zone: %0.", args[1]);
+                    sender.sendMessage(ComponentColor.red("Invalid Time Zone: %s.", args[1]));
                     return true;
                 }
 
-                TextUtils.sendFormatted(sender, "&(gold)Current time in %0 is %1", tz.getID(), getTime(tz));
+                sender.sendMessage(ComponentColor.gold("Current time in %s is %s", tz.getID(), getTime(tz)));
 
                 break;
             }

@@ -1,13 +1,12 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class CommandJoined extends Command {
+
     private static final SimpleDateFormat SDF = new SimpleDateFormat("EEEE, MMMM d, yyyy \'at\' H:mm z");
 
     static {
@@ -32,14 +32,13 @@ public class CommandJoined extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         OfflineFLPlayer flp = args.length <= 0 ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
-                : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
-        if(flp == null) {
-            sendFormatted(sender, "&(gold)This player has never joined the server before.");
+            : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+        if (flp == null) {
+            sender.sendMessage(ComponentColor.gold("This player has never joined the server before."));
             return true;
         }
 
-        sendFormatted(sender, "&(gold)%0 joined on %1", flp.username,
-                SDF.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed())));
+        sender.sendMessage(ComponentColor.gold(flp.username + " joined on " + SDF.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed()))));
         return true;
     }
 

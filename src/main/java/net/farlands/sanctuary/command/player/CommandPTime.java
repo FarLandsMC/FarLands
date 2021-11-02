@@ -8,8 +8,11 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -38,13 +41,19 @@ public class CommandPTime extends PlayerCommand {
             Time t = FLUtils.safeValueOf(Time::valueOf, args[0].toUpperCase());
 
             if (t == null) {
-                sendFormatted(sender, "&(red)Invalid time, valid times: %0",
-                        Arrays.stream(Time.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
+                sender.sendMessage(
+                    ComponentColor.red(
+                        "Invalid time, valid times: %s",
+                        Arrays.stream(Time.VALUES)
+                            .map(Utils::formattedName)
+                            .collect(Collectors.joining(", "))
+                    )
+                );
                 return true;
             } else if (t == Time.RESET) {
                 FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).ptime = -1;
                 sender.resetPlayerTime();
-                sendFormatted(sender, "&(green)Clock synchronized to world time.");
+                sender.sendMessage(ComponentColor.green("Clock synchronized to world time."));
                 return true;
             }
 
@@ -54,8 +63,12 @@ public class CommandPTime extends PlayerCommand {
         time = time % 24000;
         FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).ptime = time;
         sender.setPlayerTime(time, false);
-        sendFormatted(sender, "&(green)Personal time set. Use $(hovercmd,/ptime reset,{&(gray)Click to Run},&(aqua)/ptime reset) " +
-                "to synchronize your time to the world time.");
+
+        sender.sendMessage(
+            ComponentColor.green("Personal time set. Use ")
+                .append(ComponentUtils.command("/ptime reset"))
+                .append(Component.text(" to synchronize your time to the world time."))
+        );
 
         return true;
     }

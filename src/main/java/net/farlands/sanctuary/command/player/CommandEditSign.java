@@ -14,7 +14,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -40,7 +40,8 @@ public class CommandEditSign extends PlayerCommand {
         // Make sure the player has build permission in the region they're in
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(sender.getLocation());
         if (flags != null && !flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.BUILD, flags)) {
-            sender.sendMessage(ChatColor.RED + "You do not have permission to edit signs here."); return true;
+            sender.sendMessage(ComponentColor.red("You do not have permissions to edit signs here."));
+            return true;
         }
 
         Block target = sender.getTargetBlock(null, 5); // 5 seems like a good number
@@ -48,12 +49,14 @@ public class CommandEditSign extends PlayerCommand {
         // Make sure the sign is not a chest shop
         Shop shop = ChestShops.getDataHandler().getShop(target.getLocation());
         if (shop != null) {
-            sender.sendMessage(ChatColor.RED + "You cannot edit chest shop signs."); return true;
+            sender.sendMessage(ComponentColor.red("You cannot edit chest shop signs."));
+            return true;
         }
 
         // Make sure the player is looking at a sign
         if (!(target.getState() instanceof Sign)) {
-            sender.sendMessage(ChatColor.RED + "You must be looking at a sign to use this command."); return true;
+            sender.sendMessage(ComponentColor.red("You must be looking at a sign to use this command."));
+            return true;
         }
 
         Sign sign = (Sign) target.getState();
@@ -62,23 +65,24 @@ public class CommandEditSign extends PlayerCommand {
                 int line = Integer.parseInt(args[1]) -1;
                 String text = TabCompleterBase.joinArgsBeyond(1, " ", args);
                 if (Chat.removeColorCodes(text).length() > 15) {
-                    sender.sendMessage(ChatColor.RED + "Sign lines are limited to 15 characters."); return true;
+                    sender.sendMessage(ComponentColor.red("Sign lines are limited to 15 characters."));
+                    return true;
                 }
                 sign.setLine(line, Chat.applyColorCodes(flp.rank, text));
                 sign.update();
-                sender.sendMessage(ChatColor.GOLD + "Line " + (line+1) + " set to: " + Chat.applyColorCodes(flp.rank, text));
+                sender.sendMessage(ComponentColor.gold("Line " + (line+1) + " set to: " + Chat.applyColorCodes(flp.rank, text)));
             } else if (args[0].equalsIgnoreCase("clear")) {
                 if (args.length == 1) {
                     for (int i = 0; i < 4; i++) {
                         sign.setLine(i, "");
                     }
                     sign.update();
-                    sender.sendMessage(ChatColor.GOLD + "Sign text cleared.");
+                    sender.sendMessage(ComponentColor.gold("Sign text cleared."));
                 } else {
                     int line = Integer.parseInt(args[1]) - 1;
                     sign.setLine(line, "");
                     sign.update();
-                    sender.sendMessage(ChatColor.GOLD + "Line " + (line+1) + " text cleared.");
+                    sender.sendMessage(ComponentColor.gold("Line " + (line+1) + " text cleared."));
                 }
             } else {
                 return false;

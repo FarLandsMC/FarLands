@@ -18,7 +18,6 @@ import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Proposal;
-import net.farlands.sanctuary.discord.markdown.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.Logging;
 import net.md_5.bungee.api.chat.BaseComponent;

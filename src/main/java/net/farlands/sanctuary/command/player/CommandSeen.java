@@ -10,8 +10,12 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -34,32 +38,38 @@ public class CommandSeen extends Command {
                 : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
 
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
+            sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
 
         Rank rank = Rank.getRank(sender);
 
         StringBuilder sb = new StringBuilder();
+        TextComponent.Builder cb = Component.text()
+            .color(NamedTextColor.GOLD)
+            .content("Last Seen: ")
+            .append(ComponentColor.aqua(TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false)));
         sb.append("&(gold)Last Seen: &(aqua)").append(TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false));
 
         // Test to see if this command isn't in #in-game essentially; make sure punishment info is private
         if (sender instanceof DiscordSender && ((DiscordSender) sender).getChannel().getIdLong() ==
                 FarLands.getFLConfig().discordBotConfig.channels.get(DiscordChannel.STAFF_COMMANDS) ||
                 sender instanceof Player && rank.isStaff() || sender instanceof ConsoleCommandSender) {
-            sb.append("\n&(gold)Muted: &(aqua)").append(flp.isMuted());
+            cb.append(Component.text("\nMuted: "))
+                .append(ComponentColor.aqua(flp.isMuted() + ""));
 
             if (!flp.punishments.isEmpty()) {
                 List<Punishment> validPunishments = flp.punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
                 int hourIndex = 0;
-                sb.append("\n&(gold)Punishments:");
+                cb.append(Component.text("Punishments: "));
                 for (Punishment p : flp.punishments) {
-                    sb.append(ChatColor.GOLD).append("\n - ").append(p.toFormattedString(hourIndex));
+                    cb.append(Component.text("\n - " + p.toFormattedString(hourIndex)));
                     if(validPunishments.contains(p))
                         ++hourIndex;
                 }
             }
-            sb.append("\n&(gold)Last IP: &(aqua)").append(flp.lastIP);
+            cb.append(Component.text("\nLast IP: "))
+                .append(ComponentColor.aqua(flp.lastIP));
         }
 
         sendFormatted(sender, sb.toString());

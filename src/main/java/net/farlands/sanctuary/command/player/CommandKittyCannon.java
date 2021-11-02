@@ -5,10 +5,11 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.format.Style;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -31,7 +32,7 @@ public class CommandKittyCannon extends PlayerCommand {
     static {
         CANNON = new ItemStack(Material.DIAMOND_HORSE_ARMOR);
         ItemMeta meta = CANNON.getItemMeta();
-        meta.setDisplayName(ChatColor.RESET.toString() + ChatColor.GOLD + "Kitty Cannon");
+        meta.displayName(ComponentColor.gold("Kitty Cannon").style(Style.empty()));
         meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         CANNON.setItemMeta(meta);
@@ -48,8 +49,12 @@ public class CommandKittyCannon extends PlayerCommand {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         long timeRemaining = session.commandCooldownTimeRemaining(this);
         if (timeRemaining > 0) {
-            sender.sendMessage(ChatColor.RED + "You can use this command again in " +
-                    TimeInterval.formatTime(50L * timeRemaining, false));
+            sender.sendMessage(
+                ComponentColor.red(
+                    "You can use this command again in " +
+                        TimeInterval.formatTime(50L * timeRemaining, false)
+                )
+            );
             return true;
         }
 

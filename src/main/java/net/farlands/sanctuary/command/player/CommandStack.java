@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.data.FlagContainer;
@@ -9,16 +8,18 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Materials;
 import com.kicas.rp.util.Pair;
-
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.LocationWrapper;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minecraft.world.level.block.entity.TileEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import static org.bukkit.Material.*;
-
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
@@ -28,7 +29,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.bukkit.Material.*;
 
 public class CommandStack extends PlayerCommand {
 
@@ -104,14 +108,14 @@ public class CommandStack extends PlayerCommand {
                 if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
                         .getTileEntity(new LocationWrapper(block.getLocation()).asBlockPosition())) == null ||
                         !ACCEPTED_CONTAINERS.contains(block.getType())) {
-                    sendFormatted(player,"&(red)Target block must be a chest or barrel");
+                    player.sendMessage(ComponentColor.red("Target block must be a chest or barrel"));
                     return true;
                 }
 
                 FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(block.getLocation());
                 if (!(flags == null || flags.isEffectiveOwner(player))) {
                     if (!flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.CONTAINER, flags)) {
-                        sendFormatted(player,"&(red)This belongs to " + flags.getOwnerName() + ".");
+                        player.sendMessage(ComponentColor.red("This belongs to " + flags.getOwnerName() + "."));
                         return true;
                     }
                 }
@@ -121,7 +125,7 @@ public class CommandStack extends PlayerCommand {
                                 block.getLocation().add(0.5, 1.5, 0.5), warningsUnstack)
                 );
                 if (sendWarnings(player, warningsUnstack))
-                    sendFormatted(player,"&(green)Container contents stacked!");
+                    player.sendMessage(ComponentColor.green("Container contents stacked!"));
                 return true;
             }
             case "echest": {
@@ -130,7 +134,7 @@ public class CommandStack extends PlayerCommand {
                 );
 
                 if (sendWarnings(player, warningsUnstack))
-                    sendFormatted(player,"&(green)Ender chest contents stacked!");
+                    player.sendMessage(ComponentColor.green("Ender chest contents stacked!"));
                 return true;
             }
             case "hand": {
@@ -187,7 +191,7 @@ public class CommandStack extends PlayerCommand {
         }
 
         if (warnFullInventory)
-            sendFormatted(player, "&(red)Some items were dropped as the inventory was full");
+            player.sendMessage(ComponentColor.red("Some items were dropped as the inventory was full"));
 
         return storageContents;
     }
@@ -262,18 +266,38 @@ public class CommandStack extends PlayerCommand {
     }
 
     private boolean sendWarnings(Player player, List<Material> warningsUnstack) {
-        // send warnings
-        final StringBuilder warning = new StringBuilder();
 
         if (!warningsUnstack.isEmpty()) {
-            warning.append("&(red)The following $(hover,&(gray)");
-            warningsUnstack.forEach(item -> warning.append(item.name()).append(" "));
-            warning.delete(warning.length() - 1, warning.length());
-            warning.append(",&(bold)items) should be $(hover," +
-                    "&(gray)These items are prone to deletion on use when stacked," +
-                    "&(bold)unstacked before use).");
-            sendFormatted(player, warning.toString());
-            warning.setLength(0);
+            player.sendMessage(
+                ComponentColor.red("The following ")
+                    .append(
+                        Component.text("items")
+                            .style(Style.style(NamedTextColor.RED, TextDecoration.BOLD))
+                            .hoverEvent(
+                                HoverEvent.showText(
+                                    ComponentColor.gray(
+                                        warningsUnstack.stream()
+                                            .map(Enum::name)
+                                            .collect(Collectors.joining(" ")))
+                                )
+                            )
+                    )
+                    .append(
+                        ComponentColor.red(" should be ")
+                    )
+                    .append(
+                        Component.text("unstacked before use")
+                            .style(Style.style(NamedTextColor.RED, TextDecoration.BOLD))
+                            .hoverEvent(
+                                HoverEvent.showText(
+                                    ComponentColor.gray("These items are prone to deletion on use when stacked")
+                                )
+                            )
+                    )
+                    .append(
+                        ComponentColor.red(".")
+                    )
+            );
             return false;
         }
 

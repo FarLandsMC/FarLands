@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
@@ -10,6 +9,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.Particles;
 import net.farlands.sanctuary.data.Rank;
 
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.command.CommandSender;
@@ -38,15 +38,15 @@ public class CommandParticles extends PlayerCommand {
         if ("none".equalsIgnoreCase(args[0])) {
             // Removes particles
             FarLands.getDataHandler().getOfflineFLPlayer(sender).setParticles(null, null);
-            sendFormatted(sender, "&(green)Particles removed.");
+            sender.sendMessage(ComponentColor.green("Particles removed."));
         } else {
             // Get and check the type
             Particle type = Utils.valueOfFormattedName(args[0], Particle.class);
             if (type == null) {
-                sendFormatted(sender, "&(red)Invalid particle type: %0", args[0]);
+                sender.sendMessage(ComponentColor.red("Invalid particle type: %s", args[0]));
                 return true;
             } else if (ILLEGAL_PARTICLES.contains(type)) {
-                sendFormatted(sender, "&(red)You cannot use that particle type.");
+                sender.sendMessage(ComponentColor.red("You cannot use that particle type."));
                 return true;
             }
 
@@ -55,12 +55,12 @@ public class CommandParticles extends PlayerCommand {
                     ? Particles.ParticleLocation.ABOVE_HEAD
                     : Utils.valueOfFormattedName(args[1], Particles.ParticleLocation.class);
             if (location == null) {
-                sendFormatted(sender, "&(red)Invalid particle location: %0", args[1]);
+                sender.sendMessage(ComponentColor.red("Invalid particle location: %s", args[1]));
                 return true;
             }
 
             FarLands.getDataHandler().getOfflineFLPlayer(sender).setParticles(type, location);
-            sendFormatted(sender, "&(green)Particles set.");
+            sender.sendMessage(ComponentColor.green("Particles set."));
         }
 
         return true;

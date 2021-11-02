@@ -7,11 +7,11 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
-import net.farlands.sanctuary.data.struct.ShareHome;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.data.struct.ShareHome;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,17 +39,17 @@ public class CommandSharehome extends PlayerCommand {
         switch (args[0]) {
             case "send": // /sharehome send <home> <player> [message]
                 if (!sendHome(sender, args)) {
-                    sender.sendMessage(ChatColor.RED + "Usage: /sharehome send <player> <home> [message]");
+                    sender.sendMessage(ComponentColor.red("Usage: /sharehome send <player> <home> [message]"));
                 }
                 return true;
             case "accept":
                 if (!acceptDeclineHome(true, sender, args)) {
-                    sender.sendMessage(ChatColor.RED + "Usage: /sharehome accept <player> [name]");
+                    sender.sendMessage(ComponentColor.red("Usage: /sharehome accept <player> [name]"));
                 }
                 return true;
             case "decline":
                 if (!acceptDeclineHome(false, sender, args)) {
-                    sender.sendMessage(ChatColor.RED + "Usage: /sharehome decline <player>");
+                    sender.sendMessage(ComponentColor.red("Usage: /sharehome decline <player>"));
                 }
                 return true;
             default:
@@ -66,13 +66,13 @@ public class CommandSharehome extends PlayerCommand {
         // Get the recipient and make sure they exist
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if (recipientFlp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
+            sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
 
         // Don't let people share homes with themselves
         if (sender.getUniqueId().equals(recipientFlp.uuid)) {
-            sendFormatted(sender, "&(red)You cannot share a home with yourself.");
+            sender.sendMessage(ComponentColor.red("You cannot share a home with yourself."));
             return true;
         }
 
@@ -80,15 +80,19 @@ public class CommandSharehome extends PlayerCommand {
         FLPlayerSession senderSession = FarLands.getDataHandler().getSession(sender);
         long timeRemaining = senderSession.commandCooldownTimeRemaining(this);
         if (timeRemaining > 0) {
-            sendFormatted(sender, "&(red)You can share another home in %0",
-                    TimeInterval.formatTime(50L * timeRemaining, false));
+            sender.sendMessage(
+                ComponentColor.red(
+                    "You can share another home in %s",
+                    TimeInterval.formatTime(50L * timeRemaining, false)
+                )
+            );
             return true;
         }
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         // Make sure that the player has a home with this name
         if (!flp.hasHome(args[2])) {
-            sender.sendMessage(ChatColor.RED + "You don't have a home called " + args[2]);
+            sender.sendMessage(ComponentColor.red("You don't have a home called " + args[2]));
             return true;
         }
         Home home = new Home(args[2], flp.getHome(args[2]));
@@ -98,7 +102,7 @@ public class CommandSharehome extends PlayerCommand {
             escapedMessage = escapeExpression(message);
 
         if (recipientFlp.getIgnoreStatus(sender).includesSharehomes() || !recipientFlp.canAddHome()) {
-            sender.sendMessage(ChatColor.RED + "You cannot share a home with this person.");
+            sender.sendMessage(ComponentColor.red("You cannot share a home with this person."));
             return true;
         }
 
@@ -124,13 +128,13 @@ public class CommandSharehome extends PlayerCommand {
         ShareHome shareHome = flp.pendingSharehomes.get(args[1]);
 
         if (shareHome == null) {
-            sender.sendMessage(ChatColor.RED + "This player hasn't sent you a home.");
+            sender.sendMessage(ComponentColor.red("This player hasn't sent you a home."));
             return true;
         }
 
         if (accepted) {
             if (!flp.canAddHome()) {
-                sender.sendMessage(ChatColor.RED + "You cannot add this home as you have no more available homes.");
+                sender.sendMessage(ComponentColor.red("You cannot add this home as you have no more available homes."));
                 return true;
             }
 
@@ -138,25 +142,29 @@ public class CommandSharehome extends PlayerCommand {
             if (args.length == 3) {
                 // Make sure the home name is valid
                 if (args[2].isEmpty() || args[2].matches("\\s+") || Chat.getMessageFilter().isProfane(args[2])) {
-                    sendFormatted(sender, "&(red)You cannot set a home with that name.");
+                    sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
                     return true;
                 }
 
                 if (args[2].length() > 32) {
-                    sendFormatted(sender, "&(red)Home names are limited to 32 characters. Please choose a different name.");
+                    sender.sendMessage(ComponentColor.red("Home names are limited to 32 characters. Please choose a different name."));
                     return true;
                 }
 
                 homeName = args[2];
             }
             if (flp.hasHome(homeName)) {
-                sender.sendMessage(ChatColor.RED + "You already have a home by this name.");
+                sender.sendMessage(ComponentColor.red("You already have a home by this name."));
                 return true;
             }
             flp.addHome(homeName, shareHome.home.asLocation());
-            sendFormatted(sender, "&(green)Home {&(aqua)%0} added!", homeName);
+            sender.sendMessage(
+                ComponentColor.green("Home ")
+                    .append(ComponentColor.aqua(homeName))
+                    .append(ComponentColor.green(" added!"))
+            );
         } else {
-            sendFormatted(sender, "&(green)Declined home sent by %0", shareHome.sender);
+            sender.sendMessage(ComponentColor.green("Declined home sent by %s.", shareHome.sender));
         }
         flp.removeShareHome(shareHome.sender);
         return true;

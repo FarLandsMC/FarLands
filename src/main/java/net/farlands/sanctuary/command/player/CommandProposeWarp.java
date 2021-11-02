@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 
 import net.farlands.sanctuary.FarLands;
@@ -9,6 +8,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CommandProposeWarp extends PlayerCommand {
+
     private static final List<String> WARP_TYPES = Arrays.asList("shop", "showcase", "town", "public-farm", "other");
 
     public CommandProposeWarp() {
@@ -26,29 +27,35 @@ public class CommandProposeWarp extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if(args.length < 3)
+        if (args.length < 3) {
             return false;
+        }
 
-        if(!WARP_TYPES.contains(args[0])) {
-            sendFormatted(sender, "&(red)Invalid warp type: %0", args[0]);
+        if (!WARP_TYPES.contains(args[0])) {
+            sender.sendMessage(ComponentColor.red("Invalid warp type: %s", args[0]));
             return true;
         }
 
-        if(FarLands.getDataHandler().getPluginData().getWarpNames().contains(args[1])) {
-            sendFormatted(sender, "&(red)A warp with that name already exists, please choose another name.");
+        if (FarLands.getDataHandler().getPluginData().getWarpNames().contains(args[1])) {
+            sender.sendMessage(ComponentColor.red("A warp with that name already exists, please choose another name."));
             return true;
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("New **").append(args[0]).append("** warp proposal from `").append(sender.getName()).append("`\n");
-        sb.append("Name: `").append(args[1]).append("`\n");
         Location l = sender.getLocation();
-        sb.append("Location: `/tl ").append(Math.floor(l.getX()) + 0.5).append(' ').append((int)l.getY()).append(' ')
-                .append(Math.floor(l.getZ()) + 0.5).append(' ').append((int)l.getYaw()).append(' ').append((int)l.getPitch())
-                .append(' ').append(l.getWorld().getName()).append("`\n");
-        sb.append("Description:\n```").append(joinArgsBeyond(1, " ", args)).append("```");
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.WARP_PROPOSALS, sb.toString());
-        sendFormatted(sender, "&(green)Proposal sent.");
+        String coords = Math.floor(l.getX()) + 0.5 + " " +
+            (int) l.getY() + " " +
+            Math.floor(l.getZ()) + 0.5 + " " +
+            (int) l.getYaw() + " " +
+            (int) l.getPitch() + " " +
+            l.getWorld().getName();
+
+        String s = "New **" + args[0] + "** warp proposal from `" + sender.getName() + "`\n" +
+            "Name: `" + args[1] + "`\n" +
+            "Location: `/tl " + coords + "`\n" +
+            "Description:\n```" + joinArgsBeyond(1, " ", args) + "```";
+
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.WARP_PROPOSALS, s);
+        sender.sendMessage(ComponentColor.green("Proposal sent."));
 
         return true;
     }
@@ -56,7 +63,7 @@ public class CommandProposeWarp extends PlayerCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
-                ? TabCompleterBase.filterStartingWith(args[0], WARP_TYPES)
-                : Collections.emptyList();
+            ? TabCompleterBase.filterStartingWith(args[0], WARP_TYPES)
+            : Collections.emptyList();
     }
 }

@@ -1,17 +1,15 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.SkullCreator;
-import net.farlands.sanctuary.util.TimeInterval;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-
-import org.bukkit.*;
+import net.farlands.sanctuary.util.TimeInterval;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -32,8 +30,12 @@ public class CommandSkull extends PlayerCommand {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            sendFormatted(sender, "&(red)You can use this command again in %0.",
-                    TimeInterval.formatTime(cooldownTime * 50L, false));
+            sender.sendMessage(
+                ComponentColor.red(
+                    "You can use this command again in %s.",
+                    TimeInterval.formatTime(cooldownTime * 50L, false)
+                )
+            );
             return true;
         }
         session.setCommandCooldown(this, 400L);
@@ -43,7 +45,7 @@ public class CommandSkull extends PlayerCommand {
             try {
                 amount = Integer.parseInt(args[1]);
             } catch (NumberFormatException ex) {
-                sendFormatted(sender, "&(red)Invalid amount.");
+                sender.sendMessage(ComponentColor.red("Invalid amount."));
                 return true;
             }
 

@@ -1,15 +1,12 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
-
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,7 +28,7 @@ public class CommandTPAccept extends PlayerCommand {
         if ("tpcancel".equalsIgnoreCase(args[0]) || "tpacancel".equalsIgnoreCase(args[0])) {
             TeleportRequest request = session.outgoingTeleportRequest;
             if (request == null) {
-                sender.sendMessage(ChatColor.RED + "You have no outgoing teleport request to cancel.");
+                sender.sendMessage(ComponentColor.red("You have no outgoing teleport request to cancel."));
                 return true;
             }
 
@@ -42,7 +39,7 @@ public class CommandTPAccept extends PlayerCommand {
         List<TeleportRequest> requests = session.incomingTeleportRequests;
 
         if(requests == null || requests.isEmpty()) {
-            sendFormatted(sender, "&(red)You have no pending teleport requests.");
+            sender.sendMessage(ComponentColor.red("You have no pending teleport requests."));
             return true;
         }
 
@@ -51,7 +48,7 @@ public class CommandTPAccept extends PlayerCommand {
                 : requests.remove(0); // First in, first out
 
         if(request == null) {
-            sendFormatted(sender, "&(red)This player has not sent you a teleport request.");
+            sender.sendMessage(ComponentColor.red("This player has not sent you a teleport request."));
             return true;
         }
 

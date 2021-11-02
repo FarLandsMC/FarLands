@@ -7,7 +7,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,13 +30,13 @@ public class CommandSwapHome extends PlayerCommand {
 
         Location firstHome = flp.getHome(args[0]);
         if (firstHome == null) {
-            sender.sendMessage(ChatColor.RED + "You do not have a home named " + args[0]);
+            sender.sendMessage(ComponentColor.red("You do not have a home named " + args[0]));
             return true;
         }
 
         Location secondHome = flp.getHome(args[1]);
         if (secondHome == null) {
-            sender.sendMessage(ChatColor.RED + "You do not have a home named " + args[1]);
+            sender.sendMessage(ComponentColor.red("You do not have a home named " + args[1]));
             return true;
         }
 
@@ -44,7 +44,7 @@ public class CommandSwapHome extends PlayerCommand {
         flp.moveHome(args[0], secondHome);
         flp.moveHome(args[1], firstHome);
 
-        sender.sendMessage(ChatColor.GREEN + "Successfully swapped home locations.");
+        sender.sendMessage(ComponentColor.green("Successfully swapped home locations."));
         return true;
     }
 

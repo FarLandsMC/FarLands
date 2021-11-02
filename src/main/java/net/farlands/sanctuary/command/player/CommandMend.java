@@ -1,12 +1,12 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
+import net.farlands.sanctuary.util.ComponentColor;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,7 +30,7 @@ public class CommandMend extends PlayerCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (totalExp(player) <= 0) {
-            sendFormatted(player,"&(red)You do not have any exp to mend with.");
+            player.sendMessage(ComponentColor.red("You do not have any exp to mend with."));
             return true;
         }
 
@@ -48,7 +48,7 @@ public class CommandMend extends PlayerCommand {
 
         ItemStack stack = player.getInventory().getItemInMainHand();
         if (stack.getType() == Material.AIR) {
-            sendFormatted(player,"&(red)Please hold the item you wish to mend.");
+            player.sendMessage(ComponentColor.red("Please hold the item you wish to mend."));
             return true;
         }
         mend(player, player.getInventory().getItemInMainHand(), true);
@@ -66,7 +66,7 @@ public class CommandMend extends PlayerCommand {
         ItemMeta meta = stack.getItemMeta();
         if (stack.getEnchantmentLevel(Enchantment.MENDING) <= 0 || !(meta instanceof Damageable)) {
             if (sendMessages)
-                sendFormatted(player,"&(red)This item cannot be mended. Does it have the mending enchantment?");
+                player.sendMessage(ComponentColor.red("This item cannot be mended. Does it have the mending enchantment?"));
             return false;
         }
 
@@ -78,10 +78,10 @@ public class CommandMend extends PlayerCommand {
         usedXp = Math.min(playerXp = totalExp(player), repairXp); // damage / 2 rounded up
         damageable.setDamage(damageable.getDamage() - (usedXp << 1)); // exp * 2
         player.giveExp(-usedXp);
-        stack.setItemMeta((ItemMeta) damageable);
+        stack.setItemMeta(damageable);
 
         if (playerXp == usedXp) {
-            sendFormatted(player,"&(red)You ran out of exp to mend items with.");
+            player.sendMessage(ComponentColor.red("You ran out of exp to mend items with."));
             return true;
         }
         return false;
@@ -89,6 +89,8 @@ public class CommandMend extends PlayerCommand {
 
     private static int totalExp(Player player) {
         int level = player.getLevel();
+
+        // TODO: Get rid of the CraftPlayer usage
         EntityPlayer handle = ((CraftPlayer) player).getHandle();
         int points = (int) (handle.ck * handle.getExpToLevel()); // EntityPlayer#ck = EntityPlayer#exp
 

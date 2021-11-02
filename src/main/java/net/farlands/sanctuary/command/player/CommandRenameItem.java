@@ -4,10 +4,10 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Chat;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,22 +21,24 @@ public class CommandRenameItem extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         ItemStack stack = sender.getInventory().getItemInMainHand();
         if (stack == null || stack.getType() == Material.AIR) {
-            sender.sendMessage(ChatColor.RED + "Please hold the item you wish to rename.");
+            sender.sendMessage(ComponentColor.red("Please hold the item you wish to rename."));
             return true;
         }
 
         String rawName = String.join(" ", args);
         String nameNoFormat = Chat.removeColorCodes(rawName);
         if (nameNoFormat.length() > 35) {
-            sender.sendMessage(ChatColor.RED + "Item names can be a maximum of 35 characters.");
+            sender.sendMessage(ComponentColor.red("Item names can be a maximum of 35 characters."));
             return true;
         }
 
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(Chat.applyColorCodes(Rank.SPONSOR, rawName));
+
+        // TODO: Conver this to use adventure components
+        meta.displayName(LegacyComponentSerializer.legacySection().deserialize(Chat.applyColorCodes(Rank.SPONSOR, rawName)));
         stack.setItemMeta(meta);
         if (sender.getGameMode() != GameMode.CREATIVE) {
-            ((CraftPlayer) sender).getHandle().levelDown(-1);
+            sender.giveExpLevels(-1);
         }
         return true;
     }

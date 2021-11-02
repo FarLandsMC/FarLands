@@ -1,13 +1,11 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.LocationWrapper;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -25,7 +23,7 @@ public class CommandSpawn extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
         if (spawn == null) {
-            sendFormatted(sender, "&(red)Server spawn not set! Please contact an owner, administrator, or developer and notify them of this problem.");
+            sender.sendMessage(ComponentColor.red("Server spawn not set! Please contact an owner, administrator, or developer and notify them of this problem."));
             return true;
         }
 
@@ -36,16 +34,16 @@ public class CommandSpawn extends Command {
         if (args.length > 0) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
             if (flp == null) {
-                sendFormatted(sender, "&(red)Player not found.");
+                sender.sendMessage(ComponentColor.red("Player not found."));
                 return true;
             }
 
             flp.moveToSpawn();
 
-            sendFormatted(sender, "&(green)Moved player to spawn.");
+            sender.sendMessage(ComponentColor.green("Moved player to spawn."));
         } else {
             if (!(sender instanceof Player)) {
-                sendFormatted(sender, "&(red)You must be in-game to use this command.");
+                sender.sendMessage(ComponentColor.red("You must be in-game to use this command."));
                 return true;
             }
 

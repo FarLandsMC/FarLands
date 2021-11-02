@@ -1,9 +1,7 @@
 package net.farlands.sanctuary.command.player;
 
 import static com.kicas.rp.util.TextUtils.escapeExpression;
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Materials;
-import com.kicas.rp.util.TextUtils;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -14,6 +12,7 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.PackageToggle;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
 
 import org.bukkit.Location;
@@ -38,13 +37,13 @@ public class CommandPackage extends PlayerCommand {
         // Get the recipient and make sure they exist
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (recipientFlp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
+            sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
 
         // Don't let people send packages to themselves
         if (sender.getUniqueId().equals(recipientFlp.uuid)) {
-            sendFormatted(sender, "&(red)You cannot send a package to yourself.");
+            sender.sendMessage(ComponentColor.red("You cannot send a package to yourself."));
             return true;
         }
 
@@ -52,15 +51,19 @@ public class CommandPackage extends PlayerCommand {
         FLPlayerSession senderSession = FarLands.getDataHandler().getSession(sender);
         long timeRemaining = senderSession.commandCooldownTimeRemaining(this);
         if (timeRemaining > 0) {
-            sendFormatted(sender, "&(red)You can send this person another package in %0",
-                    TimeInterval.formatTime(50L * timeRemaining, false));
+            sender.sendMessage(
+                ComponentColor.red(
+                    "You can send this person another package in " +
+                        TimeInterval.formatTime(50L * timeRemaining, false)
+                )
+            );
             return true;
         }
 
         // Get the item to send and make sure it's not empty (air or nonexistent)
         ItemStack item = sender.getInventory().getItemInMainHand().clone();
         if (Materials.stackType(item) == Material.AIR) {
-            sender.sendMessage("&(red)You must hold the item you wish to send in your hand.");
+            sender.sendMessage(ComponentColor.red("You must hold the item you wish to send in your hand."));
             return true;
         }
 
@@ -70,7 +73,7 @@ public class CommandPackage extends PlayerCommand {
         final boolean useEscaped = !senderSession.handle.rank.isStaff();
 
         if (recipientFlp.packageToggle == PackageToggle.DECLINE || recipientFlp.getIgnoreStatus(sender).includesPackages()) {
-            TextUtils.sendFormatted(sender, "&(red)This player is not accepting packages.");
+            sender.sendMessage(ComponentColor.red("This player is not accepting packages."));
             return true;
         }
 
@@ -84,11 +87,11 @@ public class CommandPackage extends PlayerCommand {
             if (recipientFlp.isOnline())
                 recipientFlp.getSession().givePackages();
 
-            sendFormatted(sender, "&(green)Package sent.");
+            sender.sendMessage(ComponentColor.green("Package sent."));
         }
         // The sender already has a package queued for this person so the transfer failed
         else
-            sendFormatted(sender, "&(red)You cannot send %0 a package right now.", recipientFlp.username);
+            sender.sendMessage(ComponentColor.red("You cannot send %s a package right now.", recipientFlp.username));
 
         return true;
     }
