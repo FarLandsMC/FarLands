@@ -17,6 +17,22 @@ mvn package
 mvn package -Dmaven.javadoc.skip=true # Don't update docs
 ```
 
+## Plugins
+
+The plugins that we use on the server.  
+Some are required for the plugin to work, these are marked with `*`
+
+- [ChestShops](https://github.com/FarLandsMC/ChestShops)*
+- [RegionProtection](https://github.com/FarLandsMC/RegionProtection)*
+- [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/)*
+- [CoreProtect](https://www.spigotmc.org/resources/coreprotect.8631/)*
+- [NuVotifier](https://www.spigotmc.org/resources/nuvotifier.13449/)*
+- [HeadDatabase](https://www.spigotmc.org/resources/head-database.14280/)
+- [OpenInv](https://dev.bukkit.org/projects/openinv)
+- [PetBlocks](https://github.com/Shynixn/PetBlocks)
+- [WorldEdit](https://dev.bukkit.org/projects/worldedit)
+- [BuycraftX](https://www.spigotmc.org/resources/buycraftx-bungeecord.25191/)
+
 ## Layout
 
 - Commands - *All* commands that can be run
