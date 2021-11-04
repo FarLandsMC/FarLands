@@ -9,6 +9,8 @@ git clone git@github.com:FarLandsMC/FarLands.git # Clone Repo
 mvn install # Download Dependencies
 ```
 
+If you run into an Auth error while trying to download ChestShops or RegionProtection, please read [this](https://github.com/FarLandsMC/FarLands/wiki/Authentication-Failed-error-when-downloading-maven-dependencies).
+
 ## Build
 
 ```shell
