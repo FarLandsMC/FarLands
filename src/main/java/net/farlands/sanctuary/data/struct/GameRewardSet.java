@@ -14,21 +14,22 @@ import java.util.*;
 /**
  * Used for giving game rewards.
  */
-public class GameRewardSet {
-    private final List<ItemReward> rewards;
-    private final double rewardBias;
-    private final boolean trackCompletionInfo;
-    private final Map<UUID, Long> playerCompletionInfo;
-    private final JsonItemStack finalReward;
-    private final String finalRewardMessage;
-
+public record GameRewardSet(
+        List<ItemReward> rewards, 
+        double rewardBias, boolean 
+        trackCompletionInfo, 
+        Map<UUID, Long> playerCompletionInfo, 
+        JsonItemStack finalReward, 
+        String finalRewardMessage) {
     public GameRewardSet() {
-        this.rewards = new ArrayList<>();
-        this.rewardBias = 0.75;
-        this.trackCompletionInfo = false;
-        this.playerCompletionInfo = new HashMap<>();
-        this.finalReward = null;
-        this.finalRewardMessage = null;
+        this(
+            new ArrayList<>(),
+            0.75,
+            false,
+            new HashMap<>(),
+            null,
+            null
+        );
     }
 
     public void giveReward(Player player) {

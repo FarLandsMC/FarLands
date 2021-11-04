@@ -6,10 +6,7 @@ import java.util.Calendar;
 /**
  * Represents a player birthday!
  */
-public class Birthday {
-    private final int month;
-    private final int day;
-
+public record Birthday(int month, int day) {
     public Birthday(int month, int day) {
         this.month = month - 1;
         this.day = day;
@@ -29,11 +26,6 @@ public class Birthday {
     public boolean isToday() {
         Calendar cal = Calendar.getInstance();
         return cal.get(Calendar.MONTH) == month && cal.get(Calendar.DATE) == day;
-    }
-
-    @Override
-    public String toString() {
-        return (month + 1) + "/" + day;
     }
 
     /**

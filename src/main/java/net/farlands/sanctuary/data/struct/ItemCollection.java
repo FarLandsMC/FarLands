@@ -8,13 +8,9 @@ import java.util.Map;
 /**
  * A collection of items.
  */
-public class ItemCollection {
-    private final Map<String, JsonItemStack> namedItems;
-    private final GameRewardSet gameRewardSet;
-
+public record ItemCollection(Map<String, JsonItemStack> namedItems, GameRewardSet gameRewardSet) {
     public ItemCollection() {
-        this.namedItems = null;
-        this.gameRewardSet = null;
+        this(null, null);
     }
 
     public ItemStack getNamedItem(String name) {

@@ -14,52 +14,26 @@ import java.util.List;
 /**
  * Stores a player death.
  */
-public class PlayerDeath {
-    private final long time;
-    private final Location location;
-    private final int xpLevels;
-    private final float xpPoints;
-    private final List<ItemStack> inventory;
-
-    public PlayerDeath(long time, Location location, int xpLevels, float xpPoints, List<ItemStack> inventory) {
-        this.time = time;
-        this.location = location;
-        this.xpLevels = xpLevels;
-        this.xpPoints = xpPoints;
-        this.inventory = inventory;
-    }
-
+public record PlayerDeath(long time, Location location, int xpLevels, float xpPoints, List<ItemStack> inventory) {
     public PlayerDeath(Player player) {
-        this(System.currentTimeMillis(), player.getLocation(), player.getLevel(), player.getExp(), Arrays.asList(player.getInventory().getContents()));
+        this(
+            System.currentTimeMillis(), 
+            player.getLocation(), 
+            player.getLevel(), 
+            player.getExp(),
+            Arrays.asList(player.getInventory().getContents())
+        );
     }
 
     public PlayerDeath(NBTTagCompound nbt) {
-        this.time = nbt.getLong("time");
-        this.location = FLUtils.locationFromNBT(nbt.getCompound("loc"));
-        this.xpLevels = nbt.getInt("xpLevels");
-        this.xpPoints = nbt.getFloat("xpPoints");
-        this.inventory = new ArrayList<>();
+        this(
+            nbt.getLong("time"),
+            FLUtils.locationFromNBT(nbt.getCompound("loc")),
+            nbt.getInt("xpLevels"),
+            nbt.getFloat("xpPoints"),
+            new ArrayList<>()
+        );
         nbt.getList("inv", 10).stream().map(base -> FLUtils.itemStackFromNBT((NBTTagCompound) base)).forEach(this.inventory::add);
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public int getXpLevels() {
-        return xpLevels;
-    }
-
-    public float getXpPoints() {
-        return xpPoints;
-    }
-
-    public List<ItemStack> getInventory() {
-        return inventory;
     }
 
     public NBTTagCompound serialize() {
