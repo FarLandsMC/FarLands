@@ -486,9 +486,9 @@ public class OfflineFLPlayer {
                             "\nYou can accept it with ${hovercmd,/sharehome accept %0,&(aqua)Click to Run,&(aqua)/sharehome accept %0} " +
                             "and decline with ${hovercmd,/sharehome decline %0,&(aqua)Click to Run,&(aqua)/sharehome decline %0}",
                     sender,
-                    shareHome.home.getName(),
-                    shareHome.message == null ? "" : "\nMessage: {&(aqua)%3}",
-                    shareHome.message
+                    shareHome.home().getName(),
+                    shareHome.message() == null ? "" : "\nMessage: {&(aqua)%3}",
+                    shareHome.message()
             );
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
         }

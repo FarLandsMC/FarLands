@@ -436,7 +436,7 @@ public class PlayerDataHandlerOld {
             ps.setBytes(1, uuid);
             ps.executeUpdate();
             ps.close();
-            flp.mail.forEach(m -> addMail(flp.uuid, m.getSender(), m.getMessage()));
+            flp.mail.forEach(m -> addMail(flp.uuid, m.sender(), m.message()));
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -489,8 +489,8 @@ public class PlayerDataHandlerOld {
                 saveFlp.setLong(22, 0);
                 saveFlp.setString(23, "");
             } else {
-                saveFlp.setLong(22, flp.currentMute.getDateEnds());
-                saveFlp.setString(23, flp.currentMute.getReason());
+                saveFlp.setLong(22, flp.currentMute.dateEnds());
+                saveFlp.setString(23, flp.currentMute.reason());
             }
             byte[] ignored = new byte[flp.ignoreStatusMap.size() * 16];
             int i = 0;

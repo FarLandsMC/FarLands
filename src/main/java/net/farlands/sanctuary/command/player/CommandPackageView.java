@@ -67,7 +67,7 @@ public class CommandPackageView extends Command {
 
         List<Package> validPackages = packages.stream()
             .filter(p -> {
-                String formattedSenderName = Chat.removeColorCodes(p.senderName.replaceAll("\\{+|}+", ""));;
+                String formattedSenderName = Chat.removeColorCodes(p.senderName().replaceAll("\\{+|}+", ""));;
                 return (args.length >= 1 && !args[0].equalsIgnoreCase("all") &&
                     viewFlp.getDisplayName().equalsIgnoreCase(formattedSenderName)) ||
                     args.length == 0 || args[0].equalsIgnoreCase("all");
@@ -96,7 +96,7 @@ public class CommandPackageView extends Command {
             String username = FarLands
                 .getDataHandler()
                 .getOfflineFLPlayer(
-                    validPackages.get(0).senderUuid
+                    validPackages.get(0).senderUuid()
                 ).username;
             Component accept = ComponentUtils.command(
                 "/paccept " + username,
@@ -126,24 +126,24 @@ public class CommandPackageView extends Command {
             TextComponent.Builder line = Component.text()
                 .color(NamedTextColor.GOLD);
 
-            Component itemDisplay = ComponentColor.gold(lPackage.item.getAmount() + " x [")
-                .append(ComponentUtils.item(lPackage.item))
+            Component itemDisplay = ComponentColor.gold(lPackage.item().getAmount() + " x [")
+                .append(ComponentUtils.item(lPackage.item()))
                 .append(ComponentColor.gold("]"));
 
-            OfflineFLPlayer packageSender = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid);
-            String username = Chat.removeColorCodes(lPackage.senderName.replaceAll("\\{+|}+", ""));
+            OfflineFLPlayer packageSender = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid());
+            String username = Chat.removeColorCodes(lPackage.senderName().replaceAll("\\{+|}+", ""));
 
             if (args.length >= 1 && !args[0].equalsIgnoreCase("all") && viewFlp.getDisplayName().equalsIgnoreCase(username)) {
                 line.append(itemDisplay)
                     .append(ComponentColor.gold(" - "))
-                    .append(ComponentColor.green(lPackage.message));
+                    .append(ComponentColor.green(lPackage.message()));
 
             }
             if (args.length == 0 || args[0].equalsIgnoreCase("all")) {
                 line.append(
                         ComponentUtils.hover(
                             ComponentColor.aqua(packageSender.username),
-                            ComponentColor.aqua(lPackage.message)
+                            ComponentColor.aqua(lPackage.message())
                         )
                     )
                     .append(ComponentColor.gold(": "))
@@ -196,7 +196,7 @@ public class CommandPackageView extends Command {
         }
         switch(args.length){
             case 1:
-                List<String> values = FarLands.getDataHandler().getPackages(flp.uuid).stream().map(p -> FarLands.getDataHandler().getOfflineFLPlayer(p.senderUuid).username).collect(Collectors.toList());
+                List<String> values = FarLands.getDataHandler().getPackages(flp.uuid).stream().map(p -> FarLands.getDataHandler().getOfflineFLPlayer(p.senderUuid()).username).collect(Collectors.toList());
                 values.add("all");
                 return TabCompleterBase.filterStartingWith(args[0], values);
             case 2:

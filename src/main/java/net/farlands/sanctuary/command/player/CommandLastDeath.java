@@ -30,7 +30,7 @@ public class CommandLastDeath extends PlayerCommand {
             return true;
         }
 
-        Location deathLocation = deaths.get(deaths.size()-1).getLocation();
+        Location deathLocation = deaths.get(deaths.size()-1).location();
         String s = "You died at " +
             deathLocation.getBlockX() + ", " +
             deathLocation.getBlockY() + ", " +

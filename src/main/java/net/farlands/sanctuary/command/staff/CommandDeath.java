@@ -51,7 +51,7 @@ public class CommandDeath extends PlayerCommand {
                 return true;
             }
         }
-        Location deathLocation = deaths.get(death).getLocation();
+        Location deathLocation = deaths.get(death).location();
         sender.teleport(deathLocation);
         sendFormatted(sender, "&(gray)Player {&(white)%0} died at " +
                         "$(hovercmd,/tl %1 %2 %3 %4 %5 %6,{&(gray)Click to teleport},&(white)%1 %2 %3 %4 %5 %6)",

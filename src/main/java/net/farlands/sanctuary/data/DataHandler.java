@@ -546,9 +546,9 @@ public class DataHandler extends Mechanic {
             });
             packages.put(UUID.fromString(key), individualPackages);
         });
-        rtsPackages.forEach(lPackage -> addPackage(lPackage.senderUuid,
+        rtsPackages.forEach(lPackage -> addPackage(lPackage.senderUuid(),
                 new Package(null, "FarLands Packaging Service",
-                        lPackage.item, "Return To Sender", true)
+                        lPackage.item(), "Return To Sender", true)
         ));
     }
 
@@ -559,12 +559,12 @@ public class DataHandler extends Mechanic {
                 NBTTagCompound serIndividualPackages = new NBTTagCompound();
                 individualPackages.forEach(lPackage -> {
                     NBTTagCompound packageNBT = new NBTTagCompound();
-                    packageNBT.setString("sender", lPackage.senderUuid == null ? "" : lPackage.senderUuid.toString());
-                    packageNBT.set("item", FLUtils.itemStackToNBT(lPackage.item));
-                    packageNBT.setString("message", lPackage.message);
-                    packageNBT.setLong("sentTime", lPackage.sentTime);
-                    packageNBT.setBoolean("forceSend", lPackage.forceSend);
-                    serIndividualPackages.set(lPackage.senderName, packageNBT);
+                    packageNBT.setString("sender", lPackage.senderUuid() == null ? "" : lPackage.senderUuid().toString());
+                    packageNBT.set("item", FLUtils.itemStackToNBT(lPackage.item()));
+                    packageNBT.setString("message", lPackage.message());
+                    packageNBT.setLong("sentTime", lPackage.sentTime());
+                    packageNBT.setBoolean("forceSend", lPackage.forceSend());
+                    serIndividualPackages.set(lPackage.senderName(), packageNBT);
                 });
                 nbt.set(uuid.toString(), serIndividualPackages);
             }
@@ -585,7 +585,7 @@ public class DataHandler extends Mechanic {
         localPackages = packages.get(recipient);
 
         for (Package lPackage : localPackages) {
-            if (pack.senderUuid != null && pack.senderUuid.equals(lPackage.senderUuid))
+            if (pack.senderUuid() != null && pack.senderUuid().equals(lPackage.senderUuid()))
                 return false;
         }
         localPackages.add(pack);
