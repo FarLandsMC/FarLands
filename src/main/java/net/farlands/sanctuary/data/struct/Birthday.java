@@ -6,7 +6,10 @@ import java.util.Calendar;
 /**
  * Represents a player birthday!
  */
-public record Birthday(int month, int day) {
+public class Birthday {
+    private final int month;
+    private final int day;
+
     public Birthday(int month, int day) {
         this.month = month - 1;
         this.day = day;
