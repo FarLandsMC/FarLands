@@ -31,6 +31,11 @@ public class Birthday {
         return cal.get(Calendar.MONTH) == month && cal.get(Calendar.DATE) == day;
     }
 
+    @Override
+    public String toString() {
+        return (month + 1) + "/" + day;
+    }
+    
     /**
      * Formats the Birthday as month + Day
      *
