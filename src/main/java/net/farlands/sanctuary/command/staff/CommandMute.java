@@ -63,7 +63,7 @@ public class CommandMute extends Command {
             if(flp.isOnline())
                 mute.sendMuteMessage(flp.getOnlinePlayer());
             // Send formatted message to player and discord
-            String message = "uted " + flp.username + " with reason `" + mute.getReason() + "`. Expires: " +
+            String message = "uted " + flp.username + " with reason `" + mute.reason() + "`. Expires: " +
                     TimeInterval.formatTime(1000L * time, false);
             sendFormatted(sender, "&(gold)M%0", message.replaceAll("`", "\""));
             FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) + " m" +

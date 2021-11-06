@@ -7,30 +7,17 @@ import org.bukkit.command.CommandSender;
 /**
  * Handles player mutes.
  */
-public final class Mute {
-    private final long dateEnds; // In milliseconds since epoch
-    private final String reason;
-
+public record Mute(long dateEnds, String reason) {
     public Mute(int duration, String reason) {
-        this.dateEnds = System.currentTimeMillis() + duration * 1000L;
-        this.reason = reason;
+        this(System.currentTimeMillis() + duration * 1000L, reason);
     }
 
     public Mute(int duration) {
         this(duration, "Muted by a staff member.");
     }
 
-    public Mute(long dateEnds, String reason) {
-        this.dateEnds = dateEnds;
-        this.reason = reason;
-    }
-
-    Mute() {
+    public Mute() {
         this(0, "");
-    }
-
-    public long getDateEnds() {
-        return dateEnds;
     }
 
     public boolean hasExpired() {
@@ -39,10 +26,6 @@ public final class Mute {
 
     public long timeRemaining() {
         return dateEnds - System.currentTimeMillis();
-    }
-
-    public String getReason() {
-        return reason;
     }
 
     public void sendMuteMessage(CommandSender sender) {

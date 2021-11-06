@@ -75,7 +75,7 @@ public class CommandMail extends Command {
                 }
 
                 // Prevent someone from spamming mail
-                if (recipientFlp.mail.stream().filter(msg -> msg.getSender().equals(sender.getName())).count() >= 5) {
+                if (recipientFlp.mail.stream().filter(msg -> msg.sender().equals(sender.getName())).count() >= 5) {
                     sendFormatted(sender, "&(red)You cannot send any more mail to this person until they " +
                             "read your current messages and clear them.");
                     return true;
@@ -123,7 +123,7 @@ public class CommandMail extends Command {
                 MailMessage message;
                 for (int i = index; i < Math.min(index + 5, senderFlp.mail.size()); ++i) {
                     message = senderFlp.mail.get(i);
-                    sendMailMessage(sender, "From", ChatColor.GOLD, message.getSender(), message.getMessage());
+                    sendMailMessage(sender, "From", ChatColor.GOLD, message.sender(), message.message());
                 }
 
                 sendFormatted(sender, "&(gold)Clear your mail with $(hovercmd,/mail clear,{&(gray)Click to Run},&(yellow)/mail clear)");

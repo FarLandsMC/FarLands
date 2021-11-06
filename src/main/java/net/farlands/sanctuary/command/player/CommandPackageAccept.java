@@ -37,7 +37,7 @@ public class CommandPackageAccept extends PlayerCommand {
 
         String packageID = "";
         if (packages.size() == 1) {
-            packageID = packages.get(0).senderName;
+            packageID = packages.get(0).senderName();
         }
 
         if (!packageID.isEmpty()) {
@@ -60,7 +60,7 @@ public class CommandPackageAccept extends PlayerCommand {
         }
 
         for (Package lPackage : packages) {
-            if (Chat.removeColorCodes(lPackage.senderName.replaceAll("\\{+|}+", "")).equalsIgnoreCase(packageID)) {
+            if (Chat.removeColorCodes(lPackage.senderName().replaceAll("\\{+|}+", "")).equalsIgnoreCase(packageID)) {
                 if ("paccept".equalsIgnoreCase(args[0])) {
                     accept(sender, lPackage);
                 } else {
@@ -78,29 +78,29 @@ public class CommandPackageAccept extends PlayerCommand {
     private void accept(Player sender, Package lPackage){
         sender.sendMessage(
             ComponentColor.gold("Receiving package from ")
-                .append(ComponentColor.aqua(lPackage.senderName))
+                .append(ComponentColor.aqua(lPackage.senderName()))
                 .append(ComponentColor.gold("."))
         );
-        final String message = lPackage.message;
+        final String message = lPackage.message();
         if (message != null && !message.isEmpty()) {
             sender.sendMessage(
                 ComponentColor.gold("Item ")
-                    .append(ComponentUtils.item(lPackage.item))
+                    .append(ComponentUtils.item(lPackage.item()))
                     .append(ComponentColor.gold(" was sent with the following message "))
                     .append(ComponentColor.aqua(message))
             );
         }
-        FLUtils.giveItem(sender, lPackage.item, true);
+        FLUtils.giveItem(sender, lPackage.item(), true);
     }
     private void decline(Player sender, Package lPackage){
         sender.sendMessage(
             ComponentColor.gold("Returning package to ")
-                .append(ComponentColor.aqua(lPackage.senderName))
+                .append(ComponentColor.aqua(lPackage.senderName()))
         );
-        OfflineFLPlayer packageSenderFlp = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid);
+        OfflineFLPlayer packageSenderFlp = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid());
         FarLands.getDataHandler().addPackage(packageSenderFlp.uuid,
                 new Package(null, "FarLands Packaging Service",
-                        lPackage.item, "Return To Sender", true)
+                        lPackage.item(), "Return To Sender", true)
         );
         if (packageSenderFlp.isOnline()) {
             packageSenderFlp.getSession().givePackages();
@@ -114,6 +114,6 @@ public class CommandPackageAccept extends PlayerCommand {
         Player player = (Player)sender;
         return TabCompleterBase.filterStartingWith(args.length > 1 ? args[1] : "",
                 FarLands.getDataHandler().getPackages(player.getUniqueId()).stream()
-                        .map(p -> Chat.removeColorCodes(p.senderName.replaceAll("\\{+|}+", ""))));
+                        .map(p -> Chat.removeColorCodes(p.senderName().replaceAll("\\{+|}+", ""))));
     }
 }

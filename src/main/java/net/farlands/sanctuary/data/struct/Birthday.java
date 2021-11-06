@@ -35,7 +35,7 @@ public class Birthday {
     public String toString() {
         return (month + 1) + "/" + day;
     }
-
+    
     /**
      * Formats the Birthday as month + Day
      *

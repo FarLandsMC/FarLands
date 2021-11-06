@@ -246,13 +246,13 @@ public class FLPlayerSession {
             List<String> pendingHomes = new ArrayList<>();
 
             handle.pendingSharehomes.forEach((k, v) -> {
-                String message = v.message == null ? "" : "&(gold)Message: &(aqua)" + v.message.replaceAll(",", " ") + "\n";
+                String message = v.message() == null ? "" : "&(gold)Message: &(aqua)" + v.message().replaceAll(",", " ") + "\n";
                 pendingHomes.add(
                         "{" +
                                 "$(click:suggest_command,/sharehome accept " + k + " )" +
                                 "$(hover:show_text," +
                                 "&(gold)Sender: &(aqua)" + k + "\n" +
-                                message + "&(gold)Name: &(aqua)" + v.home.getName() + "\n" +
+                                message + "&(gold)Name: &(aqua)" + v.home().getName() + "\n" +
                                 "&(" +
                                 "gray)Click to accept" +
                                 ")&(aqua)" + k +
@@ -312,24 +312,24 @@ public class FLPlayerSession {
         List<Package> packages = FarLands.getDataHandler().getPackages(handle.uuid);
         boolean sentMessage = true;
         for (int i = packages.size(); --i >= 0; ) {
-            if (packages.get(i).forceSend || handle.packageToggle == PackageToggle.ACCEPT) {
+            if (packages.get(i).forceSend() || handle.packageToggle == PackageToggle.ACCEPT) {
                 if (sentMessage) {
                     sentMessage = false;
                     // Notify the player how many packages they've been sent
                     TextUtils.sendFormatted(
                             player, "&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}.",
                             packages.size(),
-                            packages.stream().filter(p -> p.forceSend || handle.packageToggle == PackageToggle.ACCEPT)
-                                    .map(laPackage -> "{" + laPackage.senderName + "}")
+                            packages.stream().filter(p -> p.forceSend() || handle.packageToggle == PackageToggle.ACCEPT)
+                                    .map(laPackage -> "{" + laPackage.senderName() + "}")
                                     .collect(Collectors.joining(", "))
                     );
                 }
                 // Give the packages and send the messages
-                final String message = packages.get(i).message;
+                final String message = packages.get(i).message();
                 if (message != null && !message.isEmpty())
                     TextUtils.sendFormatted(player, "&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
-                            FLUtils.itemName(packages.get(i).item), message);
-                FLUtils.giveItem(player, packages.get(i).item, true);
+                            FLUtils.itemName(packages.get(i).item()), message);
+                FLUtils.giveItem(player, packages.get(i).item(), true);
                 packages.remove(i);
             }
         }
@@ -340,7 +340,7 @@ public class FLPlayerSession {
                         player, "&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}." +
                                 " Use /paccecpt|pdecline <player> to accept or decline the packages.",
                         packages.size(),
-                        packages.stream().map(lPackage -> "{" + lPackage.senderName + "}").collect(Collectors.joining(", "))
+                        packages.stream().map(lPackage -> "{" + lPackage.senderName() + "}").collect(Collectors.joining(", "))
                 );
             }
         }

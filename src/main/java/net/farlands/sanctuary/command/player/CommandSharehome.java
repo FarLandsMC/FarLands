@@ -138,7 +138,7 @@ public class CommandSharehome extends PlayerCommand {
                 return true;
             }
 
-            String homeName = shareHome.home.getName();
+            String homeName = shareHome.home().getName();
             if (args.length == 3) {
                 // Make sure the home name is valid
                 if (args[2].isEmpty() || args[2].matches("\\s+") || Chat.getMessageFilter().isProfane(args[2])) {
@@ -157,16 +157,16 @@ public class CommandSharehome extends PlayerCommand {
                 sender.sendMessage(ComponentColor.red("You already have a home by this name."));
                 return true;
             }
-            flp.addHome(homeName, shareHome.home.asLocation());
+            flp.addHome(homeName, shareHome.home().asLocation());
             sender.sendMessage(
                 ComponentColor.green("Home ")
                     .append(ComponentColor.aqua(homeName))
                     .append(ComponentColor.green(" added!"))
             );
         } else {
-            sender.sendMessage(ComponentColor.green("Declined home sent by %s.", shareHome.sender));
+            sender.sendMessage(ComponentColor.green("Declined home sent by %s.", shareHome.sender()));
         }
-        flp.removeShareHome(shareHome.sender);
+        flp.removeShareHome(shareHome.sender());
         return true;
     }
 

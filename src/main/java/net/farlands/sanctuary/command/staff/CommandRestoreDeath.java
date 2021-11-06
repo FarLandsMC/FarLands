@@ -58,7 +58,7 @@ public class CommandRestoreDeath extends Command {
         }
 
         PlayerDeath deathData = deaths.get(death);
-        List<ItemStack> deathInv = deathData.getInventory();
+        List<ItemStack> deathInv = deathData.inventory();
 
         if (preview) {
             if (!(sender instanceof Player)) {
@@ -75,8 +75,8 @@ public class CommandRestoreDeath extends Command {
             return true;
         }
 
-        player.setLevel(deathData.getXpLevels());
-        player.setExp(deathData.getXpPoints());
+        player.setLevel(deathData.xpLevels());
+        player.setExp(deathData.xpPoints());
         for (int i = deathInv.size(); --i >= 0;)
             player.getInventory().setItem(i, deathInv.get(i));
 
