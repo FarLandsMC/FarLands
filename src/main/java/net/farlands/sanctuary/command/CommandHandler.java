@@ -4,34 +4,25 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
-
 import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.discord.*;
 import net.farlands.sanctuary.command.player.*;
-import net.farlands.sanctuary.command.player.CommandHelp;
-import net.farlands.sanctuary.command.player.CommandList;
-import net.farlands.sanctuary.command.player.CommandMe;
 import net.farlands.sanctuary.command.staff.*;
-import net.farlands.sanctuary.command.staff.CommandDebug;
-import net.farlands.sanctuary.command.staff.CommandKick;
-import net.farlands.sanctuary.command.staff.CommandFLTrigger;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
-import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.Logging;
 import net.minecraft.commands.CommandDispatcher;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.network.chat.ChatComponentText;
 import net.minecraft.server.MinecraftServer;
-
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec2F;
 import net.minecraft.world.phys.Vec3D;
@@ -48,7 +39,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -373,7 +363,7 @@ public class CommandHandler extends Mechanic {
             return;
         }
 
-        if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && Chat.getMessageFilter().isProfane(event.getMessage())) {
+        if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && MessageFilter.INSTANCE.isProfane(event.getMessage())) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot set your pet's name to that.");
             return;

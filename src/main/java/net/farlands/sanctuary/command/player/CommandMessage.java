@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -168,7 +169,7 @@ public class CommandMessage extends PlayerCommand {
         // Censor the message if censoring
         String censored = message;
         if (recipientFlp != null && recipientFlp.censoring)
-            censored = Chat.getMessageFilter().censor(message);
+            censored = MessageFilter.INSTANCE.censor(message);
 
         // Send the messages to both parties involved
         if (sender instanceof Player)

@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -141,7 +142,7 @@ public class CommandSharehome extends PlayerCommand {
             String homeName = shareHome.home().getName();
             if (args.length == 3) {
                 // Make sure the home name is valid
-                if (args[2].isEmpty() || args[2].matches("\\s+") || Chat.getMessageFilter().isProfane(args[2])) {
+                if (args[2].isEmpty() || args[2].matches("\\s+") || MessageFilter.INSTANCE.isProfane(args[2])) {
                     sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
                     return true;
                 }

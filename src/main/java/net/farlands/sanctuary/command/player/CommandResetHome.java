@@ -6,15 +6,13 @@ import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
-
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.struct.Home;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
+import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
-
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -101,7 +99,7 @@ public class CommandResetHome extends PlayerCommand {
                 sender.sendMessage(ComponentColor.red("This home does not exist and you do not have enough homes to set another."));
                 return true;
             } else {
-                if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]))) {
+                if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || MessageFilter.INSTANCE.isProfane(args[0]))) {
                     sender.sendMessage(ComponentColor.red("This home does not exist. Unable to create home with that name."));
                     return true;
                 }

@@ -2,12 +2,12 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -37,7 +37,7 @@ public class CommandRenameHome extends PlayerCommand {
         }
 
         // Make sure the home name is valid
-        if (args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(newName)) {
+        if (args[1].isEmpty() || args[1].matches("\\s+") || MessageFilter.INSTANCE.isProfane(newName)) {
             sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
             return true;
         }

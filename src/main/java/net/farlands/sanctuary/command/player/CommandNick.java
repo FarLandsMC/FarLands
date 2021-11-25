@@ -1,12 +1,12 @@
 package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
-
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -35,7 +35,7 @@ public class CommandNick extends PlayerCommand {
             // Get rid of colors for length checking
             String rawNick = Chat.removeColorCodes(args[1]);
             // Prevent whitespace and profanity
-            if (args[1].isEmpty() || args[1].matches("\\s+") || Chat.getMessageFilter().isProfane(rawNick)) {
+            if (args[1].isEmpty() || args[1].matches("\\s+") || MessageFilter.INSTANCE.isProfane(rawNick)) {
                 sender.sendMessage(ComponentColor.red("You cannot set your nickname to this."));
                 return true;
             }

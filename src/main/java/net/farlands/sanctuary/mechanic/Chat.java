@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 
 /**
  * Handles everything to do with chat.
+ * TODO: Remove this class -- some methods are still needed to be moved.
  */
 public class Chat extends Mechanic {
     public static final List<ChatColor> ILLEGAL_COLORS = Arrays.asList(ChatColor.MAGIC, ChatColor.BLACK);
@@ -277,7 +278,7 @@ public class Chat extends Mechanic {
 
         String lmessage = ChatControl.limitCaps(ChatControl.limitFlood(message));
         String fmessage = displayPrefix + lmessage;
-        String censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
+        String censorMessage = displayPrefix + getMessageFilter().censor(lmessage);
         String name = convertChatColorHex(senderFlp.getDisplayName());
 
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
