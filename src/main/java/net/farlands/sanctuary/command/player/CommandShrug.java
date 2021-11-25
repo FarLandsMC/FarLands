@@ -5,7 +5,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -38,7 +38,7 @@ public class CommandShrug extends PlayerCommand {
         } catch (IllegalArgumentException e) {
             return false;
         } // Invalid emote
-        Chat.chat(flp, sender, args.length == 1 ?
+        ChatHandler.chat(flp, args.length == 1 ?
                 emote :
                 joinArgsBeyond(0, " ", args).trim() + " " + emote);
         return true;

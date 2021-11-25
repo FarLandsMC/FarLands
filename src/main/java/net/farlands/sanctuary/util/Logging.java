@@ -1,26 +1,27 @@
 package net.farlands.sanctuary.util;
 
 import com.kicas.rp.util.TextUtils;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
-
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Chat;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
  * General logging methods.
+ * TODO: Rewrite this class to use {@link Component}s instead of {@link BaseComponent}s.
  */
 public final class Logging {
     public static void broadcastIngame(BaseComponent[] message) {
@@ -86,8 +87,29 @@ public final class Logging {
         broadcastStaff(message, null);
     }
 
+    public static void broadcastStaffWithExemptions(Component message, Player... exemptions) {
+        Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
+                .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+                .filter(session -> Arrays.stream(exemptions).noneMatch(s -> s == session.player))
+                .forEach(session -> session.player.sendMessage(message));
+        Bukkit.getConsoleSender().sendMessage(message);
+    }
+
+    public static void broadcastStaff(Component message, DiscordChannel discordChannel) { // Set the channel to null to not send to discord
+        Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
+                .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+                .forEach(session -> session.player.sendMessage(message));
+        Bukkit.getConsoleSender().sendMessage(message);
+        if (discordChannel != null)
+            FarLands.getDiscordHandler().sendMessage(discordChannel, message);
+    }
+
+    public static void broadcastStaff(Component message) {
+        broadcastStaff(message, null);
+    }
+
     public static void broadcastStaff(String message, DiscordChannel discordChannel) {
-        broadcastStaff(TextComponent.fromLegacyText(message), discordChannel);
+        broadcastStaff(LegacyComponentSerializer.legacySection().deserialize(message), discordChannel);
     }
 
     public static void broadcastStaff(String message) {

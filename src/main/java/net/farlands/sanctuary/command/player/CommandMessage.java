@@ -1,20 +1,16 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.escapeExpression;
-import static com.kicas.rp.util.TextUtils.format;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.command.DiscordSender;
+import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Logging;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -28,6 +24,9 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+
+import static com.kicas.rp.util.TextUtils.escapeExpression;
+import static com.kicas.rp.util.TextUtils.format;
 
 public class CommandMessage extends PlayerCommand {
     private static final String REPLY_ALIAS = "r";
@@ -163,6 +162,7 @@ public class CommandMessage extends PlayerCommand {
     }
 
     // Send the formatted message
+    // TODO: Rewrite this with Components
     public static void sendMessages(CommandSender recipient, CommandSender sender, String message) {
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
         // Censor the message if censoring

@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.TextUtils2;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatControl;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.player.CommandMessage;
 import net.farlands.sanctuary.command.player.CommandShrug;
@@ -165,7 +166,7 @@ public class Chat extends Mechanic {
 
     public static String generatePrefix(OfflineFLPlayer senderFlp) {
         Rank displayedRank = senderFlp.getDisplayRank();
-        String playerStats = CommandStats.getFormattedStats(senderFlp, false).replaceAll("([()])", "\\\\$1");
+        String playerStats = CommandStats.getFormattedStats(senderFlp, false).toString()/*TODO:temp toString*/.replaceAll("([()])", "\\\\$1");
         String rank = "&(" + displayedRank.getColor().getName() + ")" + (displayedRank.isStaff() ? ChatColor.BOLD : "") + displayedRank.getName();
         return "{" + rank + " {$(click:suggest_command,/msg " + senderFlp.username + " )$(hover:show_text," + playerStats + ")&(%0)%1:}} ";
 //        chat(senderFlp, sender, displayPrefix, message.trim());
@@ -232,13 +233,13 @@ public class Chat extends Mechanic {
         }
 
         // Do not change the order of these
-        message = applyEmotes(message);
-        message = TextUtils2.escapeExpression(message);
-        message = applyColorCodes(senderFlp.rank, message, true);
-        message = formUrls(message);
+        message = applyEmotes(message); //
+        message = TextUtils2.escapeExpression(message); //
+        message = applyColorCodes(senderFlp.rank, message, true); //
+        message = formUrls(message); //
         message = formCommandSuggestions(message);
-        message = atPlayer(message, sender.getUniqueId());
-        message = itemShare(senderFlp.rank, message, sender);
+        message = atPlayer(message, sender.getUniqueId()); //
+        message = itemShare(senderFlp.rank, message, sender); //
 
 
         if (removeColorCodes(message).length() < 1 || removeColorCodes(message).equals("{}"))
@@ -274,7 +275,7 @@ public class Chat extends Mechanic {
             }
         }
 
-        String lmessage = limitCaps(limitFlood(message));
+        String lmessage = ChatControl.limitCaps(ChatControl.limitFlood(message));
         String fmessage = displayPrefix + lmessage;
         String censorMessage = displayPrefix + Chat.getMessageFilter().censor(lmessage);
         String name = convertChatColorHex(senderFlp.getDisplayName());
@@ -338,39 +339,6 @@ public class Chat extends Mechanic {
                 AntiCheat.broadcast(player.getName() + " was kicked for spam.", true);
             });
         }
-    }
-
-    public static String limitFlood(String message) {
-        int row = 0;
-        char last = ' ';
-        StringBuilder output = new StringBuilder();
-        for (char c : message.toCharArray()) {
-            if (Character.toLowerCase(c) == last) {
-                if (++row < 4)
-                    output.append(c);
-            } else {
-                last = Character.toLowerCase(c);
-                output.append(c);
-                row = 0;
-            }
-        }
-        return output.toString();
-    }
-
-    public static String limitCaps(String message) {
-        if (message.length() < 6)
-            return message;
-
-        float uppers = 0;
-        for (char c : message.toCharArray()) {
-            if (Character.isUpperCase(c))
-                ++uppers;
-        }
-
-        if (uppers / message.length() >= 5f / 12)
-            return message.substring(0, 1).toUpperCase() + message.substring(1).toLowerCase();
-        else
-            return message;
     }
 
     public static MessageFilter getMessageFilter() {
@@ -554,7 +522,7 @@ public class Chat extends Mechanic {
 
     private static String playerMention(OfflineFLPlayer flp) {
         String messageCommand = flp.getOnlinePlayer() == null ? "/mail send " : "/msg ";
-        String hoverText = CommandStats.getFormattedStats(flp, false, false).replaceAll("([()])", "\\\\$1");
+        String hoverText = CommandStats.getFormattedStats(flp, false).toString()/*TODO:temp toString*/.replaceAll("([()])", "\\\\$1");
         return
             "{" +
                 "\\$(click:suggest_command," + messageCommand + flp.username + " )" +

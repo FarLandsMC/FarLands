@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
  */
 public class MarkdownProcessor {
 
-    //                                        \         *    _    ~~    ||    <    `
-    private static final String[] ESCAPE = { "\\\\\\", "*", "_", "~~", "||", "<", "`", };
+    //                                        \       *    _    ~~    ||    <    >    `
+    private static final String[] ESCAPE = { "\\\\", "*", "_", "~~", "||", "<", ">", "`", };
 
     private static final Map<TextDecoration, String> DECOR_MD_MAP =
         new ImmutableMap.Builder<TextDecoration, String>()
@@ -133,8 +133,8 @@ public class MarkdownProcessor {
      * @return The escaped text
      */
     public static String escapeMarkdown(String text) {
-        for (String escape : ESCAPE) {
-            text = text.replaceAll(Pattern.quote(escape), ESCAPE_CHAR + escape);
+        for (String escape : ESCAPE) { //                            \\
+            text = text.replaceAll(Pattern.quote(escape), "\\\\" + escape);
         }
         text = text.replaceAll("@", "@" + ZERO_WIDTH_SPACE);
         return text;

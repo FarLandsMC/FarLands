@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.util;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -9,6 +10,12 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.inventory.ItemStack;
 
+import java.awt.*;
+import java.util.stream.Collectors;
+
+/**
+ * Utility class for creating/manipulating components
+ */
 public class ComponentUtils {
 
     /**
@@ -183,5 +190,32 @@ public class ComponentUtils {
      */
     public static Component hover(Component base, String hoverText) {
         return hover(base, Component.text(hoverText));
+    }
+
+    /**
+     * Convert from {@link Component}s into plain text
+     *
+     * @param component Components to convert
+     * @return text
+     */
+    public static String toText(Component component) {
+
+        TextComponent tc = (TextComponent) component;
+
+        String childrenText = tc.children() // Get the text for the children components
+            .stream()
+            .map(ComponentUtils::toText)
+            .collect(Collectors.joining());
+
+        return tc.content() + childrenText;
+    }
+
+    /**
+     * Convert from a {@link TextColor} into {@link Color}
+     * @param color The color to convert from
+     * @return The converted color
+     */
+    public static Color getColor(TextColor color) {
+        return new Color(color.value());
     }
 }

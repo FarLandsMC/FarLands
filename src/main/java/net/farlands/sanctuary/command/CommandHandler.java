@@ -9,6 +9,7 @@ import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.discord.*;
 import net.farlands.sanctuary.command.player.*;
 import net.farlands.sanctuary.command.player.CommandHelp;
@@ -395,7 +396,7 @@ public class CommandHandler extends Mechanic {
         Player player = event.getPlayer();
         String fullCommand = event.getMessage();
 
-        FarLands.getMechanicHandler().getMechanic(Chat.class).spamUpdate(player, fullCommand);
+        ChatHandler.handleSpam(player, fullCommand);
         String command = fullCommand.substring(
                 fullCommand.startsWith("/") ? 1 : 0,
                 FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())

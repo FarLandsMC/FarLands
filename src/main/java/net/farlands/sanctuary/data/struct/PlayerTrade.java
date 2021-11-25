@@ -1,7 +1,7 @@
 package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.chat.ChatControl;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,7 +35,7 @@ public class PlayerTrade {
             tradeMessage = tradeMessage.substring(0, 253) + "...";
 
         // Remove additional spaces and limit caps and character flood
-        tradeMessage = Chat.limitCaps(Chat.limitFlood(tradeMessage.replaceAll("\\s+", " ").trim()));
+        tradeMessage = ChatControl.limitCaps(ChatControl.limitFlood(tradeMessage.replaceAll("\\s+", " ").trim()));
 
         while (!tradeMessage.isEmpty()) {
             // Try to find a space to break at

@@ -13,13 +13,15 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatControl;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Proposal;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -127,7 +129,7 @@ public class DiscordHandler extends ListenerAdapter {
             if (bc instanceof TextComponent)
                 sb.append(bc.toLegacyText());
         }
-        sendMessageRaw(DiscordChannel.IN_GAME, Chat.applyDiscordFilters(sb.toString().replaceAll("(?i)§[0-9a-f]", ""), start));
+        sendMessageRaw(DiscordChannel.IN_GAME, net.farlands.sanctuary.mechanic.Chat.applyDiscordFilters(sb.toString().replaceAll("(?i)§[0-9a-f]", ""), start));
     }
 
     public void sendMessage(MessageChannel channel, String message) {
@@ -141,7 +143,11 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     public void sendMessage(DiscordChannel channel, String message) {
-        sendMessageRaw(channel, Chat.applyDiscordFilters(message));
+        sendMessageRaw(channel, MarkdownProcessor.escapeMarkdown(message));
+    }
+
+    public void sendMessage(DiscordChannel channel, Component message) {
+        sendMessageRaw(channel, MarkdownProcessor.escapeMarkdown(ComponentUtils.toText(message)));
     }
 
     public void sendMessage(DiscordChannel channel, BaseComponent[] message) {
@@ -260,7 +266,7 @@ public class DiscordHandler extends ListenerAdapter {
 
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage()))
             return;
-        message = TextUtils2.escapeExpression(Chat.removeColorCodes(message));
+        message = TextUtils2.escapeExpression(net.farlands.sanctuary.mechanic.Chat.removeColorCodes(message));
         message = MarkdownProcessor.markdownToMC(message);
         message = message.trim();
         if (message.length() > 256 && (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong()
@@ -283,7 +289,7 @@ public class DiscordHandler extends ListenerAdapter {
                 hoverText = hoverText.substring(0, 60) + "...";
             }
             hoverText = hoverText.replaceAll(",", "");
-            hoverText = Chat.removeColorCodes(hoverText);
+            hoverText = net.farlands.sanctuary.mechanic.Chat.removeColorCodes(hoverText);
 
             OfflineFLPlayer refFlp = FarLands.getDataHandler().getOfflineFLPlayer(refMessage.getAuthor().getIdLong());
 
@@ -322,8 +328,8 @@ public class DiscordHandler extends ListenerAdapter {
 
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
 
-        final String fmessage = Chat.atPlayer(
-            Chat.limitFlood(Chat.limitCaps(message)), sender.getFlp().uuid,
+        final String fmessage = net.farlands.sanctuary.mechanic.Chat.atPlayer(
+            ChatControl.limitFlood(ChatControl.limitCaps(message)), sender.getFlp().uuid,
             channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() != event.getChannel().getIdLong()
         );
 
@@ -369,14 +375,14 @@ public class DiscordHandler extends ListenerAdapter {
 
                 Rank rank = flp.rank;
 
-                if (!rank.isStaff() && Chat.getMessageFilter().autoCensor(fmessage)) {
+                if (!rank.isStaff() && net.farlands.sanctuary.mechanic.Chat.getMessageFilter().autoCensor(fmessage)) {
                     sendMessageRaw(DiscordChannel.ALERTS, "Deleted message from in-game channel:\n```" + fmessage +
                             "```\nSent by: `" + sender.getName() + "`.");
                     event.getMessage().delete().queue();
                     return;
                 }
 
-                String censorMessage = Chat.getMessageFilter().censor(fmessage);
+                String censorMessage = net.farlands.sanctuary.mechanic.Chat.getMessageFilter().censor(fmessage);
                 Bukkit.getOnlinePlayers()
                     .stream()
                     .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
@@ -387,7 +393,7 @@ public class DiscordHandler extends ListenerAdapter {
                                          p,
                                          "&(dark_gray)DISCORD &(%1){%0%2}%3: &(white)%4",
                                          rank.isStaff() ? "&(bold)" : "",
-                                         rank.getNameColor().getName(),
+                                         rank.getNameColor(),
                                          rank.isStaff() ? rank.getName() + " " : "",
                                          flp.username,
                                          FarLands.getDataHandler().getOfflineFLPlayer(p).censoring ? censorMessage : fmessage
@@ -403,7 +409,7 @@ public class DiscordHandler extends ListenerAdapter {
                         Bukkit.getConsoleSender(),
                         "&(dark_gray)DISCORD &(%1){%0%2}%3: &(white)%4",
                         rank.isStaff() ? "&(bold)" : "",
-                        rank.getNameColor().getName(),
+                        rank.getNameColor(),
                         rank.isStaff() ? rank.getName() + " " : "",
                         flp.username,
                         fmessage
