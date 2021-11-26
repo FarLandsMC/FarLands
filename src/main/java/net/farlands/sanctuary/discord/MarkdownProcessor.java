@@ -1,9 +1,11 @@
 package net.farlands.sanctuary.discord;
 
 import com.google.common.collect.ImmutableMap;
+import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
@@ -12,7 +14,6 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -109,21 +110,26 @@ public class MarkdownProcessor {
      * @return Markdown string
      */
     public static String fromMinecraft(Component component) {
-        TextComponent tc = (TextComponent) component;
 
         String symbols = DECOR_MD_MAP // Get applicable symbols
             .entrySet()
             .stream()
-            .filter(e -> tc.style().hasDecoration(e.getKey()))
+            .filter(e -> component.style().hasDecoration(e.getKey()))
             .map(Map.Entry::getValue)
             .collect(Collectors.joining());
 
-        String childrenText = tc.children() // Get the text for the children components
+        String childrenText = component.children() // Get the text for the children components
             .stream()
             .map(MarkdownProcessor::fromMinecraft)
             .collect(Collectors.joining());
+        String content = "";
+        if (component instanceof TextComponent tc) content = tc.content();
+        else if (component instanceof TranslatableComponent tc) {
+            content = "---";
+            FarLands.getDebugger().echo(tc.key());
+        };
 
-        return symbols + escapeMarkdown(tc.content()) + childrenText + symbols;
+        return symbols + escapeMarkdown(content) + childrenText + symbols;
     }
 
     /**
@@ -133,9 +139,7 @@ public class MarkdownProcessor {
      * @return The escaped text
      */
     public static String escapeMarkdown(String text) {
-        for (String escape : ESCAPE) { //                            \\
-            text = text.replaceAll(Pattern.quote(escape), "\\\\" + escape);
-        }
+        text = text.replaceAll("([*_`~\\\\|:>])", "\\\\$1");
         text = text.replaceAll("@", "@" + ZERO_WIDTH_SPACE);
         return text;
     }
@@ -203,7 +207,7 @@ public class MarkdownProcessor {
 
         /**
          * Create a build wrapper from specific text
-         *
+         * <p>
          * The builder is styled based on the enum
          *
          * @param text The text to use for the builder
@@ -215,7 +219,7 @@ public class MarkdownProcessor {
 
         /**
          * Create a builder from specific text
-         *
+         * <p>
          * The builder is styled based on the enum
          *
          * @param text The text to use for the builder
@@ -271,6 +275,7 @@ public class MarkdownProcessor {
 
         /**
          * Add a child builder to this wrapper
+         *
          * @param builder the builder to add
          */
         public void append(TextComponent.Builder builder) {
@@ -280,6 +285,7 @@ public class MarkdownProcessor {
 
         /**
          * Add a child builder to this wrapper
+         *
          * @param builder the builder to add
          */
         public void append(BuilderWrapper builder) {
@@ -288,6 +294,7 @@ public class MarkdownProcessor {
 
         /**
          * Build this wrapper based on the children and builder
+         *
          * @return The Component from building the children and itself
          */
         public Component build() {
@@ -298,6 +305,7 @@ public class MarkdownProcessor {
 
         /**
          * Create a {@link BuilderWrapper} from a specified builder
+         *
          * @param builder The builder to wrap
          * @return A new BuilderWrapper
          */

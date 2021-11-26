@@ -83,8 +83,6 @@ public class ChatHandler {
         message = ChatControl.limitFlood(message); // Restrict flooding characters
         message = ChatControl.limitCaps(message); // Restrict capital characters
 
-        // TODO: spamUpdate(player, message);
-
         if (handleMute(player, sender, message)) return; // If muted, send messages and stop anything else
 
         if (handleSpam(player, sender, message)) return;

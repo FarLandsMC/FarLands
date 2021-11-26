@@ -63,7 +63,7 @@ public class DiscordSender implements CommandSender, ICommandListener {
     }
 
     public void sendMessageRaw(String s) {
-        FarLands.getDiscordHandler().sendMessage(channel, s);
+        FarLands.getDiscordHandler().sendMessageRaw(channel, s);
     }
 
     public MessageChannel getChannel() {
@@ -75,7 +75,7 @@ public class DiscordSender implements CommandSender, ICommandListener {
     }
 
     public void sendMessage(String s, boolean applyFilters) {
-        FarLands.getDiscordHandler().sendMessage(channel, applyFilters ? Chat.applyDiscordFilters(s) : s);
+        FarLands.getDiscordHandler().sendMessageRaw(channel, applyFilters ? Chat.applyDiscordFilters(s) : s);
     }
 
     @Override

@@ -1,16 +1,13 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
-
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -19,6 +16,8 @@ import org.bukkit.command.CommandSender;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandVanish extends Command {
     public CommandVanish() {
@@ -54,13 +53,13 @@ public class CommandVanish extends Command {
         if (flp.vanished) {
             sendFormatted(sender, "&(gold)You are now vanished.");
             if (update) {
-                Chat.playerTransition(flp, false);
+                ChatHandler.playerTransition(flp, false);
                 flp.lastLogin = System.currentTimeMillis();
             }
         } else {
             sendFormatted(sender, "&(gold)You are no longer vanished.");
             if (update)
-                Chat.playerTransition(flp, true);
+                ChatHandler.playerTransition(flp, true);
         }
         if (update)
             FarLands.getDiscordHandler().updateStats();

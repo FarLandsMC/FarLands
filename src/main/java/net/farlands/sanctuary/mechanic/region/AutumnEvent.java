@@ -3,9 +3,6 @@ package net.farlands.sanctuary.mechanic.region;
 import com.kicas.rp.data.Region;
 import com.kicas.rp.util.Entities;
 import com.kicas.rp.util.Pair;
-
-import static net.farlands.sanctuary.mechanic.region.AutumnEvent.skullItem;
-import static net.farlands.sanctuary.util.FLUtils.RNG;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.data.Cooldown;
@@ -13,13 +10,12 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.farlands.sanctuary.mechanic.RotatingMessages;
 import net.farlands.sanctuary.util.FLUtils;
-
-import net.minecraft.world.item.Items;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-
+import net.minecraft.world.item.Items;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockFace;
@@ -40,11 +36,13 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
-
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static net.farlands.sanctuary.mechanic.region.AutumnEvent.skullItem;
+import static net.farlands.sanctuary.util.FLUtils.RNG;
 
 /**
  * FarLands Autumn Event.
@@ -235,8 +233,16 @@ public class AutumnEvent extends Mechanic {
 
     @Override
     public void onStartup() {
-        FarLands.getMechanicHandler().getMechanic(Chat.class).addRotatingMessage("&(gold)There's a server event going on right now!" +
-                " Type $(hovercmd,/party,{&(aqua)Click to run the command},{&(aqua)/party}) to warp to the Autumn event!");
+        FarLands.getMechanicHandler()
+            .getMechanic(RotatingMessages.class)
+            .addRotatingMessage(
+                "<gold>There's a server event going on right now!" +
+                    " Type " +
+                    "<click:run_command:/party>" +
+                    "<hover:show_text:<aqua>Click to run the command>" +
+                    "<aqua>/party</aqua>" +
+                    "</hover>" +
+                    " to warp to the Autumn event!");
         FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
             List<Integer> keys = new ArrayList<>();
             FarLands.getWorld().getPlayers().forEach(player -> {

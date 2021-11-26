@@ -1,17 +1,16 @@
 package net.farlands.sanctuary.util;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for creating/manipulating components
@@ -199,15 +198,7 @@ public class ComponentUtils {
      * @return text
      */
     public static String toText(Component component) {
-
-        TextComponent tc = (TextComponent) component;
-
-        String childrenText = tc.children() // Get the text for the children components
-            .stream()
-            .map(ComponentUtils::toText)
-            .collect(Collectors.joining());
-
-        return tc.content() + childrenText;
+        return PlainTextComponentSerializer.plainText().serializeOr(component, "");
     }
 
     /**

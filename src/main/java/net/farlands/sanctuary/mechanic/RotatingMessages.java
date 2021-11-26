@@ -36,4 +36,6 @@ public class RotatingMessages extends Mechanic {
         }, 5L);
     }
 
+    public void addRotatingMessage(String s) {
+        rotatingMessages.add(MiniMessage.miniMessage().parse(s));}
 }

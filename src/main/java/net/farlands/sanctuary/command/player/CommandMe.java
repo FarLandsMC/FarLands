@@ -1,18 +1,17 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Chat;
-
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandMe extends PlayerCommand {
     public CommandMe() {
@@ -25,7 +24,7 @@ public class CommandMe extends PlayerCommand {
             return false;
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        Chat.chat(flp, sender, " * " + Chat.removeColorCodes(flp.getDisplayName()) + " ", String.join(" ", args));
+        flp.chat(" * " + Chat.removeColorCodes(flp.getDisplayName()) + " ", String.join(" ", args));
         return true;
     }
 

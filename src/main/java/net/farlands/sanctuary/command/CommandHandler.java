@@ -15,8 +15,8 @@ import net.farlands.sanctuary.command.staff.*;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.minecraft.commands.CommandDispatcher;
@@ -27,7 +27,6 @@ import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec2F;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
@@ -223,7 +222,10 @@ public class CommandHandler extends Mechanic {
         String rawStringCommand = message.getContentDisplay();
 
         // Notify staff
-        Logging.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + Chat.colorize(rawStringCommand));
+        Logging.broadcastStaff(
+            ComponentColor.green(sender.getName() + ": ")
+                .append(ComponentColor.gray(rawStringCommand))
+        );
 
         // Parse out the command name
         String commandName = rawStringCommand.substring(
@@ -365,12 +367,12 @@ public class CommandHandler extends Mechanic {
 
         if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && MessageFilter.INSTANCE.isProfane(event.getMessage())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "You cannot set your pet's name to that.");
+            event.getPlayer().sendMessage(ComponentColor.red("You cannot set your pet's name to that."));
             return;
         }
 
         if (event.getMessage().startsWith("/trust"))
-            event.getPlayer().sendMessage(ChatColor.GOLD + "Be careful trusting player on your claim as they are your responsibility.");
+            event.getPlayer().sendMessage(ComponentColor.gold("Be careful trusting player on your claim as they are your responsibility."));
 
         if (event.getMessage().trim().equalsIgnoreCase("/co cancel")) {
             FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
@@ -398,7 +400,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))))
-            Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
+            Logging.broadcastStaff(ComponentColor.red(player.getName() + ": ").append(ComponentColor.gray(fullCommand)));
         if (senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
                 !COMMAND_LOG_BLACKLIST.contains(command.toLowerCase()))
             FarLands.getDiscordHandler().sendMessage(
@@ -433,7 +435,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))) || sender instanceof BlockCommandSender))
-            Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
+            Logging.broadcastStaff(ComponentColor.red(sender.getName() + ": ").append(ComponentColor.gray(fullCommand)));
         if (c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
