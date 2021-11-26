@@ -13,8 +13,8 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -64,13 +64,13 @@ public class CommandEditSign extends PlayerCommand {
             if (args[0].equalsIgnoreCase("set") && args.length > 2) {
                 int line = Integer.parseInt(args[1]) -1;
                 String text = TabCompleterBase.joinArgsBeyond(1, " ", args);
-                if (Chat.removeColorCodes(text).length() > 15) {
+                if (FLUtils.removeColorCodes(text).length() > 15) {
                     sender.sendMessage(ComponentColor.red("Sign lines are limited to 15 characters."));
                     return true;
                 }
-                sign.setLine(line, Chat.applyColorCodes(flp.rank, text));
+                sign.setLine(line, FLUtils.applyColorCodes(flp.rank, text));
                 sign.update();
-                sender.sendMessage(ComponentColor.gold("Line " + (line+1) + " set to: " + Chat.applyColorCodes(flp.rank, text)));
+                sender.sendMessage(ComponentColor.gold("Line " + (line+1) + " set to: " + FLUtils.applyColorCodes(flp.rank, text)));
             } else if (args[0].equalsIgnoreCase("clear")) {
                 if (args.length == 1) {
                     for (int i = 0; i < 4; i++) {
@@ -100,7 +100,7 @@ public class CommandEditSign extends PlayerCommand {
         } else if (args.length == 2) {
             return Arrays.asList("1", "2", "3", "4");
         } else if (args.length >= 3) {
-            if (Chat.removeColorCodes(TabCompleterBase.joinArgsBeyond(1, " ", args)).length() > 15) {
+            if (FLUtils.removeColorCodes(TabCompleterBase.joinArgsBeyond(1, " ", args)).length() > 15) {
                 return Collections.singletonList("Too Long!");
             }
         } else {

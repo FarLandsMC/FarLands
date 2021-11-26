@@ -11,8 +11,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.PackageToggle;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 
 import org.bukkit.Location;
@@ -68,7 +68,7 @@ public class CommandPackage extends PlayerCommand {
         }
 
         // If the package has a message then grab it and apply color codes if the sender has chat colors
-        final String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)),
+        final String message = FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)),
               escapedMessage = escapeExpression(message);
         final boolean useEscaped = !senderSession.handle.rank.isStaff();
 
@@ -79,7 +79,7 @@ public class CommandPackage extends PlayerCommand {
 
         // Players can only queue one item at a time, so make sure this operation actually succeeds
         if (FarLands.getDataHandler().addPackage(recipientFlp.uuid,
-                new Package(sender.getUniqueId(), escapeExpression(Chat.removeColorCodes(senderSession.handle.getDisplayName())),
+                new Package(sender.getUniqueId(), escapeExpression(FLUtils.removeColorCodes(senderSession.handle.getDisplayName())),
                 item, useEscaped ? escapedMessage : message, false))
         ) {
             sender.getInventory().setItemInMainHand(null);

@@ -6,8 +6,8 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,7 +33,7 @@ public class CommandNick extends PlayerCommand {
         // Set the nickname
         if ("nick".equals(args[0])) {
             // Get rid of colors for length checking
-            String rawNick = Chat.removeColorCodes(args[1]);
+            String rawNick = FLUtils.removeColorCodes(args[1]);
             // Prevent whitespace and profanity
             if (args[1].isEmpty() || args[1].matches("\\s+") || MessageFilter.INSTANCE.isProfane(rawNick)) {
                 sender.sendMessage(ComponentColor.red("You cannot set your nickname to this."));
@@ -81,7 +81,7 @@ public class CommandNick extends PlayerCommand {
                 }
             }
 
-            flp.nickname = Chat.applyColorCodes(Rank.getRank(sender), args[1]);
+            flp.nickname = FLUtils.applyColorCodes(Rank.getRank(sender), args[1]);
             sender.sendMessage(ComponentColor.green("Nickname set."));
         }
         // Remove nickname

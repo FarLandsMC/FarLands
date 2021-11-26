@@ -8,7 +8,6 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
@@ -60,7 +59,7 @@ public class CommandPackageAccept extends PlayerCommand {
         }
 
         for (Package lPackage : packages) {
-            if (Chat.removeColorCodes(lPackage.senderName().replaceAll("\\{+|}+", "")).equalsIgnoreCase(packageID)) {
+            if (FLUtils.removeColorCodes(lPackage.senderName().replaceAll("\\{+|}+", "")).equalsIgnoreCase(packageID)) {
                 if ("paccept".equalsIgnoreCase(args[0])) {
                     accept(sender, lPackage);
                 } else {
@@ -114,6 +113,6 @@ public class CommandPackageAccept extends PlayerCommand {
         Player player = (Player)sender;
         return TabCompleterBase.filterStartingWith(args.length > 1 ? args[1] : "",
                 FarLands.getDataHandler().getPackages(player.getUniqueId()).stream()
-                        .map(p -> Chat.removeColorCodes(p.senderName().replaceAll("\\{+|}+", ""))));
+                        .map(p -> FLUtils.removeColorCodes(p.senderName().replaceAll("\\{+|}+", ""))));
     }
 }

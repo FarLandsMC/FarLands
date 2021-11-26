@@ -4,7 +4,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -25,7 +25,7 @@ public class CommandPatchnotes extends PlayerCommand {
                 ChatColor.GOLD + "Showing notes for patch " + ChatColor.AQUA + "#" +
                     FarLands.getDataHandler().getCurrentPatch() +
                     ":\n" + ChatColor.GRAY +
-                    Chat.colorize(
+                    FLUtils.colorize(
                         new String(
                             FarLands.getDataHandler().getResource("patchnotes.txt"),
                             StandardCharsets.UTF_8

@@ -6,7 +6,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -32,8 +32,8 @@ public class CommandKick extends Command {
         String reason = args.length > 1 ? joinArgsBeyond(0, " ", args) : "Kicked by an operator.";
         player.kickPlayer(reason);
         sendFormatted(sender, "&(gold)Kicked {&(aqua)%0} for reason: \"%1\"", player.getName(), reason);
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) + " kicked " +
-                Chat.applyDiscordFilters(player.getName()) + " for reason: `" + reason + "`");
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, MarkdownProcessor.escapeMarkdown(sender.getName()) + " kicked " +
+                MarkdownProcessor.escapeMarkdown(player.getName()) + " for reason: `" + reason + "`");
         return true;
     }
 

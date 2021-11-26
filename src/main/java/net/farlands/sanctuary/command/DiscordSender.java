@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.commands.CommandListenerWrapper;
@@ -75,7 +75,7 @@ public class DiscordSender implements CommandSender, ICommandListener {
     }
 
     public void sendMessage(String s, boolean applyFilters) {
-        FarLands.getDiscordHandler().sendMessageRaw(channel, applyFilters ? Chat.applyDiscordFilters(s) : s);
+        FarLands.getDiscordHandler().sendMessageRaw(channel, applyFilters ? MarkdownProcessor.escapeMarkdown(s) : s);
     }
 
     @Override

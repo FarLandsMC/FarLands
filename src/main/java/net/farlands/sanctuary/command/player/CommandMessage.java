@@ -8,9 +8,9 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -55,7 +55,7 @@ public class CommandMessage extends PlayerCommand {
             }
 
             // Keep the name stored
-            formatAndSendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
+            formatAndSendMessages(recipient, sender, FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
         }
         // Non-/r aliases
         else {
@@ -134,7 +134,7 @@ public class CommandMessage extends PlayerCommand {
             }
 
             // Try to send the message, and if it succeeds then store the metadata for /r
-            formatAndSendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
+            formatAndSendMessages(recipient, sender, FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
         }
         return true;
     }
@@ -159,7 +159,7 @@ public class CommandMessage extends PlayerCommand {
     public static void formatAndSendMessages(CommandSender recipient, CommandSender sender, String message) {
         if (!FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff())
             message = escapeExpression(message);
-        sendMessages(recipient, sender, Chat.applyEmotes(message));
+        sendMessages(recipient, sender, FLUtils.applyEmotes(message));
     }
 
     // Send the formatted message
@@ -198,8 +198,8 @@ public class CommandMessage extends PlayerCommand {
             FarLands.getDataHandler().getSession((Player) sender).lastMessageSender.setValue(recipient, 10L * 60L * 20L, null);
 
         // Notify staff of the message
-        Logging.broadcastStaffWithExemptions(format("&(red)[%0 -> %1]: &(gray)%2", Chat.removeColorCodes(sender.getName()),
-                Chat.removeColorCodes(recipient.getName()), message), (Player) sender, (Player) recipient);
+        Logging.broadcastStaffWithExemptions(format("&(red)[%0 -> %1]: &(gray)%2", FLUtils.removeColorCodes(sender.getName()),
+                                                    FLUtils.removeColorCodes(recipient.getName()), message), (Player) sender, (Player) recipient);
     }
 
     private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {

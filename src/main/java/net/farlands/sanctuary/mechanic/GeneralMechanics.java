@@ -231,7 +231,7 @@ public class GeneralMechanics extends Mechanic {
     public void onSignChange(SignChangeEvent event) {
         String[] lines = event.getLines();
         for (int i = 0; i < lines.length; ++i)
-            event.setLine(i, Chat.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
+            event.setLine(i, FLUtils.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -509,7 +509,7 @@ public class GeneralMechanics extends Mechanic {
             ItemStack result = event.getResult();
             if (result != null) {
                 ItemMeta meta = result.getItemMeta();
-                meta.setDisplayName(Chat.applyColorCodes(rank, meta.getDisplayName()));
+                meta.setDisplayName(FLUtils.applyColorCodes(rank, meta.getDisplayName()));
                 result.setItemMeta(meta);
             }
         }

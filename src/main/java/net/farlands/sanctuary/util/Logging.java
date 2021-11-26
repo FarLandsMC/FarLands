@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
@@ -38,7 +38,7 @@ public final class Logging {
         FarLands.getDiscordHandler().sendMessageEmbed(
             DiscordChannel.IN_GAME,
             new EmbedBuilder()
-                .setTitle(Chat.applyDiscordFilters(message))
+                .setTitle(MarkdownProcessor.escapeMarkdown(message))
                 .setColor(ChatColor.GOLD.getColor())
         );
     }

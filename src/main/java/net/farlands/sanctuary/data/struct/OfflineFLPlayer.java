@@ -11,7 +11,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.SkipSerializing;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.GeneralMechanics;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
@@ -304,7 +304,7 @@ public class OfflineFLPlayer {
             FarLands.getDiscordHandler().sendMessageEmbed(
                     DiscordChannel.IN_GAME,
                     new EmbedBuilder()
-                            .setTitle(Chat.applyDiscordFilters(message))
+                            .setTitle(MarkdownProcessor.escapeMarkdown(message))
                             .setColor(rank.getColor().getColor())
             );
             if (online)

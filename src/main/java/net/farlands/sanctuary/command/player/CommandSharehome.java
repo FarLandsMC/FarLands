@@ -10,8 +10,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.ShareHome;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -99,7 +99,7 @@ public class CommandSharehome extends PlayerCommand {
         Home home = new Home(args[2], flp.getHome(args[2]));
 
         // If there is a message, apply colour codes
-        final String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(2, " ", args)),
+        final String message = FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(2, " ", args)),
             escapedMessage = escapeExpression(message);
 
         if (recipientFlp.getIgnoreStatus(sender).includesSharehomes() || !recipientFlp.canAddHome()) {

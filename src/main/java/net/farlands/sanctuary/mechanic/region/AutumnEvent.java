@@ -8,7 +8,6 @@ import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.mechanic.RotatingMessages;
 import net.farlands.sanctuary.util.FLUtils;
@@ -2475,7 +2474,7 @@ public class AutumnEvent extends Mechanic {
             return;
 
         // get the item to give to players that contributed sufficiently to mobs death
-        final String name = event.getEntity().getCustomName() == null ? "" : Chat.removeColorCodes(event.getEntity().getCustomName());
+        final String name = event.getEntity().getCustomName() == null ? "" : FLUtils.removeColorCodes(event.getEntity().getCustomName());
         Pair<ItemStack, Integer> reward = new Pair<>(null, 0);
         switch (name) {
             // Pumpkin Patch

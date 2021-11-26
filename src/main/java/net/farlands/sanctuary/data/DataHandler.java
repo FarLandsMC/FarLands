@@ -9,7 +9,6 @@ import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FileSystem;
@@ -160,7 +159,7 @@ public class DataHandler extends Mechanic {
             DataHandler dh = FarLands.getDataHandler();
             if (dh.arePatchnotesDifferent()) {
                 try {
-                    String patchNotes = Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"), StandardCharsets.UTF_8));
+                    String patchNotes = FLUtils.removeColorCodes(new String(dh.getResource("patchnotes.txt"), StandardCharsets.UTF_8));
                     String[] lines = patchNotes.split("\n");
 
                     String currentSection = "\u200B"; // Default to 0-width space if no section name provided

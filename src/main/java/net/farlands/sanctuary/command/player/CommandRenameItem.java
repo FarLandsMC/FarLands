@@ -3,8 +3,8 @@ package net.farlands.sanctuary.command.player;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -26,7 +26,7 @@ public class CommandRenameItem extends PlayerCommand {
         }
 
         String rawName = String.join(" ", args);
-        String nameNoFormat = Chat.removeColorCodes(rawName);
+        String nameNoFormat = FLUtils.removeColorCodes(rawName);
         if (nameNoFormat.length() > 35) {
             sender.sendMessage(ComponentColor.red("Item names can be a maximum of 35 characters."));
             return true;
@@ -35,7 +35,7 @@ public class CommandRenameItem extends PlayerCommand {
         ItemMeta meta = stack.getItemMeta();
 
         // TODO: Conver this to use adventure components
-        meta.displayName(LegacyComponentSerializer.legacySection().deserialize(Chat.applyColorCodes(Rank.SPONSOR, rawName)));
+        meta.displayName(LegacyComponentSerializer.legacySection().deserialize(FLUtils.applyColorCodes(Rank.SPONSOR, rawName)));
         stack.setItemMeta(meta);
         if (sender.getGameMode() != GameMode.CREATIVE) {
             sender.giveExpLevels(-1);

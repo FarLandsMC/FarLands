@@ -6,8 +6,8 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -30,7 +30,7 @@ public class CommandRealName extends Command {
         List<String> matches = new ArrayList<>();
         for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
             if (flp.nickname == null) { continue; }
-            String nickname = Chat.removeColorCodes(flp.nickname.toLowerCase());
+            String nickname = FLUtils.removeColorCodes(flp.nickname.toLowerCase());
 
             // Match ignoring case, via containment, +(ignoring case)
             if (args[0].equals(nickname) || nickname.contains(args[0]) || flp.username.toLowerCase().contains(args[0]))
@@ -52,7 +52,7 @@ public class CommandRealName extends Command {
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
                 ? getOnlinePlayers("", sender).stream()
-                    .map(p -> Chat.removeColorCodes(FarLands.getDataHandler().getOfflineFLPlayer(p).getDisplayName()))
+                    .map(p -> FLUtils.removeColorCodes(FarLands.getDataHandler().getOfflineFLPlayer(p).getDisplayName()))
                     .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList())
                 : Collections.emptyList();

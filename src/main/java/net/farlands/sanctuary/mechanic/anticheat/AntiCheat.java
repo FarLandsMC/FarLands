@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.ChatColor;
@@ -125,7 +125,7 @@ public class AntiCheat extends Mechanic {
                 OffsetDateTime.now().toEpochSecond() - lastAlertMessage.getTimeCreated().toEpochSecond();
             if (messageDelay < ALERT_RESET_DELAY && lastAlertCount < MAX_ALERT_STACK) {
                 lastAlertMessage.editMessage(
-                    Chat.applyDiscordFilters(alertText) +
+                    MarkdownProcessor.escapeMarkdown(alertText) +
                         " (x" + (++lastAlertCount) + ")"
                 ).queue();
                 return;
@@ -134,7 +134,7 @@ public class AntiCheat extends Mechanic {
         lastAlertText = alertText;
         lastAlertMessage = FarLands.getDiscordHandler().getChannel(DiscordChannel.ALERTS)
             .sendMessage(
-                Chat.applyDiscordFilters(alertText)
+                MarkdownProcessor.escapeMarkdown(alertText)
             )
             .complete();
         lastAlertCount = 1;

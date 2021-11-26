@@ -12,14 +12,12 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.chat.ChatControl;
 import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Proposal;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Logging;
@@ -144,7 +142,7 @@ public class DiscordHandler extends ListenerAdapter {
                 sb.append(bc.toLegacyText());
             }
         }
-        sendMessageRaw(channel, Chat.applyDiscordFilters(sb.toString().replaceAll("(?i)§[0-9a-f]", "")));
+        sendMessageRaw(channel, MarkdownProcessor.escapeMarkdown(sb.toString().replaceAll("(?i)§[0-9a-f]", "")));
 
     }
 
@@ -392,11 +390,6 @@ public class DiscordHandler extends ListenerAdapter {
         }
 
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
-
-        final String fmessage = Chat.atPlayer(
-            ChatControl.limitFlood(ChatControl.limitCaps(message)), sender.getFlp().uuid,
-            channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() != event.getChannel().getIdLong()
-        );
 
         Component finalMessage = Component.text()
             .append(messagePrefix)
