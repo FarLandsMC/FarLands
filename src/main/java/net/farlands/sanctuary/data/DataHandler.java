@@ -662,9 +662,11 @@ public class DataHandler extends Mechanic {
 
     public void saveData() {
         // Disable pretty-printing and handle the @SkipSerializing annotation
-        Gson playerDataGson = new GsonBuilder()
-                .addSerializationExclusionStrategy(new SerializationExclusionStrategy())
-                .create();
+        GsonBuilder playerDataGsonBuilder = new GsonBuilder()
+            .addSerializationExclusionStrategy(new SerializationExclusionStrategy());
+        CustomAdapters.register(playerDataGsonBuilder);
+        Gson playerDataGson = playerDataGsonBuilder.create();
+
         FileSystem.saveJson(playerDataGson, flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
         FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
         saveEvidenceLockers();

@@ -7,6 +7,7 @@ import net.farlands.sanctuary.mechanic.Mechanic;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -36,6 +37,11 @@ public class ChatMechanic extends Mechanic {
     @EventHandler
     public void onChat(AsyncChatEvent event) {
         ChatHandler.onChat(event);
+    }
+
+    @EventHandler
+    public void onAdvancement(PlayerAdvancementDoneEvent event) {
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.message());
     }
 
 }

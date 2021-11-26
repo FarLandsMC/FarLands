@@ -1,6 +1,7 @@
 package net.farlands.sanctuary;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.data.*;
 import net.farlands.sanctuary.discord.DiscordHandler;
@@ -39,7 +40,7 @@ public class FarLands extends JavaPlugin {
     private static Gson createGson() {
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
-        CustomSerializers.register(builder);
+        CustomAdapters.register(builder);
         return builder.create();
     }
 

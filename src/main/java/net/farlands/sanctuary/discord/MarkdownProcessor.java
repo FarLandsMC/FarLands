@@ -1,7 +1,7 @@
 package net.farlands.sanctuary.discord;
 
 import com.google.common.collect.ImmutableMap;
-import net.farlands.sanctuary.FarLands;
+import io.papermc.paper.text.PaperComponents;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -11,6 +11,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -124,10 +125,8 @@ public class MarkdownProcessor {
             .collect(Collectors.joining());
         String content = "";
         if (component instanceof TextComponent tc) content = tc.content();
-        else if (component instanceof TranslatableComponent tc) {
-            content = "---";
-            FarLands.getDebugger().echo(tc.key());
-        };
+        else if (component instanceof TranslatableComponent tc) content = PlainTextComponentSerializer.builder().flattener(PaperComponents.flattener()).build().serialize(tc);
+
 
         return symbols + escapeMarkdown(content) + childrenText + symbols;
     }
