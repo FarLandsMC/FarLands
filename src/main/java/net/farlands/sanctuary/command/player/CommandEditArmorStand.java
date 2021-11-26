@@ -12,8 +12,6 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.Logging;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -46,8 +44,7 @@ public class CommandEditArmorStand extends PlayerCommand {
                 for (String trigger : scoreboardTriggers) {
                     Bukkit.dispatchCommand(sender, "scoreboard players enable " + trigger + " as_trigger");
                 }
-                // TODO: Update this to use components
-                Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + "/editarmorstand enable " + args[1]);
+                FarLands.getCommandHandler().logCommand(sender, "/editarmorstand enable " + args[1], false);
             }
             return true;
 

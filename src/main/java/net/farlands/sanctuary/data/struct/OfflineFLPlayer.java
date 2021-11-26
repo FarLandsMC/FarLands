@@ -13,13 +13,13 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.GeneralMechanics;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatColor;
-
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -298,14 +298,19 @@ public class OfflineFLPlayer {
         Player player = getOnlinePlayer();
         boolean online = player != null;
         if (rank.specialCompareTo(this.rank) > 0) {
-            String message = ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
-                    " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ";
-            Logging.broadcastFormatted(message, false);
+            Logging.broadcastIngame(
+                ComponentColor.gold(" ** ") // " ** <username> has ranked up to <rank> ** "
+                    .append(ComponentColor.green(username))
+                    .append(ComponentColor.gold(" has ranked up to "))
+                    .append(rank.getLabel())
+                    .append(ComponentColor.gold(" ** ")),
+                false
+            );
             FarLands.getDiscordHandler().sendMessageEmbed(
-                    DiscordChannel.IN_GAME,
-                    new EmbedBuilder()
-                            .setTitle(MarkdownProcessor.escapeMarkdown(message))
-                            .setColor(rank.getColor().getColor())
+                DiscordChannel.IN_GAME,
+                new EmbedBuilder()
+                    .setTitle(MarkdownProcessor.escapeMarkdown(" ** " + username + " has ranked up to " + rank.getName() + " ** "))
+                    .setColor(rank.color().value())
             );
             if (online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);

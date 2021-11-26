@@ -19,6 +19,8 @@ import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandDispatcher;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.network.chat.ChatComponentText;
@@ -222,10 +224,7 @@ public class CommandHandler extends Mechanic {
         String rawStringCommand = message.getContentDisplay();
 
         // Notify staff
-        Logging.broadcastStaff(
-            ComponentColor.green(sender.getName() + ": ")
-                .append(ComponentColor.gray(rawStringCommand))
-        );
+        logCommand(sender, rawStringCommand, true);
 
         // Parse out the command name
         String commandName = rawStringCommand.substring(
@@ -400,7 +399,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))))
-            Logging.broadcastStaff(ComponentColor.red(player.getName() + ": ").append(ComponentColor.gray(fullCommand)));
+            logCommand(player, fullCommand, false);
         if (senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
                 !COMMAND_LOG_BLACKLIST.contains(command.toLowerCase()))
             FarLands.getDiscordHandler().sendMessage(
@@ -435,7 +434,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))) || sender instanceof BlockCommandSender))
-            Logging.broadcastStaff(ComponentColor.red(sender.getName() + ": ").append(ComponentColor.gray(fullCommand)));
+            logCommand(sender, fullCommand, false);
         if (c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
@@ -467,6 +466,20 @@ public class CommandHandler extends Mechanic {
         FLCommandEvent event = new FLCommandEvent(command, sender);
         FarLands.getInstance().getServer().getPluginManager().callEvent(event);
         return event.isCancelled();
+    }
+
+    /**
+     * Alert ingame staff when a command is run
+     * @param sender Sender of the command
+     * @param command Command to log
+     * @param fromDiscord Whether the command was sent from discord
+     */
+    public void logCommand(CommandSender sender, String command, boolean fromDiscord) {
+        Logging.broadcastStaff(
+            Component.text(sender.getName() + ": ")
+                .color(fromDiscord ? NamedTextColor.GREEN : NamedTextColor.RED)
+                .append(ComponentColor.gray(command))
+        );
     }
 
     private boolean shouldLog(Command command) {

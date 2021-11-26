@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.mechanic;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.Region;
@@ -10,13 +9,10 @@ import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimCreationEvent;
 import com.kicas.rp.event.ClaimResizeEvent;
 import com.kicas.rp.util.Pair;
-import com.kicas.rp.util.TextUtils;
 import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
 import com.kicasmads.cs.event.ShopTransactionEvent;
-
 import net.coreprotect.CoreProtect;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Rank;
@@ -24,9 +20,11 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
-import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.LocationWrapper;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.*;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -48,6 +46,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
  * Handles events related to plugin restrictions.
@@ -77,8 +77,14 @@ public class Restrictions extends Mechanic {
             player.setGameMode(GameMode.SURVIVAL);
             List<String> notes = flp.notes;
             if (!notes.isEmpty()) {
-                Logging.broadcastStaff(TextUtils.format("&(red)%0 has notes. Hover $(hover,{&(gray){%1}}," +
-                        "{&(aqua,underline)here}) to view them.", player.getName(), String.join("\n", notes)));
+                Logging.broadcastStaff(
+                    ComponentColor.red(player.getName() + " has notes. Hover")
+                        .append(ComponentUtils.hover(
+                            ComponentColor.aqua("here"),
+                            ComponentColor.gray(String.join("\n", notes)))
+                        )
+                        .append(Component.text(" to view them."))
+                );
             }
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                 List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
@@ -89,17 +95,39 @@ public class Restrictions extends Mechanic {
                 if (!banned.isEmpty()) {
                     Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + banned.size() + " banned player" +
                             (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? DiscordChannel.ALERTS : null);
+                    Logging.broadcastStaff(
+                        ComponentColor.red(
+                            flp.username +
+                                " shartes the same IP as " +
+                                banned.size() + " banned player" +
+                                (banned.size() > 1 ? "s" : "") +
+                                ": " +
+                                String.join(", ", banned)),
+                        isNew ? DiscordChannel.ALERTS : null
+                    );
                 }
                 if (!unbanned.isEmpty()) {
-                    Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + unbanned.size() + " player" +
-                            (unbanned.size() > 1 ? "s" : "") + ": " + String.join(", ", unbanned), isNew ? DiscordChannel.ALERTS : null);
+                    Logging.broadcastStaff(
+                        ComponentColor.red(
+                            flp.username +
+                                " shartes the same IP as " +
+                                unbanned.size() + " player" +
+                                (unbanned.size() > 1 ? "s" : "") +
+                                ": " +
+                                String.join(", ", unbanned)),
+                        isNew ? DiscordChannel.ALERTS : null
+                    );
                 }
                 if (isNew && flp.lastIP != null && !flp.lastIP.trim().isEmpty()) {
                     flp.lastLocation = FarLands.getDataHandler().getPluginData().spawn;
                     if (!banned.isEmpty()) {
-                        Logging.broadcastStaff(TextUtils.format("Punishing %0 for ban evasion%1", flp.username,
-                                unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned)),
-                                DiscordChannel.NOTEBOOK);
+                        Logging.broadcastStaff(
+                            ComponentColor.red(
+                                "Punishing " + flp.username + " for ban evasion"
+                                    + (unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned))
+                            ),
+                            DiscordChannel.NOTEBOOK
+                        );
                         flp.punish(Punishment.PunishmentType.BAN_EVASION, null);
                         alts.stream().filter(p -> !p.isBanned()).forEach(a -> a.punish(Punishment.PunishmentType.BAN_EVASION, null));
                     }
@@ -113,14 +141,16 @@ public class Restrictions extends Mechanic {
 
             if (!alertablePunishments.isEmpty()) {
                 Logging.broadcastStaff(
-                    TextUtils.format(ChatColor.RED + "%0 has joined for the first time since receiving the following punishment%1: %2",
+                    ComponentColor.red(
+                        "%s has joined for the first time since receiving the following punishment%s:",
                         flp.username,
                         alertablePunishments.size() == 1 ? "" : "s",
                         alertablePunishments.stream()
                             .map(punishment -> punishment.getType().getHumanName())
                             .collect(Collectors.joining(", "))
                     ),
-                    DiscordChannel.ALERTS);
+                    DiscordChannel.ALERTS
+                );
                 alertablePunishments.forEach(Punishment::alertSent);
             }
 
@@ -261,9 +291,14 @@ public class Restrictions extends Mechanic {
                 )
         ) {
             if (!endWarnings.contains(event.getPlayer().getUniqueId())) {
-                TextUtils.sendFormatted(event.getPlayer(), "&(red)Flying machine related deaths will not be considered " +
-                        "server error and as a result, will {&(bold)not} be restored! " +
-                        "Travel safely by riding in a boat or minecart that is attached to the machine.");
+                event.getPlayer().sendMessage(
+                    ComponentColor.red(
+                            "Flying machine related deaths will not be considered " +
+                                "server error and as a result, will "
+                        )
+                        .append(Component.text("not").style(Style.style(TextDecoration.BOLD)))
+                        .append(ComponentColor.red(" be restored! \nTravel safely by riding in a boat or minecart that is attached to the machine."))
+                );
                 endWarnings.add(event.getPlayer().getUniqueId());
             }
         }
@@ -277,9 +312,17 @@ public class Restrictions extends Mechanic {
             Location location = event.getBlock().getLocation();
             AntiCheat.broadcast(event.getPlayer().getName(), "may be attempting to build a duper @ " +
                     location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
-            TextUtils.sendFormatted(event.getPlayer(), "&(red)It appears you are building a duping device, " +
-                    "this is against the $(hovercmd,/rules,{&(white)view the rules},&(dark_red)/rules) (#1) as duping is a form of exploit. " +
-                    "If you ignore this warning and do not remove the machine immediately you will be subject to a punishment.");
+            event.getPlayer().sendMessage(
+                ComponentColor.red(
+                        "It appears that you are building a duping device, " +
+                            " this is against the "
+                    )
+                    .append(ComponentUtils.command("/rules").color(NamedTextColor.DARK_RED))
+                    .append(ComponentColor.red(
+                        " (#1) as duping is a form of exploit. " +
+                            "\nIf you ingore this warning and do not remove the machine immediately, you will be subject to a punishment"
+                    ))
+            );
         }
     }
 

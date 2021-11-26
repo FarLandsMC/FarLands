@@ -8,8 +8,8 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -41,10 +41,12 @@ public class CommandVanish extends Command {
                 session.updateVanish();
 
                 Logging.broadcastStaff(
-                        ChatColor.YELLOW + sender.getName() + " is " +
-                                (flp.vanished ? "now" : "no longer") +
-                                " vanished.",
-                        DiscordChannel.STAFF_COMMANDS
+                    ComponentColor.yellow(
+                        "%s is %s vanished",
+                        sender.getName(),
+                        (flp.vanished ? "now" : "no longer")
+                    ),
+                    DiscordChannel.STAFF_COMMANDS
                 );
             }
         }

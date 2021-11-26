@@ -1,8 +1,6 @@
 package net.farlands.sanctuary.command.discord;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
-
 import net.dv8tion.jda.api.entities.Message;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
@@ -10,7 +8,6 @@ import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FileSystem;
 import net.farlands.sanctuary.util.Logging;
-
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
@@ -24,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandUploadSchem extends DiscordCommand {
     public CommandUploadSchem() {

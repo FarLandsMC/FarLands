@@ -43,6 +43,16 @@ public class ComponentUtils {
     }
 
     /**
+     * Create a component with the styling and actions for a command
+     *
+     * @param command The command
+     * @param base    The base component
+     */
+    public static Component command(String command, Component base) {
+        return command(command, base, ComponentColor.gray("Click to Run."));
+    }
+
+    /**
      * Create a component with the styling and actions for a command with aqua color
      *
      * @param command The command

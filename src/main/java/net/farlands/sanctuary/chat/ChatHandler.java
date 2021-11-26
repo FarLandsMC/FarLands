@@ -23,7 +23,6 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -110,11 +109,7 @@ public class ChatHandler {
 
             if (session.replyToggleRecipient != null) {
                 if (session.replyToggleRecipient instanceof Player && ((Player) session.replyToggleRecipient).isOnline()) {
-                    // TODO: Rewrite CommandMessage#sendMessages to use Components
-                    FarLands
-                        .getCommandHandler()
-                        .getCommand(CommandMessage.class)
-                        .execute(player, new String[]{ "r", message });
+                    CommandMessage.sendMessages(session.replyToggleRecipient, session.player, message);
                     return;
                 }
             }
@@ -219,7 +214,7 @@ public class ChatHandler {
         chat(sender, getPrefix(sender), message);
     }
 
-    private static String handleReplacements(String message, OfflineFLPlayer sender) {
+    public static String handleReplacements(String message, OfflineFLPlayer sender) {
 
         message = message.replaceAll("<", "\\\\<"); // Protect all potential codes from influencing chat
 
@@ -251,12 +246,9 @@ public class ChatHandler {
                 );
             }
             Logging.broadcastStaff(
-                String.format(
-                    ChatColor.RED + "[AUTO-CENSOR] %s: " + ChatColor.GRAY + "%s - " + ChatColor.RED + "%s",
-                    sender.getDisplayName(),
-                    message,
-                    alertPlayer ? "Notified player." : "False message sent to player."
-                ),
+                ComponentColor.red("[AUTO-CENSOR] %s: ", sender.username)
+                    .append(ComponentColor.gray(message + " - "))
+                    .append(ComponentColor.red(alertPlayer ? "Notified player." : "False message sent to player.")),
                 DiscordChannel.ALERTS
             );
             return true;

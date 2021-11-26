@@ -1,23 +1,26 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandPurchase extends Command {
     private final Map<UUID, Long> commandCooldowns;
@@ -44,7 +47,7 @@ public class CommandPurchase extends Command {
             try {
                 uuid = UUID.fromString(args[2]);
             } catch (IllegalArgumentException ex) {
-                Logging.error("Failed to execute purchase command due to an invalid UUID for player " + args[0]);
+                Logging.error("Failed to execute purchase command due to an invalid UUID for player ", args[0]);
                 return true;
             }
             flp = FarLands.getDataHandler().getOfflineFLPlayer(uuid, args[0]);
@@ -55,8 +58,14 @@ public class CommandPurchase extends Command {
         else
             commandCooldowns.put(flp.uuid, System.currentTimeMillis());
 
-        Logging.broadcastFormatted("&(gold){&(aqua)%0} just donated to the server! Consider donating $(link,%1,{&(aqua,underline)here}).",
-                false, flp.username, FarLands.getFLConfig().donationLink);
+        Logging.broadcastIngame(
+            ComponentColor.gold("")
+                .append(ComponentColor.aqua(flp.username))
+                .append(Component.text(" just donated to the server! Consider donating "))
+                .append(ComponentUtils.link("here", FarLands.getFLConfig().donationLink, NamedTextColor.AQUA))
+                .append(Component.text(".")),
+            false
+        );
 
         FarLands.getDiscordHandler().sendMessageEmbed(
             DiscordChannel.IN_GAME,
