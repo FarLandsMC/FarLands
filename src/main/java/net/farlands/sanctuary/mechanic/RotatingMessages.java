@@ -1,41 +1,98 @@
 package net.farlands.sanctuary.mechanic;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.function.Predicate;
 
 /**
  * Handle rotating chat messages
  */
 public class RotatingMessages extends Mechanic {
 
+    private static final long GAP = 5 * 60 * 20; // 5 minutes * 60 seconds * 20 ticks
+
+    /**
+     * All messages that should be broadcast
+     */
+    private static final List<Message> DEFAULT_MESSAGES = new ArrayList<>(List.of(
+        /* Vote    */ new Message("<gold>Want to help support the server? Vote for us with <click:run_command:/vote><aqua>/vote</aqua></click>!"),
+        /* Donate  */ new Message("<gold>Want to help support the server? Donate to us with <click:run_command:/donate><aqua>/donate</aqua></click>!"),
+        /* Discord */ new Message(flp -> !flp.isDiscordVerified(), "<gold>Type <click:open_url:" + FarLands.getFLConfig().discordInvite + "><aqua>/discord</aqua></click> to join our Discord!")
+    ));
+
+    private final Queue<Message> queue = new LinkedList<>(DEFAULT_MESSAGES); // Queue for cycling through messages
+
     @Override
     public void onStartup() {
-        FarLands.getFLConfig().rotatingMessages.stream().map(MiniMessage.miniMessage()::parse).forEach(rotatingMessages::add);
-
-        // Wait for any dynamically added messages to be registered
-        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), this::scheduleRotatingMessages, 15L * 20L);
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(
+            FarLands.getInstance(), // Plugin
+            this::broadcast,
+            30 * 20, // 30 seconds
+            GAP
+        );
     }
 
-    private final List<Component> rotatingMessages = new ArrayList<>();
+    /**
+     * Broadcast the next message and cycle
+     */
+    public void broadcast() {
+        Message msg = queue.poll(); // Cycle message to end
+        queue.offer(msg);
 
-    private void scheduleRotatingMessages() {
-        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-            int messageCount = rotatingMessages.size();
-            int rotatingMessageGap = FarLands.getFLConfig().rotatingMessageGap * 60 * 20;
-            for (int i = 0; i < messageCount; ++i) {
-                Component message = rotatingMessages.get(i);
-                Bukkit.getScheduler().scheduleSyncRepeatingTask(
-                    FarLands.getInstance(), () -> Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(message)),
-                    (long) i * rotatingMessageGap + 600, (long) messageCount * rotatingMessageGap);
-            }
-        }, 5L);
+        if (msg == null) return;
+        msg.broadcast();
     }
 
-    public void addRotatingMessage(String s) {
-        rotatingMessages.add(MiniMessage.miniMessage().parse(s));}
+    /**
+     * Add a message to the cycle
+     *
+     * @param message The message to add -- Formatted with MiniMessage
+     */
+    public void addMessage(String message) {
+        queue.add(new Message(message));
+    }
+
+
+    /**
+     * Add a message to the cycle
+     *
+     * @param filter  Filter for which players to send the message to
+     * @param message The message to add -- Formatted with MiniMessage
+     */
+    public void addMessage(Predicate<OfflineFLPlayer> filter, String message) {
+        queue.add(new Message(filter, message));
+    }
+
+    /**
+     * Data class for rotating messages.
+     */
+    private static record Message(Predicate<OfflineFLPlayer> filter, Component message) {
+
+        private static final Predicate<OfflineFLPlayer> ALL = flp -> true;
+
+        private Message(String message) {
+            this(ALL, message);
+        }
+
+        private Message(Predicate<OfflineFLPlayer> filter, String message) {
+            this(filter, MiniMessage.miniMessage().parse(message));
+        }
+
+        private void broadcast() {
+            Bukkit.getOnlinePlayers()
+                .stream()
+                .map(FarLands.getDataHandler()::getOfflineFLPlayer)
+                .filter(filter)
+                .map(OfflineFLPlayer::getOnlinePlayer)
+                .forEach(player -> player.sendMessage(this.message));
+        }
+    }
 }

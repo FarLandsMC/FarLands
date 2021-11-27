@@ -99,7 +99,7 @@ public class Logging {
         if (sendToDiscord) {
             broadcastDiscord(MarkdownProcessor.fromMinecraft(c), DiscordChannel.IN_GAME);
         }
-        broadcastIngame(PREFIX.append(c), sendToDiscord);
+        broadcastIngame(PREFIX.append(c), false);
     }
 
     /**

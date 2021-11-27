@@ -232,9 +232,7 @@ public class AutumnEvent extends Mechanic {
 
     @Override
     public void onStartup() {
-        FarLands.getMechanicHandler()
-            .getMechanic(RotatingMessages.class)
-            .addRotatingMessage(
+        FarLands.getMechanicHandler().getMechanic(RotatingMessages.class).addMessage(
                 "<gold>There's a server event going on right now!" +
                     " Type " +
                     "<click:run_command:/party>" +
