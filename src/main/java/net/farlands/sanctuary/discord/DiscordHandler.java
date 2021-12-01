@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatFormat;
 import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.PluginData;
@@ -321,28 +322,31 @@ public class DiscordHandler extends ListenerAdapter {
 //        }
 //
 //        String message = sb.toString().strip();
-        String message = event.getMessage().getContentRaw().strip();
+        String message = event.getMessage().getContentDisplay().strip();
 
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage())) {
             return;
         }
-        Component component = MarkdownProcessor.toMinecraft(message);
+        String bodyRaw = event.getMessage().getContentStripped();
+        message = MiniMessage.miniMessage().serialize(MarkdownProcessor.toMinecraft(message));
+
         if (
-            ComponentUtils.toText(component).length() > 256 && // Message is too long for in-game chat and
+            bodyRaw.length() > 256 && // Message is too long for in-game chat and
                 channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong() // Message in #in-game
         ) {
             message = message.substring(0, 232).strip();
-            Component suffix = ComponentColor
-                .gray("... View more on ")
-                .append(
-                    ComponentUtils.link(
-                        "Discord",
-                        FarLands.getFLConfig().discordInvite,
-                        NamedTextColor.AQUA
-                    )
-                )
-                .append(ComponentColor.gray("."));
-            component = MarkdownProcessor.toMinecraft(message).append(suffix);
+
+            message += String.format(
+                "<gray>... View more on " +
+                    "<click:open_url:%s>" +
+                        "<hover:show_text:<gray>Click to open.>" +
+                            "<aqua>Discord</aqua>" +
+                        "</hover>" +
+                    "</click>." +
+                "</gray>",
+                FarLands.getFLConfig().discordInvite
+            );
+
             // Notify sender their message was too long
             event.getMessage().reply("Your message was too long, so it was shortened for in-game chat.").queue();
         }
@@ -367,7 +371,7 @@ public class DiscordHandler extends ListenerAdapter {
                     replyHover.append(ComponentColor.white(refMessage.getAuthor().getName() + ": "));
                 } else { // "[rank] <name>: "
                     if (refFlp.rank.isStaff()) {
-                        replyHover.append(refFlp.rank.getLabel()); // Add rank if staff
+                        replyHover.append(refFlp.rank.getLabel()).append(Component.space()); // Add rank if staff
                     }
                     replyHover.append(refFlp.rank.colorName(refFlp.username + ": ")); // Add name
                 }
@@ -389,13 +393,28 @@ public class DiscordHandler extends ListenerAdapter {
             messageSuffix.append(Component.text(message.isEmpty() ? "" : " ").append(image));
         }
 
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
+
+        message = replacements(message, staffChat, flp);
+
+        MiniMessage mm = MiniMessage.miniMessage();
+        String censorMsg = MessageFilter.INSTANCE.censor(message);
 
         Component finalMessage = Component.text()
             .append(messagePrefix)
-            .append(component)
+            .append(mm.parse(message))
             .append(messageSuffix)
             .build();
+
+        Component finalCensorMessage = Component.text()
+            .append(messagePrefix)
+            .append(mm.parse(censorMsg))
+            .append(messageSuffix)
+            .build();
+
+
 
         if (staffChat) {
             Component scComponent =
@@ -411,7 +430,6 @@ public class DiscordHandler extends ListenerAdapter {
                 .forEach(session -> session.player.sendMessage(scComponent.color(session.handle.staffChatColor)));
 
         } else if (channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong()) {
-            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
             if (flp != null) {
                 // Handle Mute/Ban
@@ -441,11 +459,6 @@ public class DiscordHandler extends ListenerAdapter {
                     return;
                 }
 
-                MiniMessage mm = MiniMessage.miniMessage();
-
-                // May not work 100% right now, because of https://github.com/KyoriPowered/adventure-text-minimessage/issues/171
-                Component censorMsg = mm.deserialize(MessageFilter.INSTANCE.censor(mm.serialize(component)));
-
                 TextComponent.Builder discordPrefix = Component.text()
                     .append(ComponentColor.darkGray("DISCORD "));
 
@@ -455,28 +468,26 @@ public class DiscordHandler extends ListenerAdapter {
                     .append(flp.rank.colorName(flp.username))
                     .append(Component.text(": "));
 
-                Component fOriginal = Component.text()
-                    .append(discordPrefix)
-                    .append(messagePrefix)
-                    .append(component)
-                    .append(messageSuffix)
-                    .build();
-
-                Component fCensor = Component.text()
-                    .append(discordPrefix)
-                    .append(messagePrefix)
-                    .append(censorMsg)
-                    .append(messageSuffix)
-                    .build();
+                Component dPrefix = discordPrefix.build();
 
                 Bukkit.getOnlinePlayers()
                     .stream()
                     .map(FarLands.getDataHandler()::getOfflineFLPlayer)
                     .filter(p -> !p.getIgnoreStatus(flp).includesChat())
-                    .forEach(p -> p.getOnlinePlayer().sendMessage(p.censoring ? fCensor : fOriginal));
+                    .forEach(p -> p.getOnlinePlayer().sendMessage(
+                        dPrefix.append(p.censoring ? finalCensorMessage : finalMessage)
+                    ));
 
-                Bukkit.getConsoleSender().sendMessage(fOriginal);
+                Bukkit.getConsoleSender().sendMessage(finalMessage);
             }
         }
+    }
+
+    private String replacements(String message, boolean silent, OfflineFLPlayer flp) {
+        message = message.replaceAll("<", "\\\\<");
+        message = ChatFormat.translatePing(message, flp, silent);
+        message = ChatFormat.translateEmotes(message);
+        message = ChatFormat.translateLinks(message);
+        return message;
     }
 }

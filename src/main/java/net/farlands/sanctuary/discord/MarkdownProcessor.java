@@ -112,6 +112,8 @@ public class MarkdownProcessor {
      */
     public static String fromMinecraft(Component component) {
 
+        if(component == null) return "";
+
         String symbols = DECOR_MD_MAP // Get applicable symbols
             .entrySet()
             .stream()

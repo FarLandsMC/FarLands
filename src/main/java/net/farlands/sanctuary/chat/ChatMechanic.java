@@ -2,8 +2,10 @@ package net.farlands.sanctuary.chat;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -39,9 +41,22 @@ public class ChatMechanic extends Mechanic {
         ChatHandler.onChat(event);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent event) {
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.message());
-    }
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
+        if (
+            flp.vanished || // Player is vanished or
+                !event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("minecraft") // Not a vanilla advancement
+        ) {
+            event.message(null); // Make no message
+        } else {
+            Bukkit.getOnlinePlayers()
+                .stream()
+                .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
+                .forEach(p -> p.sendMessage(event.message()));
 
+            // Send advancement message to Discord
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.message());
+        }
+    }
 }

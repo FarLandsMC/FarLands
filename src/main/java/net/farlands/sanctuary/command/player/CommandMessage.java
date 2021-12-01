@@ -178,8 +178,7 @@ public class CommandMessage extends PlayerCommand {
 
         // Find the recipient's session if it exists
         FLPlayerSession recipientSession;
-        if (recipient instanceof Player) {
-            Player player = (Player) recipient;
+        if (recipient instanceof Player player) {
             recipientSession = FarLands.getDataHandler().getSession(player);
 
             // Check for AFK toggle
@@ -210,8 +209,9 @@ public class CommandMessage extends PlayerCommand {
     private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, Component message) {
         recipient.sendMessage(
             ComponentColor.darkGray(prefix)
-                .append(rank.colorName(name))
-                .append(message)
+                .append(Component.space())
+                .append(rank.colorName(name + ": "))
+                .append(message.color(NamedTextColor.WHITE))
         );
     }
 
