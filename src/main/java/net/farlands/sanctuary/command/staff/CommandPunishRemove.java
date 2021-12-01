@@ -7,7 +7,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -79,8 +79,8 @@ public class CommandPunishRemove extends Command {
                 );
 
                 FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK,
-                    Chat.applyDiscordFilters(sender.getName()) + " removed the punishment " + Utils.formattedName(pt) +
-                        " from " + Chat.applyDiscordFilters(flp.username));
+                                                            MarkdownProcessor.escapeMarkdown(sender.getName()) + " removed the punishment " + Utils.formattedName(pt) +
+                        " from " + MarkdownProcessor.escapeMarkdown(flp.username));
             } else {
                 sendFormatted(sender, "&(red)This player does not have that punishment on record.");
             }

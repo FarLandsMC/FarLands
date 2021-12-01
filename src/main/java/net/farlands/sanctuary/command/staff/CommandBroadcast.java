@@ -2,7 +2,6 @@ package net.farlands.sanctuary.command.staff;
 
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
-
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.command.CommandSender;
 

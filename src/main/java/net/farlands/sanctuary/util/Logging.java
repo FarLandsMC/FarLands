@@ -1,115 +1,173 @@
 package net.farlands.sanctuary.util;
 
-import com.kicas.rp.util.TextUtils;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
-
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-
+import net.farlands.sanctuary.discord.MarkdownProcessor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 
-import java.awt.*;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-/**
- * General logging methods.
- */
-public final class Logging {
-    public static void broadcastIngame(BaseComponent[] message) {
-        Bukkit.getOnlinePlayers().stream().map(Player::spigot).forEach(spigot -> spigot.sendMessage(message));
-        Bukkit.getConsoleSender().spigot().sendMessage(message);
+public class Logging {
+
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+    private static final ConsoleCommandSender CONSOLE = Bukkit.getConsoleSender();
+
+    private static final Component PREFIX = Component.empty().color(NamedTextColor.GOLD).append(
+        Component.text(" > ").style(Style.style(TextDecoration.BOLD))
+    );
+
+    /**
+     * Send info level log to the logger
+     */
+    public static void log(Object... objects) {
+        Bukkit.getLogger().info(Arrays.stream(objects).map(Object::toString).collect(Collectors.joining(" ")));
     }
 
     /**
-     * Broadcast an embed to #in-game on the Discord server
-     * @param message The message to broadcast
-     * @param color The color of the embed
+     * Send severe level log to the logger, send a debug message, and log into #scribes-notebook
      */
-    public static void broadcastIngameDiscord(String message, Color color) {
+    public static void error(Object... objects) {
+        String msg = Arrays.stream(objects).map(Object::toString).collect(Collectors.joining(" "));
+        Bukkit.getLogger().severe(msg);
+        FarLands.getDebugger().echo("Error", msg);
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, msg);
+    }
+
+    /**
+     * Broadcast a message to all players ingame, with the option to send to Discord (#in-game)
+     * <p>
+     * Parses MiniMessage
+     */
+    public static void broadcastIngame(String message, boolean sendToDiscord) {
+        Component c = MM.parse(message);
+        broadcastIngame(c, sendToDiscord);
+    }
+
+
+    /**
+     * Broadcast a message to all players ingame, with the option to send to Discord (#in-game)
+     */
+    public static void broadcastIngame(Component message, boolean sendToDiscord) {
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(message));
+        CONSOLE.sendMessage(message);
+
+        if (sendToDiscord) {
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, message);
+        }
+    }
+
+    /**
+     * Broadcast a message to #in-game on the Discord
+     */
+    public static void broadcastDiscord(String message) {
+        broadcastDiscord(message, DiscordChannel.IN_GAME);
+    }
+
+    /**
+     * Broadcast a message to a specified Discord channel
+     */
+    public static void broadcastDiscord(String message, DiscordChannel channel) {
         FarLands.getDiscordHandler().sendMessageEmbed(
-            DiscordChannel.IN_GAME,
+            channel,
             new EmbedBuilder()
-                .setTitle(Chat.applyDiscordFilters(message))
-                .setColor(ChatColor.GOLD.getColor())
+                .setTitle(message)
+                .setColor(NamedTextColor.GOLD.value())
         );
     }
 
-    public static void broadcastIngameDiscord(BaseComponent[] message, Color color, String removeRegEx) {
-        StringBuilder sb = new StringBuilder();
-        for (BaseComponent bc : message) {
-            if (bc instanceof TextComponent)
-                sb.append(((TextComponent) bc).getText());
+    /**
+     * Send a formatted message to Discord (#in-game) and in-game chat
+     * <p>
+     * Parses MiniMessage
+     *
+     * @param message Message, formatted with {@link String#format(String, Object...)}
+     */
+    public static void broadcastFormatted(String message, boolean sendToDiscord, Object... replacements) {
+        Component c = MM.parse(String.format(message, replacements));
+        if (sendToDiscord) {
+            broadcastDiscord(MarkdownProcessor.fromMinecraft(c), DiscordChannel.IN_GAME);
         }
-        broadcastIngameDiscord(sb.toString().replaceFirst(removeRegEx, ""), color);
+        broadcastIngame(PREFIX.append(c), false);
     }
 
-    public static void broadcastFormatted(String message, boolean sendToDiscord, Object... values) {
-        BaseComponent[] formatted = TextUtils.format("{&(gold,bold) > }&(aqua)" + message, values);
-        broadcastIngame(formatted);
-        if (sendToDiscord){
-            broadcastIngameDiscord(formatted, ChatColor.GOLD.getColor(), "^( > )");
-        }
+    /**
+     * Send a formatted message to players that match the predicate
+     *
+     * @param filter  Predicate to filter players
+     * @param message Message, formatted with {@link String#format(String, Object...)}
+     */
+    public static void broadcast(Predicate<FLPlayerSession> filter, String message, Object... replacements) {
+        Component c = MM.parse(String.format(message, replacements));
+        Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession).filter(filter).forEach(s -> {
+            s.player.sendMessage(c);
+        });
+        CONSOLE.sendMessage(c);
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, c);
     }
 
-    public static void broadcast(String input, Object... values) {
-        BaseComponent[] formatted = TextUtils.format(input, values);
-        broadcastIngame(formatted);
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, formatted);
-    }
-
-    public static void broadcast(Predicate<FLPlayerSession> filter, String input, Object... values) {
-        BaseComponent[] formatted = TextUtils.format(input, values);
-        Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession).filter(filter)
-                .forEach(session -> session.player.spigot().sendMessage(formatted));
-        Bukkit.getConsoleSender().spigot().sendMessage(formatted);
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, formatted);
-    }
-
-    public static void broadcastStaff(BaseComponent[] message, DiscordChannel discordChannel) { // Set the channel to null to not send to discord
+    /**
+     * Send a message to staff members, as well as Discord(unless null)
+     *
+     * @param channel Channel to send message to -- null to not send
+     */
+    public static void broadcastStaff(Component message, DiscordChannel channel) {
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
-                .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
-                .forEach(session -> session.player.spigot().sendMessage(message));
-        Bukkit.getConsoleSender().spigot().sendMessage(message);
-        if (discordChannel != null)
-            FarLands.getDiscordHandler().sendMessage(discordChannel, message);
+            .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
+            .forEach(session -> session.player.sendMessage(message));
+        CONSOLE.sendMessage(message);
+        if (channel != null) {
+            FarLands.getDiscordHandler().sendMessage(channel, message);
+        }
     }
 
-    public static void broadcastStaff(BaseComponent[] message) {
+    public static void broadcastStaff(Component message) {
         broadcastStaff(message, null);
     }
 
-    public static void broadcastStaff(String message, DiscordChannel discordChannel) {
-        broadcastStaff(TextComponent.fromLegacyText(message), discordChannel);
-    }
-
-    public static void broadcastStaff(String message) {
-        broadcastStaff(TextComponent.fromLegacyText(message), null);
-    }
-
-    public static void broadcastStaffWithExemptions(BaseComponent[] message, Player exempt1, Player exempt2) {
+    /**
+     * Send a message to online staff, excluding the exemptions
+     *
+     * @param exemptions Players to exempt from the broadcast
+     */
+    public static void broadcastStaffExempt(Component message, CommandSender... exemptions) {
+        List<CommandSender> exempt = List.of(exemptions);
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession)
-                .filter(session -> session.handle.rank.isStaff() && session.showStaffChat)
-                .filter(session -> session.player != exempt1 && session.player != exempt2)
-                .forEach(session -> session.player.spigot().sendMessage(message));
-        Bukkit.getConsoleSender().spigot().sendMessage(message);
+            .filter(
+                session ->
+                    session.handle.rank.isStaff() &&
+                        session.showStaffChat &&
+                        !exempt.contains(session.player)
+            )
+            .forEach(session -> session.player.sendMessage(message));
+        Bukkit.getConsoleSender().sendMessage(message);
     }
 
-    public static void log(Object x) {
-        Bukkit.getLogger().info("[FLv" + FarLands.getInstance().getDescription().getVersion() + "] - " + x);
+    /**
+     * Send a message to online staff [and discord]
+     * @param message Message to send -- formatted with minimessage
+     * @param channel Channel to send message to -- null to not send
+     */
+    public static void broadcastStaff(String message, DiscordChannel channel) {
+        broadcastStaff(MM.parse(message), channel);
     }
 
-    public static void error(Object x) {
-        String msg = Objects.toString(x);
-        Bukkit.getLogger().severe("[FLv" + FarLands.getInstance().getDescription().getVersion() + "] - " + msg);
-        FarLands.getDebugger().echo("Error", msg);
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, msg);
+    /**
+     * Send a message to online staff [and discord]
+     * @param message Message to send -- formatted with minimessage
+     */
+    public static void broadcastStaff(String message) {
+        broadcastStaff(MM.parse(message));
     }
 }

@@ -4,38 +4,31 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
-
 import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
-
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatHandler;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.discord.*;
 import net.farlands.sanctuary.command.player.*;
-import net.farlands.sanctuary.command.player.CommandHelp;
-import net.farlands.sanctuary.command.player.CommandList;
-import net.farlands.sanctuary.command.player.CommandMe;
 import net.farlands.sanctuary.command.staff.*;
-import net.farlands.sanctuary.command.staff.CommandDebug;
-import net.farlands.sanctuary.command.staff.CommandKick;
-import net.farlands.sanctuary.command.staff.CommandFLTrigger;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandDispatcher;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.network.chat.ChatComponentText;
 import net.minecraft.server.MinecraftServer;
-
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec2F;
 import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
@@ -47,7 +40,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -232,7 +224,7 @@ public class CommandHandler extends Mechanic {
         String rawStringCommand = message.getContentDisplay();
 
         // Notify staff
-        Logging.broadcastStaff(ChatColor.GREEN + sender.getName() + ": " + ChatColor.GRAY + Chat.colorize(rawStringCommand));
+        logCommand(sender, rawStringCommand, true);
 
         // Parse out the command name
         String commandName = rawStringCommand.substring(
@@ -372,14 +364,14 @@ public class CommandHandler extends Mechanic {
             return;
         }
 
-        if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && Chat.getMessageFilter().isProfane(event.getMessage())) {
+        if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && MessageFilter.INSTANCE.isProfane(event.getMessage())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "You cannot set your pet's name to that.");
+            event.getPlayer().sendMessage(ComponentColor.red("You cannot set your pet's name to that."));
             return;
         }
 
         if (event.getMessage().startsWith("/trust"))
-            event.getPlayer().sendMessage(ChatColor.GOLD + "Be careful trusting player on your claim as they are your responsibility.");
+            event.getPlayer().sendMessage(ComponentColor.gold("Be careful trusting player on your claim as they are your responsibility."));
 
         if (event.getMessage().trim().equalsIgnoreCase("/co cancel")) {
             FLPlayerSession session = FarLands.getDataHandler().getSession(event.getPlayer());
@@ -395,7 +387,7 @@ public class CommandHandler extends Mechanic {
         Player player = event.getPlayer();
         String fullCommand = event.getMessage();
 
-        FarLands.getMechanicHandler().getMechanic(Chat.class).spamUpdate(player, fullCommand);
+        ChatHandler.handleSpam(player, fullCommand);
         String command = fullCommand.substring(
                 fullCommand.startsWith("/") ? 1 : 0,
                 FLUtils.indexOfDefault(fullCommand.indexOf(' '), fullCommand.length())
@@ -407,7 +399,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))))
-            Logging.broadcastStaff(ChatColor.RED + player.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
+            logCommand(player, fullCommand, false);
         if (senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
                 !COMMAND_LOG_BLACKLIST.contains(command.toLowerCase()))
             FarLands.getDiscordHandler().sendMessage(
@@ -442,7 +434,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))) || sender instanceof BlockCommandSender))
-            Logging.broadcastStaff(ChatColor.RED + sender.getName() + ": " + ChatColor.GRAY + Chat.colorize(fullCommand));
+            logCommand(sender, fullCommand, false);
         if (c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
@@ -474,6 +466,20 @@ public class CommandHandler extends Mechanic {
         FLCommandEvent event = new FLCommandEvent(command, sender);
         FarLands.getInstance().getServer().getPluginManager().callEvent(event);
         return event.isCancelled();
+    }
+
+    /**
+     * Alert ingame staff when a command is run
+     * @param sender Sender of the command
+     * @param command Command to log
+     * @param fromDiscord Whether the command was sent from discord
+     */
+    public void logCommand(CommandSender sender, String command, boolean fromDiscord) {
+        Logging.broadcastStaff(
+            Component.text(sender.getName() + ": ")
+                .color(fromDiscord ? NamedTextColor.GREEN : NamedTextColor.RED)
+                .append(ComponentColor.gray(command))
+        );
     }
 
     private boolean shouldLog(Command command) {

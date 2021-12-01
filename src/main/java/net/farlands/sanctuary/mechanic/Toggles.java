@@ -4,29 +4,19 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.comphenix.protocol.wrappers.WrappedServerPing;
-
 import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.md_5.bungee.api.ChatMessageType;
-
 import net.minecraft.advancements.Advancement;
-import net.minecraft.network.chat.ChatComponentText;
-import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo;
 import net.minecraft.world.level.EnumGamemode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_17_R1.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -36,7 +26,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
@@ -44,6 +33,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
  * Handles plugin toggles.
@@ -128,40 +119,6 @@ public class Toggles extends Mechanic {
             return flp != null && flp.vanished;
         });
         event.setCompletions(completions);
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onAdvancementGet(PlayerAdvancementDoneEvent event) {
-        if (FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).vanished)
-            return;
-
-        if (!"minecraft".equalsIgnoreCase(event.getAdvancement().getKey().getNamespace()))
-            return;
-
-        Advancement handle = ((CraftAdvancement) event.getAdvancement()).getHandle();
-        if (handle.c() == null)
-            return;
-
-        List<Advancement> playerCache = lastAdvancementMessage.get(event.getPlayer().getUniqueId());
-        if (playerCache == null) {
-            playerCache = new ArrayList<>();
-        } else if (playerCache.contains(handle))
-            return;
-        playerCache.add(handle);
-        lastAdvancementMessage.put(event.getPlayer().getUniqueId(), playerCache);
-
-        FarLands.getScheduler().scheduleSyncDelayedTask(() ->
-                        lastAdvancementMessage.get(event.getPlayer().getUniqueId()).remove(handle),
-                20);
-
-        IChatBaseComponent message = ((CraftPlayer) event.getPlayer()).getHandle().getScoreboardDisplayName().mutableCopy()
-                // Clear chat modifiers
-                .addSibling(new ChatComponentText(" has made the advancement ")
-                        .setChatModifier(FLUtils.chatModifier("white")))
-                .addSibling(((CraftAdvancement) event.getAdvancement()).getHandle().j());
-        Bukkit.getOnlinePlayers().stream()
-                .map(player -> ((CraftPlayer) player).getHandle())
-                .forEach(player -> player.sendMessage(message, new UUID(0L, 0L)));
     }
 
     @EventHandler(ignoreCancelled = true)

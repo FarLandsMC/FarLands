@@ -8,7 +8,8 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Mute;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 
 import org.bukkit.ChatColor;
@@ -66,8 +67,8 @@ public class CommandMute extends Command {
             String message = "uted " + flp.username + " with reason `" + mute.reason() + "`. Expires: " +
                     TimeInterval.formatTime(1000L * time, false);
             sendFormatted(sender, "&(gold)M%0", message.replaceAll("`", "\""));
-            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) + " m" +
-                    Chat.removeColorCodes(message));
+            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, MarkdownProcessor.escapeMarkdown(sender.getName()) + " m" +
+                    FLUtils.removeColorCodes(message));
         }else{ // Un-mute
             if(!flp.isMuted()) {
                 sendFormatted(sender, "&(red)This player is not muted.");

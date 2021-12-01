@@ -1,31 +1,33 @@
 package net.farlands.sanctuary.data.struct;
 
 import com.google.common.collect.ImmutableMap;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
-
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.SkipSerializing;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.GeneralMechanics;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.FLUtils;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
  * All data related to a FarLands player.
@@ -66,7 +68,7 @@ public class OfflineFLPlayer {
     public boolean viewedPatchnotes;
 
     public Birthday birthday;
-    public ChatColor staffChatColor;
+    public NamedTextColor staffChatColor;
     public LocationWrapper lastLocation;
     public Mute currentMute;
     public PackageToggle packageToggle;
@@ -111,7 +113,6 @@ public class OfflineFLPlayer {
         this.monthVotes = 0;
         this.voteRewards = 0;
         this.secondsPlayed = 0;
-        this.shops = 0;
         this.shops = -1;
 
         this.amountDonated = 0;
@@ -127,7 +128,7 @@ public class OfflineFLPlayer {
         this.viewedPatchnotes = true;
 
         this.birthday = null;
-        this.staffChatColor = ChatColor.RED;
+        this.staffChatColor = NamedTextColor.RED;
         this.lastLocation = null;
         this.currentMute = null;
         this.packageToggle = PackageToggle.ACCEPT;
@@ -297,14 +298,19 @@ public class OfflineFLPlayer {
         Player player = getOnlinePlayer();
         boolean online = player != null;
         if (rank.specialCompareTo(this.rank) > 0) {
-            String message = ChatColor.GOLD + " ** " + ChatColor.GREEN + username + ChatColor.GOLD +
-                    " has ranked up to " + rank.getColor() + rank.getName() + ChatColor.GOLD + " ** ";
-            Logging.broadcastFormatted(message, false);
+            Logging.broadcastIngame(
+                ComponentColor.gold(" ** ") // " ** <username> has ranked up to <rank> ** "
+                    .append(ComponentColor.green(username))
+                    .append(ComponentColor.gold(" has ranked up to "))
+                    .append(rank.getLabel())
+                    .append(ComponentColor.gold(" ** ")),
+                false
+            );
             FarLands.getDiscordHandler().sendMessageEmbed(
-                    DiscordChannel.IN_GAME,
-                    new EmbedBuilder()
-                            .setTitle(Chat.applyDiscordFilters(message))
-                            .setColor(rank.getColor().getColor())
+                DiscordChannel.IN_GAME,
+                new EmbedBuilder()
+                    .setTitle(MarkdownProcessor.escapeMarkdown(" ** " + username + " has ranked up to " + rank.getName() + " ** "))
+                    .setColor(rank.color().value())
             );
             if (online)
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
@@ -572,5 +578,13 @@ public class OfflineFLPlayer {
     @Override
     public String toString() {
         return username;
+    }
+
+    public void chat(String message) {
+        ChatHandler.chat(this, message);
+    }
+
+    public void chat(String prefix, String message) {
+        ChatHandler.chat(this, Component.text(prefix), message);
     }
 }

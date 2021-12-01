@@ -10,7 +10,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.ReflectionHelper;
+import com.kicas.rp.util.TextUtils2;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.player.CommandShrug;
+import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.ChatClickable;
@@ -49,6 +52,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -57,9 +62,14 @@ import java.util.stream.Stream;
 public final class FLUtils {
     public static final Random RNG = new Random();
     public static final Runnable NO_ACTION = () -> { };
+    public static final List<ChatColor> ILLEGAL_COLORS = Arrays.asList(ChatColor.MAGIC, ChatColor.BLACK);
     private static final ChatColor[] COLORING = {ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW,
         ChatColor.RED, ChatColor.DARK_RED};
     public static final double DEGREES_TO_RADIANS = Math.PI / 180;
+    // Pattern matching "nicer" legacy hex chat color codes - &#rrggbb
+    private static final Pattern HEX_COLOR_PATTERN_SIX = Pattern.compile("&#([0-9a-fA-F]{6})");
+    // Pattern matching funny's need for 3 char hex
+    private static final Pattern HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
 
     private FLUtils() { }
 
@@ -554,5 +564,85 @@ public final class FLUtils {
             throw new InternalError(ex);
         }
         return md.digest(data);
+    }
+
+    public static String removeColorCodes(String message) {
+        // RegEx ftw
+        return message.replaceAll(
+            "(?i)([&" + ChatColor.COLOR_CHAR + "][0-9a-fk-orx])|" + // Match &0 ... &f, &k ... &o, &r, and &x, Ignore Case
+                "(&#[0-9a-f]{3,6})", // Match &#rrggbb and &#rgb, Ignore Case
+            ""
+        );
+    }
+
+    @Deprecated
+    public static String applyColorCodes(Rank rank, String message) {
+        if (rank == null || rank.specialCompareTo(Rank.ADEPT) < 0) {
+            return removeColorCodes(message);
+        }
+
+        message = colorize(message);
+
+        message = ChatColor.translateAlternateColorCodes('&', message);
+
+        if (!rank.isStaff()) {
+            for (ChatColor color : ILLEGAL_COLORS) {
+                message = message.replaceAll(ChatColor.COLOR_CHAR + Character.toString(color.getChar()), "");
+            }
+        }
+//        message = colorize(message);
+        return message;
+    }
+
+    public static String colorize(String string) {
+        // Do 6 char first since the 3 char pattern will also match 6 char occurrences
+        StringBuffer sb6 = new StringBuffer();
+        Matcher matcher6 = HEX_COLOR_PATTERN_SIX.matcher(string);
+        while (matcher6.find()) {
+            StringBuilder replacement = new StringBuilder(14).append("&x");
+            for (char character : matcher6.group(1).toCharArray())
+                replacement.append('&').append(character);
+            if (getLuma(replacement.toString(), false) > 16)
+                matcher6.appendReplacement(sb6, replacement.toString());
+            else
+                matcher6.appendReplacement(sb6, "");
+        }
+        matcher6.appendTail(sb6);
+        string = sb6.toString();
+
+        // Now convert 3 char to the same format ex. &#363 -> &x&3&3&6&6&3&3
+        StringBuffer sb3 = new StringBuffer();
+        Matcher matcher3 = HEX_COLOR_PATTERN_THREE.matcher(string);
+        while (matcher3.find()) {
+            StringBuilder replacement = new StringBuilder(14).append("&x");
+            for (char character : matcher3.group(1).toCharArray())
+                replacement.append('&').append(character).append('&').append(character);
+            if (getLuma(replacement.toString(), false) > 16)
+                matcher3.appendReplacement(sb3, replacement.toString());
+            else
+                matcher3.appendReplacement(sb3, "");
+        }
+        matcher3.appendTail(sb3);
+
+        // Translate '&' to '§'
+        return ChatColor.translateAlternateColorCodes('&', sb3.toString());
+    }
+
+    // Get luminescence passing through Bungee's hex format - &x&r&r&g&g&b&b
+    public static double getLuma(String color, boolean hex) {
+        int r, g, b;
+        color = color.replaceAll("[&x#]", "");
+
+        r = Integer.valueOf(color.substring(0, 2), 16);
+        g = Integer.valueOf(color.substring(2, 4), 16);
+        b = Integer.valueOf(color.substring(4, 6), 16);
+        return (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+    }
+
+    public static String applyEmotes(String message) {
+        for (CommandShrug.TextEmote emote : CommandShrug.TextEmote.values) {
+            message = message.replaceAll("(?i)(?<!\\\\)(:" + Pattern.quote(emote.name()) + ":)", TextUtils2.escapeExpression(emote.getValue()));
+        }
+        return message;
     }
 }

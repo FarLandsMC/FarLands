@@ -1,12 +1,10 @@
 package net.farlands.sanctuary.command;
 
 import com.kicas.rp.util.TextUtils;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

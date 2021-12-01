@@ -8,7 +8,7 @@ import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -120,7 +120,7 @@ public class CommandList extends Command {
                 players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
                     eb.addField(
                         rank.getName(),
-                        Chat.applyDiscordFilters(String.join(", ", players.get(rank))),
+                        MarkdownProcessor.escapeMarkdown(String.join(", ", players.get(rank))),
                         false
                     )
                 );
@@ -135,7 +135,7 @@ public class CommandList extends Command {
                 staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
                         eb.addField(
                             rank.getName(),
-                            Chat.applyDiscordFilters(String.join(", ", staff.get(rank))),
+                            MarkdownProcessor.escapeMarkdown(String.join(", ", staff.get(rank))),
                             false
                         )
                 );

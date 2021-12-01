@@ -10,8 +10,8 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.MailMessage;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.mechanic.Chat;
 
+import net.farlands.sanctuary.util.FLUtils;
 import net.md_5.bungee.api.ChatColor;
 
 import org.bukkit.Location;
@@ -82,7 +82,7 @@ public class CommandMail extends Command {
                 }
 
                 // Apply formatting
-                String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args));
+                String message = FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args));
                 if (!senderFlp.rank.isStaff())
                     message = escapeExpression(message);
                 sendMailMessage(sender, "To", recipientFlp.rank.getNameColor(), escapeExpression(recipientFlp.getDisplayName()), message);

@@ -1,9 +1,6 @@
 package net.farlands.sanctuary.mechanic;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Pair;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.FLCommandEvent;
 import net.farlands.sanctuary.command.player.CommandMessage;
@@ -11,11 +8,10 @@ import net.farlands.sanctuary.command.staff.CommandVanish;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.Logging;
 import net.md_5.bungee.api.ChatMessageType;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -30,6 +26,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
  * Handles players going afk, including afk check and kicking.
@@ -156,8 +154,8 @@ public class AFK extends Mechanic {
                     if (!session.handle.vanished) {
                         FarLands.getCommandHandler().getCommand(CommandVanish.class).execute(session.player, new String[]{"on"});
                         Logging.broadcastStaff(
-                                TextUtils.format("&(red)%0 has gone AFK and is now vanished.", session.handle.username),
-                                DiscordChannel.ALERTS
+                            ComponentColor.red("%s has gone AFK and is now vanished.", session.handle.username),
+                            DiscordChannel.ALERTS
                         );
                         session.handle.secondsPlayed -= session.handle.rank.getAfkCheckInterval() * 60L;
                     }
@@ -198,8 +196,8 @@ public class AFK extends Mechanic {
     private static void kickAFK(Player player) {
         if (player.isOnline()) {
             FarLands.getDebugger().echo("Kicking " + player.getName() + " for being AFK or answering the question incorrectly.");
-            player.kickPlayer(ChatColor.RED + "Kicked for being AFK.");
-            Logging.broadcastStaff(ChatColor.RED + player.getName() + " was kicked for being AFK.");
+            player.kick(ComponentColor.red("Kicked for being AFK."));
+            Logging.broadcastStaff(ComponentColor.red(player.getName() + " was kicked for being AFK."));
         }
     }
 }

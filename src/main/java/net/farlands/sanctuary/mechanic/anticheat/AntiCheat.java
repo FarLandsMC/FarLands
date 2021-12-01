@@ -1,13 +1,14 @@
 package net.farlands.sanctuary.mechanic.anticheat;
 
 import com.kicas.rp.util.Pair;
-import com.kicas.rp.util.TextUtils;
 import net.dv8tion.jda.api.entities.Message;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -108,7 +109,7 @@ public class AntiCheat extends Mechanic {
 
     // Formats a message for Anti Cheat
     public static void broadcast(String message, boolean sendToAlerts) {
-        Logging.broadcastStaff(ChatColor.RED + "[AC] " + message, null);
+        Logging.broadcastStaff(ComponentColor.red("[AC] " + message), null);
         if (sendToAlerts)
             sendDiscordAlert(message);
     }
@@ -125,7 +126,7 @@ public class AntiCheat extends Mechanic {
                 OffsetDateTime.now().toEpochSecond() - lastAlertMessage.getTimeCreated().toEpochSecond();
             if (messageDelay < ALERT_RESET_DELAY && lastAlertCount < MAX_ALERT_STACK) {
                 lastAlertMessage.editMessage(
-                    Chat.applyDiscordFilters(alertText) +
+                    MarkdownProcessor.escapeMarkdown(alertText) +
                         " (x" + (++lastAlertCount) + ")"
                 ).queue();
                 return;
@@ -134,16 +135,15 @@ public class AntiCheat extends Mechanic {
         lastAlertText = alertText;
         lastAlertMessage = FarLands.getDiscordHandler().getChannel(DiscordChannel.ALERTS)
             .sendMessage(
-                Chat.applyDiscordFilters(alertText)
+                MarkdownProcessor.escapeMarkdown(alertText)
             )
             .complete();
         lastAlertCount = 1;
     }
 
     public static void promptToSpec(String playerName) {
-        Logging.broadcastStaff(TextUtils.format(
-                "&(aqua)$(hovercmd,/spec %0,{&(white)Teleport to %0 in spectator mode},Spectate [%0])",
-                playerName
-        ));
+        Logging.broadcastStaff(
+            ComponentUtils.command("/spec " + playerName, ComponentColor.aqua("Spectate " + playerName))
+        );
     }
 }

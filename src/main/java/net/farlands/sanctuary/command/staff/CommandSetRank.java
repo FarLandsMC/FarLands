@@ -8,8 +8,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.AFK;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.Location;
@@ -61,8 +61,8 @@ public class CommandSetRank extends Command {
         if (player != null) // Notify the player if they're online
             sendFormatted(player, "&(green)Your rank has been updated to " + rank.getColor() + rank.toString());
         // Notify discord
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, Chat.applyDiscordFilters(sender.getName()) +
-                " has updated " + Chat.applyDiscordFilters(flp.username) + "\'s rank to `" + rank.getName() +
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, MarkdownProcessor.escapeMarkdown(sender.getName()) +
+                " has updated " + MarkdownProcessor.escapeMarkdown(flp.username) + "\'s rank to `" + rank.getName() +
                 "`.");
         return true;
     }

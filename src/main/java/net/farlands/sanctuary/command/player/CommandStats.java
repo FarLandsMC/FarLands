@@ -7,15 +7,22 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
-import org.bukkit.*;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CommandStats extends Command {
 
@@ -27,9 +34,9 @@ public class CommandStats extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         final boolean isPersonal = args.length <= 0;
         final OfflineFLPlayer flp = isPersonal ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
-                : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+            : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
+            sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
@@ -39,11 +46,11 @@ public class CommandStats extends Command {
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("`" + flp.username + "`'s stats")
                     .setColor(flp.getDisplayRank().getColor().getColor());
-//                playerInfoMap.forEach((k, v) -> embedBuilder.addField(k.humanName, v.toString(), false));
                 for (PlayerStat stat : PlayerStat.values()) {
-                    String value = playerInfoMap.getOrDefault(stat, "").toString();
-                    if (!value.isEmpty()) {
-                        embedBuilder.addField(stat.humanName, ChatColor.stripColor(value), false);
+                    Object value = playerInfoMap.getOrDefault(stat, "");
+                    String str = (value instanceof Component c) ? ComponentUtils.toText(c) : value.toString();
+                    if (!str.isEmpty()) {
+                        embedBuilder.addField(stat.humanName, str, false);
                     }
                 }
 
@@ -86,8 +93,6 @@ public class CommandStats extends Command {
      * @return the properly formatted text
      */
     public static Map<PlayerStat, Object> playerInfoMap(OfflineFLPlayer flp, boolean showDonated, boolean showTimezone) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(flp.uuid);
-
         Map<PlayerStat, Object> statsMap = new HashMap<>();
 
         if (flp.nickname != null && !flp.nickname.isEmpty()) {
@@ -96,7 +101,7 @@ public class CommandStats extends Command {
         if (flp.pronouns != null && flp.pronouns.toString() != null) {
             statsMap.put(PlayerStat.PRONOUNS, flp.pronouns.toString(false));
         }
-        statsMap.put(PlayerStat.RANK, flp.rank.getColor() + (flp.rank.isStaff() ? ChatColor.BOLD + "" : "") + flp.rank.getName());
+        statsMap.put(PlayerStat.RANK, flp.rank.getLabel());
         statsMap.put(PlayerStat.TIME_PLAYED, TimeInterval.formatTime(flp.secondsPlayed * 1000L, false));
         if (showDonated && flp.amountDonated > 0) {
             statsMap.put(PlayerStat.AMOUNT_DONATED, "$" + flp.amountDonated);
@@ -105,9 +110,11 @@ public class CommandStats extends Command {
         if (flp.birthday != null) {
             statsMap.put(PlayerStat.BIRTHDAY, flp.birthday.toFormattedString());
         }
-        // TODO: Fix Chat#atPlayer and remove showTimezone param
         if (showTimezone && flp.timezone != null && !flp.timezone.isEmpty()) {
-            statsMap.put(PlayerStat.TIMEZONE, flp.timezone + " (" + ChatColor.GREEN + flp.currentTime() +  ChatColor.AQUA + ")");
+            statsMap.put(PlayerStat.TIMEZONE, ComponentColor.aqua(flp.timezone + "(")
+                .append(ComponentColor.green(flp.currentTime()))
+                .append(ComponentColor.aqua(")"))
+            );
         }
         statsMap.put(PlayerStat.VOTES_THIS_MONTH, flp.monthVotes);
         statsMap.put(PlayerStat.TOTAL_SEASON_VOTES, flp.totalSeasonVotes);
@@ -116,31 +123,28 @@ public class CommandStats extends Command {
         return statsMap;
     }
 
-    // TODO: Update to use components when updating chat
-    public static String formatStats(Map<PlayerStat, Object> statsMap, OfflineFLPlayer flp) {
-        Rank displayedRank = flp.getDisplayRank();
+    public static Component formatStats(Map<PlayerStat, Object> statsMap, OfflineFLPlayer flp) {
+        TextComponent.Builder builder = Component.text()
+            .color(NamedTextColor.GOLD)
+            .append(
+                flp.rank.colorName(flp.username)
+                    .append(ComponentColor.gold("'s Stats: "))
+            );
 
-        List<String> out = new ArrayList<>();
-        out.add( // Add the header
-                (displayedRank.compareTo(Rank.SCHOLAR) > 0 ? displayedRank.getColor() : "")
-                + flp.username + ChatColor.GOLD + "'s Stats: " + ChatColor.GOLD
-        );
         for (PlayerStat stat : PlayerStat.values()) {
-            String value = statsMap.getOrDefault(stat, "").toString();
-            if (!value.isEmpty()) {
-                out.add(ChatColor.GOLD + stat.humanName + ": " + ChatColor.AQUA + value);
+            Object value = statsMap.getOrDefault(stat, "");
+            if (value != null) {
+                builder.append(Component.newline())
+                    .append(ComponentColor.gold(stat.humanName))
+                    .append(ComponentColor.gold(": "))
+                    .append((value instanceof Component c) ? c : ComponentColor.aqua(value.toString()));
             }
         }
-
-        return String.join("\n", out);
+        return builder.build();
     }
 
-    public static String getFormattedStats(OfflineFLPlayer flp, boolean showDonated) {
+    public static Component getFormattedStats(OfflineFLPlayer flp, boolean showDonated) {
         return formatStats(playerInfoMap(flp, showDonated, true), flp);
-    }
-
-    public static String getFormattedStats(OfflineFLPlayer flp, boolean showDonated, boolean showTimezone) {
-        return formatStats(playerInfoMap(flp, showDonated, showTimezone), flp);
     }
 
     @Override

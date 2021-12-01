@@ -1,24 +1,22 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.escapeExpression;
-import static com.kicas.rp.util.TextUtils.format;
-
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatHandler;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.command.DiscordSender;
+import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.mechanic.Chat;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.command.BlockCommandSender;
@@ -30,11 +28,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class CommandMessage extends PlayerCommand {
+
     private static final String REPLY_ALIAS = "r";
 
     public CommandMessage() {
         super(Rank.INITIATE, Category.CHAT, "Send a private message to another player, reply to a conversation (/r), or toggle auto-messaging (/m <player>).",
-                "/msg <player> <message>", true, "msg", "w", "m", REPLY_ALIAS, "tell", "whisper");
+              "/msg <player> <message>", true, "msg", "w", "m", REPLY_ALIAS, "tell", "whisper");
     }
 
     @Override
@@ -44,8 +43,9 @@ public class CommandMessage extends PlayerCommand {
         // Reply to the last message sent
         if (REPLY_ALIAS.equals(args[0])) {
             // If they just type "/r" ignore it
-            if (args.length == 1)
+            if (args.length == 1) {
                 return true;
+            }
 
             // Check to make sure they have a recent conversation to reply to
             CommandSender recipient = senderSession.lastMessageSender.getValue();
@@ -55,10 +55,8 @@ public class CommandMessage extends PlayerCommand {
             }
 
             // Keep the name stored
-            formatAndSendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
-        }
-        // Non-/r aliases
-        else {
+            formatAndSendMessages(recipient, sender, FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)));
+        } else { // Non-/r aliases
             // No arguments sent to the command so we toggle auto-messaging
             if (args.length == 1) {
                 CommandSender currentReplyToggle = senderSession.replyToggleRecipient;
@@ -67,8 +65,9 @@ public class CommandMessage extends PlayerCommand {
                 // The sender does not have the toggle currently active for anyone
                 if (currentReplyToggle == null) {
                     // They do not have a recent conversation, so we don't know who to set the reply toggle to
-                    if (lastMessageSender == null)
+                    if (lastMessageSender == null) {
                         sender.sendMessage(ComponentColor.red("You do not have an active reply toggle currently."));
+                    }
                     // Set the recipient to the person they were last chatting with
                     else {
                         senderSession.replyToggleRecipient = lastMessageSender;
@@ -134,7 +133,7 @@ public class CommandMessage extends PlayerCommand {
             }
 
             // Try to send the message, and if it succeeds then store the metadata for /r
-            formatAndSendMessages(recipient, sender, Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
+            formatAndSendMessages(recipient, sender, FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args)));
         }
         return true;
     }
@@ -142,8 +141,8 @@ public class CommandMessage extends PlayerCommand {
     @Override
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
-                !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            sender.sendMessage(ChatColor.RED + "You cannot use this command while muted.");
+            !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
+            sender.sendMessage(ComponentColor.red("You cannot use this command while muted."));
             return false;
         }
         return super.canUse(sender);
@@ -152,38 +151,40 @@ public class CommandMessage extends PlayerCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1 && !"r".equals(alias)
-                ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender)
-                : Collections.emptyList();
+            ? getOnlinePlayers(args.length == 0 ? "" : args[0], sender)
+            : Collections.emptyList();
     }
 
     public static void formatAndSendMessages(CommandSender recipient, CommandSender sender, String message) {
-        if (!FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff())
-            message = escapeExpression(message);
-        sendMessages(recipient, sender, Chat.applyEmotes(message));
+        ChatHandler.handleReplacements(message, FarLands.getDataHandler().getOfflineFLPlayer(sender));
+        sendMessages(recipient, sender, message);
     }
 
     // Send the formatted message
-    public static void sendMessages(CommandSender recipient, CommandSender sender, String message) {
+    public static void sendMessages(CommandSender recipient, CommandSender sender, String messageStr) {
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
         // Censor the message if censoring
-        String censored = message;
-        if (recipientFlp != null && recipientFlp.censoring)
-            censored = Chat.getMessageFilter().censor(message);
+        if (recipientFlp != null && recipientFlp.censoring) {
+            messageStr = MessageFilter.INSTANCE.censor(messageStr);
+        }
+
+        Component message = MiniMessage.miniMessage().parse(messageStr);
 
         // Send the messages to both parties involved
-        if (sender instanceof Player)
+        if (sender instanceof Player) {
             sendMessage(sender, "To", getRank(recipient), getDisplayName(recipient), message);
-        sendMessage(recipient, "From", getRank(sender), getDisplayName(sender), censored);
+        }
+        sendMessage(recipient, "From", getRank(sender), getDisplayName(sender), message);
 
         // Find the recipient's session if it exists
         FLPlayerSession recipientSession;
-        if (recipient instanceof Player) {
-            Player player = (Player) recipient;
+        if (recipient instanceof Player player) {
             recipientSession = FarLands.getDataHandler().getSession(player);
 
             // Check for AFK toggle
-            if (recipientSession.afk)
+            if (recipientSession.afk) {
                 sender.sendMessage(ComponentColor.red("This player is AFK, so they may not receive your message."));
+            }
 
             // Play a sound for the recipient if they're online to notify them of the message
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
@@ -193,25 +194,31 @@ public class CommandMessage extends PlayerCommand {
         }
 
         // Store the recipient for easy replying
-        if (sender instanceof Player)
+        if (sender instanceof Player) {
             FarLands.getDataHandler().getSession((Player) sender).lastMessageSender.setValue(recipient, 10L * 60L * 20L, null);
+        }
 
         // Notify staff of the message
-        Logging.broadcastStaffWithExemptions(format("&(red)[%0 -> %1]: &(gray)%2", Chat.removeColorCodes(sender.getName()),
-                Chat.removeColorCodes(recipient.getName()), message), (Player) sender, (Player) recipient);
+        Logging.broadcastStaffExempt(
+            ComponentColor.red("[%s → %s]: ", sender.getName(), recipient.getName())
+                .append(ComponentColor.gray(ComponentUtils.toText(message))), // Remove color/formatting
+            sender, recipient
+        );
     }
 
-    private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, String message) {
+    private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, Component message) {
         recipient.sendMessage(
             ComponentColor.darkGray(prefix)
-                .append(ComponentColor.gray(rank.getNameColor() + " " + name + " "))
-                .append(ComponentColor.white(message))
+                .append(Component.space())
+                .append(rank.colorName(name + ": "))
+                .append(message.color(NamedTextColor.WHITE))
         );
     }
 
     private static String getDisplayName(CommandSender sender) {
-        if (sender instanceof Player)
+        if (sender instanceof Player) {
             return FarLands.getDataHandler().getOfflineFLPlayer(sender).getDisplayName();
+        }
 
         return sender.getName();
     }

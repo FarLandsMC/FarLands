@@ -1,10 +1,11 @@
 package net.farlands.sanctuary.mechanic;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatMechanic;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
-import net.farlands.sanctuary.mechanic.region.*;
+import net.farlands.sanctuary.mechanic.region.AutumnEvent;
+import net.farlands.sanctuary.mechanic.region.Spawn;
 import net.farlands.sanctuary.util.Logging;
-
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,7 +42,6 @@ public class MechanicHandler implements Listener {
         // Feature mechanics
         registerMechanic(new AFK());
         registerMechanic(new AntiCheat());
-        registerMechanic(new Chat());
         registerMechanic(new CompassMechanic());
         registerMechanic(new GeneralMechanics());
         registerMechanic(new Restrictions());
@@ -50,6 +50,8 @@ public class MechanicHandler implements Listener {
         registerMechanic(new VanillaFixes());
         registerMechanic(new Voting());
         registerMechanic(new Items());
+        registerMechanic(new RotatingMessages());
+        registerMechanic(new ChatMechanic());
 
         Logging.log("Finished registering mechanics.");
     }

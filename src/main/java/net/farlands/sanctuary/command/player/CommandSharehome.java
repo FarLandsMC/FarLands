@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -9,8 +10,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.ShareHome;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -98,7 +99,7 @@ public class CommandSharehome extends PlayerCommand {
         Home home = new Home(args[2], flp.getHome(args[2]));
 
         // If there is a message, apply colour codes
-        final String message = Chat.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(2, " ", args)),
+        final String message = FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(2, " ", args)),
             escapedMessage = escapeExpression(message);
 
         if (recipientFlp.getIgnoreStatus(sender).includesSharehomes() || !recipientFlp.canAddHome()) {
@@ -141,7 +142,7 @@ public class CommandSharehome extends PlayerCommand {
             String homeName = shareHome.home().getName();
             if (args.length == 3) {
                 // Make sure the home name is valid
-                if (args[2].isEmpty() || args[2].matches("\\s+") || Chat.getMessageFilter().isProfane(args[2])) {
+                if (args[2].isEmpty() || args[2].matches("\\s+") || MessageFilter.INSTANCE.isProfane(args[2])) {
                     sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
                     return true;
                 }

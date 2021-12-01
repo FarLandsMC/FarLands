@@ -1,9 +1,6 @@
 package net.farlands.sanctuary.command.staff;
 
 import com.google.common.collect.ImmutableMap;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.FLShutdownEvent;
@@ -11,8 +8,6 @@ import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
-
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -21,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandShutdown extends Command {
     private static final Map<Integer, String> NOTIFICATION_TIMES = (new ImmutableMap.Builder<Integer, String>())
@@ -81,9 +78,9 @@ public class CommandShutdown extends Command {
             int delay = seconds - e.getKey();
             if(delay > 0)
                 FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
-                    Logging.broadcastFormatted(e.getValue(), false);
+                    Logging.broadcastIngame(e.getValue(), false);
                     if (DISCORD_NOTIFICATION_TIMES.contains(e.getKey()))
-                        Logging.broadcastIngameDiscord(e.getValue(), ChatColor.GOLD.getColor());
+                        Logging.broadcastDiscord(e.getValue());
                 }, 20L * delay);
             else
                 Logging.broadcastFormatted(e.getValue(), true);

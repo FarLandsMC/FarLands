@@ -1,31 +1,23 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.minecraft.nbt.NBTTagCompound;
-import org.apache.commons.lang.WordUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,7 +59,7 @@ public class CommandPackageView extends Command {
 
         List<Package> validPackages = packages.stream()
             .filter(p -> {
-                String formattedSenderName = Chat.removeColorCodes(p.senderName().replaceAll("\\{+|}+", ""));;
+                String formattedSenderName = FLUtils.removeColorCodes(p.senderName().replaceAll("\\{+|}+", ""));;
                 return (args.length >= 1 && !args[0].equalsIgnoreCase("all") &&
                     viewFlp.getDisplayName().equalsIgnoreCase(formattedSenderName)) ||
                     args.length == 0 || args[0].equalsIgnoreCase("all");
@@ -131,7 +123,7 @@ public class CommandPackageView extends Command {
                 .append(ComponentColor.gold("]"));
 
             OfflineFLPlayer packageSender = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid());
-            String username = Chat.removeColorCodes(lPackage.senderName().replaceAll("\\{+|}+", ""));
+            String username = FLUtils.removeColorCodes(lPackage.senderName().replaceAll("\\{+|}+", ""));
 
             if (args.length >= 1 && !args[0].equalsIgnoreCase("all") && viewFlp.getDisplayName().equalsIgnoreCase(username)) {
                 line.append(itemDisplay)

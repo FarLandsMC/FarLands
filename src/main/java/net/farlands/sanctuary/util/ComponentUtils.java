@@ -7,8 +7,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 
+import java.awt.*;
+
+/**
+ * Utility class for creating/manipulating components
+ */
 public class ComponentUtils {
 
     /**
@@ -34,6 +40,16 @@ public class ComponentUtils {
     public static Component command(String command, TextColor color) {
         Component c = Component.text(command).color(color);
         return command(command, c, ComponentColor.gray("Click to Run."));
+    }
+
+    /**
+     * Create a component with the styling and actions for a command
+     *
+     * @param command The command
+     * @param base    The base component
+     */
+    public static Component command(String command, Component base) {
+        return command(command, base, ComponentColor.gray("Click to Run."));
     }
 
     /**
@@ -183,5 +199,24 @@ public class ComponentUtils {
      */
     public static Component hover(Component base, String hoverText) {
         return hover(base, Component.text(hoverText));
+    }
+
+    /**
+     * Convert from {@link Component}s into plain text
+     *
+     * @param component Components to convert
+     * @return text
+     */
+    public static String toText(Component component) {
+        return PlainTextComponentSerializer.plainText().serializeOr(component, "");
+    }
+
+    /**
+     * Convert from a {@link TextColor} into {@link Color}
+     * @param color The color to convert from
+     * @return The converted color
+     */
+    public static Color getColor(TextColor color) {
+        return new Color(color.value());
     }
 }

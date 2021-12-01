@@ -3,9 +3,13 @@ package net.farlands.sanctuary.data;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.md_5.bungee.api.ChatColor;
-
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
@@ -26,40 +30,40 @@ public enum Rank {
     /* Player Ranks */
 
     // symbol color playTimeRequired homes tpDelay shops wildCooldown
-    INITIATE("Initiate", ChatColor.GRAY,                                        0,  1, 7,  0,  3),
+    INITIATE("Initiate", NamedTextColor.GRAY,                                        0,  1, 7,  0,  3),
 
     // symbol color advancement playTimeRequired totalVotesRequired homes tpDelay shops wildCooldown
-    BARD    ("Bard",     ChatColor.YELLOW,     "story/mine_diamond",            3,  3, 6,  2, 18),
-    ESQUIRE ("Esquire",  ChatColor.DARK_GREEN, "story/enchant_item",           12,  5, 6,  5, 15),
-    KNIGHT  ("Knight",   ChatColor.GOLD,       "nether/get_wither_skull",      24,  8, 5, 10, 12),
-    SAGE    ("Sage",     ChatColor.AQUA,       "end/find_end_city",            72, 10, 5, 15,  9),
-    ADEPT   ("Adept",    ChatColor.GREEN,      "adventure/totem_of_undying",  144, 12, 4, 20,  8),
-    SCHOLAR ("Scholar",  ChatColor.BLUE,       "adventure/adventuring_time",  240, 16, 3, 30,  7),
+    BARD    ("Bard",     NamedTextColor.YELLOW,     "story/mine_diamond",            3,  3, 6,  2, 18),
+    ESQUIRE ("Esquire",  NamedTextColor.DARK_GREEN, "story/enchant_item",           12,  5, 6,  5, 15),
+    KNIGHT  ("Knight",   NamedTextColor.GOLD,       "nether/get_wither_skull",      24,  8, 5, 10, 12),
+    SAGE    ("Sage",     NamedTextColor.AQUA,       "end/find_end_city",            72, 10, 5, 15,  9),
+    ADEPT   ("Adept",    NamedTextColor.GREEN,      "adventure/totem_of_undying",  144, 12, 4, 20,  8),
+    SCHOLAR ("Scholar",  NamedTextColor.BLUE,       "adventure/adventuring_time",  240, 16, 3, 30,  7),
 
     // symbol color [teamColor=color] playTimeRequired homes tpDelay shops wildCooldown
-    VOTER   ("Voter",    ChatColor.LIGHT_PURPLE,                               -1, 16, 3, 30,  7), // Same as Scholar
-    BIRTHDAY("B-Day",    ChatColor.of("#de3193"), org.bukkit.ChatColor.RED,    -1, 16, 3, 30,  7),
-    DONOR   ("Donor",    ChatColor.LIGHT_PURPLE,                               -1, 24, 2, 40,  6),
-    PATRON  ("Patron",   ChatColor.DARK_PURPLE,                                -1, 32, 0, 50,  3),
-    SPONSOR ("Sponsor",  ChatColor.of("#32a4ea"), org.bukkit.ChatColor.BLUE,   -1, 40, 0, 50,  1),
-    MEDIA   ("Media",    ChatColor.YELLOW,                                     -1, 40, 0, 50,  1), // Same as Sponsor
+    VOTER   ("Voter",    NamedTextColor.LIGHT_PURPLE,                               -1, 16, 3, 30,  7), // Same as Scholar
+    BIRTHDAY("B-Day",    TextColor.color(0xde3193),             NamedTextColor.RED, -1, 16, 3, 30, 7),
+    DONOR   ("Donor",    NamedTextColor.LIGHT_PURPLE,                               -1, 24, 2, 40,  6),
+    PATRON  ("Patron",   NamedTextColor.DARK_PURPLE,                                -1, 32, 0, 50,  3),
+    SPONSOR ("Sponsor",  TextColor.color(0x32a4ea),          NamedTextColor.BLUE,   -1, 40, 0, 50,  1),
+    MEDIA   ("Media",    NamedTextColor.YELLOW,                                     -1, 40, 0, 50,  1), // Same as Sponsor
 
     /* Staff Ranks */
 
     // permissionLevel symbol color teamColor
-    JR_BUILDER(1, "Jr. Builder", ChatColor.of("#bf6bff"), org.bukkit.ChatColor.AQUA),
-    JR_MOD    (1, "Jr. Mod",     ChatColor.of("#d7493d"), org.bukkit.ChatColor.RED),
-    JR_DEV    (1, "Jr. Dev",     ChatColor.of("#0bbd9e"), org.bukkit.ChatColor.DARK_AQUA),
-    BUILDER   (2, "Builder",     ChatColor.of("#9000ff"), org.bukkit.ChatColor.BLUE),
-    MOD       (2, "Mod",         ChatColor.of("#db1100"), org.bukkit.ChatColor.DARK_RED),
-    ADMIN     (3, "Admin",       ChatColor.DARK_GREEN),
-    DEV       (3, "Dev",         ChatColor.of("#09816b"), org.bukkit.ChatColor.DARK_AQUA),
-    OWNER     (4, "Owner",       ChatColor.GOLD);
+    JR_BUILDER(1, "Jr. Builder", TextColor.color(0xbf6bff), NamedTextColor.AQUA),
+    JR_MOD    (1, "Jr. Mod",     TextColor.color(0xd7493d), NamedTextColor.RED),
+    JR_DEV    (1, "Jr. Dev",     TextColor.color(0x0bbd9e), NamedTextColor.DARK_AQUA),
+    BUILDER   (2, "Builder",     TextColor.color(0x9000ff), NamedTextColor.BLUE),
+    MOD       (2, "Mod",         TextColor.color(0xdb1100), NamedTextColor.DARK_RED),
+    ADMIN     (3, "Admin",       NamedTextColor.DARK_GREEN),
+    DEV       (3, "Dev",         TextColor.color(0x09816b), NamedTextColor.DARK_AQUA),
+    OWNER     (4, "Owner",       NamedTextColor.GOLD);
 
     private final int permissionLevel; // 0: players, 1+: staff
     private final String name;
-    private final ChatColor color;
-    private final org.bukkit.ChatColor teamColor;
+    private final TextColor color;
+    private final NamedTextColor teamColor;
     private final String advancement;
     private final int playTimeRequired; // Hours
     private final int homes;
@@ -72,7 +76,7 @@ public enum Rank {
     public static final int[] DONOR_RANK_COSTS = {10, 30, 60};
     public static final Rank[] DONOR_RANKS = {DONOR, PATRON, SPONSOR};
 
-    Rank(int permissionLevel, String name, ChatColor color, org.bukkit.ChatColor teamColor, String advancement,
+    Rank(int permissionLevel, String name, TextColor color, NamedTextColor teamColor, String advancement,
          int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
         this.permissionLevel = permissionLevel;
         this.name = name;
@@ -86,27 +90,27 @@ public enum Rank {
         this.wildCooldown = wildCooldown;
     }
 
-    Rank(String name, ChatColor color, String advancement, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, name, color, org.bukkit.ChatColor.valueOf(color.getName().toUpperCase()), advancement, playTimeRequired,
+    Rank(String name, TextColor color, String advancement, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
+        this(0, name, color, NamedTextColor.nearestTo(color), advancement, playTimeRequired,
                 homes, tpDelay, shops, wildCooldown);
     }
 
-    Rank(String name, ChatColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
-        this(0, name, color, org.bukkit.ChatColor.valueOf(color.getName().toUpperCase()), null, playTimeRequired, homes,
+    Rank(String name, TextColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
+        this(0, name, color, NamedTextColor.nearestTo(color), null, playTimeRequired, homes,
                 tpDelay, shops, wildCooldown);
     }
 
-    Rank(String name, ChatColor color, org.bukkit.ChatColor teamColor, int playTimeRequired, int homes, int tpDelay,
+    Rank(String name, TextColor color, NamedTextColor teamColor, int playTimeRequired, int homes, int tpDelay,
          int shops, int wildCooldown) {
         this(0, name, color, teamColor, null, playTimeRequired, homes, tpDelay, shops, wildCooldown);
     }
 
-    Rank(int permissionLevel, String name, ChatColor color, org.bukkit.ChatColor teamColor) {
+    Rank(int permissionLevel, String name, TextColor color, NamedTextColor teamColor) {
         this(permissionLevel, name, color, teamColor, null, -1, Integer.MAX_VALUE, 0, 60, 0);
     }
 
-    Rank(int permissionLevel, String name, ChatColor color) {
-        this(permissionLevel, name, color, org.bukkit.ChatColor.valueOf(color.getName().toUpperCase()), null, -1,
+    Rank(int permissionLevel, String name, TextColor color) {
+        this(permissionLevel, name, color, NamedTextColor.nearestTo(color), null, -1,
                 Integer.MAX_VALUE, 0, 60, 0);
     }
 
@@ -167,12 +171,22 @@ public enum Rank {
         return name;
     }
 
+    /**
+     * @Depricated Move to {@link Rank#color()}
+     */
+    @Deprecated
     public ChatColor getColor() {
-        return color;
+        return ChatColor.of(color.asHexString());
     }
+
+    public TextColor color() { return color; }
 
     public ChatColor getNameColor() {
         return specialCompareTo(Rank.VOTER) >= 0 ? getColor() : ChatColor.WHITE;
+    }
+
+    public TextColor nameColor() {
+        return specialCompareTo(Rank.VOTER) >= 0 ? color() : NamedTextColor.WHITE;
     }
 
     public Advancement getAdvancement() {
@@ -232,13 +246,26 @@ public enum Rank {
         return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(getTeamName());
     }
 
+    public Component getLabel() {
+        TextComponent.Builder c = Component.text(this.name).toBuilder();
+        if(isStaff()) {
+            c.style(Style.style(TextDecoration.BOLD));
+        }
+        c.color(color());
+        return c.build();
+    }
+
+    public Component colorName(String name) {
+        return Component.text(name).color(nameColor());
+    }
+
     public static void createTeams() {
         final Scoreboard sc = Bukkit.getScoreboardManager().getMainScoreboard();
         sc.getTeams().forEach(Team::unregister); // Remove old teams
         Arrays.stream(VALUES).filter(rank -> rank.getTeam() == null).forEach(rank -> { // Add teams
             Team team = sc.registerNewTeam(rank.getTeamName());
-            team.setColor(rank.teamColor);
-            team.setPrefix(rank.getNameColor().toString());
+            team.color(rank.teamColor);
+            team.prefix(Component.text("").color(rank.nameColor()));
         });
     }
 }

@@ -5,15 +5,13 @@ import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
-
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.mechanic.Chat;
-
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -85,7 +83,7 @@ public class CommandSetHome extends PlayerCommand {
         }
 
         // Make sure the home name is valid
-        if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || Chat.getMessageFilter().isProfane(args[0]) || args[0].matches("[&$%]"))) {
+        if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || MessageFilter.INSTANCE.isProfane(args[0]) || args[0].matches("[&$%]"))) {
             sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
             return true;
         }

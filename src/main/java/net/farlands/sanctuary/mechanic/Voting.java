@@ -1,17 +1,20 @@
 package net.farlands.sanctuary.mechanic;
 
 import com.vexsoftware.votifier.model.VotifierEvent;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.data.VoteConfig;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.PluginData;
+import net.farlands.sanctuary.data.VoteConfig;
 import net.farlands.sanctuary.data.struct.ItemReward;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -49,9 +52,19 @@ public class Voting extends Mechanic {
         }
         flp.addVote();
         --pluginData.votesUntilParty;
-        Logging.broadcastFormatted("&(gold){&(aqua)%0} just voted $(link,%1,{&(aqua,underline)here}) and received a reward!" +
-                        (pluginData.votesUntilParty > 0 ? " {&(aqua)%2} more $(inflect,noun,2,vote) until a vote party!" : ""),
-                false, flp.username, voteConfig.voteLink, pluginData.votesUntilParty);
+
+        TextComponent.Builder builder = Component.text()
+            .color(NamedTextColor.GOLD)
+            .append(ComponentColor.aqua(flp.username))
+            .append(Component.text(" just voted "))
+            .append(ComponentUtils.link("here", voteConfig.voteLink, NamedTextColor.AQUA))
+            .append(Component.text(" and received a reward!"));
+        if (pluginData.votesUntilParty > 0) {
+            builder.append(ComponentColor.aqua(" " + pluginData.votesUntilParty))
+                .append(ComponentColor.gold(" more vote%s until a vote party!", pluginData.votesUntilParty == 1 ? "" : "s"));
+        }
+        Logging.broadcastIngame(builder.build(), false);
+
         EmbedBuilder eb = new EmbedBuilder()
             .setTitle(flp.username + " just voted here and received a reward!", voteConfig.voteLink)
             .setColor(ChatColor.YELLOW.asBungee().getColor());

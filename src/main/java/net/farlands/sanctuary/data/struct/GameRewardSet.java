@@ -1,11 +1,9 @@
 package net.farlands.sanctuary.data.struct;
 
-import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.Pair;
-
+import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -47,7 +45,7 @@ public record GameRewardSet(
                 try {
                     TextUtils.sendFormatted(player, finalRewardMessage);
                 } catch (TextUtils.SyntaxException ex) {
-                    Logging.error("Invalid final reward message encountered in game reward set: " + ex.getMessage());
+                    Logging.error("Invalid final reward message encountered in game reward set:", ex.getMessage());
                 }
             }
         }

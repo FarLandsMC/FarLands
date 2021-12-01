@@ -1,8 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
-import static net.farlands.sanctuary.util.FLUtils.giveItem;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -11,7 +8,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
-
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,6 +17,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static net.farlands.sanctuary.util.FLUtils.giveItem;
 
 public class CommandGuideBook extends PlayerCommand {
     private final ItemStack book;

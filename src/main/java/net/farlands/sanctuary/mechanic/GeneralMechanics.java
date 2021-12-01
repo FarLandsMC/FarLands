@@ -22,12 +22,10 @@ import net.farlands.sanctuary.gui.GuiVillagerEditor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
-
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.EntityVillager;
 import net.minecraft.world.entity.npc.EntityVillagerAbstract;
-
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.block.Beehive;
@@ -38,10 +36,16 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.*;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -133,7 +137,7 @@ public class GeneralMechanics extends Mechanic {
                     return true;
                 } else
                     return false;
-            }, "&(gold){&(bold)>} Welcome {&(green)%0} to FarLands!", player.getName());
+            }, "<gold><bold> > </bold> Welcome <green>%s</green> to FarLands!", player.getName());
             player.chat("/chain {guidebook} {shovel}");
             sendFormatted(player, "&(gold)Welcome to FarLands! Please read $(hovercmd,/rules,&(aqua)Click " +
                     "to view the server rules.,&(aqua)our rules) before playing. To get started, you can use " +
@@ -231,7 +235,7 @@ public class GeneralMechanics extends Mechanic {
     public void onSignChange(SignChangeEvent event) {
         String[] lines = event.getLines();
         for (int i = 0; i < lines.length; ++i)
-            event.setLine(i, Chat.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
+            event.setLine(i, FLUtils.applyColorCodes(Rank.getRank(event.getPlayer()), lines[i]));
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -509,7 +513,7 @@ public class GeneralMechanics extends Mechanic {
             ItemStack result = event.getResult();
             if (result != null) {
                 ItemMeta meta = result.getItemMeta();
-                meta.setDisplayName(Chat.applyColorCodes(rank, meta.getDisplayName()));
+                meta.setDisplayName(FLUtils.applyColorCodes(rank, meta.getDisplayName()));
                 result.setItemMeta(meta);
             }
         }
@@ -537,11 +541,14 @@ public class GeneralMechanics extends Mechanic {
             if (sleeping < required) {
                 if (sendBroadcast && nightSkip.isComplete()) {
                     nightSkip.reset();
-                    Logging.broadcastFormatted("%0 &(gold)more $(inflect,noun,0,player) $(inflect,verb,0,need) " +
-                            "to sleep to skip the night.", false, required - sleeping);
+                    Logging.broadcastFormatted(
+                        "<gold>%s more %s to sleep to skip the night.",
+                        false,
+                        (required - sleeping) + "",
+                        (required - sleeping) == 1 ? "players need" : "player needs");
                 }
             } else if (nightSkipTask == null) {
-                Logging.broadcastFormatted("&(gold)Skipping the night...", false);
+                Logging.broadcastFormatted("<gold>Skipping the night...", false);
                 nightSkipTask = Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     World world = Bukkit.getWorld("world");
                     world.setTime(1000L);

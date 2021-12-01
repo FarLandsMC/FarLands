@@ -9,7 +9,6 @@ import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.farlands.sanctuary.mechanic.Chat;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FileSystem;
@@ -160,7 +159,7 @@ public class DataHandler extends Mechanic {
             DataHandler dh = FarLands.getDataHandler();
             if (dh.arePatchnotesDifferent()) {
                 try {
-                    String patchNotes = Chat.removeColorCodes(new String(dh.getResource("patchnotes.txt"), StandardCharsets.UTF_8));
+                    String patchNotes = FLUtils.removeColorCodes(new String(dh.getResource("patchnotes.txt"), StandardCharsets.UTF_8));
                     String[] lines = patchNotes.split("\n");
 
                     String currentSection = "\u200B"; // Default to 0-width space if no section name provided
@@ -662,9 +661,11 @@ public class DataHandler extends Mechanic {
 
     public void saveData() {
         // Disable pretty-printing and handle the @SkipSerializing annotation
-        Gson playerDataGson = new GsonBuilder()
-                .addSerializationExclusionStrategy(new SerializationExclusionStrategy())
-                .create();
+        GsonBuilder playerDataGsonBuilder = new GsonBuilder()
+            .addSerializationExclusionStrategy(new SerializationExclusionStrategy());
+        CustomAdapters.register(playerDataGsonBuilder);
+        Gson playerDataGson = playerDataGsonBuilder.create();
+
         FileSystem.saveJson(playerDataGson, flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
         FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
         saveEvidenceLockers();

@@ -1,9 +1,6 @@
 package net.farlands.sanctuary.command.discord;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.dv8tion.jda.api.entities.Message;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
@@ -11,7 +8,6 @@ import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
@@ -20,6 +16,8 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
 import java.util.List;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandArtifact extends DiscordCommand {
     public CommandArtifact() {

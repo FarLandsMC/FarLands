@@ -8,7 +8,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
