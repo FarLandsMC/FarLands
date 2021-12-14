@@ -1,8 +1,8 @@
 package net.farlands.sanctuary.data;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordSender;
@@ -30,16 +30,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 /**
  * This class serves as and API to interact with FarLands' data.
  */
 public class DataHandler extends Mechanic {
-    private final PlayerDataHandlerOld pdh;
     private final File rootDirectory;
     private final Map<UUID, OfflineFLPlayer> flPlayerMap;
     private final Map<Long, OfflineFLPlayer> discordMap;
@@ -129,7 +127,6 @@ public class DataHandler extends Mechanic {
     }
 
     public DataHandler(File rootDirectory) {
-        this.pdh = new PlayerDataHandlerOld(FileSystem.getFile(rootDirectory, Directory.DATA.toString(), "playerdata.db"), this);
         this.rootDirectory = rootDirectory;
         this.flPlayerMap = new HashMap<>();
         this.discordMap = new HashMap<>();
@@ -212,7 +209,6 @@ public class DataHandler extends Mechanic {
             pluginData.lastPatchnotesMD5 = currentPatchnotesMD5;
             ++pluginData.lastPatch;
         }
-        pdh.onShutdown();
         saveCriticalData();
         saveData();
     }
@@ -615,9 +611,22 @@ public class DataHandler extends Mechanic {
     }
 
     public void loadData() {
-        FileSystem.loadJson(new TypeToken<Collection<OfflineFLPlayer>>() {
-                            }, Collections.emptyList(),
-                FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE)).forEach(flp -> {
+        Type type = Types.newParameterizedType(List.class, OfflineFLPlayer.class);
+        JsonAdapter<List<OfflineFLPlayer>> adapter = FarLands.getMoshi().adapter(type);
+        File file = FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE);
+        List<OfflineFLPlayer> players = new ArrayList<>();
+        try {
+            String playerdata = FileSystem.readUTF8(file);
+            if(playerdata.isBlank()) playerdata = "[]";
+            players = adapter.fromJson(playerdata);
+            if (players == null) {
+                players = new ArrayList<>();
+            }
+        } catch (IOException e) {
+            Logging.error("Failed to load " + file.getName() + ".");
+            e.printStackTrace(System.out);
+        }
+        players.forEach(flp -> {
             flPlayerMap.put(flp.uuid, flp);
             if (flp.deaths <= 0 && flp.secondsPlayed > 30 * 60) // Check players with less than 1 death and more than 30 minutes of playtime
                 flp.updateDeaths();
@@ -625,35 +634,11 @@ public class DataHandler extends Mechanic {
                 discordMap.put(flp.discordID, flp);
         });
 
-        try {
-            // Convert SQL things
-            ResultSet rs = pdh.query("select uuid from playerdata");
-            List<UUID> sqlUuids = new ArrayList<>();
-            try {
-                while (rs.next()) {
-                    byte[] uuid = rs.getBytes(1);
-                    sqlUuids.add(FLUtils.getUuid(uuid, 0));
-                }
-                rs.close();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-            //sqlUuids.forEach(uuid -> {
-            //    OfflineFLPlayer flp = pdh.loadFLPlayer(uuid, null);
-            //    if (flPlayerMap.containsKey(uuid))
-            //        flPlayerMap.get(uuid).discordID = flp.discordID;
-            //});
-            sqlUuids.stream().filter(uuid -> !flPlayerMap.containsKey(uuid)).forEach(uuid -> {
-                OfflineFLPlayer flp = pdh.loadFLPlayer(uuid, null);
-                flp.notes.addAll(pdh.getNotes(uuid));
-                flPlayerMap.put(uuid, flp);
-            });
-        } catch (Throwable t) {
-            t.printStackTrace(System.out);
-        }
-
-        itemData = FileSystem.loadJson(new TypeToken<>() {
-        }, new HashMap<>(), FileSystem.getFile(rootDirectory, ITEMS_FILE));
+        itemData = FileSystem.loadJson(
+            Types.newParameterizedType(Map.class, String.class, ItemCollection.class),
+            new HashMap<>(),
+            FileSystem.getFile(rootDirectory, ITEMS_FILE)
+        );
         loadEvidenceLockers();
         loadDeathDatabase();
         loadPackages();
@@ -661,13 +646,22 @@ public class DataHandler extends Mechanic {
 
     public void saveData() {
         // Disable pretty-printing and handle the @SkipSerializing annotation
-        GsonBuilder playerDataGsonBuilder = new GsonBuilder()
-            .addSerializationExclusionStrategy(new SerializationExclusionStrategy());
-        CustomAdapters.register(playerDataGsonBuilder);
-        Gson playerDataGson = playerDataGsonBuilder.create();
+        Moshi.Builder playerDataBuilder = new Moshi.Builder();
+        CustomAdapters.register(playerDataBuilder);
 
-        FileSystem.saveJson(playerDataGson, flPlayerMap.values(), FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE));
-        FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
+        FileSystem.saveJson(
+            playerDataBuilder.build().adapter(Types.newParameterizedType(Collection.class, OfflineFLPlayer.class)),
+            flPlayerMap.values(),
+            FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE)
+        );
+
+        FileSystem.saveJson(
+            FarLands.getMoshi().adapter(Types.newParameterizedType(Map.class, String.class, ItemCollection.class)),
+            itemData,
+            FileSystem.getFile(rootDirectory, ITEMS_FILE)
+        );
+
+//        FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
         saveEvidenceLockers();
         saveDeathDatabase();
         savePackages();

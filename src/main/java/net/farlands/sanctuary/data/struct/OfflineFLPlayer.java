@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.data.struct;
 
-import com.google.common.collect.ImmutableMap;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
@@ -8,7 +7,6 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.data.SkipSerializing;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
@@ -83,15 +81,7 @@ public class OfflineFLPlayer {
     public List<Punishment> punishments;
     public List<String> notes;
 
-    // Legacy
-    @SkipSerializing
-    public Set<UUID> ignoredPlayers;
-
-    public static final Map<String, List<String>> SQL_SER_INFO = (new ImmutableMap.Builder<String, List<String>>())
-            .put("constants", Arrays.asList("uuid", "username"))
-            .put("objects", Arrays.asList("particles", "lastLocation", "currentMute"))
-            .put("ignored", Arrays.asList("punishments", "homes", "mail", "notes", "staffChatColor", "totalSeasonVotes"))
-            .build();
+    public transient Set<UUID> ignoredPlayers;
 
     public OfflineFLPlayer(UUID uuid, String username) {
         this.uuid = uuid;
@@ -146,7 +136,8 @@ public class OfflineFLPlayer {
         this.ignoredPlayers = new HashSet<>();
     }
 
-    OfflineFLPlayer() { // No-Args ctr for GSON
+    @SuppressWarnings("unused")
+    OfflineFLPlayer() { // No-Args constructor for Moshi
         this(null, null);
     }
 

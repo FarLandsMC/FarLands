@@ -1,11 +1,14 @@
 package net.farlands.sanctuary.util;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.kicas.rp.util.ReflectionHelper;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 import net.farlands.sanctuary.FarLands;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -86,6 +89,15 @@ public final class FileSystem {
         ofstream.close();
     }
 
+    public static void writeUTF8Safe(String data, File file) {
+        try {
+            writeUTF8(data, file);
+        } catch (IOException e) {
+            Logging.error("Failed to save " + file.getName() + ".");
+            e.printStackTrace(System.out);
+        }
+    }
+
     public static String readUTF8(File file) throws IOException {
         if (!file.exists())
             return "";
@@ -98,7 +110,7 @@ public final class FileSystem {
                 FileSystem.createFile(file);
                 return ReflectionHelper.instantiate(clazz);
             }
-            T obj = FarLands.getGson().fromJson(readUTF8(file), clazz);
+            T obj = FarLands.getMoshi().adapter(clazz).fromJson(readUTF8(file));
             return obj == null ? ReflectionHelper.instantiate(clazz) : obj;
         } catch (IOException ex) {
             Logging.error("Failed to load " + file.getName() + ".");
@@ -107,14 +119,17 @@ public final class FileSystem {
         }
     }
 
-    public static <T> T loadJson(TypeToken<T> typeToken, T defaultValue, File file) {
+    public static <T> T loadJson(Type type, T defaultValue, File file) {
         try {
             if (!file.exists()) {
                 FileSystem.createFile(file);
                 return defaultValue;
             }
+            String emptyString = defaultValue instanceof Iterable ? "[]" : "{}";
 
-            T obj = FarLands.getGson().fromJson(readUTF8(file), typeToken.getType());
+            JsonAdapter<T> adapter = FarLands.getMoshi().adapter(type);
+            String jsonData = readUTF8(file);
+            T obj = adapter.fromJson(jsonData.isBlank() ? emptyString : jsonData);
             return obj == null ? defaultValue : obj;
         } catch (IOException ex) {
             Logging.error("Failed to load " + file.getName() + ".");
@@ -124,15 +139,15 @@ public final class FileSystem {
     }
 
     public static <T> void saveJson(T object, File file) {
-        saveJson(FarLands.getGson(), object, file);
+        saveJson(FarLands.getMoshi(), object, file);
     }
 
-    public static <T> void saveJson(Gson gson, T object, File file) {
-        try {
-            writeUTF8(gson.toJson(object), file);
-        } catch (IOException ex) {
-            Logging.error("Failed to save " + file.getName() + ".");
-            ex.printStackTrace(System.out);
-        }
+    public static <T> void saveJson(Moshi moshi, T object, File file) {
+        JsonAdapter<T> adapter = moshi.adapter((Type) object.getClass());
+        writeUTF8Safe(adapter.toJson(object), file);
+    }
+
+    public static <T> void saveJson(JsonAdapter<T> adapter, T object, File file) {
+        writeUTF8Safe(adapter.toJson(object), file);
     }
 }

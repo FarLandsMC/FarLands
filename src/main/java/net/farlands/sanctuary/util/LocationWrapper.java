@@ -7,7 +7,7 @@ import org.bukkit.Location;
 import java.util.UUID;
 
 /**
- * Wrapper for Bukkit {@link Location} that will play nice with Gson.
+ * Wrapper for Bukkit {@link Location} that will play nicely with Moshi.
  */
 public class LocationWrapper {
     protected final UUID world;
