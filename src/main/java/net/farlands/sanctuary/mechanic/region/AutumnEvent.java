@@ -18,7 +18,7 @@ import net.minecraft.world.item.Items;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -3026,26 +3026,26 @@ public class AutumnEvent extends Mechanic {
         if (data.name != null) {
             NBTTagCompound display = new NBTTagCompound();
             // TODO: unhack this
-            display.setString("Name", "{\"text\":\"" + data.name + "\"}");
+            display.a("Name", "{\"text\":\"" + data.name + "\"}"); // NBTTagCompound#setString
             NBTTagList lore = new NBTTagList();
             for (String line : data.lore)
                 lore.add(NBTTagString.a("{\"text\":\"" + line + "\"}"));
-            display.set("Lore", lore);
-            tag.set("display", display);
+            display.a("Lore", lore); // NBTTagCompound#set
+            tag.a("display", display); // NBTTagCompound#set
         }
         NBTTagCompound skullOwner = new NBTTagCompound();
-        skullOwner.setString("Id", owner);
+        skullOwner.a("Id", owner); // NBTTagCompound#setString
         NBTTagCompound properties = new NBTTagCompound();
         NBTTagList textures = new NBTTagList();
         NBTTagCompound textures_0 = new NBTTagCompound();
-        textures_0.setString("Value", data.textures);
+        textures_0.a("Value", data.textures); // NBTTagCompound#setString
         textures.add(textures_0);
-        properties.set("textures", textures);
-        skullOwner.set("Properties", properties);
-        tag.set("SkullOwner", skullOwner);
+        properties.a("textures", textures); // NBTTagCompound#set
+        skullOwner.a("Properties", properties); // NBTTagCompound#set
+        tag.a("SkullOwner", skullOwner); // NBTTagCompound#set
         // TODO: 7/3/21 This player head item needs to be tested. It may not be the right item
         net.minecraft.world.item.ItemStack dropCB = new net.minecraft.world.item.ItemStack(Items.pg, 1);
-        dropCB.setTag(tag);
+        dropCB.b(tag); // ItemStack#setTag
         return CraftItemStack.asBukkitCopy(dropCB);
     }
 }

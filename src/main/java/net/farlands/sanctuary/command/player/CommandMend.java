@@ -1,17 +1,13 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-
 import net.farlands.sanctuary.util.ComponentColor;
-import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -90,9 +86,7 @@ public class CommandMend extends PlayerCommand {
     private static int totalExp(Player player) {
         int level = player.getLevel();
 
-        // TODO: Get rid of the CraftPlayer usage
-        EntityPlayer handle = ((CraftPlayer) player).getHandle();
-        int points = (int) (handle.ck * handle.getExpToLevel()); // EntityPlayer#ck = EntityPlayer#exp
+        int points = (int) (player.getExp() * player.getExpToLevel());
 
         if (level <= 16)
             return level * level + 6 * level + points;

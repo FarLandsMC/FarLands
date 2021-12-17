@@ -15,6 +15,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandShrug;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.ChatClickable;
 import net.minecraft.network.chat.ChatHexColor;
@@ -30,9 +31,9 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -94,8 +95,8 @@ public final class FLUtils {
 
     public static boolean isPersistent(Entity entity) {
         net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
-        if (handle instanceof EntityInsentient)
-            return ((EntityInsentient) handle).isPersistent();
+        if (handle instanceof EntityInsentient e)
+            return e.persist;
         return false;
     }
 
@@ -131,15 +132,16 @@ public final class FLUtils {
         MerchantRecipeList copy = new MerchantRecipeList();
         list.forEach(recipe -> {
             MerchantRecipe r = new MerchantRecipe(
-                    recipe.getBuyItem1(),
-                    recipe.getBuyItem2(),
-                    recipe.getSellingItem(),
-                    recipe.getUses(),
-                    recipe.getMaxUses(),
-                    recipe.getXp(),
-                    recipe.getPriceMultiplier(),
-                    recipe.getDemand()
+                    recipe.a, // buyItem1
+                    recipe.b, // buyItem2
+                    recipe.c, // sellItem
+                    recipe.d, // uses
+                    recipe.e, // maxUses
+                    recipe.j, // xp
+                    recipe.i, // priceMultiplier
+                    (int) ReflectionHelper.getFieldValue("h", MerchantRecipe.class, recipe) // demand
             );
+
             ReflectionHelper.setNonFinalFieldValue("f", MerchantRecipe.class, r, ReflectionHelper.getFieldValue("f", Recipe.class, recipe));
             copy.add(r);
         });
@@ -148,7 +150,7 @@ public final class FLUtils {
 
     public static double serverMspt() {
         long totalMspt = 0;
-        long[] mspts = ((CraftServer)Bukkit.getServer()).getServer().n; // n = mspts field
+        long[] mspts = ((CraftServer)Bukkit.getServer()).getServer().p; // p = mspts field
         for (long v : mspts)
             totalMspt += v;
         return totalMspt / (mspts.length * 1000000.0);
@@ -315,12 +317,12 @@ public final class FLUtils {
     }
 
     public static NBTTagCompound getTag(ItemStack stack) {
-        return stack == null ? null : CraftItemStack.asNMSCopy(stack).getTag();
+        return stack == null ? null : CraftItemStack.asNMSCopy(stack).s();
     }
 
     public static ItemStack applyTag(NBTTagCompound nbt, ItemStack stack) {
         net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
-        nmsStack.setTag(nbt);
+        nmsStack.b(nbt);
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
 
@@ -395,31 +397,35 @@ public final class FLUtils {
         return custom.isEmpty() ? stack.getAmount() + " * " + capitalize(stack.getType().toString().replaceAll("_", " ")) : custom;
     }
 
-    public static Location locationFromNBT(NBTTagCompound nbt) {
-        return new Location(Bukkit.getWorld(UUID.fromString(nbt.getString("world"))), nbt.getDouble("x"), nbt.getDouble("y"),
-                nbt.getDouble("z"), nbt.getFloat("yaw"), nbt.getFloat("pitch"));
+    public static Location locationFromNBT(CompoundBinaryTag nbt) {
+        return new Location(
+            Bukkit.getWorld(UUID.fromString(nbt.getString("world"))),
+            nbt.getDouble("x"),
+            nbt.getDouble("y"),
+            nbt.getDouble("z"),
+            nbt.getFloat("yaw"),
+            nbt.getFloat("pitch")
+        );
     }
 
-    public static NBTTagCompound locationToNBT(Location location) {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setString("world", location.getWorld().getUID().toString());
-        nbt.setDouble("x", location.getX());
-        nbt.setDouble("y", location.getY());
-        nbt.setDouble("z", location.getZ());
-        nbt.setFloat("yaw", location.getYaw());
-        nbt.setFloat("pitch", location.getPitch());
+    public static CompoundBinaryTag locationToNBT(Location location) {
+        CompoundBinaryTag nbt = CompoundBinaryTag.builder()
+            .putString("world", location.getWorld().getUID().toString())
+            .putDouble("x", location.getX())
+            .putDouble("y", location.getY())
+            .putDouble("z", location.getZ())
+            .putFloat("yaw", location.getYaw())
+            .putFloat("pitch", location.getPitch())
+            .build();
         return nbt;
     }
 
-    public static ItemStack itemStackFromNBT(NBTTagCompound nbt) {
-        return nbt == null || nbt.isEmpty() ? null: CraftItemStack.asBukkitCopy(net.minecraft.world.item.ItemStack.a(nbt));
+    public static ItemStack itemStackFromNBT(byte[] bytes) {
+        return bytes == null ? null : ItemStack.deserializeBytes(bytes);
     }
 
-    public static NBTTagCompound itemStackToNBT(ItemStack stack) {
-        NBTTagCompound nbt = new NBTTagCompound();
-        if (stack != null)
-            CraftItemStack.asNMSCopy(stack).save(nbt);
-        return nbt;
+    public static byte[] itemStackToNBT(ItemStack stack) {
+        return stack.serializeAsBytes();
     }
 
     public static boolean isWithin(Location loc, Pair<Location, Location> region) {

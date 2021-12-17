@@ -1,8 +1,7 @@
 package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.util.FLUtils;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.kyori.adventure.nbt.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -19,13 +18,15 @@ public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
         flp.punishments.forEach(punishment -> lockers.put(punishment.toUniqueString(), new ArrayList<>()));
     }
 
-    public EvidenceLocker(NBTTagCompound nbt) {
+    public EvidenceLocker(CompoundBinaryTag nbt) {
         this(new HashMap<>());
-        for (String key : nbt.getKeys()) {
-            NBTTagList serLocker = nbt.getList(key, 10);
+        for (String key : nbt.keySet()) {
+            ListBinaryTag serLocker = nbt.getList(key);
             List<ItemStack> locker = new ArrayList<>();
-            serLocker.stream().map(base -> FLUtils.itemStackFromNBT((NBTTagCompound) base))
-                    .forEach(locker::add);
+            serLocker
+                .stream()
+                .map(base -> FLUtils.itemStackFromNBT(((ByteArrayBinaryTag) base).value()))
+                .forEach(locker::add);
             lockers.put(key, locker);
         }
     }
@@ -40,13 +41,12 @@ public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
         return this;
     }
 
-    public NBTTagCompound serialize() {
-        NBTTagCompound nbt = new NBTTagCompound();
+    public CompoundBinaryTag serialize() {
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
         lockers.forEach((key, locker) -> {
-            NBTTagList serLocker = new NBTTagList();
-            locker.stream().map(FLUtils::itemStackToNBT).forEach(serLocker::add);
-            nbt.set(key, serLocker);
+            ListBinaryTag serLocker = ListBinaryTag.from(locker.stream().map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
+            nbt.put(key, serLocker);
         });
-        return nbt;
+        return nbt.build();
     }
 }

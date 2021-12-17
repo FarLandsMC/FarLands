@@ -1,8 +1,9 @@
 package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.util.FLUtils;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.kyori.adventure.nbt.ByteArrayBinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +26,7 @@ public record PlayerDeath(long time, Location location, int xpLevels, float xpPo
         );
     }
 
-    public PlayerDeath(NBTTagCompound nbt) {
+    public PlayerDeath(CompoundBinaryTag nbt) {
         this(
             nbt.getLong("time"),
             FLUtils.locationFromNBT(nbt.getCompound("loc")),
@@ -33,18 +34,17 @@ public record PlayerDeath(long time, Location location, int xpLevels, float xpPo
             nbt.getFloat("xpPoints"),
             new ArrayList<>()
         );
-        nbt.getList("inv", 10).stream().map(base -> FLUtils.itemStackFromNBT((NBTTagCompound) base)).forEach(this.inventory::add);
+        nbt.getList("inv").stream().map(base -> FLUtils.itemStackFromNBT(((ByteArrayBinaryTag) base).value())).forEach(this.inventory::add);
     }
 
-    public NBTTagCompound serialize() {
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setLong("time", time);
-        nbt.set("loc", FLUtils.locationToNBT(location));
-        nbt.setInt("xpLevels", xpLevels);
-        nbt.setFloat("xpPoints", xpPoints);
-        NBTTagList inv = new NBTTagList();
-        inventory.stream().map(FLUtils::itemStackToNBT).forEach(inv::add);
-        nbt.set("inv", inv);
-        return nbt;
+    public CompoundBinaryTag serialize() {
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
+        nbt.putLong("time", time);
+        nbt.put("loc", FLUtils.locationToNBT(location));
+        nbt.putInt("xpLevels", xpLevels);
+        nbt.putFloat("xpPoints", xpPoints);
+        ListBinaryTag inv = ListBinaryTag.from(inventory.stream().map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
+        nbt.put("inv", inv);
+        return nbt.build();
     }
 }

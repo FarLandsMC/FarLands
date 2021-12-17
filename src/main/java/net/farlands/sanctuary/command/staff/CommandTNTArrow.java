@@ -1,15 +1,11 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
-
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -20,6 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandTNTArrow extends PlayerCommand {
     private static final List<String> TYPES = Arrays.asList("nerfed", "standard", "firework", "animals", "mob", "compact", "rain");
@@ -40,26 +38,26 @@ public class CommandTNTArrow extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         NBTTagCompound tntArrow = new NBTTagCompound();
-        tntArrow.setFloat("strength", 1);
+        tntArrow.a("strength", 1f); // NBTTagCompound#setFloat
         int amount = 1;
         if(args.length == 1) {
             amount = parseNumber(args[0], Integer::parseInt, 0);
             if(amount == 0) {
                 if(!TYPES.contains(args[0]))
                     return false;
-                tntArrow.setInt("type", TYPES.indexOf(args[0]));
+                tntArrow.a("type", TYPES.indexOf(args[0])); // NBTTagCompound#setInt
                 amount = 1;
             }
         }else if(args.length > 1) {
             if(!TYPES.contains(args[0]))
                 return false;
-            tntArrow.setInt("type", TYPES.indexOf(args[0]));
+            tntArrow.a("type", TYPES.indexOf(args[0])); // NBTTagCompound#setInt
             float power = parseNumber(args[1], Float::parseFloat, 0.0F);
             if(power == 0.0) {
                 sendFormatted(sender, "&(red)The arrow power must be 1 or larger.");
                 return true;
             }
-            tntArrow.setFloat("strength", power);
+            tntArrow.a("strength", power); // NBTTagCompound#setFloat
             if(args.length >= 3)
                 amount = parseNumber(args[2], Integer::parseInt, 0);
             if(args.length >= 4) {
@@ -68,7 +66,7 @@ public class CommandTNTArrow extends PlayerCommand {
                     sendFormatted(sender, "&(red)The duration must be between 5 and 300 inclusive.");
                     return true;
                 }
-                tntArrow.setInt("duration", duration);
+                tntArrow.a("duration", duration); // NBTTagCompound#setInt
             }
         }
         if(amount < 1 || amount > 64) {
@@ -76,13 +74,13 @@ public class CommandTNTArrow extends PlayerCommand {
             return true;
         }
         NBTTagCompound display = new NBTTagCompound();
-        display.setString("Name", NAMES.get(tntArrow.hasKey("type") ? tntArrow.getInt("type") : 0));
+        display.a("Name", NAMES.get(tntArrow.e("type") ? tntArrow.h("type") : 0)); // NBTTagCompound#setString, NBTTagCompound#hasKey, NBTTagCompound#getInt
         NBTTagList lore = new NBTTagList();
-        lore.add(NBTTagString.a("\"Strength: " + Integer.toString((int)tntArrow.getFloat("strength")) + "\""));
-        display.set("Lore", lore);
+        lore.add(NBTTagString.a("\"Strength: " + (int) tntArrow.j("strength") /* NBTTagCompound#getFloat */ + "\""));
+        display.a("Lore", lore); // NBTTagCompound#set
         NBTTagCompound tag = new NBTTagCompound();
-        tag.set("tntArrow", tntArrow);
-        tag.set("display", display);
+        tag.a("tntArrow", tntArrow); // NBTTagCompound#set
+        tag.a("display", display); // NBTTagCompound#set
         FLUtils.giveItem(sender, FLUtils.applyTag(tag, new ItemStack(Material.ARROW, amount)), false);
         return true;
     }

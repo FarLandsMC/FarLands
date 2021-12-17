@@ -1,16 +1,11 @@
 package net.farlands.sanctuary.mechanic;
 
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
-import net.farlands.sanctuary.util.FireworkBuilder;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.FireworkBuilder;
 import net.minecraft.nbt.NBTTagCompound;
-
-import static org.bukkit.entity.EntityType.*;
-import static org.bukkit.Material.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -26,6 +21,9 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.bukkit.Material.*;
+import static org.bukkit.entity.EntityType.*;
 
 /**
  * Handles events related to items.
@@ -76,7 +74,7 @@ public class Items extends Mechanic {
         }
 
         NBTTagCompound nbt = FLUtils.getTag(arrow);
-        if (nbt != null && nbt.hasKey("tntArrow")) {
+        if (nbt != null && nbt.e("tntArrow")) { // hasKey
             // Infinity doesn't apply to these arrows
             if ((inv.getItemInMainHand().getType() == Material.BOW
                     ? inv.getItemInMainHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0
@@ -88,7 +86,7 @@ public class Items extends Mechanic {
                     arrow.setAmount(arrow.getAmount() - 1);
             }
 
-            tntArrows.put(event.getProjectile().getUniqueId(), new TNTArrow(nbt.getCompound("tntArrow")));
+            tntArrows.put(event.getProjectile().getUniqueId(), new TNTArrow(nbt.p("tntArrow"))); // getCompound
         }
     }
 
@@ -253,9 +251,9 @@ public class Items extends Mechanic {
         int type;
 
         TNTArrow(NBTTagCompound nbt) {
-            this.strength = nbt.getFloat("strength");
-            this.duration = nbt.hasKey("duration") ? nbt.getInt("duration") : 15;
-            this.type = nbt.hasKey("type") ? nbt.getInt("type") : 0;
+            this.strength = nbt.j("strength"); // getFloat
+            this.duration = nbt.e("duration") ? nbt.h("duration") : 15; // hasKey, getInt
+            this.type = nbt.e("type") ? nbt.h("type") : 0; // hasKey, getInt
         }
     }
 }

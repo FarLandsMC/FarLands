@@ -17,7 +17,7 @@ import net.minecraft.world.level.EnumGamemode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -187,7 +187,7 @@ public class Toggles extends Mechanic {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             if (GameMode.SPECTATOR == player.getGameMode()) {
                 Bukkit.getOnlinePlayers().stream().filter(p -> Rank.getRank(p).isStaff()).forEach(p ->
-                    ((CraftPlayer)p).getHandle().b.sendPacket(new PacketPlayOutPlayerInfo(
+                    ((CraftPlayer)p).getHandle().b.a(new PacketPlayOutPlayerInfo(
                         PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b, ((CraftPlayer)player).getHandle()
                     ))
                 );

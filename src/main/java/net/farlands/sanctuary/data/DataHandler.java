@@ -13,10 +13,10 @@ import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FileSystem;
 import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.nbt.BinaryTagIO;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.nbt.NBTCompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -119,7 +119,7 @@ public class DataHandler extends Mechanic {
             try {
                 if (!f.createNewFile())
                     throw new RuntimeException("Failed to create " + file + ". Did you give the process access to the FS?");
-                NBTCompressedStreamTools.a(new NBTTagCompound(), new FileOutputStream(f));
+                BinaryTagIO.writer().write(CompoundBinaryTag.empty(), new FileOutputStream(f));
             } catch (IOException ex) {
                 throw new RuntimeException("Failed to create " + file + ". Did you give the process access to the FS?", ex);
             }
@@ -453,24 +453,28 @@ public class DataHandler extends Mechanic {
     }
 
     private void loadEvidenceLockers() {
-        NBTTagCompound nbt;
+        CompoundBinaryTag nbt;
         try {
-            nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
+            nbt = BinaryTagIO.reader().read(new FileInputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to load evidence locker data.");
             ex.printStackTrace(System.out);
             return;
         }
 
-        nbt.getKeys().forEach(key -> evidenceLockers.put(UUID.fromString(key), new EvidenceLocker(nbt.getCompound(key))));
+        nbt.keySet().forEach(key -> evidenceLockers.put(
+            UUID.fromString(key),
+            new EvidenceLocker((CompoundBinaryTag) nbt.get(key))
+        ));
     }
 
     public void saveEvidenceLockers() {
-        NBTTagCompound nbt = new NBTTagCompound();
-        evidenceLockers.forEach((key, locker) -> nbt.set(key.toString(), locker.serialize()));
+
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
+        evidenceLockers.forEach((key, locker) -> nbt.put(key.toString(), locker.serialize()));
 
         try {
-            NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
+            BinaryTagIO.writer().write(nbt.build(), new FileOutputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
@@ -478,32 +482,31 @@ public class DataHandler extends Mechanic {
     }
 
     private void loadDeathDatabase() {
-        NBTTagCompound nbt;
+        CompoundBinaryTag nbt;
         try {
-            nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
+            nbt = BinaryTagIO.reader().read(new FileInputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         } catch (IOException ex) {
             Logging.error("Failed to load death database.");
             ex.printStackTrace(System.out);
             return;
         }
 
-        nbt.getKeys().forEach(uuid -> {
+        nbt.keySet().forEach(uuid -> {
             List<PlayerDeath> deaths = new ArrayList<>();
-            nbt.getList(uuid, 10).stream().map(base -> new PlayerDeath((NBTTagCompound) base)).forEach(deaths::add);
+            nbt.getList(uuid).stream().map(base -> new PlayerDeath((CompoundBinaryTag) base)).forEach(deaths::add);
             deathDatabase.put(UUID.fromString(uuid), deaths);
         });
     }
 
     public void saveDeathDatabase() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
         deathDatabase.forEach((uuid, deathList) -> {
-            NBTTagList serDeathList = new NBTTagList();
-            deathList.stream().map(PlayerDeath::serialize).forEach(serDeathList::add);
-            nbt.set(uuid.toString(), serDeathList);
+            ListBinaryTag serDeathList = ListBinaryTag.from(deathList.stream().map(PlayerDeath::serialize).toList());
+            nbt.put(uuid.toString(), serDeathList);
         });
 
         try {
-            NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
+            BinaryTagIO.writer().write(nbt.build(), new FileOutputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         } catch (IOException ex) {
             Logging.error("Failed to save evidence lockers file.");
             ex.printStackTrace(System.out);
@@ -511,62 +514,66 @@ public class DataHandler extends Mechanic {
     }
 
     public void loadPackages() {
-        NBTTagCompound nbt;
+        CompoundBinaryTag nbt;
         try {
-            nbt = NBTCompressedStreamTools.a(new FileInputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
+            nbt = BinaryTagIO.reader().read(new FileInputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to load items file.");
             ex.printStackTrace(System.out);
             return;
         }
-        if (nbt.isEmpty())
-            return;
 
-        List<Package> rtsPackages = new ArrayList<>();
-        nbt.getKeys().forEach(key -> {
-            NBTTagCompound serIndividualPackages = nbt.getCompound(key);
-            List<Package> individualPackages = new ArrayList<>();
-            serIndividualPackages.getKeys().forEach(packageSender -> {
-                NBTTagCompound packageNBT = serIndividualPackages.getCompound(packageSender);
-                String uuid = packageNBT.getString("sender");
-                Package lPackage = new Package(
-                        uuid.isEmpty() ? null : UUID.fromString(uuid), packageSender,
-                        FLUtils.itemStackFromNBT(packageNBT.getCompound("item")),
-                        packageNBT.getString("message"), packageNBT.getLong("sentTime"),
-                        packageNBT.getBoolean("forceSend"));
-                if (lPackage.hasExpired())
-                    rtsPackages.add(lPackage);
+        List<Package> returnToSender = new ArrayList<>();
+        nbt.forEach((entry) -> {
+            CompoundBinaryTag tag = (CompoundBinaryTag) entry.getValue();
+            List<Package> pkgs = new ArrayList<>();
+            tag.forEach((entry2) -> {
+                CompoundBinaryTag packageNBT = (CompoundBinaryTag) entry2.getValue();
+                String uuids = packageNBT.getString("sender");
+                UUID uuid = uuids.isEmpty() ? null : UUID.fromString(uuids);
+                Package pkg = new Package(
+                    uuid,
+                    uuid == null ? "" : FarLands.getDataHandler().getOfflineFLPlayer(uuid).username,
+                    FLUtils.itemStackFromNBT(packageNBT.getByteArray("item")),
+                    packageNBT.getString("message"),
+                    packageNBT.getLong("sentTime"),
+                    packageNBT.getBoolean("forceSend")
+                );
+
+                if (pkg.hasExpired())
+                    returnToSender.add(pkg);
                 else
-                    individualPackages.add(lPackage);
+                    pkgs.add(pkg);
             });
-            packages.put(UUID.fromString(key), individualPackages);
+            packages.put(UUID.fromString(entry.getKey()), pkgs);
         });
-        rtsPackages.forEach(lPackage -> addPackage(lPackage.senderUuid(),
+        returnToSender.forEach(pkg -> addPackage(pkg.senderUuid(),
                 new Package(null, "FarLands Packaging Service",
-                        lPackage.item(), "Return To Sender", true)
+                        pkg.item(), "Return To Sender", true)
         ));
     }
 
     public void savePackages() {
-        NBTTagCompound nbt = new NBTTagCompound();
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
         packages.forEach((uuid, individualPackages) -> {
             if (uuid != null) {
-                NBTTagCompound serIndividualPackages = new NBTTagCompound();
-                individualPackages.forEach(lPackage -> {
-                    NBTTagCompound packageNBT = new NBTTagCompound();
-                    packageNBT.setString("sender", lPackage.senderUuid() == null ? "" : lPackage.senderUuid().toString());
-                    packageNBT.set("item", FLUtils.itemStackToNBT(lPackage.item()));
-                    packageNBT.setString("message", lPackage.message());
-                    packageNBT.setLong("sentTime", lPackage.sentTime());
-                    packageNBT.setBoolean("forceSend", lPackage.forceSend());
-                    serIndividualPackages.set(lPackage.senderName(), packageNBT);
+                CompoundBinaryTag.Builder serIndividualPackages = CompoundBinaryTag.builder();
+                individualPackages.forEach(pkg -> {
+                    CompoundBinaryTag packageNBT = CompoundBinaryTag.builder()
+                            .putString("sender", pkg.senderUuid() == null ? "" : pkg.senderUuid().toString())
+                            .putByteArray("item", FLUtils.itemStackToNBT(pkg.item()))
+                            .putString("message", pkg.message())
+                            .putLong("sentTime", pkg.sentTime())
+                            .putBoolean("forceSend", pkg.forceSend())
+                        .build();
+                    serIndividualPackages.put(pkg.senderName(), packageNBT);
                 });
-                nbt.set(uuid.toString(), serIndividualPackages);
+                nbt.put(uuid.toString(), serIndividualPackages.build());
             }
         });
 
         try {
-            NBTCompressedStreamTools.a(nbt, new FileOutputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
+            BinaryTagIO.writer().write(nbt.build(), new FileOutputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to save items file.");
             ex.printStackTrace(System.out);

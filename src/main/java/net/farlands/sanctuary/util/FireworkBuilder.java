@@ -5,8 +5,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftFirework;
-import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftFirework;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.ItemStack;
@@ -92,35 +92,35 @@ public class FireworkBuilder {
 
     private NBTTagCompound toNBT() {
         NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setInt("LifeTime", lifetime);
+        nbt.a("LifeTime", lifetime); // setInt
         NBTTagCompound fireworksItem = new NBTTagCompound();
-        fireworksItem.setString("id", "firework_rocket");
-        fireworksItem.setInt("Count", 1);
+        fireworksItem.a("id", "firework_rocket"); // setString
+        fireworksItem.a("Count", 1); // setInt
         NBTTagCompound itemTag = new NBTTagCompound();
         NBTTagCompound wrapper = new NBTTagCompound();
-        wrapper.setInt("Flight", flight);
+        wrapper.a("Flight", flight); // setInt
         NBTTagList explosionTags = new NBTTagList();
         explosions.forEach((e) -> explosionTags.add(e.toNBT()));
-        wrapper.set("Explosions", explosionTags);
-        itemTag.set("Fireworks", wrapper);
-        fireworksItem.set("tag", itemTag);
-        nbt.set("FireworksItem", fireworksItem);
+        wrapper.a("Explosions", explosionTags); // set
+        itemTag.a("Fireworks", wrapper); // set
+        fireworksItem.a("tag", itemTag); // set
+        nbt.a("FireworksItem", fireworksItem); // set
         return nbt;
     }
 
     public void spawnEntity(Location loc) {
         Firework firework = (Firework)loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
         EntityFireworks entity = ((CraftFirework)firework).getHandle();
-        entity.loadData(toNBT());
+        entity.g(toNBT());
     }
 
     public ItemStack buildItemStack(int stackSize) {
         net.minecraft.world.item.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.FIREWORK_ROCKET, stackSize));
-        NBTTagCompound stackTag = toNBT().getCompound("FireworksItem").getCompound("tag");
+        NBTTagCompound stackTag = toNBT().p("FireworksItem").p("tag"); // getCompound
         int flightRaw = (int)Math.ceil(((double)lifetime) / 20.0);
         int flight = flightRaw < 1 ? 1 : Math.min(flightRaw, 3);
-        stackTag.getCompound("Fireworks").setByte("Flight", (byte)(flight & 0xFF));
-        stack.setTag(stackTag);
+        stackTag.p("Fireworks").a("Flight", (byte)(flight & 0xFF)); // getCompound, setCompound
+        stack.b(stackTag); // setTag
         return CraftItemStack.asBukkitCopy(stack);
     }
 
@@ -141,11 +141,11 @@ public class FireworkBuilder {
 
         NBTTagCompound toNBT() {
             NBTTagCompound nbt = new NBTTagCompound();
-            nbt.setInt("Type", type.ordinal());
-            nbt.setBoolean("Flicker", flicker);
-            nbt.setBoolean("Trail", trail);
-            nbt.setIntArray("Colors", colors);
-            nbt.setIntArray("FadeColors", fadeColors);
+            nbt.a("Type", type.ordinal()); // setInt
+            nbt.a("Flicker", flicker); // setBoolean
+            nbt.a("Trail", trail); // setBoolean
+            nbt.a("Colors", colors); // setIntArray
+            nbt.a("FadeColors", fadeColors); // setIntArray
             return nbt;
         }
     }

@@ -23,7 +23,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -106,7 +106,7 @@ public class CommandStack extends PlayerCommand {
                 Block block = player.getTargetBlockExact(5);
                 TileEntity tileEntity;
                 if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
-                        .getTileEntity(new LocationWrapper(block.getLocation()).asBlockPosition())) == null ||
+                        .getBlockEntity(new LocationWrapper(block.getLocation()).asBlockPosition(), true)) == null ||
                         !ACCEPTED_CONTAINERS.contains(block.getType())) {
                     player.sendMessage(ComponentColor.red("Target block must be a chest or barrel"));
                     return true;

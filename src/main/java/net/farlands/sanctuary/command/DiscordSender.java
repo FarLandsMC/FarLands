@@ -177,24 +177,41 @@ public class DiscordSender implements CommandSender, ICommandListener {
     @Override
     public void setOp(boolean b) { }
 
-    @Override
     public void sendMessage(IChatBaseComponent component, UUID unused) {
         sendMessage(component.getString());
     }
 
-    @Override
     public boolean shouldSendSuccess() {
         return true;
     }
 
-    @Override
     public boolean shouldSendFailure() {
         return true;
     }
 
-    @Override
     public boolean shouldBroadcastCommands() {
         return false;
+    }
+
+    @Override
+    public void a(IChatBaseComponent iChatBaseComponent, UUID uuid) {
+        sendMessage(iChatBaseComponent, uuid);
+    }
+
+    // Pretty sure this is the correct order
+    @Override
+    public boolean i_() {
+        return shouldSendSuccess();
+    }
+
+    @Override
+    public boolean j_() {
+        return shouldSendFailure();
+    }
+
+    @Override
+    public boolean F_() {
+        return shouldBroadcastCommands();
     }
 
     @Override
