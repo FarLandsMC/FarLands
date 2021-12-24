@@ -149,7 +149,7 @@ public class CommandStaffChat extends Command {
             } else if ("off".equalsIgnoreCase(args[index])) {
                 newValue = false;
             } else {
-                sender.sendMessage(ComponentColor.red("Ignoring invalid toggle value \"%0\"", args[index]));
+                sender.sendMessage(ComponentColor.red("Ignoring invalid toggle value \"%s\"", args[index]));
             }
         }
 

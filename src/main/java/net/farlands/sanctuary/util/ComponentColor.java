@@ -13,7 +13,7 @@ public class ComponentColor {
      * @return
      */
     public static Component black(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.BLACK);
+        return format(text, values).color(NamedTextColor.BLACK);
     }
 
     /**
@@ -24,7 +24,7 @@ public class ComponentColor {
      * @return
      */
     public static Component darkBlue(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.DARK_BLUE);
+        return format(text, values).color(NamedTextColor.DARK_BLUE);
     }
 
     /**
@@ -35,7 +35,7 @@ public class ComponentColor {
      * @return
      */
     public static Component darkGreen(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.DARK_GREEN);
+        return format(text, values).color(NamedTextColor.DARK_GREEN);
     }
 
     /**
@@ -46,7 +46,7 @@ public class ComponentColor {
      * @return
      */
     public static Component darkAqua(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.DARK_AQUA);
+        return format(text, values).color(NamedTextColor.DARK_AQUA);
     }
 
     /**
@@ -57,7 +57,7 @@ public class ComponentColor {
      * @return
      */
     public static Component darkRed(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.DARK_RED);
+        return format(text, values).color(NamedTextColor.DARK_RED);
     }
 
     /**
@@ -68,7 +68,7 @@ public class ComponentColor {
      * @return
      */
     public static Component darkPurple(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.DARK_PURPLE);
+        return format(text, values).color(NamedTextColor.DARK_PURPLE);
     }
 
     /**
@@ -79,7 +79,7 @@ public class ComponentColor {
      * @return
      */
     public static Component gold(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.GOLD);
+        return format(text, values).color(NamedTextColor.GOLD);
     }
 
     /**
@@ -90,7 +90,7 @@ public class ComponentColor {
      * @return
      */
     public static Component gray(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.GRAY);
+        return format(text, values).color(NamedTextColor.GRAY);
     }
 
     /**
@@ -101,7 +101,7 @@ public class ComponentColor {
      * @return
      */
     public static Component darkGray(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.DARK_GRAY);
+        return format(text, values).color(NamedTextColor.DARK_GRAY);
     }
 
     /**
@@ -112,7 +112,7 @@ public class ComponentColor {
      * @return
      */
     public static Component blue(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.BLUE);
+        return format(text, values).color(NamedTextColor.BLUE);
     }
 
     /**
@@ -123,7 +123,7 @@ public class ComponentColor {
      * @return
      */
     public static Component green(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.GREEN);
+        return format(text, values).color(NamedTextColor.GREEN);
     }
 
     /**
@@ -134,7 +134,7 @@ public class ComponentColor {
      * @return
      */
     public static Component aqua(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.AQUA);
+        return format(text, values).color(NamedTextColor.AQUA);
     }
 
     /**
@@ -145,7 +145,7 @@ public class ComponentColor {
      * @return
      */
     public static Component red(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.RED);
+        return format(text, values).color(NamedTextColor.RED);
     }
 
     /**
@@ -156,7 +156,7 @@ public class ComponentColor {
      * @return
      */
     public static Component lightPurple(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.LIGHT_PURPLE);
+        return format(text, values).color(NamedTextColor.LIGHT_PURPLE);
     }
 
     /**
@@ -167,7 +167,7 @@ public class ComponentColor {
      * @return
      */
     public static Component yellow(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.YELLOW);
+        return format(text, values).color(NamedTextColor.YELLOW);
     }
 
     /**
@@ -178,7 +178,16 @@ public class ComponentColor {
      * @return
      */
     public static Component white(String text, Object... values) {
-        return Component.text(String.format(text, values)).color(NamedTextColor.WHITE);
+        return format(text, values).color(NamedTextColor.WHITE);
+    }
+
+    /**
+     * Generate a component from text using replacements
+     *
+     * Escapes <code>%</code> if there's no values
+     */
+    private static Component format(String text, Object... values) {
+        return Component.text(String.format(values.length > 0 ? text : text.replace("%", "%%"), values));
     }
 
 }

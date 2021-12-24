@@ -80,7 +80,7 @@ public class DiscordHandler extends ListenerAdapter {
 
         } catch (Exception ex) {
             Logging.error("Failed to setup discord jdaBot.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
         }
     }
 
@@ -478,7 +478,7 @@ public class DiscordHandler extends ListenerAdapter {
                         dPrefix.append(p.censoring ? finalCensorMessage : finalMessage)
                     ));
 
-                Bukkit.getConsoleSender().sendMessage(finalMessage);
+                Bukkit.getConsoleSender().sendMessage(dPrefix.append(finalMessage));
             }
         }
     }

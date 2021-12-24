@@ -4,10 +4,7 @@ import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.nbt.*;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A player evidence locker for storing items when a player has been punished.
@@ -44,7 +41,7 @@ public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
     public CompoundBinaryTag serialize() {
         CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
         lockers.forEach((key, locker) -> {
-            ListBinaryTag serLocker = ListBinaryTag.from(locker.stream().map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
+            ListBinaryTag serLocker = ListBinaryTag.from(locker.stream().filter(Objects::nonNull).map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
             nbt.put(key, serLocker);
         });
         return nbt.build();

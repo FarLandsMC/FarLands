@@ -92,8 +92,8 @@ public class FarLands extends JavaPlugin {
             processBuilder.redirectErrorStream(false);
             processBuilder.start();
         } catch (IOException ex) {
-            System.out.println("Failed to execute script " + script);
-            ex.printStackTrace(System.out);
+            Logging.error("Failed to execute script " + script);
+            ex.printStackTrace();
         }
     }
 

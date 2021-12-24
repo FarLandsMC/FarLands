@@ -59,7 +59,7 @@ public class CommandUploadSchem extends DiscordCommand {
                 attachmentDest = attachments.get(0).downloadToFile(attachmentDest).get();
             } catch (InterruptedException | ExecutionException ex) {
                 Logging.error(ex);
-                ex.printStackTrace(System.out);
+                ex.printStackTrace();
                 sender.sendMessage("Failed to upload schematics.");
                 return true;
             }
@@ -84,7 +84,7 @@ public class CommandUploadSchem extends DiscordCommand {
                 }
             } catch (IOException ex) {
                 Logging.error(ex);
-                ex.printStackTrace(System.out);
+                ex.printStackTrace();
                 sender.sendMessage("Failed to upload schematics.");
                 return true;
             }

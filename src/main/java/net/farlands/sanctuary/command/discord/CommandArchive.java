@@ -75,7 +75,7 @@ public class CommandArchive extends DiscordCommand {
                 run0();
             } catch (Throwable t) {
                 sender.sendMessage(ChatColor.RED + "Failed to archive channel due to an unexpected error.");
-                t.printStackTrace(System.out);
+                t.printStackTrace();
             }
         }
 

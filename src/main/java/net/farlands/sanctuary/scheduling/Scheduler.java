@@ -30,7 +30,7 @@ public class Scheduler extends Thread {
             try {
                 sleep(50L - (System.currentTimeMillis() % 50L)); // Account for execution time
             } catch (InterruptedException ex) {
-                ex.printStackTrace(System.out);
+                ex.printStackTrace();
             }
         }
     }

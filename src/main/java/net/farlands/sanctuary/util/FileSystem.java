@@ -94,7 +94,7 @@ public final class FileSystem {
             writeUTF8(data, file);
         } catch (IOException e) {
             Logging.error("Failed to save " + file.getName() + ".");
-            e.printStackTrace(System.out);
+            e.printStackTrace();
         }
     }
 
@@ -114,7 +114,7 @@ public final class FileSystem {
             return obj == null ? ReflectionHelper.instantiate(clazz) : obj;
         } catch (IOException ex) {
             Logging.error("Failed to load " + file.getName() + ".");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
             return ReflectionHelper.instantiate(clazz);
         }
     }
@@ -133,7 +133,7 @@ public final class FileSystem {
             return obj == null ? defaultValue : obj;
         } catch (IOException ex) {
             Logging.error("Failed to load " + file.getName() + ".");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
             return defaultValue;
         }
     }

@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Stores a player death.
@@ -43,7 +44,7 @@ public record PlayerDeath(long time, Location location, int xpLevels, float xpPo
         nbt.put("loc", FLUtils.locationToNBT(location));
         nbt.putInt("xpLevels", xpLevels);
         nbt.putFloat("xpPoints", xpPoints);
-        ListBinaryTag inv = ListBinaryTag.from(inventory.stream().map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
+        ListBinaryTag inv = ListBinaryTag.from(inventory.stream().filter(Objects::nonNull).map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
         nbt.put("inv", inv);
         return nbt.build();
     }

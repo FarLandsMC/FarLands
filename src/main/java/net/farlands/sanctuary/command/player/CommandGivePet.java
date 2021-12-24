@@ -54,7 +54,7 @@ public class CommandGivePet extends PlayerCommand {
         session.givePetRecipient.setValue(player, 1200L, () -> sender.sendMessage("Cancelled pet transfer mode"));
 
         Component c = Component.text()
-            .content("Are you sure you want to give your pet to %0? Click the pet you wish to transfer to confirm, or type ")
+            .content("Are you sure you want to give your pet to " + session.givePetRecipient + "? Click the pet you wish to transfer to confirm, or type ")
             .color(NamedTextColor.GOLD)
             .append(ComponentUtils.command("/givepet cancel"))
             .append(ComponentColor.gold(" to cancel"))

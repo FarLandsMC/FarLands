@@ -8,6 +8,8 @@ import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.ChatColor;
 import org.bukkit.command.BlockCommandSender;
@@ -16,8 +18,6 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
 import java.util.List;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandArtifact extends DiscordCommand {
     public CommandArtifact() {
@@ -31,13 +31,12 @@ public class CommandArtifact extends DiscordCommand {
             return true;
 
         if (!(sender instanceof DiscordSender)) {
-            sendFormatted(sender, "&(red)This command must be used from discord.");
+            sender.sendMessage(ComponentColor.red("This command must be used from Discord."));
             return false;
         }
 
         if (FarLands.getFLConfig().isScreenSessionNotSet()) {
-            sendFormatted(sender, "&(red)The screen session for this server instance is not specified. " +
-                    "This command requires that field to run.");
+            sender.sendMessage("The screen session for this server instance is not specified. This command requires that field to run.");
             return true;
         }
 
@@ -59,14 +58,30 @@ public class CommandArtifact extends DiscordCommand {
         } catch (Exception ex) {
             sender.sendMessage(ChatColor.RED + "Failed to upload artifact due to an internal error.");
             Logging.error(ex.getMessage());
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
             return true;
         }
 
         Config cfg = FarLands.getFLConfig();
+
         if (args.length > 1 && "true".equals(args[1])) {
-            FarLands.executeScript("artifact.sh", cfg.screenSession, cfg.paperDownload, cfg.dedicatedMemory,
-                    args.length > 2 ? args[2] : "false");
+            boolean downloadPaper = args.length > 2 && args[2].equalsIgnoreCase("true");
+            String paperDownload = downloadPaper ? FLUtils.getLatestReleaseUrl() : "unused";
+            if(paperDownload == null) {
+                Logging.error("Failed to get latest paper download url.");
+                sender.sendMessage(ComponentColor.red("Failed to get latest paper download url."));
+                paperDownload = "unused"; // Give it a non-null value
+                downloadPaper = false;
+            } else {
+                String fileName = paperDownload.substring(paperDownload.lastIndexOf('/') + 1).replace(".jar", "");
+                sender.sendMessage(ComponentColor.green("Downloading latest paper version: %s", fileName));
+            }
+            FarLands.executeScript(
+                "artifact.sh",
+                cfg.screenSession,
+                paperDownload,
+                cfg.dedicatedMemory,
+                downloadPaper ? "true" : "false");
             FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
         }
 

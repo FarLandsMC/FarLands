@@ -70,7 +70,7 @@ public class DataHandler extends Mechanic {
             try {
                 data = getResource("scripts/" + script);
             } catch (IOException ex) {
-                System.out.println("Failed to load script: " + script);
+                Logging.error("Failed to load script: " + script);
                 ex.printStackTrace();
                 return;
             }
@@ -83,7 +83,7 @@ public class DataHandler extends Mechanic {
                 fos.flush();
                 fos.close();
             } catch (IOException ex) {
-                System.out.println("Failed to update script: " + script);
+                Logging.error("Failed to update script: " + script);
                 ex.printStackTrace();
             }
         });
@@ -190,7 +190,7 @@ public class DataHandler extends Mechanic {
                     flPlayerMap.values().forEach(flp -> flp.viewedPatchnotes = false);
                 } catch (IOException ex) {
                     Logging.error("Failed to post patch notes to #announcements");
-                    ex.printStackTrace(System.out);
+                    ex.printStackTrace();
                 }
             }
         }, 100L);
@@ -199,7 +199,7 @@ public class DataHandler extends Mechanic {
         if (gcCycleTime > 0)
             Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), System::gc, 20L * 60L * 5L, 20L * 60L * gcCycleTime);
 
-        System.out.println("Offline FLP Count: " + getOfflineFLPlayers().size());
+        FarLands.getDebugger().echo("Offline FLP Count: " + getOfflineFLPlayers().size());
     }
 
     @Override
@@ -317,7 +317,7 @@ public class DataHandler extends Mechanic {
                     currentPatchnotesMD5 = FLUtils.hash(notes);
             } catch (IOException ex) {
                 Logging.error("Failed to compare patch notes.");
-                ex.printStackTrace(System.out);
+                ex.printStackTrace();
             }
         }
         return currentPatchnotesMD5 != null && !Arrays.equals(currentPatchnotesMD5, pluginData.lastPatchnotesMD5);
@@ -458,7 +458,7 @@ public class DataHandler extends Mechanic {
             nbt = BinaryTagIO.reader().read(new FileInputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to load evidence locker data.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
             return;
         }
 
@@ -477,7 +477,7 @@ public class DataHandler extends Mechanic {
             BinaryTagIO.writer().write(nbt.build(), new FileOutputStream(FileSystem.getFile(rootDirectory, EVIDENCE_LOCKERS_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to save evidence lockers file.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
         }
     }
 
@@ -487,7 +487,7 @@ public class DataHandler extends Mechanic {
             nbt = BinaryTagIO.reader().read(new FileInputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         } catch (IOException ex) {
             Logging.error("Failed to load death database.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
             return;
         }
 
@@ -509,7 +509,7 @@ public class DataHandler extends Mechanic {
             BinaryTagIO.writer().write(nbt.build(), new FileOutputStream(FileSystem.getFile(rootDirectory, DEATH_DATABASE)));
         } catch (IOException ex) {
             Logging.error("Failed to save evidence lockers file.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
         }
     }
 
@@ -519,7 +519,7 @@ public class DataHandler extends Mechanic {
             nbt = BinaryTagIO.reader().read(new FileInputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to load items file.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
             return;
         }
 
@@ -576,7 +576,7 @@ public class DataHandler extends Mechanic {
             BinaryTagIO.writer().write(nbt.build(), new FileOutputStream(FileSystem.getFile(rootDirectory, PACKAGES_FILE)));
         } catch (IOException ex) {
             Logging.error("Failed to save items file.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
         }
     }
 
@@ -631,7 +631,7 @@ public class DataHandler extends Mechanic {
             }
         } catch (IOException e) {
             Logging.error("Failed to load " + file.getName() + ".");
-            e.printStackTrace(System.out);
+            e.printStackTrace();
         }
         players.forEach(flp -> {
             flPlayerMap.put(flp.uuid, flp);

@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kicas.rp.util.Pair;
@@ -25,8 +26,6 @@ import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.entity.EntityInsentient;
 import net.minecraft.world.item.trading.MerchantRecipe;
 import net.minecraft.world.item.trading.MerchantRecipeList;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -89,6 +88,33 @@ public final class FLUtils {
                 .get("SKIN").getAsJsonObject()
                 .get("url").getAsString();
         } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public static String getLatestReleaseUrl() {
+        try {
+
+            InputStreamReader reader;
+            JsonArray arr;
+
+            // Get the latest version
+            URL versionsUrl = new URL("https://papermc.io/api/v2/projects/paper");
+            reader = new InputStreamReader(versionsUrl.openStream());
+            arr = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("versions").getAsJsonArray();
+            String version = arr.get(arr.size() - 1).getAsString();
+
+            // get the latest build
+            URL buildsUrl = new URL("https://papermc.io/api/v2/projects/paper/versions/" + version);
+            reader = new InputStreamReader(buildsUrl.openStream());
+            arr = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("builds").getAsJsonArray();
+            String build = arr.get(arr.size() - 1).getAsString();
+
+            // form the download url
+            return String.format("https://papermc.io/api/v2/projects/paper/versions/%1$s/builds/%2$s/downloads/paper-%1$s-%2$s.jar", version, build);
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

@@ -8,6 +8,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.commands.ICommandListener;
@@ -80,7 +81,10 @@ public class DiscordSender implements CommandSender, ICommandListener {
 
     @Override
     public void sendMessage(String s) {
-        sendMessage(s, true);
+        sendMessage(
+            MarkdownProcessor.fromMinecraft(LegacyComponentSerializer.legacySection().deserialize(s)),
+            false
+        );
     }
 
     @Override
