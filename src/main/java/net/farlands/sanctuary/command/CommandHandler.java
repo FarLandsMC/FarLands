@@ -72,6 +72,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandDelay());            // Initiate
 
         // Discord Commands
+        registerCommand(new CommandAddReactions());     // Jr Builder
         registerCommand(new CommandAlts());             // Jr Builder
         registerCommand(new CommandArchive());          // Admin
         registerCommand(new CommandArtifact());         // Admin (Requires JS Permission)
