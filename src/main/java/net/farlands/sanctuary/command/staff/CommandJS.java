@@ -1,12 +1,9 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
-
+import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -16,7 +13,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandJS extends Command {
     private ScriptEngine engine;

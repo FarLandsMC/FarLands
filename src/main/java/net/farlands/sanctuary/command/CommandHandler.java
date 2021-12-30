@@ -265,9 +265,9 @@ public class CommandHandler extends Mechanic {
             org.bukkit.command.Command bukkitCommand = knownCommands.get(commandName);
 
             // See if it's a vanilla command
-            if (bukkitCommand instanceof VanillaCommandWrapper) {
+            if (bukkitCommand instanceof VanillaCommandWrapper cmd) {
                 // Ensure the sender has permission
-                if (!(boolean) ReflectionHelper.invoke("testPermission", VanillaCommandWrapper.class, bukkitCommand, sender))
+                if (!cmd.testPermission(sender))
                     return false;
 
                 Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {

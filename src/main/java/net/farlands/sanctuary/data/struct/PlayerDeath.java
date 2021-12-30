@@ -16,12 +16,29 @@ import java.util.Objects;
 /**
  * Stores a player death.
  */
-public record PlayerDeath(long time, Location location, int xpLevels, float xpPoints, List<ItemStack> inventory) {
+public final class PlayerDeath {
+
+    private final long time;
+    private final Location location;
+    private final int xpLevels;
+    private final float xpPoints;
+    private final List<ItemStack> inventory;
+
+    /**
+     */
+    public PlayerDeath(long time, Location location, int xpLevels, float xpPoints, List<ItemStack> inventory) {
+        this.time = time;
+        this.location = location;
+        this.xpLevels = xpLevels;
+        this.xpPoints = xpPoints;
+        this.inventory = inventory;
+    }
+
     public PlayerDeath(Player player) {
         this(
-            System.currentTimeMillis(), 
-            player.getLocation(), 
-            player.getLevel(), 
+            System.currentTimeMillis(),
+            player.getLocation(),
+            player.getLevel(),
             player.getExp(),
             Arrays.asList(player.getInventory().getContents())
         );
@@ -48,4 +65,52 @@ public record PlayerDeath(long time, Location location, int xpLevels, float xpPo
         nbt.put("inv", inv);
         return nbt.build();
     }
+
+    public long time() {
+        return time;
+    }
+
+    public Location location() {
+        return location;
+    }
+
+    public int xpLevels() {
+        return xpLevels;
+    }
+
+    public float xpPoints() {
+        return xpPoints;
+    }
+
+    public List<ItemStack> inventory() {
+        return inventory;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (PlayerDeath) obj;
+        return this.time == that.time &&
+               Objects.equals(this.location, that.location) &&
+               this.xpLevels == that.xpLevels &&
+               Float.floatToIntBits(this.xpPoints) == Float.floatToIntBits(that.xpPoints) &&
+               Objects.equals(this.inventory, that.inventory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, location, xpLevels, xpPoints, inventory);
+    }
+
+    @Override
+    public String toString() {
+        return "PlayerDeath[" +
+               "time=" + time + ", " +
+               "location=" + location + ", " +
+               "xpLevels=" + xpLevels + ", " +
+               "xpPoints=" + xpPoints + ", " +
+               "inventory=" + inventory + ']';
+    }
+
 }

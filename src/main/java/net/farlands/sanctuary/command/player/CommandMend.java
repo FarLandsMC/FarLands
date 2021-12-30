@@ -86,7 +86,7 @@ public class CommandMend extends PlayerCommand {
     private static int totalExp(Player player) {
         int level = player.getLevel();
 
-        int points = (int) (player.getExp() * player.getExpToLevel());
+        int points = player.getTotalExperience() * player.getExpToLevel();
 
         if (level <= 16)
             return level * level + 6 * level + points;

@@ -9,7 +9,16 @@ import java.util.*;
 /**
  * A player evidence locker for storing items when a player has been punished.
  */
-public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
+public final class EvidenceLocker {
+
+    private final Map<String, List<ItemStack>> lockers;
+
+    /**
+     */
+    public EvidenceLocker(Map<String, List<ItemStack>> lockers) {
+        this.lockers = lockers;
+    }
+
     public EvidenceLocker(OfflineFLPlayer flp) {
         this(new HashMap<>());
         flp.punishments.forEach(punishment -> lockers.put(punishment.toUniqueString(), new ArrayList<>()));
@@ -34,7 +43,7 @@ public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
 
     public EvidenceLocker update(OfflineFLPlayer flp) {
         flp.punishments.stream().map(Punishment::toUniqueString).filter(uid -> !lockers.containsKey(uid))
-                .forEach(uid -> lockers.put(uid, new ArrayList<>()));
+            .forEach(uid -> lockers.put(uid, new ArrayList<>()));
         return this;
     }
 
@@ -46,4 +55,28 @@ public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
         });
         return nbt.build();
     }
+
+    public Map<String, List<ItemStack>> lockers() {
+        return lockers;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (EvidenceLocker) obj;
+        return Objects.equals(this.lockers, that.lockers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lockers);
+    }
+
+    @Override
+    public String toString() {
+        return "EvidenceLocker[" +
+               "lockers=" + lockers + ']';
+    }
+
 }

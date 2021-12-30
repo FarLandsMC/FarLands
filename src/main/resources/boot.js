@@ -12,6 +12,7 @@ const FL = fl.FarLands;
 
 const rp = com.kicas.rp;
 const RP = rp.RegionProtection;
+const RH = rp.util.ReflectionHelper;
 
 const cs = com.kicasmads.cs;
 const CS = cs.ChestShops;
@@ -23,7 +24,6 @@ const ChestShops = CS.getInstance();
 const Bukkit = org.bukkit.Bukkit;
 const server = Bukkit.getServer();
 const ChatColor = org.bukkit.ChatColor;
-const RH = fl.util.ReflectionHelper;
 const Utils = fl.util.FLUtils;
 const DH = FL.getDataHandler();
 
