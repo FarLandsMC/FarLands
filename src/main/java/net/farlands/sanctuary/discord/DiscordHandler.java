@@ -490,4 +490,12 @@ public class DiscordHandler extends ListenerAdapter {
         message = ChatFormat.translateLinks(message);
         return message;
     }
+
+    public Emote getEmote(String id) {
+        return getGuild().getEmoteById(id);
+    }
+
+    public Emote getEmote(long id) {
+        return getGuild().getEmoteById(id);
+    }
 }

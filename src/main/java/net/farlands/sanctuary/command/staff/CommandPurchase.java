@@ -108,6 +108,8 @@ public class CommandPurchase extends Command {
         if (price > 0)
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.NOTEBOOK, args[0] + " has donated " + price + " USD.");
 
+        flp.updateAll(false);
+
         return true;
     }
 

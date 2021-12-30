@@ -1,5 +1,7 @@
 package net.farlands.sanctuary.command.discord;
 
+import com.google.common.collect.ImmutableMap;
+import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.farlands.sanctuary.FarLands;
@@ -9,63 +11,167 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class CommandAddReactions extends DiscordCommand {
 
-  public CommandAddReactions() {
-    super(Rank.JR_BUILDER, "Add reactions to a message for voting.",
-        "/addreactions <message-id> <reactions>", "addreactions", "addreaction");
-  }
+    private static final Map<Character, String> UNICODE_EMOJIS = new ImmutableMap.Builder<Character, String>()
+        .put('1', "1️⃣")
+        .put('2', "2️⃣")
+        .put('3', "3️⃣")
+        .put('4', "4️⃣")
+        .put('5', "5️⃣")
+        .put('6', "6️⃣")
+        .put('7', "7️⃣")
+        .put('8', "8️⃣")
+        .put('9', "9️⃣")
+        .put('0', "0️⃣")
+        .put('a', "🇦")
+        .put('b', "🇧")
+        .put('c', "🇨")
+        .put('d', "🇩")
+        .put('e', "🇪")
+        .put('f', "🇫")
+        .put('g', "🇬")
+        .put('h', "🇭")
+        .put('i', "🇮")
+        .put('j', "🇯")
+        .put('k', "🇰")
+        .put('l', "🇱")
+        .put('m', "🇲")
+        .put('n', "🇳")
+        .put('o', "🇴")
+        .put('p', "🇵")
+        .put('q', "🇶")
+        .put('r', "🇷")
+        .put('s', "🇸")
+        .put('t', "🇹")
+        .put('u', "🇺")
+        .put('v', "🇻")
+        .put('w', "🇼")
+        .put('x', "🇽")
+        .put('y', "🇾")
+        .put('z', "🇿")
+        .build();
 
-  @Override
-  @SuppressWarnings("ConstantConditions")
-  public boolean execute(CommandSender sender, String[] args) throws Exception {
-    if (args.length < 3) {
-      return false;
+    public CommandAddReactions() {
+        super(
+            Rank.JR_BUILDER,
+            "Add reactions to a message for voting.",
+            "/addreactions [channel-mention] <message-id> <reactions...>",
+            "addreactions",
+            "addreaction", "addreact"
+        );
     }
-    String[] parts = args[0].split(":");
-    String channelID = parts[0];
-    String commandMessageID = parts[1];
-    // not like we need it :P
-    // Is command handling that fucked lmao *sigh*
-    // I wonder if the alias is fucking with it -- Yes
 
-    // Command handling is a mess so yeah the way you're doing is probably safer
-    // Just how this is? my line indents is diff too :P
+    @Override
+    public boolean execute(CommandSender sender, String[] argsArr) {
+        if (!(sender instanceof DiscordSender)) {
+            sender.sendMessage(ComponentColor.red("This command must be used from Discord."));
+            return false;
+        }
+        try {
 
-    // Let's try this, would you build it and send to me -- yeah :vomit: windows meh
-    TextChannel channel = FarLands.getDiscordHandler().getGuild().getTextChannelById(channelID);
-    Message message = channel.getHistory().getMessageById(args[1]); // This is <message-id>
+            List<String> args = new ArrayList<>(List.of(argsArr));
 
-    // This is the best way to do it, I believe.
-//    FarLands.getDiscordHandler()
-//        .getGuild()
-//        .getTextChannelById(channelID)
-//        .retrieveMessageById(args[1])
-//        .queue(msg -> {
-//        if(msg == null) {
-//          sender.sendMessage(ComponentColor.red("Unable to find message with id '%s'", args[1]));
-//          return;
-//        }
-//
-//        for (int i = 2; i < args.length; i++) {
-//          msg.addReaction(args[i]).queue();
-//        }
-//    });
-    if (message == null) {
-      sender.sendMessage(ComponentColor.red("Unable to find message with id '%s'", args[1]));
-      return true;
+            String[] parts = args.remove(0).split(":");
+            String commandChannelID = parts[0];
+            String commandMessageID = parts[1];
+
+            TextChannel commandChannel = FarLands.getDiscordHandler().getGuild().getTextChannelById(commandChannelID);
+            if (commandChannel == null) {
+                sender.sendMessage(ComponentColor.red("Channel not found."));
+                return true;
+            }
+            Message commandMessage = commandChannel.retrieveMessageById(commandMessageID).complete();
+
+            args = new ArrayList<>(List.of(commandMessage.getContentRaw().split(" ")));
+            args.remove(0); // Remove the command itself
+
+
+            TextChannel channel = commandChannel;
+            Message message = getReplyMessage(commandMessage);
+            if (message == null) {
+                if (args.get(0).matches("^<#\\d+>$")) { // channel id
+                    String channelID = args.get(0).substring(2, args.get(0).length() - 1);
+                    channel = FarLands.getDiscordHandler().getGuild().getTextChannelById(channelID);
+                    args.remove(0);
+                }
+
+                if (channel == null) return false;
+
+                String messageID = args.remove(0);
+                message = channel.retrieveMessageById(messageID).complete();
+                if (message == null) {
+                    sender.sendMessage(ComponentColor.red("Unable to find message with id '%s'", messageID));
+                    return true;
+                }
+            }
+
+            if (args.isEmpty()) return false; // Not enough args
+
+            List<Emote> emotes = new ArrayList<>();
+            List<String> unicodeEmojis = new ArrayList<>();
+            Set<String> badEmotes = new HashSet<>();
+
+            for (String arg : args) {
+                arg = arg.toLowerCase();
+                if (arg.matches("^<:.+:(\\d+)>$")) { // Custom Emote
+                    int start = arg.indexOf(":", 2) + 1;
+                    String emoteID = arg.substring(start, arg.length() - 1);
+                    Emote emote = FarLands.getDiscordHandler().getEmote(Long.parseLong(emoteID));
+
+                    if (emote == null) {
+                        badEmotes.add(arg);
+                    } else {
+                        emotes.add(emote);
+                    }
+
+                } else if (UNICODE_EMOJIS.containsKey(arg.charAt(0)) && arg.length() == 1) { // 1 -> 1️⃣ and so on
+                    unicodeEmojis.add(UNICODE_EMOJIS.get(arg.charAt(0)));
+
+                } else if (arg.matches("[\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee]")) { // Match single unicode emoji
+                    unicodeEmojis.add(arg);
+
+                } else { // invalid
+                    badEmotes.add(arg);
+
+                }
+            }
+
+            if (emotes.size() + unicodeEmojis.size() > 0) {
+                for (Emote emote : emotes) {
+                    message.addReaction(emote).queue();
+                }
+                for (String unicodeEmoji : unicodeEmojis) {
+                    message.addReaction(unicodeEmoji).queue();
+                }
+
+                List<String> print = emotes.stream().map(Emote::getAsMention).collect(Collectors.toList());
+                print.addAll(unicodeEmojis);
+                String msg = "Added reactions: %s".formatted(String.join(", ", print));
+                commandMessage.reply(msg).queue();
+            }
+            if (!badEmotes.isEmpty()) {
+                String msg = "Invalid Emotes: %s.\nMake sure to only use default Discord emotes and custom ones from this server.".formatted(String.join(", ", badEmotes));
+                commandMessage.reply(msg).queue();
+            }
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        return true;
     }
 
-    for (int i = 2; i < args.length; i++) {
-      message.addReaction(args[i]).queue();
+    public static Message getReplyMessage(Message source) {
+        if (source.getReferencedMessage() == null) return null;
+        return source.getReferencedMessage();
     }
-    channel.retrieveMessageById().queue(m -> m.addReaction("\uD83D\uDC4D"));
 
-    return true;
-  }
+    @Override
+    public boolean requiresMessageID() {
+        return true;
+    }
 
-  @Override
-  public boolean requiresMessageID() {
-    return true;
-  }
 }
