@@ -169,6 +169,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandBotSpam());          // Builder
         registerCommand(new CommandBright());           // Jr_Builder
         registerCommand(new CommandBroadcast());        // Builder
+        registerCommand(new CommandCustomItem());       // Builder
         registerCommand(new CommandDeath());            // Jr_Builder
         registerCommand(new CommandDebug());            // Builder
         registerCommand(new CommandDelWarp());          // Builder

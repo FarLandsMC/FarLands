@@ -25,12 +25,10 @@ import org.bukkit.util.Vector;
 import java.util.*;
 
 public class CommandEditArmorStand extends PlayerCommand {
-    private final ItemStack editorBook;
 
     public CommandEditArmorStand() {
         super(Rank.SPONSOR, Category.UTILITY, "Open the vanilla tweaks armor stand editor book.",
                 "/editarmorstand [marker|set] <on|off|value>", "editarmorstand", "editarmourstand");
-        this.editorBook = FarLands.getFLConfig().armorStandBook.getStack();
     }
 
     @Override
@@ -124,6 +122,11 @@ public class CommandEditArmorStand extends PlayerCommand {
 
         }
 
+        ItemStack editorBook = FarLands.getDataHandler().getItem("armorStandBook");
+        if (editorBook == null) {
+            sender.sendMessage(ComponentColor.red("Armor Stand Book not set! Please contact a staff member and notify them of this problem."));
+            return true;
+        }
         sender.openBook(editorBook);
         return true;
     }

@@ -4,10 +4,14 @@ import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Used for giving game rewards.
@@ -18,18 +22,18 @@ public final class GameRewardSet {
     private final double rewardBias;
     private final boolean trackCompletionInfo;
     private final Map<UUID, Long> playerCompletionInfo;
-    private final JsonItemStack finalReward;
+    private final ItemStack finalReward;
     private final String finalRewardMessage;
 
-    /**
-     */
+
     public GameRewardSet(
         List<ItemReward> rewards,
         double rewardBias, boolean
             trackCompletionInfo,
         Map<UUID, Long> playerCompletionInfo,
-        JsonItemStack finalReward,
+        ItemStack finalReward,
         String finalRewardMessage) {
+
         this.rewards = rewards;
         this.rewardBias = rewardBias;
         this.trackCompletionInfo = trackCompletionInfo;
@@ -49,13 +53,39 @@ public final class GameRewardSet {
         );
     }
 
+    public static GameRewardSet fromNbt(CompoundBinaryTag nbt) {
+        ListBinaryTag rewardsNbt = nbt.getList("rewards");
+        List<ItemReward> rewards = rewardsNbt
+            .stream()
+            .map(bt -> (CompoundBinaryTag) bt)
+            .map(ItemReward::fromNbt)
+            .collect(Collectors.toList());
+        return new GameRewardSet(
+            rewards,
+            nbt.getDouble("rewardBias"),
+            nbt.getBoolean("trackCompletionInfo"),
+            playerCompletionInfoFromNbt(nbt.get("playerCompletionInfo")),
+            FLUtils.itemStackFromNBT(nbt.getByteArray("finalReward")),
+            nbt.getString("finalRewardMessage")
+        );
+
+
+    }
+
+    private static Map<UUID, Long> playerCompletionInfoFromNbt(BinaryTag playerCompletionInfo) {
+        Map<UUID, Long> map = new HashMap<>();
+        CompoundBinaryTag nbt = (CompoundBinaryTag) playerCompletionInfo;
+        nbt.keySet().forEach(k -> map.put(UUID.fromString(k), nbt.getLong(k)));
+        return map;
+    }
+
     public void giveReward(Player player) {
         Pair<ItemStack, Integer> reward = ItemReward.randomReward(rewards, rewardBias);
         FLUtils.giveItem(player, reward.getFirst(), true);
         updateCompletionInfo(player, reward.getSecond());
 
         if (trackCompletionInfo && finalReward != null && hasReceivedAllRewards(player) && hasNotReceivedFinalReward(player)) {
-            FLUtils.giveItem(player, finalReward.getStack(), true);
+            FLUtils.giveItem(player, finalReward, true);
             // Change the sign bit to keep track of the final reward
             updateCompletionInfo(player, 63);
 
@@ -71,8 +101,9 @@ public final class GameRewardSet {
     }
 
     private void updateCompletionInfo(Player player, int index) {
-        if (trackCompletionInfo)
+        if (trackCompletionInfo) {
             playerCompletionInfo.put(player.getUniqueId(), playerCompletionInfo.getOrDefault(player.getUniqueId(), 0L) | (1L << index));
+        }
     }
 
     private boolean hasReceivedAllRewards(Player player) {
@@ -101,7 +132,7 @@ public final class GameRewardSet {
         return playerCompletionInfo;
     }
 
-    public JsonItemStack finalReward() {
+    public ItemStack finalReward() {
         return finalReward;
     }
 
@@ -138,4 +169,28 @@ public final class GameRewardSet {
                "finalRewardMessage=" + finalRewardMessage + ']';
     }
 
+    private CompoundBinaryTag playerCompletionInfoAsNbt() {
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
+        playerCompletionInfo.forEach((key, value) -> nbt.putLong(key.toString(), value));
+
+        return nbt.build();
+    }
+
+    public BinaryTag toNbt() {
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
+
+        nbt.put(
+            "rewards",
+            ListBinaryTag.of(
+                CompoundBinaryTag.empty().type(),
+                rewards.stream().map(ItemReward::toNbt).toList())
+        );
+        nbt.putDouble("rewardBias", rewardBias);
+        nbt.putBoolean("trackCompletionInfo", trackCompletionInfo);
+        nbt.put("playerCompletionInfo", playerCompletionInfoAsNbt());
+        nbt.putByteArray("finalReward", FLUtils.itemStackToNBT(finalReward));
+        nbt.putString("finalRewardMessage", finalRewardMessage);
+
+        return nbt.build();
+    }
 }

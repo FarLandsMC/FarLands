@@ -142,7 +142,7 @@ public class GeneralMechanics extends Mechanic {
 
             Rank rank = Rank.getRank(player);
             if (rank == Rank.PATRON || rank == Rank.SPONSOR)
-                FLUtils.giveItem(player, FarLands.getFLConfig().patronCollectable.getStack(), false);
+                FLUtils.giveItem(player, FarLands.getDataHandler().getItem("patronCollectable"), false);
         }
 
         if ("world".equals(player.getWorld().getName()))

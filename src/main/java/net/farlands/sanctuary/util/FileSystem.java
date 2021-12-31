@@ -142,6 +142,16 @@ public final class FileSystem {
         saveJson(FarLands.getMoshi(), object, file);
     }
 
+    public static <T> void saveJson(T object, File file, boolean indent) {
+        if(!indent) {
+            saveJson(FarLands.getMoshi(), object, file);
+            return;
+        }
+        JsonAdapter<T> adapter = FarLands.getMoshi().adapter((Type) object.getClass());
+        adapter = adapter.indent("\t");
+        writeUTF8Safe(adapter.toJson(object), file);
+    }
+
     public static <T> void saveJson(Moshi moshi, T object, File file) {
         JsonAdapter<T> adapter = moshi.adapter((Type) object.getClass());
         writeUTF8Safe(adapter.toJson(object), file);

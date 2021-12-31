@@ -18,6 +18,7 @@ import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,6 +29,7 @@ import org.bukkit.event.entity.VillagerCareerChangeEvent;
 import org.bukkit.event.entity.VillagerReplenishTradeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -52,7 +54,11 @@ public class DataHandler extends Mechanic {
     private final List<UUID> openEvidenceLockers;
     //                recipient, packages
     private final Map<UUID, List<Package>> packages;
-    private Map<String, ItemCollection> itemData;
+
+    // Item Storage
+    private final Map<String, ItemCollection> itemCollections;
+    private final Map<String, ItemStack> items;
+    private final Map<String, List<ItemStack>> itemLists;
 
     public static final List<String> WORLDS = Arrays.asList("world", "world_nether", "world_the_end", "farlands");
     private static final List<String> SCRIPTS = Arrays.asList("artifact.sh", "server.sh", "backup.sh", "restart.sh");
@@ -62,7 +68,7 @@ public class DataHandler extends Mechanic {
     private static final String EVIDENCE_LOCKERS_FILE = Directory.DATA + File.separator + "evidenceLockers.nbt";
     private static final String DEATH_DATABASE = Directory.DATA + File.separator + "deaths.nbt";
     private static final String PACKAGES_FILE = Directory.DATA + File.separator + "packages.nbt";
-    private static final String ITEMS_FILE = Directory.DATA + File.separator + "items.json";
+    private static final String ITEMS_FILE = Directory.DATA + File.separator + "items.nbt";
 
     private void init() {
         SCRIPTS.forEach(script -> {
@@ -109,6 +115,7 @@ public class DataHandler extends Mechanic {
         initNbt(EVIDENCE_LOCKERS_FILE);
         initNbt(DEATH_DATABASE);
         initNbt(PACKAGES_FILE);
+        initNbt(ITEMS_FILE);
 
         Logging.log("Initialized data handler.");
     }
@@ -138,6 +145,11 @@ public class DataHandler extends Mechanic {
         this.deathDatabase = new HashMap<>();
         this.openEvidenceLockers = new ArrayList<>();
         this.packages = new HashMap<>();
+
+        this.itemCollections = new HashMap<>();
+        this.itemLists = new HashMap<>();
+        this.items = new HashMap<>();
+
         init();
         loadCriticalData();
         saveCriticalData();
@@ -580,6 +592,58 @@ public class DataHandler extends Mechanic {
         }
     }
 
+    public void loadItems() {
+        CompoundBinaryTag nbt;
+        try {
+            nbt = BinaryTagIO.reader().read(new FileInputStream(FileSystem.getFile(rootDirectory, ITEMS_FILE)));
+
+            CompoundBinaryTag itemsNbt = (CompoundBinaryTag) nbt.get("items");
+            if (itemsNbt != null) {
+                itemsNbt.forEach(e -> items.put(e.getKey(), NBTDeserializer.item(e.getValue())));
+            }
+
+            CompoundBinaryTag itemListsNbt = (CompoundBinaryTag) nbt.get("itemLists");
+            if (itemListsNbt != null) {
+                itemListsNbt.forEach(e -> itemLists.put(e.getKey(), NBTDeserializer.itemsList(e.getValue())));
+            }
+
+            CompoundBinaryTag itemCollectionsNbt = (CompoundBinaryTag) nbt.get("itemCollections");
+            if (itemCollectionsNbt != null) {
+                itemCollectionsNbt.forEach(e -> itemCollections.put(e.getKey(), ItemCollection.fromNbt((CompoundBinaryTag) e.getValue())));
+            }
+
+        } catch (IOException | IllegalArgumentException ex) {
+            Logging.error("Failed to load custom item data.");
+            ex.printStackTrace();
+        }
+
+    }
+
+    public void saveItems() {
+
+        CompoundBinaryTag.Builder itemsNbt = CompoundBinaryTag.builder();
+        items.forEach((key, value) -> itemsNbt.put(key, NBTSerializer.item(value)));
+
+        CompoundBinaryTag.Builder itemListsNbt = CompoundBinaryTag.builder();
+        itemLists.forEach((k, v) -> itemListsNbt.put(k, NBTSerializer.itemsList(v)));
+
+        CompoundBinaryTag.Builder itemCollectionsNbt = CompoundBinaryTag.builder();
+        itemCollections.forEach((key, value) -> itemCollectionsNbt.put(key, value.toNbt()));
+
+
+        CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
+        nbt.put("items", itemsNbt.build());
+        nbt.put("itemLists", itemListsNbt.build());
+        nbt.put("itemCollections", itemCollectionsNbt.build());
+
+        try {
+            BinaryTagIO.writer().write(nbt.build(), new FileOutputStream(FileSystem.getFile(rootDirectory, ITEMS_FILE)));
+        } catch (IOException ex) {
+            Logging.error("Failed to save custom items file.");
+            ex.printStackTrace();
+        }
+    }
+
     public boolean addPackage(UUID recipient, Package pack) {
         List<Package> localPackages;
         if (!packages.containsKey(recipient))
@@ -603,8 +667,61 @@ public class DataHandler extends Mechanic {
         return FLUtils.getAndPutIfAbsent(deathDatabase, uuid, new ArrayList<>());
     }
 
-    public ItemCollection getItemCollection(String name) {
-        return itemData.get(name);
+    public ItemStack getItem(String key, boolean logMissing) {
+        if(items.containsKey(key)) {
+            return items.get(key);
+        } else {
+            if(logMissing) {
+                Logging.error("Missing item with key: '" + key + "'");
+            }
+        }
+        return new ItemStack(Material.AIR); // Just to prevent errors
+    }
+
+    public ItemStack getItem(String key) {
+        return getItem(key, true);
+    }
+
+    public Map<String, ItemStack> getItems() {
+        return items;
+    }
+
+    public ItemCollection getItemCollection(String key, boolean logMissing) {
+        if(itemCollections.containsKey(key)) {
+            return itemCollections.get(key);
+        } else {
+            if(logMissing) {
+                Logging.error("Missing item collection with key: '" + key + "'");
+            }
+        }
+        return null;
+    }
+
+    public ItemCollection getItemCollection(String key) {
+        return getItemCollection(key, true);
+    }
+
+    public Map<String, ItemCollection> getItemCollections() {
+        return itemCollections;
+    }
+
+    public List<ItemStack> getItemList(String key, boolean logMissing) {
+        if(itemLists.containsKey(key)) {
+            return itemLists.get(key);
+        } else {
+            if(logMissing) {
+                Logging.error("Missing item list with key: '" + key + "'");
+            }
+        }
+        return null;
+    }
+
+    public List<ItemStack> getItemList(String key) {
+        return getItemList(key, true);
+    }
+
+    public Map<String, List<ItemStack>> getItemLists() {
+        return itemLists;
     }
 
     public void loadCriticalData() {
@@ -613,8 +730,8 @@ public class DataHandler extends Mechanic {
     }
 
     public void saveCriticalData() {
-        FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE));
-        FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE));
+        FileSystem.saveJson(config, FileSystem.getFile(rootDirectory, MAIN_CONFIG_FILE), true);
+        FileSystem.saveJson(pluginData, FileSystem.getFile(rootDirectory, PLUGIN_DATA_FILE), true);
     }
 
     public void loadData() {
@@ -641,14 +758,10 @@ public class DataHandler extends Mechanic {
                 discordMap.put(flp.discordID, flp);
         });
 
-        itemData = FileSystem.loadJson(
-            Types.newParameterizedType(Map.class, String.class, ItemCollection.class),
-            new HashMap<>(),
-            FileSystem.getFile(rootDirectory, ITEMS_FILE)
-        );
         loadEvidenceLockers();
         loadDeathDatabase();
         loadPackages();
+        loadItems();
     }
 
     public void saveData() {
@@ -662,16 +775,10 @@ public class DataHandler extends Mechanic {
             FileSystem.getFile(rootDirectory, PLAYER_DATA_FILE)
         );
 
-        FileSystem.saveJson(
-            FarLands.getMoshi().adapter(Types.newParameterizedType(Map.class, String.class, ItemCollection.class)),
-            itemData,
-            FileSystem.getFile(rootDirectory, ITEMS_FILE)
-        );
-
-//        FileSystem.saveJson(itemData, FileSystem.getFile(rootDirectory, ITEMS_FILE));
         saveEvidenceLockers();
         saveDeathDatabase();
         savePackages();
+        saveItems();
     }
 
     public enum Directory {

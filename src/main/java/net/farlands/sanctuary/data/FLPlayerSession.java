@@ -382,7 +382,7 @@ public class FLPlayerSession {
     public void giveVoteRewards(int amount) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
         for (int i = 0; i < amount; ++i)
-            FarLands.getFLConfig().voteConfig.voteRewards.forEach(reward -> FLUtils.giveItem(player, reward.getStack(), false));
+            FarLands.getFLConfig().voteConfig.voteRewards().forEach(reward -> FLUtils.giveItem(player, reward, false));
         player.giveExpLevels(FarLands.getFLConfig().voteConfig.voteXPBoost * amount);
     }
 
