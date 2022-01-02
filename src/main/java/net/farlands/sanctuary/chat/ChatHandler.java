@@ -291,7 +291,7 @@ public class ChatHandler {
     public static void broadcastDiscord(Component prefix, Component messageC) {
         String prefixStr = MarkdownProcessor.escapeMarkdown(ComponentUtils.toText(prefix));
         String message = MarkdownProcessor.fromMinecraft(messageC);
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.IN_GAME, prefixStr + message);
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.IN_GAME, MarkdownProcessor.removeChatColor(prefixStr + message));
     }
 
     /**

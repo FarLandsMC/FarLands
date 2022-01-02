@@ -15,6 +15,8 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Handles writing and reading FL files.
@@ -113,7 +115,8 @@ public final class FileSystem {
             T obj = FarLands.getMoshi().adapter(clazz).fromJson(readUTF8(file));
             return obj == null ? ReflectionHelper.instantiate(clazz) : obj;
         } catch (IOException ex) {
-            Logging.error("Failed to load " + file.getName() + ".");
+            Logging.error("Failed to load " + file.getName() + ".\n" + ex.getMessage() + "\n" +
+                          Arrays.stream(ex.getStackTrace()).map(Object::toString).collect(Collectors.joining("\n")));
             ex.printStackTrace();
             return ReflectionHelper.instantiate(clazz);
         }

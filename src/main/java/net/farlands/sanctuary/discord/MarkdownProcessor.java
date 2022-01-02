@@ -134,6 +134,15 @@ public class MarkdownProcessor {
     }
 
     /**
+     * Remove all § and & color codes
+     * @param source The source string
+     * @return The cleaned string
+     */
+    public static String removeChatColor(String source) {
+        return source.replaceAll("(?i)[&§][0-9a-fk-orx]", "");
+    }
+
+    /**
      * Escape all symbols used for markdown in the specified text
      *
      * @param text The text to escape
