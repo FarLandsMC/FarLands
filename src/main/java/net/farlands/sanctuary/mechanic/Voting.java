@@ -118,7 +118,7 @@ public class Voting extends Mechanic {
                 .stream()
                 .filter(player -> FarLands.getDataHandler().getOfflineFLPlayer(player).acceptVoteRewards)
                 .forEach(player -> {
-            ItemStack stack = ItemReward.randomReward(voteConfig.votePartyRewards, voteConfig.votePartyDistribWeight).getFirst();
+            ItemStack stack = ItemReward.randomReward(voteConfig.votePartyRewards(), voteConfig.votePartyDistribWeight).getFirst();
             player.sendMessage(ChatColor.GOLD + "Vote party! Receiving " + ChatColor.AQUA + FLUtils.itemName(stack));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.6929134F);
             FLUtils.giveItem(player, stack, true);

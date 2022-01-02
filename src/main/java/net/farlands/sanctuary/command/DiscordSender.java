@@ -8,6 +8,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.commands.ICommandListener;
@@ -80,7 +81,10 @@ public class DiscordSender implements CommandSender, ICommandListener {
 
     @Override
     public void sendMessage(String s) {
-        sendMessage(s, true);
+        sendMessage(
+            MarkdownProcessor.fromMinecraft(LegacyComponentSerializer.legacySection().deserialize(s)),
+            false
+        );
     }
 
     @Override
@@ -177,24 +181,41 @@ public class DiscordSender implements CommandSender, ICommandListener {
     @Override
     public void setOp(boolean b) { }
 
-    @Override
     public void sendMessage(IChatBaseComponent component, UUID unused) {
         sendMessage(component.getString());
     }
 
-    @Override
     public boolean shouldSendSuccess() {
         return true;
     }
 
-    @Override
     public boolean shouldSendFailure() {
         return true;
     }
 
-    @Override
     public boolean shouldBroadcastCommands() {
         return false;
+    }
+
+    @Override
+    public void a(IChatBaseComponent iChatBaseComponent, UUID uuid) {
+        sendMessage(iChatBaseComponent, uuid);
+    }
+
+    // Pretty sure this is the correct order
+    @Override
+    public boolean i_() {
+        return shouldSendSuccess();
+    }
+
+    @Override
+    public boolean j_() {
+        return shouldSendFailure();
+    }
+
+    @Override
+    public boolean F_() {
+        return shouldBroadcastCommands();
     }
 
     @Override

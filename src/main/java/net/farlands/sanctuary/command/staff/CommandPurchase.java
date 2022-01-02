@@ -90,11 +90,17 @@ public class CommandPurchase extends Command {
         if (rank != null && rank.specialCompareTo(flp.rank) > 0) {
             if (rank == Rank.PATRON || (flp.rank != Rank.PATRON && rank == Rank.SPONSOR)) {
                 if (flp.isOnline()) {
-                    FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getFLConfig().patronCollectable.getStack(), false);
+                    FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getDataHandler().getItem("patronCollectable"), false);
                 } else {
-                    FarLands.getDataHandler().addPackage(flp.uuid,
-                            new Package(null, "FarLands Staff",
-                            FarLands.getFLConfig().patronCollectable.getStack(), "", true));
+                    FarLands.getDataHandler().addPackage(
+                        flp.uuid,
+                        new Package(
+                            null,
+                            "FarLands Staff",
+                            FarLands.getDataHandler().getItem("patronCollectable"),
+                            "",
+                            true
+                        ));
                 }
             }
 
@@ -107,6 +113,8 @@ public class CommandPurchase extends Command {
 
         if (price > 0)
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.NOTEBOOK, args[0] + " has donated " + price + " USD.");
+
+        flp.updateAll(false);
 
         return true;
     }

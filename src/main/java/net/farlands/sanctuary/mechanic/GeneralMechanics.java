@@ -10,7 +10,6 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
-import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Cooldown;
@@ -23,16 +22,12 @@ import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.npc.EntityVillager;
-import net.minecraft.world.entity.npc.EntityVillagerAbstract;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.*;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -147,7 +142,7 @@ public class GeneralMechanics extends Mechanic {
 
             Rank rank = Rank.getRank(player);
             if (rank == Rank.PATRON || rank == Rank.SPONSOR)
-                FLUtils.giveItem(player, FarLands.getFLConfig().patronCollectable.getStack(), false);
+                FLUtils.giveItem(player, FarLands.getDataHandler().getItem("patronCollectable"), false);
         }
 
         if ("world".equals(player.getWorld().getName()))
@@ -353,12 +348,19 @@ public class GeneralMechanics extends Mechanic {
             }
         } else if (FarLands.getDataHandler().getPluginData().isSpawnTrader(event.getRightClicked().getUniqueId())) {
             event.setCancelled(true);
-            EntityVillager handle = ((CraftVillager) event.getRightClicked()).getHandle(), duplicate = new EntityVillager(EntityTypes.aV, handle.getWorld());
-            duplicate.setPosition(0.0, 0.0, 0.0);
-            duplicate.setCustomName(handle.getCustomName());
-            duplicate.setVillagerData(handle.getVillagerData());
-            ReflectionHelper.setNonFinalFieldValue("bT", EntityVillagerAbstract.class, duplicate, FLUtils.copyRecipeList(handle.getOffers()));
-            event.getPlayer().openMerchant(new CraftVillager((CraftServer) Bukkit.getServer(), duplicate), true);
+            Villager trader = (Villager) event.getRightClicked();
+            Villager dupe = (Villager) trader.getWorld().spawnEntity(new Location(trader.getWorld(), 0, 0, 0), EntityType.VILLAGER);
+
+            // There's got to be a better way to do this
+            dupe.customName(trader.customName());
+            dupe.setVillagerLevel(trader.getVillagerLevel());
+            dupe.setVillagerExperience(trader.getVillagerExperience());
+            dupe.setProfession(trader.getProfession());
+            dupe.setReputations(trader.getReputations());
+            dupe.setRestocksToday(trader.getRestocksToday());
+            dupe.setRecipes(trader.getRecipes());
+
+            event.getPlayer().openMerchant(dupe, true);
         } else if (ent instanceof Tameable pet) {
             if (!(pet.isTamed() && pet.getOwner() != null && (event.getPlayer().getUniqueId().equals(pet.getOwner().getUniqueId()) ||
                     Rank.getRank(event.getPlayer()).isStaff())))

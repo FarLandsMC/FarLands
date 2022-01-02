@@ -1,7 +1,6 @@
 package net.farlands.sanctuary;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.squareup.moshi.Moshi;
 import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.data.*;
 import net.farlands.sanctuary.discord.DiscordHandler;
@@ -30,18 +29,13 @@ public class FarLands extends JavaPlugin {
     private final GuiHandler guiHandler;
     private World farlandsWorld;
 
-    private static final Gson gson;
+    private static final Moshi moshi = createMoshi();
     private static FarLands instance;
 
-    static {
-        gson = createGson();
-    }
-
-    private static Gson createGson() {
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
+    public static Moshi createMoshi() {
+        Moshi.Builder builder = new Moshi.Builder();
         CustomAdapters.register(builder);
-        return builder.create();
+        return builder.build();
     }
 
     public FarLands() {
@@ -98,8 +92,8 @@ public class FarLands extends JavaPlugin {
             processBuilder.redirectErrorStream(false);
             processBuilder.start();
         } catch (IOException ex) {
-            System.out.println("Failed to execute script " + script);
-            ex.printStackTrace(System.out);
+            Logging.error("Failed to execute script " + script);
+            ex.printStackTrace();
         }
     }
 
@@ -139,7 +133,7 @@ public class FarLands extends JavaPlugin {
         return instance.farlandsWorld;
     }
 
-    public static Gson getGson() {
-        return gson;
+    public static Moshi getMoshi() {
+        return moshi;
     }
 }

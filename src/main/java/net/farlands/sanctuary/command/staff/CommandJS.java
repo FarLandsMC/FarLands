@@ -1,12 +1,11 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
-
+import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -16,7 +15,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandJS extends Command {
     private ScriptEngine engine;
@@ -56,10 +58,17 @@ public class CommandJS extends Command {
 
         try {
             Object result = engine.eval(String.join(" ", args));
-            if (result != null)
-                sender.sendMessage(result.toString());
+            String str = result + "";
+            Component component = Component.text(str);
+            if(str.length() > 400) { // Limit to 400 characters
+                component = ComponentColor.white(str.substring(0, 400))
+                    .append(ComponentColor.gray("..."));
+                FarLands.getDebugger().echo(str.substring(0, Math.min(str.length(), 2000)));
+            }
+            sender.sendMessage(component);
         } catch (ScriptException e) {
-            sender.sendMessage(e.getMessage());
+            sender.sendMessage(ComponentColor.red(e.getMessage()));
+            e.printStackTrace();
         }
 
         return true;

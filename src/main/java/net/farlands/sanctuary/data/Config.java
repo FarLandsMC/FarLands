@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.data;
 
-import net.farlands.sanctuary.data.struct.JsonItemStack;
 import net.farlands.sanctuary.discord.DiscordBotConfig;
 import net.farlands.sanctuary.util.FLUtils;
 
@@ -23,8 +22,6 @@ public class Config {
     public String appealsLink;
     public String donationLink;
     public String paperDownload;
-    public JsonItemStack patronCollectable;
-    public JsonItemStack armorStandBook;
     public List<String> rotatingMessages;
     public List<String> jsUsers; // UUIDs of the people who may use /js
     public Map<DataHandler.Server, String> serverRoots;
@@ -42,7 +39,6 @@ public class Config {
         this.appealsLink = "";
         this.donationLink = "";
         this.paperDownload = "";
-        this.patronCollectable = null;
         this.rotatingMessages = new ArrayList<>();
         this.jsUsers = new ArrayList<>();
         this.serverRoots = new HashMap<>();

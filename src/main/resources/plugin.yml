@@ -1,8 +1,8 @@
-api-version: 1.17
+api-version: 1.18
 main: net.farlands.sanctuary.FarLands
 name: FarLands
-description: FarLands version 3 - Sanctuary
+description: FarLands version 4 - Sanctuary
 authors: [xCassyx, Kishiko73, SuperAnimeBoi, funnyboy_roks, Majekdor]
-version: 2
+version: 4
 depend: [ChestShops, ProtocolLib, RegionProtection, Votifier, CoreProtect]
 loadbefore: [RegionProtection]

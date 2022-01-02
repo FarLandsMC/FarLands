@@ -1,9 +1,9 @@
 package net.farlands.sanctuary.data;
 
+import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.ItemReward;
-import net.farlands.sanctuary.data.struct.JsonItemStack;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,15 +14,19 @@ public class VoteConfig {
     public int voteXPBoost;
     public double votePartyDistribWeight;
     public String voteLink;
-    public List<JsonItemStack> voteRewards;
-    public List<ItemReward> votePartyRewards;
 
     public VoteConfig() {
         this.votePartyRequirement = 10;
         this.voteXPBoost = 5;
         this.votePartyDistribWeight = 0.75;
         this.voteLink = "https://www.google.com/";
-        this.voteRewards = new ArrayList<>();
-        this.votePartyRewards = new ArrayList<>();
+    }
+
+    public List<ItemStack> voteRewards() {
+        return FarLands.getDataHandler().getItemList("voteRewards");
+    }
+
+    public List<ItemReward> votePartyRewards() {
+        return FarLands.getDataHandler().getItemCollection("votePartyRewards").simpleRewards();
     }
 }

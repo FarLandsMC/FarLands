@@ -105,7 +105,7 @@ public class CommandGetLog extends DiscordCommand {
                 file.delete();
             } catch (Throwable ex) {
                 sender.sendMessage("Failed to retrieve log.");
-                ex.printStackTrace(System.out);
+                ex.printStackTrace();
             }
         }
 

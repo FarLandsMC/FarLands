@@ -59,7 +59,7 @@ public class CommandGuideBook extends PlayerCommand {
             return Arrays.asList(FarLands.getDataHandler().getDataTextFile("guidebook.txt").split("\n"));
         }catch(IOException ex) {
             Logging.error("Failed to load guidebook file.");
-            ex.printStackTrace(System.out);
+            ex.printStackTrace();
         }
         return Collections.emptyList();
     }

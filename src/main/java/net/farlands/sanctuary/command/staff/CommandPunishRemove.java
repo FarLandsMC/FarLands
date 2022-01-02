@@ -11,7 +11,7 @@ import net.farlands.sanctuary.discord.MarkdownProcessor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.craftbukkit.libs.org.apache.commons.lang3.tuple.Triple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.bukkit.entity.Player;
 
 import java.util.*;

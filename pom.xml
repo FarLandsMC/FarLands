@@ -6,7 +6,7 @@
 
     <groupId>net.farlands.sanctuary</groupId>
     <artifactId>farlands</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
 
     <distributionManagement>
         <repository>
@@ -144,7 +144,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.17.1-R0.1-SNAPSHOT</version>
+            <version>1.18.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- Maven Source Plugin -->
@@ -152,13 +152,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
             <version>3.2.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- NMS -->
-        <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper</artifactId>
-            <version>1.17.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- JDA -->
@@ -222,6 +215,20 @@
             <artifactId>adventure-text-minimessage</artifactId>
             <version>4.2.0-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+        <!-- Moshi -->
+        <dependency>
+            <groupId>com.squareup.moshi</groupId>
+            <artifactId>moshi</artifactId>
+            <version>1.13.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- NMS -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.18-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -98,7 +98,11 @@ public final class TeleportRequest implements Runnable {
         }
 
         // Execute the teleport and wrap up
-        Location safe = Utils.findSafe(toLocation, 0, 256);
+        Location safe = Utils.findSafe(
+            toLocation,
+            toLocation.getWorld().getMinHeight(),
+            toLocation.getWorld().getMaxHeight()
+        );
         if (safe == null)
             teleporter.sendMessage(ChatColor.RED + "The location you were teleporting to is no longer safe.");
         else

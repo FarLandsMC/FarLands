@@ -1,26 +1,26 @@
 package net.farlands.sanctuary.gui;
 
-import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_17_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftVillager;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import static org.bukkit.entity.Villager.Profession.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.bukkit.entity.Villager.Profession.*;
 
 /**
  * Gui for the villager editor.
  */
 public class GuiVillagerEditor extends Gui {
-    private final CraftVillager villager;
+    private final Villager villager;
     private final List<List<ItemStack>> screens;
     private int screen;
 
@@ -44,7 +44,7 @@ public class GuiVillagerEditor extends Gui {
         }
 
         // Initialize some variables
-        villager.getHandle().setInvulnerable(true);
+        villager.setInvulnerable(true);
         villager.setVillagerLevel(5);
     }
 
@@ -90,13 +90,13 @@ public class GuiVillagerEditor extends Gui {
 
             // Other settings
             addActionItem(9, Material.MAP, ChatColor.GOLD + "No AI", () -> {
-                villager.getHandle().setNoAI(!villager.getHandle().isNoAI());
-                setLore(9, "Value: " + villager.getHandle().isNoAI());
-            }, "Value: " + villager.getHandle().isNoAI());
+                villager.setAI(!villager.hasAI());
+                setLore(9, "Value: " + !villager.hasAI());
+            }, "Value: " + !villager.hasAI());
             addActionItem(10, Material.ELYTRA, ChatColor.GOLD + "No Gravity", () -> {
-                villager.getHandle().setNoGravity(!villager.getHandle().isNoGravity());
-                setLore(10, "Value: " + villager.getHandle().isNoGravity());
-            }, "Value: " + villager.getHandle().isNoGravity());
+                villager.setGravity(!villager.hasGravity());
+                setLore(10, "Value: " + !villager.hasGravity());
+            }, "Value: " + !villager.hasGravity());
             addActionItem(11, Material.GLASS, ChatColor.GOLD + "Invisible", () -> {
                 if (villager.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                     villager.removePotionEffect(PotionEffectType.INVISIBILITY);
@@ -169,8 +169,7 @@ public class GuiVillagerEditor extends Gui {
         villager.setRecipes(recipes);
 
         // Now, since spigot is dumb, it ignores the rewardExp flag in the MerchantRecipe object, so we have to set it manually
-        villager.getHandle().setSilent(true);
-        villager.getHandle().getOffers().forEach(recipe -> ReflectionHelper.setNonFinalFieldValue("f",
-                net.minecraft.world.item.trading.MerchantRecipe.class, recipe, false));
+        villager.setSilent(true);
+        villager.getRecipes().forEach(recipe -> recipe.setExperienceReward(false));
     }
 }

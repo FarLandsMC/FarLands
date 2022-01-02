@@ -19,12 +19,14 @@ import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.NMSUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandDispatcher;
 import net.minecraft.commands.CommandListenerWrapper;
 import net.minecraft.network.chat.ChatComponentText;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.level.World;
 import net.minecraft.world.phys.Vec2F;
 import net.minecraft.world.phys.Vec3D;
@@ -32,8 +34,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_17_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -70,6 +72,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandDelay());            // Initiate
 
         // Discord Commands
+        registerCommand(new CommandAddReactions());     // Jr Builder
         registerCommand(new CommandAlts());             // Jr Builder
         registerCommand(new CommandArchive());          // Admin
         registerCommand(new CommandArtifact());         // Admin (Requires JS Permission)
@@ -166,6 +169,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandBotSpam());          // Builder
         registerCommand(new CommandBright());           // Jr_Builder
         registerCommand(new CommandBroadcast());        // Builder
+        registerCommand(new CommandCustomItem());       // Builder
         registerCommand(new CommandDeath());            // Jr_Builder
         registerCommand(new CommandDebug());            // Builder
         registerCommand(new CommandDelWarp());          // Builder
@@ -263,22 +267,21 @@ public class CommandHandler extends Mechanic {
             org.bukkit.command.Command bukkitCommand = knownCommands.get(commandName);
 
             // See if it's a vanilla command
-            if (bukkitCommand instanceof VanillaCommandWrapper) {
+            if (bukkitCommand instanceof VanillaCommandWrapper cmd) {
                 // Ensure the sender has permission
-                if (!(boolean) ReflectionHelper.invoke("testPermission", VanillaCommandWrapper.class, bukkitCommand, sender))
+                if (!cmd.testPermission(sender))
                     return false;
 
                 Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
                     MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
+                    WorldServer world = NMSUtils.getWorldServer(server, World.f); // World.f = World.OVERWORLD
 
                     CommandListenerWrapper wrapper = new CommandListenerWrapper(
                             sender,
                             // Position
-                            server.getWorldServer(World.f) == null
-                                    ? Vec3D.a
-                                    : Vec3D.b(server.getWorldServer(World.f).getSpawn()), // World.f = World.OVERWORLD
+                            world == null ? Vec3D.a : Vec3D.b(world.w()), // 0, 0, 0 or World Spawn
                             Vec2F.a, // Rotation Vec2F.a = Vec2f.ORIGIN
-                            server.getWorldServer(World.f), // World
+                            world, // World
                             sender.isOp() ? 4 : 0, // Permission level
                             // Name (required twice apparently)
                             sender.getName(),
