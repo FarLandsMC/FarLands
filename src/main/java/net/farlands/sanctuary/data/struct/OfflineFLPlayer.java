@@ -17,6 +17,7 @@ import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -34,7 +35,7 @@ public class OfflineFLPlayer {
     public UUID uuid;
 
     public String lastIP;
-    public String nickname;
+    public Component nickname;
     public String username;
     public String timezone;
 
@@ -87,7 +88,7 @@ public class OfflineFLPlayer {
         this.uuid = uuid;
 
         this.lastIP = "";
-        this.nickname = "";
+        this.nickname = null;
         this.username = username;
         this.timezone = "";
 
@@ -219,8 +220,9 @@ public class OfflineFLPlayer {
         return isOnline() && !vanished ? System.currentTimeMillis() : lastLogin;
     }
 
-    public String getDisplayName() {
-        return nickname == null || nickname.isEmpty() ? username : nickname;
+    public Component getDisplayName() {
+        return nickname == null || PlainTextComponentSerializer.plainText().serialize(nickname).isBlank()
+            ? Component.text(username).color(rank.nameColor()) : nickname;
     }
 
     public void addVote() {

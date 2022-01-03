@@ -95,7 +95,7 @@ public class CommandStats extends Command {
     public static Map<PlayerStat, Object> playerInfoMap(OfflineFLPlayer flp, boolean showDonated, boolean showTimezone) {
         Map<PlayerStat, Object> statsMap = new HashMap<>();
 
-        if (flp.nickname != null && !flp.nickname.isEmpty()) {
+        if (flp.nickname != null) {
             statsMap.put(PlayerStat.NICKNAME, flp.nickname);
         }
         if (flp.pronouns != null && flp.pronouns.toString() != null) {

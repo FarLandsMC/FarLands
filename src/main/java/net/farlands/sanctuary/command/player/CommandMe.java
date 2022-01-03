@@ -5,7 +5,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -24,7 +24,7 @@ public class CommandMe extends PlayerCommand {
             return false;
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-        flp.chat(" * " + FLUtils.removeColorCodes(flp.getDisplayName()) + " ", String.join(" ", args));
+        flp.chat(" * " + PlainTextComponentSerializer.plainText().serialize(flp.getDisplayName()) + " ", String.join(" ", args));
         return true;
     }
 

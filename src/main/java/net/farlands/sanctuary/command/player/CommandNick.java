@@ -1,16 +1,20 @@
 package net.farlands.sanctuary.command.player;
 
+import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.MessageFilter;
+import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,8 +36,9 @@ public class CommandNick extends PlayerCommand {
 
         // Set the nickname
         if ("nick".equals(args[0])) {
+            Component nickname = MiniMessageWrapper.farlands(flp).mmParse(TabCompleterBase.joinArgsBeyond(0, " ", args));
             // Get rid of colors for length checking
-            String rawNick = FLUtils.removeColorCodes(args[1]);
+            String rawNick = PlainTextComponentSerializer.plainText().serialize(nickname);
             // Prevent whitespace and profanity
             if (args[1].isEmpty() || args[1].matches("\\s+") || MessageFilter.INSTANCE.isProfane(rawNick)) {
                 sender.sendMessage(ComponentColor.red("You cannot set your nickname to this."));
@@ -75,13 +80,14 @@ public class CommandNick extends PlayerCommand {
                     OfflineFLPlayer flpl : FarLands.getDataHandler().getOfflineFLPlayers().stream()
                     .filter(flpl -> !flpl.uuid.equals(sender.getUniqueId())).collect(Collectors.toList())
             ) {
-                if (rawNick.equalsIgnoreCase(flpl.username) || rawNick.equalsIgnoreCase(flpl.nickname)) {
+                if (rawNick.equalsIgnoreCase(flpl.username) ||
+                    flpl.nickname != null && rawNick.equalsIgnoreCase(PlainTextComponentSerializer.plainText().serialize(flpl.nickname))) {
                     sender.sendMessage(ComponentColor.red("Another player already has this name."));
                     return true;
                 }
             }
 
-            flp.nickname = FLUtils.applyColorCodes(Rank.getRank(sender), args[1]);
+            flp.nickname = nickname;
             sender.sendMessage(ComponentColor.green("Nickname set."));
         }
         // Remove nickname
@@ -97,7 +103,7 @@ public class CommandNick extends PlayerCommand {
                 }
 
                 // Make sure the player actually has a nickname to remove
-                if (flp.nickname == null || flp.nickname.isEmpty()) {
+                if (flp.nickname == null) {
                     sender.sendMessage(ComponentColor.red("This person has no nickname to remove."));
                     return true;
                 }
@@ -106,7 +112,7 @@ public class CommandNick extends PlayerCommand {
             // The sender removes their own nickname
             else {
                 // Make sure the player actually has a nickname to remove
-                if (flp.nickname == null || flp.nickname.isEmpty()) {
+                if (flp.nickname == null) {
                     sender.sendMessage(ComponentColor.red("You have no nickname to remove."));
                     return true;
                 }
@@ -122,16 +128,13 @@ public class CommandNick extends PlayerCommand {
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+    public @NotNull List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         if (!(Rank.getRank(sender).isStaff() && "nonick".equalsIgnoreCase(alias)))
             return Collections.emptyList();
-        switch (args.length) {
-            case 0:
-                return getOnlinePlayers("", sender);
-            case 1:
-                return getOnlinePlayers(args[0], sender);
-            default:
-                return Collections.emptyList();
-        }
+        return switch (args.length) {
+            case 0 -> getOnlinePlayers("", sender);
+            case 1 -> getOnlinePlayers(args[0], sender);
+            default -> Collections.emptyList();
+        };
     }
 }

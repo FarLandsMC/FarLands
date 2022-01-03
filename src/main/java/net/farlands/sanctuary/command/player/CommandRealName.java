@@ -8,8 +8,10 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,8 +31,10 @@ public class CommandRealName extends Command {
         args[0] = args[0].toLowerCase();
         List<String> matches = new ArrayList<>();
         for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
-            if (flp.nickname == null) { continue; }
-            String nickname = FLUtils.removeColorCodes(flp.nickname.toLowerCase());
+            if (flp.nickname == null) {
+                continue;
+            }
+            String nickname = PlainTextComponentSerializer.plainText().serialize(flp.nickname);
 
             // Match ignoring case, via containment, +(ignoring case)
             if (args[0].equals(nickname) || nickname.contains(args[0]) || flp.username.toLowerCase().contains(args[0]))
@@ -49,10 +53,11 @@ public class CommandRealName extends Command {
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+    public @NotNull List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
                 ? getOnlinePlayers("", sender).stream()
-                    .map(p -> FLUtils.removeColorCodes(FarLands.getDataHandler().getOfflineFLPlayer(p).getDisplayName()))
+                    .map(p -> PlainTextComponentSerializer.plainText().serialize(FarLands.getDataHandler()
+                        .getOfflineFLPlayer(p).getDisplayName()))
                     .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
                     .collect(Collectors.toList())
                 : Collections.emptyList();

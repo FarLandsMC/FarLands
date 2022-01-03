@@ -61,7 +61,7 @@ public class CommandPackageView extends Command {
             .filter(p -> {
                 String formattedSenderName = FLUtils.removeColorCodes(p.senderName().replaceAll("\\{+|}+", ""));;
                 return (args.length >= 1 && !args[0].equalsIgnoreCase("all") &&
-                    viewFlp.getDisplayName().equalsIgnoreCase(formattedSenderName)) ||
+                    viewFlp.username.equalsIgnoreCase(formattedSenderName)) ||
                     args.length == 0 || args[0].equalsIgnoreCase("all");
 
             })
@@ -125,7 +125,7 @@ public class CommandPackageView extends Command {
             OfflineFLPlayer packageSender = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid());
             String username = FLUtils.removeColorCodes(lPackage.senderName().replaceAll("\\{+|}+", ""));
 
-            if (args.length >= 1 && !args[0].equalsIgnoreCase("all") && viewFlp.getDisplayName().equalsIgnoreCase(username)) {
+            if (args.length >= 1 && !args[0].equalsIgnoreCase("all") && viewFlp.username.equalsIgnoreCase(username)) {
                 line.append(itemDisplay)
                     .append(ComponentColor.gold(" - "))
                     .append(ComponentColor.green(lPackage.message()));

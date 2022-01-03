@@ -85,7 +85,8 @@ public class CommandMail extends Command {
                 String message = FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(1, " ", args));
                 if (!senderFlp.rank.isStaff())
                     message = escapeExpression(message);
-                sendMailMessage(sender, "To", recipientFlp.rank.getNameColor(), escapeExpression(recipientFlp.getDisplayName()), message);
+                sendMailMessage(sender, "To", recipientFlp.rank.getNameColor(),
+                    recipientFlp.username, message);
 
                 // Check for ignoring
                 if (!recipientFlp.getIgnoreStatus(senderFlp).includesChat())

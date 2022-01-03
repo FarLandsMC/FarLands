@@ -11,6 +11,8 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.mechanic.RotatingMessages;
 import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
@@ -2818,9 +2820,14 @@ public class AutumnEvent extends Mechanic {
         Entity damager = getDamager(event.getDamager());
         final String name = damager.getCustomName() == null ? damager.getName() : damager.getCustomName();
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getEntity().getUniqueId());
-        FarLands.getWorld().getPlayers().forEach(player1 -> player1.sendMessage(flp.rank.getNameColor() +
-                flp.getDisplayName() + ChatColor.RESET + " was killed by " +
-                name + ChatColor.RESET + " at the Autumn Event"));
+        FarLands.getWorld().getPlayers().forEach(player1 ->
+            player1.sendMessage(
+                flp.getDisplayName().color(flp.rank.color())
+                    .append(Component.text(" was killed by ").color(NamedTextColor.WHITE))
+                    .append(Component.text(name))
+                    .append(Component.text(" at the Autumn Event").color(NamedTextColor.WHITE))
+            )
+        );
 
         event.setCancelled(true);
         respawnPlayer(player);
@@ -2843,8 +2850,12 @@ public class AutumnEvent extends Mechanic {
             return;
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getEntity().getUniqueId());
-        FarLands.getWorld().getPlayers().forEach(player1 -> player1.sendMessage(flp.rank.getNameColor() + flp.getDisplayName() +
-                ChatColor.RESET + " died at the Autumn Event"));
+        FarLands.getWorld().getPlayers().forEach(player1 ->
+            player1.sendMessage(
+                flp.getDisplayName().color(flp.rank.color())
+                    .append(Component.text(" died at the Autumn Event").color(NamedTextColor.WHITE))
+            )
+        );
 
         event.setCancelled(true);
         respawnPlayer(player);

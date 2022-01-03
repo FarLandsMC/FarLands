@@ -200,8 +200,8 @@ public class FLPlayerSession {
         }
 
         player.setOp(handle.rank.hasOP());
-        if (handle.nickname != null && !handle.nickname.isEmpty())
-            player.setDisplayName(handle.nickname);
+        if (handle.nickname != null)
+            player.displayName(handle.nickname);
         else
             player.setDisplayName(player.getName());
         handle.getDisplayRank().getTeam().addEntry(player.getName());

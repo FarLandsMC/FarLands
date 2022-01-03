@@ -79,7 +79,7 @@ public class CommandPackage extends PlayerCommand {
 
         // Players can only queue one item at a time, so make sure this operation actually succeeds
         if (FarLands.getDataHandler().addPackage(recipientFlp.uuid,
-                new Package(sender.getUniqueId(), escapeExpression(FLUtils.removeColorCodes(senderSession.handle.getDisplayName())),
+                new Package(sender.getUniqueId(), senderSession.handle.username,
                 item, useEscaped ? escapedMessage : message, false))
         ) {
             sender.getInventory().setItemInMainHand(null);

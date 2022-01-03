@@ -206,21 +206,22 @@ public class CommandMessage extends PlayerCommand {
         );
     }
 
-    private static void sendMessage(CommandSender recipient, String prefix, Rank rank, String name, Component message) {
+    private static void sendMessage(CommandSender recipient, String prefix, Rank rank, Component name, Component message) {
         recipient.sendMessage(
             ComponentColor.darkGray(prefix)
                 .append(Component.space())
-                .append(rank.colorName(name + ": "))
+                .append(name)
+                .append(Component.text(": ").color(rank.nameColor()))
                 .append(message.color(NamedTextColor.WHITE))
         );
     }
 
-    private static String getDisplayName(CommandSender sender) {
+    private static Component getDisplayName(CommandSender sender) {
         if (sender instanceof Player) {
             return FarLands.getDataHandler().getOfflineFLPlayer(sender).getDisplayName();
         }
 
-        return sender.getName();
+        return Component.text(sender.getName());
     }
 
     private static Rank getRank(CommandSender sender) {

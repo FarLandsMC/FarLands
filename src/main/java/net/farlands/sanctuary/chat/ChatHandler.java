@@ -180,11 +180,7 @@ public class ChatHandler {
             ) > 0;
 
         Component rankPrefix = sender.rank.getLabel(); // Ex: "Dev", "Knight" (with color and bold?)
-        Component nameDisplay = sender.rank.colorName(
-                useNick && sender.nickname != null && !sender.nickname.isBlank() ?
-                    sender.nickname :
-                    sender.username
-            ) // Colored Username or Nickname
+        Component nameDisplay = sender.getDisplayName() // Colored Username or Nickname
             .hoverEvent(
                 HoverEvent.showText(
                     CommandStats.getFormattedStats(sender, false)

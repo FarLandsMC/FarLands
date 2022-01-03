@@ -29,8 +29,8 @@ public class XRayStore {
     static {
         ORES = Materials.materialsEndingWith("_ORE");
         ORES.add(Material.ANCIENT_DEBRIS);
-        ORES.add(Material.AMETHYST_BLOCK);
-        ORES.add(Material.BUDDING_AMETHYST);
+        //ORES.add(Material.AMETHYST_BLOCK);
+        //ORES.add(Material.BUDDING_AMETHYST);
     }
 
 
