@@ -93,12 +93,6 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     }
 
     if (this.legacyColors) {
-      final Pattern legacyCharPattern = Pattern.compile("(?<!\\\\)(&([a-f0-9l-or]))");
-      mmString = legacyCharPattern.matcher(mmString).replaceAll((result) -> CHAR_COLORS.get(result.group(2).charAt(0)));
-
-      final Pattern escapedLegacyCharPattern = Pattern.compile("(\\\\&([a-f0-9l-or]))");
-      mmString = escapedLegacyCharPattern.matcher(mmString).replaceAll((result) -> "&" + result.group(2));
-
       if (this.hexColors) {
         // parse the nicer pattern: '&#rrggbb' to spigot's: '&x&r&r&g&g&b&b'
         final Pattern sixCharHex = Pattern.compile("&#([0-9a-fA-F]{6})");
@@ -148,13 +142,19 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
         mmString = mmString.replaceAll("&#([0-9a-fA-F]{6})", "");
         mmString = mmString.replaceAll("&x(&[0-9a-fA-F]){6}", "");
       }
+
+      final Pattern legacyCharPattern = Pattern.compile("(?<!\\\\)(&([a-f0-9l-or]))");
+      mmString = legacyCharPattern.matcher(mmString).replaceAll((result) -> CHAR_COLORS.get(result.group(2).charAt(0)));
+
+      final Pattern escapedLegacyCharPattern = Pattern.compile("(\\\\&([a-f0-9l-or]))");
+      mmString = escapedLegacyCharPattern.matcher(mmString).replaceAll((result) -> "&" + result.group(2));
     } else {
       mmString = mmString.replaceAll("(&[0-9a-fA-Fk-oK-OxXrR])+", "");
     }
 
     if (!this.gradients) {
-      mmString = mmString.replaceAll("<gradient([:#0-9a-fA-F]{8})+>", "");
-      mmString = mmString.replaceAll("</gradient>", "");
+      mmString = mmString.replaceAll("(?<!\\\\)<gradient([:#0-9a-fA-F]{8})+>", "");
+      mmString = mmString.replaceAll("(?<!\\\\)</gradient>", "");
     }
 
     final Pattern hexColorPattern = Pattern.compile("(<(/|)(c|color|colour|)(:|)(#[0-9a-fA-F]{6}|)>)");

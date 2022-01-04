@@ -48,13 +48,13 @@ public class MiniMessageWrapperTest {
 
   @Test
   public void legacyColors() {
-    String legacy = "&9&lMajek&b&odor";
+    String legacy = "&9&lMajek&b&odor&x&f&a&c&a&d&e!";
     Assert.assertEquals(
-        "<blue><bold>Majek<aqua><italic>dor",
+        "<blue><bold>Majek<aqua><italic>dor<#facade>!",
         MiniMessageWrapper.legacy().mmString(legacy)
     );
     Assert.assertEquals(
-        "Majekdor",
+        "Majekdor!",
         MiniMessageWrapper.standard().mmString(legacy)
     );
   }
