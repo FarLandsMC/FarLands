@@ -161,6 +161,7 @@ public class CommandMessage extends PlayerCommand {
     }
 
     // Send the formatted message
+    // TODO: 1/3/22 Change this method to accept components
     public static void sendMessages(CommandSender recipient, CommandSender sender, String messageStr) {
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
         // Censor the message if censoring

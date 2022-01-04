@@ -9,11 +9,13 @@ import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,10 +52,18 @@ public class CommandHome extends PlayerCommand {
 
         // Make sure the home exists
         Location loc = flp.getHome(name);
-        if(loc == null) {
-            sendFormatted(sender, "&(red)%0 not have a home named \"%1\"",
-                    gotoUnownedHome ? flp.username + " does" : "You do", name);
-            return false;
+        if (loc == null) {
+            List<Home> matching = flp.homes.stream().filter(home -> home.getName().startsWith(name)).toList();
+            if (matching.size() == 1) {
+                FLUtils.tpPlayer(sender, matching.get(0).getLocation());
+            } else if (matching.size() > 1) {
+                sender.sendMessage(ComponentColor.red("Multiple matches found. Please specify one of the following: %s",
+                    String.join(", ", matching.stream().map(Home::getName).toList())));
+            } else {
+                sender.sendMessage(ComponentColor.red("%s not have a home named \"%s\"",
+                    gotoUnownedHome ? flp.username + " does" : "You do", name));
+            }
+            return true;
         }
 
         FLUtils.tpPlayer(sender, loc);
@@ -61,7 +71,7 @@ public class CommandHome extends PlayerCommand {
     }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+    public @NotNull List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
                 ? TabCompleterBase.filterStartingWith(args[0], FarLands.getDataHandler().getOfflineFLPlayer(sender).homes.stream().map(Home::getName))
                 : (Rank.getRank(sender).isStaff() ? getOnlinePlayers(args[1], sender) : Collections.emptyList()); // For staff

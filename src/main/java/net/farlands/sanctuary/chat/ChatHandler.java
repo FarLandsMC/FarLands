@@ -3,7 +3,6 @@ package net.farlands.sanctuary.chat;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
-import net.farlands.sanctuary.command.player.CommandNick;
 import net.farlands.sanctuary.command.player.CommandStats;
 import net.farlands.sanctuary.command.staff.CommandStaffChat;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -21,7 +20,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerEvent;
@@ -98,23 +97,23 @@ public class ChatHandler {
             message = message.substring(1);
         }
 
-        message = handleReplacements(message, sender);
+        Component formatted = handleReplacements(message, sender);
 
         if (!shout) {
             FLPlayerSession session = FarLands.getDataHandler().getSession(player);
             if (sender.vanished || session.autoSendStaffChat) {
-                staffChat(player, message);
+                staffChat(player, PlainTextComponentSerializer.plainText().serialize(formatted));
                 return;
             }
 
             if (session.replyToggleRecipient != null) {
                 if (session.replyToggleRecipient instanceof Player && ((Player) session.replyToggleRecipient).isOnline()) {
-                    CommandMessage.sendMessages(session.replyToggleRecipient, session.player, message);
+                    CommandMessage.sendMessages(session.replyToggleRecipient, session.player, PlainTextComponentSerializer.plainText().serialize(formatted));
                     return;
                 }
             }
         }
-        chat(sender, message);
+        chat(sender, formatted);
 
     }
 
@@ -153,6 +152,15 @@ public class ChatHandler {
             .execute(player, new String[]{ "c", message });
     }
 
+    /**
+     * Send chat message as OfflineFLPlayer
+     *
+     * @param sender  Sender of chat message
+     * @param message Message Text
+     */
+    public static void chat(OfflineFLPlayer sender, Component message) {
+        chat(sender, getPrefix(sender), message);
+    }
 
     /**
      * Send chat message as OfflineFLPlayer
@@ -161,23 +169,16 @@ public class ChatHandler {
      * @param prefix  Sender's prefix
      * @param message Message Text
      */
-    public static void chat(OfflineFLPlayer sender, Component prefix, String message) {
-        Component component = MiniMessage.miniMessage().parse(message);
-        Component censorComponent = MiniMessage.miniMessage().parse(MessageFilter.INSTANCE.censor(message));
+    public static void chat(OfflineFLPlayer sender, Component prefix, Component message) {
+        Component censorMessage = MessageFilter.INSTANCE.censor(message);
 
-        sendToConsole(component, sender);
-        broadcast(prefix, component, censorComponent, sender); // Send to players
-        broadcastDiscord(prefix, component); // Send to #in-game
+        sendToConsole(message, sender);
+        broadcast(prefix, message, censorMessage, sender); // Send to players
+        broadcastDiscord(prefix, message); // Send to #in-game
     }
 
     public static Component getPrefix(OfflineFLPlayer sender) {
         // Does the player have permission to have a nickname? - Based on `/nick` permission
-        boolean useNick = sender.rank
-            .specialCompareTo(
-                FarLands.getCommandHandler()
-                    .getCommand(CommandNick.class)
-                    .getMinRankRequirement()
-            ) > 0;
 
         Component rankPrefix = sender.rank.getLabel(); // Ex: "Dev", "Knight" (with color and bold?)
         Component nameDisplay = sender.getDisplayName() // Colored Username or Nickname
@@ -200,28 +201,17 @@ public class ChatHandler {
             .build();
     }
 
-    /**
-     * Send chat message as OfflineFLPlayer
-     *
-     * @param sender  Sender of chat message
-     * @param message Message Text
-     */
-    public static void chat(OfflineFLPlayer sender, String message) {
-        chat(sender, getPrefix(sender), message);
-    }
+    public static Component handleReplacements(String message, OfflineFLPlayer sender) {
 
-    public static String handleReplacements(String message, OfflineFLPlayer sender) {
+        Component component = MiniMessageWrapper.farlands(sender).mmParse(message); // Parse colors and mm tags
 
-        message = message.replaceAll("<", "\\\\<"); // Protect all potential codes from influencing chat
+        component = ChatFormat.translateEmotes(component); // :shrug: -> ¯\_(ツ)_/¯
+        component = ChatFormat.translateLinks(component); // Highlight Links
+        component = ChatFormat.translatePings(component, sender, false); // Make @<name> have hover text with stats
+        component = ChatFormat.translateCommands(component); // `cmd` -> cmd (with hover and click event)
+        component = ChatFormat.translateItems(component, sender.getOnlinePlayer()); // [i] -> "[i] <name>" with hover text
 
-        message = ChatFormat.translateColors(message, sender); // &a -> <green> | &#abc -> <#aabbcc> | &#facade -> <#facade>
-        message = ChatFormat.translateEmotes(message); // :shrug: -> ¯\_(ツ)_/¯
-        message = ChatFormat.translateLinks(message); // Highlight Links
-        message = ChatFormat.translatePing(message, sender, false); // Make @<name> have hover text with stats
-        message = ChatFormat.translateCommands(message); // `cmd` -> cmd (with hover and click event)
-        message = ChatFormat.translateItem(message, sender.getOnlinePlayer()); // [i] -> "[i] <name>" with hover text
-
-        return message;
+        return component;
     }
 
     private static boolean handleCensor(Player player, OfflineFLPlayer sender, String message) {
@@ -267,7 +257,7 @@ public class ChatHandler {
         boolean fakeMsg = flp.secondsPlayed < 60 * 15; // Played for more than 15 minutes
         if (fakeMsg) {
             // Make it seem like the message went through for the sender
-            broadcast(message, flp, sender);
+            broadcast(message, sender);
         } else {
             // Let the sender know that their message wasn't sent
             sender.sendMessage(
@@ -294,10 +284,9 @@ public class ChatHandler {
      * Send message only to specific players
      *
      * @param message   The message to send
-     * @param sender    The sender
      * @param selection The selected players
      */
-    public static void broadcast(Component message, OfflineFLPlayer sender, Player... selection) {
+    public static void broadcast(Component message, Player... selection) {
         for (Player player : selection) {
             player.sendMessage(message);
         }
@@ -315,13 +304,11 @@ public class ChatHandler {
             .stream()
             .map(FarLands.getDataHandler()::getOfflineFLPlayer)
             .filter(flp -> !flp.getIgnoreStatus(sender).includesChat())
-            .forEach(flp -> {
-                flp.getOnlinePlayer().sendMessage(
-                    Component.text("")
-                        .append(prefix)
-                        .append(flp.censoring ? censorMessage : message)
-                );
-            });
+            .forEach(flp -> flp.getOnlinePlayer().sendMessage(
+                Component.text("")
+                    .append(prefix)
+                    .append(flp.censoring ? censorMessage : message)
+            ));
     }
 
     public static void sendToConsole(Component message, OfflineFLPlayer sender) {

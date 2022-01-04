@@ -1,7 +1,9 @@
 package net.farlands.sanctuary.chat;
 
+import com.google.common.collect.ImmutableMap;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.placeholder.PlaceholderResolver;
@@ -28,14 +30,14 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
 
   @ApiStatus.Internal
   static final MiniMessageWrapper STANDARD = new MiniMessageWrapperImpl(true, true, true,
-      false, false, PlaceholderResolver.empty(), new HashSet<>(), new HashSet<>(), 255);
+      false, false, true, PlaceholderResolver.empty(), new HashSet<>(), new HashSet<>(), 0);
 
   @ApiStatus.Internal
   static final MiniMessageWrapper LEGACY = new MiniMessageWrapperImpl(true, true, true,
-      true, false, PlaceholderResolver.empty(), new HashSet<>(), new HashSet<>(), 255);
+      true, false, true, PlaceholderResolver.empty(), new HashSet<>(), new HashSet<>(), 0);
 
   @SuppressWarnings("all")
-  private final TransformationRegistry allTransformations = TransformationRegistry.builder().add(
+  private final TransformationRegistry allTransformations = TransformationRegistry.builder().clear().add(
       TransformationType.CLICK_EVENT, TransformationType.COLOR, TransformationType.DECORATION,
       TransformationType.FONT, TransformationType.GRADIENT, TransformationType.HOVER_EVENT,
       TransformationType.INSERTION, TransformationType.KEYBIND, TransformationType.RAINBOW,
@@ -43,12 +45,12 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
   ).build();
 
   @SuppressWarnings("all")
-  private final TransformationRegistry colorTransformations = TransformationRegistry.builder().add(
+  private final TransformationRegistry colorTransformations = TransformationRegistry.builder().clear().add(
       TransformationType.COLOR, TransformationType.DECORATION,
       TransformationType.GRADIENT, TransformationType.RAINBOW
   ).build();
 
-  private final boolean gradients, hexColors, standardColors, legacyColors, advancedTransformations;
+  private final boolean gradients, hexColors, standardColors, legacyColors, advancedTransformations, blockCloseHex;
   private final PlaceholderResolver placeholderResolver;
   private final Set<TextDecoration> removedTextDecorations;
   private final Set<NamedTextColor> removedColors;
@@ -56,7 +58,7 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
 
   MiniMessageWrapperImpl(final boolean gradients, final boolean hexColors, final boolean standardColors,
                          final boolean legacyColors, final boolean advancedTransformations,
-                         final PlaceholderResolver placeholderResolver,
+                         final boolean blockCloseHex, final PlaceholderResolver placeholderResolver,
                          final Set<TextDecoration> removedTextDecorations,
                          final Set<NamedTextColor> removedColors, final int luminanceThreshold) {
     this.gradients = gradients;
@@ -64,6 +66,7 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     this.standardColors = standardColors;
     this.legacyColors = legacyColors;
     this.advancedTransformations = advancedTransformations;
+    this.blockCloseHex = blockCloseHex;
     this.placeholderResolver = placeholderResolver;
     this.removedTextDecorations = removedTextDecorations;
     this.removedColors = removedColors;
@@ -90,29 +93,11 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     }
 
     if (this.legacyColors) {
-      mmString = mmString
-          .replace("&0", "<black>")
-          .replace("&1", "<dark_blue>")
-          .replace("&2", "<dark_green>")
-          .replace("&3", "<dark_aqua>")
-          .replace("&4", "<dark_red>")
-          .replace("&5", "<dark_purple>")
-          .replace("&6", "<gold>")
-          .replace("&7", "<gray>")
-          .replace("&8", "<dark_gray>")
-          .replace("&9", "<blue>")
-          .replace("&a", "<green>")
-          .replace("&b", "<aqua>")
-          .replace("&c", "<red>")
-          .replace("&d", "<light_purple>")
-          .replace("&e", "<yellow>")
-          .replace("&f", "<white>")
-          .replace("&n", "<underlined>")
-          .replace("&m", "<strikethrough>")
-          .replace("&k", "<obfuscated>")
-          .replace("&o", "<italic>")
-          .replace("&l", "<bold>")
-          .replace("&r", "</color>");
+      final Pattern legacyCharPattern = Pattern.compile("(?<!\\\\)(&([a-f0-9l-or]))");
+      mmString = legacyCharPattern.matcher(mmString).replaceAll((result) -> CHAR_COLORS.get(result.group(2).charAt(0)));
+
+      final Pattern escapedLegacyCharPattern = Pattern.compile("(\\\\&([a-f0-9l-or]))");
+      mmString = escapedLegacyCharPattern.matcher(mmString).replaceAll((result) -> "&" + result.group(2));
 
       if (this.hexColors) {
         // parse the nicer pattern: '&#rrggbb' to spigot's: '&x&r&r&g&g&b&b'
@@ -183,7 +168,11 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     while(matcher.find()) {
       try {
         String hexMatch = matcher.group(4);
-        if (getLuma(hexMatch) < 16) {
+        if (
+            (blockCloseHex &&
+                this.removedColors.contains(NamedTextColor.nearestTo(TextColor.color(Integer.parseInt(hexMatch.substring(1), 16))))) ||
+                getLuma(hexMatch) < this.luminanceThreshold
+        ) {
           mmString = mmString.replaceAll(matcher.group(1), "");
         }
       } catch (IndexOutOfBoundsException ignored) {
@@ -217,7 +206,7 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
   @ApiStatus.Internal
   static final class BuilderImpl implements Builder {
 
-    private boolean gradients, hexColors, standardColors, legacyColors, advancedTransformations;
+    private boolean gradients, hexColors, standardColors, legacyColors, advancedTransformations, blockCloseHex;
     private PlaceholderResolver placeholderResolver;
     private final Set<TextDecoration> removedTextDecorations;
     private final Set<NamedTextColor> removedColors;
@@ -230,10 +219,11 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
       this.standardColors = true;
       this.legacyColors = false;
       this.advancedTransformations = false;
+      this.blockCloseHex = true;
       this.placeholderResolver = PlaceholderResolver.empty();
       this.removedTextDecorations = new HashSet<>();
       this.removedColors = new HashSet<>();
-      this.luminanceThreshold = 355;
+      this.luminanceThreshold = 0;
     }
 
     @ApiStatus.Internal
@@ -243,6 +233,7 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
       this.standardColors = wrapper.standardColors;
       this.legacyColors = wrapper.legacyColors;
       this.advancedTransformations = wrapper.advancedTransformations;
+      this.blockCloseHex = wrapper.blockCloseHex;
       this.placeholderResolver = wrapper.placeholderResolver;
       this.removedTextDecorations = wrapper.removedTextDecorations;
       this.removedColors = wrapper.removedColors;
@@ -298,7 +289,8 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     }
 
     @Override
-    public @NotNull Builder removeColors(final @NotNull NamedTextColor... colors) {
+    public @NotNull Builder removeColors(final boolean blockCloseHex, final @NotNull NamedTextColor... colors) {
+      this.blockCloseHex = blockCloseHex;
       this.removedColors.addAll(List.of(colors));
       return this;
     }
@@ -306,7 +298,7 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     @Override
     public @NotNull MiniMessageWrapper build() {
       return new MiniMessageWrapperImpl(this.gradients, this.hexColors, this.standardColors,
-          this.legacyColors, this.advancedTransformations, this.placeholderResolver,
+          this.legacyColors, this.advancedTransformations, this.blockCloseHex, this.placeholderResolver,
           this.removedTextDecorations, this.removedColors, this.luminanceThreshold);
     }
   }
@@ -356,4 +348,29 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     }
     return null;
   }
+
+  public static final Map<Character, String> CHAR_COLORS = new ImmutableMap.Builder<Character, String>()
+      .put('0', "<black>")
+      .put('1', "<dark_blue>")
+      .put('2', "<dark_green>")
+      .put('3', "<dark_aqua>")
+      .put('4', "<dark_red>")
+      .put('5', "<dark_purple>")
+      .put('6', "<gold>")
+      .put('7', "<gray>")
+      .put('8', "<dark_gray>")
+      .put('9', "<blue>")
+      .put('a', "<green>")
+      .put('b', "<aqua>")
+      .put('c', "<red>")
+      .put('d', "<light_purple>")
+      .put('e', "<yellow>")
+      .put('f', "<white>")
+      .put('k', "<obfuscated>")
+      .put('l', "<bold>")
+      .put('m', "<strikethrough>")
+      .put('n', "<underlined>")
+      .put('o', "<italic>")
+      .put('r', "<reset>")
+      .build();
 }

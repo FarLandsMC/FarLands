@@ -87,7 +87,7 @@ public class CustomAdapters {
             } catch (Exception ignored) {
                 return MiniMessageWrapper.legacy().toBuilder()
                     .preventLuminanceBelow(16)
-                    .removeColors(NamedTextColor.BLACK)
+                    .removeColors(true, NamedTextColor.BLACK)
                     .removeTextDecorations(TextDecoration.OBFUSCATED)
                     .build().mmParse(nickname);
             }

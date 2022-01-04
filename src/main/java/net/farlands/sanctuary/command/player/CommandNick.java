@@ -88,7 +88,7 @@ public class CommandNick extends PlayerCommand {
             }
 
             flp.nickname = nickname;
-            sender.sendMessage(ComponentColor.green("Nickname set."));
+            sender.sendMessage(ComponentColor.green("Nickname set to ").append(nickname).append(ComponentColor.green(".")));
         }
         // Remove nickname
         else {

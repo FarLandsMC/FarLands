@@ -574,10 +574,10 @@ public class OfflineFLPlayer {
     }
 
     public void chat(String message) {
-        ChatHandler.chat(this, message);
+        ChatHandler.chat(this, ChatHandler.handleReplacements(message, this));
     }
 
     public void chat(String prefix, String message) {
-        ChatHandler.chat(this, Component.text(prefix), message);
+        ChatHandler.chat(this, Component.text(prefix), ChatHandler.handleReplacements(message, this));
     }
 }

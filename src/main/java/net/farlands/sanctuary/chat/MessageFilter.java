@@ -3,6 +3,8 @@ package net.farlands.sanctuary.chat;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextReplacementConfig;
 
 import java.io.IOException;
 import java.util.*;
@@ -45,6 +47,18 @@ public class MessageFilter {
         return FLUtils.matchCase(s, censored);
     }
 
+    public Component censor(Component component) {
+        for (String word : words.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList())) {
+            component = component.replaceText(
+                TextReplacementConfig.builder()
+                    .match("(?i)(^|\\W)\\Q" + word + "\\E($|\\W)")
+                    .replacement(getRandomReplacement())
+                    .build()
+            );
+        }
+        return component;
+    }
+
     public boolean isProfane(String s) {
         return !s.equals(censor(s));
     }
@@ -52,7 +66,7 @@ public class MessageFilter {
     public boolean autoCensor(String s) {
         String censored = s.toLowerCase();
         for (String word : words.entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList())) {
-            censored = censored.replaceAll("(^|\\W)\\Q" + word + "\\E($|\\W)", " ");
+            censored = censored.replaceAll("(?i)(^|\\W)\\Q" + word + "\\E($|\\W)", " ");
         }
         return !s.equalsIgnoreCase(censored);
     }

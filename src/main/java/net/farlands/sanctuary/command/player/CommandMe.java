@@ -5,6 +5,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;

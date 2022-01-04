@@ -248,14 +248,12 @@ public class DiscordHandler extends ListenerAdapter {
         event
             .getUser()
             .openPrivateChannel()
-            .queue((channel) -> {
-                channel.sendMessage(
-                    "Welcome to the FarLands official discord server! To access more channels and voice chat, " +
-                        "Type `/verify <minecraftUsername>` in the unverified general channel while you are on the server. You " +
-                        "should replace `<minecraftUsername>` with your exact minecraft username, respecting capitalization and spelling. " +
-                        "After doing that, type `/verify` in-game, and you're set."
-                ).queue();
-            });
+            .queue((channel) -> channel.sendMessage(
+                "Welcome to the FarLands official discord server! To access more channels and voice chat, " +
+                    "Type `/verify <minecraftUsername>` in the unverified general channel while you are on the server. You " +
+                    "should replace `<minecraftUsername>` with your exact minecraft username, respecting capitalization and spelling. " +
+                    "After doing that, type `/verify` in-game, and you're set."
+            ).queue());
     }
 
     @Override
@@ -397,24 +395,20 @@ public class DiscordHandler extends ListenerAdapter {
 
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
 
-        message = replacements(message, staffChat, flp);
-
-        MiniMessage mm = MiniMessage.miniMessage();
-        String censorMsg = MessageFilter.INSTANCE.censor(message);
+        Component component = replacements(message, staffChat, flp);
+        Component censorComponent = MessageFilter.INSTANCE.censor(component);
 
         Component finalMessage = Component.text()
             .append(messagePrefix)
-            .append(mm.parse(message))
+            .append(component)
             .append(messageSuffix)
             .build();
 
         Component finalCensorMessage = Component.text()
             .append(messagePrefix)
-            .append(mm.parse(censorMsg))
+            .append(censorComponent)
             .append(messageSuffix)
             .build();
-
-
 
         if (staffChat) {
             Component scComponent =
@@ -483,12 +477,12 @@ public class DiscordHandler extends ListenerAdapter {
         }
     }
 
-    private String replacements(String message, boolean silent, OfflineFLPlayer flp) {
-        message = message.replaceAll("<", "\\\\<");
-        message = ChatFormat.translatePing(message, flp, silent);
-        message = ChatFormat.translateEmotes(message);
-        message = ChatFormat.translateLinks(message);
-        return message;
+    private Component replacements(String message, boolean silent, OfflineFLPlayer flp) {
+        Component component = MiniMessage.miniMessage().parse(message);
+        component = ChatFormat.translatePings(component, flp, silent);
+        component = ChatFormat.translateEmotes(component);
+        component = ChatFormat.translateLinks(component);
+        return component;
     }
 
     public Emote getEmote(String id) {

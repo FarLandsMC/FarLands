@@ -33,7 +33,7 @@ public interface MiniMessageWrapper extends Buildable<MiniMessageWrapper, MiniMe
    *   <li>Placeholder Resolver: Empty</li>
    *   <li>Block Text Decorations: None</li>
    *   <li>Blocked Colors: None</li>
-   *   <li>Luminance Threshold: 255</li>
+   *   <li>Luminance Threshold: 0</li>
    * </ul>
    *
    * @return a simple instance
@@ -56,7 +56,7 @@ public interface MiniMessageWrapper extends Buildable<MiniMessageWrapper, MiniMe
    *   <li>Placeholder Resolver: Empty</li>
    *   <li>Block Text Decorations: None</li>
    *   <li>Blocked Colors: None</li>
-   *   <li>Luminance Threshold: 255</li>
+   *   <li>Luminance Threshold: 0</li>
    * </ul>
    *
    * @return a simple instance
@@ -90,6 +90,7 @@ public interface MiniMessageWrapper extends Buildable<MiniMessageWrapper, MiniMe
         flp.rank.specialCompareTo(Rank.ADEPT) >= 0,
         flp.rank.specialCompareTo(Rank.ADEPT) >= 0,
         flp.rank.isStaff(),
+        true,
         PlaceholderResolver.empty(),
         Set.of(TextDecoration.OBFUSCATED),
         Set.of(NamedTextColor.BLACK),
@@ -200,20 +201,22 @@ public interface MiniMessageWrapper extends Buildable<MiniMessageWrapper, MiniMe
      */
     @NotNull Builder placeholderResolver(final @NotNull PlaceholderResolver placeholderResolver);
 
+
     /**
      * The {@link NamedTextColor}s that should not be parsed.
      *
+     * @param blockCloseHex whether to block hex codes that are close to blocked colors
      * @param colors the colors
      * @return this builder
      */
-    @NotNull Builder removeColors(final @NotNull NamedTextColor... colors);
+    @NotNull Builder removeColors(final boolean blockCloseHex, final @NotNull NamedTextColor... colors);
 
     /**
      * <p>Prevent hex colors that have a luminance below a certain threshold.
      * Luminance is measure 0 - 255. There's a method in {@link MiniMessageWrapperImpl}
      * that is used to calculate it. This is typically used to prevent very dark colors.</p>
      * <p>Note: If you want to block the normal black color, remember to add
-     * it to {@link #removeColors(NamedTextColor...)}</p>
+     * it to {@link #removeColors(boolean, NamedTextColor...)}</p>
      *
      * @param threshold all colors with luminance below this will not be parsed
      * @return this builder
