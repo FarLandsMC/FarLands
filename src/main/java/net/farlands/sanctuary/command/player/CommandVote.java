@@ -20,7 +20,7 @@ public class CommandVote extends Command {
         if(sender instanceof Player)
             sender.sendMessage(
                 ComponentColor.gold("Click ")
-                    .append(ComponentUtils.link(FarLands.getFLConfig().voteConfig.voteLink, "here"))
+                    .append(ComponentUtils.link("here", FarLands.getFLConfig().voteConfig.voteLink))
                     .append(ComponentColor.gold(" to vote."))
             );
         else if(sender instanceof DiscordSender) {

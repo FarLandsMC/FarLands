@@ -89,7 +89,7 @@ public class CustomAdapters {
                     .preventLuminanceBelow(16)
                     .removeColors(true, NamedTextColor.BLACK)
                     .removeTextDecorations(TextDecoration.OBFUSCATED)
-                    .build().mmParse(nickname);
+                    .build().mmParse(nickname.replace("§", "&"));
             }
         }
 

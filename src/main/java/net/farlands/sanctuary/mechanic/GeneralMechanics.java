@@ -547,7 +547,7 @@ public class GeneralMechanics extends Mechanic {
                         "<gold>%s more %s to sleep to skip the night.",
                         false,
                         (required - sleeping) + "",
-                        (required - sleeping) == 1 ? "players need" : "player needs");
+                        (required - sleeping) == 1 ? "player need" : "players needs");
                 }
             } else if (nightSkipTask == null) {
                 Logging.broadcastFormatted("<gold>Skipping the night...", false);

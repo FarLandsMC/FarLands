@@ -14,8 +14,8 @@ public enum Detecting {
 
     ANCIENT_DEBRIS (new String[]{"world_nether"},      128, ChatColor.LIGHT_PURPLE, Material.ANCIENT_DEBRIS),
     DIAMOND        (new String[]{"world", "farlands"}, 16,  ChatColor.AQUA,         Material.DIAMOND_ORE, Material.DEEPSLATE_DIAMOND_ORE),
-    EMERALD        (new String[]{"world", "farlands"}, 32,  ChatColor.GREEN,        Material.EMERALD_ORE, Material.DEEPSLATE_EMERALD_ORE),
-    AMETHYST       (new String[]{"world", "farlands"}, 75,  ChatColor.DARK_PURPLE,  Material.AMETHYST_BLOCK, Material.CALCITE, Material.BUDDING_AMETHYST);
+    EMERALD        (new String[]{"world", "farlands"}, 32,  ChatColor.GREEN,        Material.EMERALD_ORE, Material.DEEPSLATE_EMERALD_ORE);
+    //AMETHYST       (new String[]{"world", "farlands"}, 75,  ChatColor.DARK_PURPLE,  Material.AMETHYST_BLOCK, Material.CALCITE, Material.BUDDING_AMETHYST);
 
     String[]   worldNames;
     int        maxYSpawn;

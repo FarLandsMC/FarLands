@@ -11,7 +11,7 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.md_5.bungee.api.ChatMessageType;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -26,8 +26,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
  * Handles players going afk, including afk check and kicking.
@@ -48,8 +46,11 @@ public class AFK extends Mechanic {
         Bukkit.getScheduler().runTaskTimerAsynchronously(FarLands.getInstance(), () -> {
             Bukkit.getOnlinePlayers().forEach(player -> {
                 if (afkCheckList.containsKey(player.getUniqueId())) {
-                    sendFormatted(player, ChatMessageType.ACTION_BAR, "&(red,bold,magic)MM {&(reset)%0} MM",
-                            afkCheckList.get(player.getUniqueId()).getFirst());
+                    player.sendActionBar(
+                        ComponentColor.red("MM ").decorate(TextDecoration.OBFUSCATED).decorate(TextDecoration.BOLD)
+                            .append(ComponentColor.white(afkCheckList.get(player.getUniqueId()).getFirst()))
+                            .append(ComponentColor.red("MM ").decorate(TextDecoration.OBFUSCATED).decorate(TextDecoration.BOLD))
+                    );
                 }
             });
         }, 0L, 40L);
@@ -166,7 +167,7 @@ public class AFK extends Mechanic {
                 }
 
                 if (session.afk) {
-                    kickAFK(player);
+                    kickAFK(player, true);
                     return;
                 }
 
@@ -177,7 +178,7 @@ public class AFK extends Mechanic {
                 player.sendTitle(check, "", 20, 120, 60);
                 FarLands.getDebugger().echo("Sent AFK check to " + player.getName());
                 instance.afkCheckList.put(player.getUniqueId(), new Pair<>(check, op ? a + b : a - b));
-                session.afkCheckCooldown.reset(() -> kickAFK(player));
+                session.afkCheckCooldown.reset(() -> kickAFK(player, true));
             }
         });
     }
@@ -193,9 +194,11 @@ public class AFK extends Mechanic {
         }
     }
 
-    private static void kickAFK(Player player) {
+    private static void kickAFK(Player player, boolean debug) {
         if (player.isOnline()) {
-            FarLands.getDebugger().echo("Kicking " + player.getName() + " for being AFK or answering the question incorrectly.");
+            if (debug) {
+                FarLands.getDebugger().echo("Kicking " + player.getName() + " for being AFK or answering the question incorrectly.");
+            }
             player.kick(ComponentColor.red("Kicked for being AFK."));
             Logging.broadcastStaff(ComponentColor.red(player.getName() + " was kicked for being AFK."));
         }

@@ -15,6 +15,8 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.concurrent.ExecutionException;
+
 import static com.kicas.rp.util.Utils.*;
 import static net.farlands.sanctuary.util.FLUtils.RNG;
 import static net.farlands.sanctuary.util.FLUtils.tpPlayer;
@@ -69,12 +71,23 @@ public class CommandWild extends PlayerCommand {
             session.setCommandCooldown(this, wildCooldown * 60L * 20L);
         session.unsit();
 
+        sender.sendActionBar(ComponentColor.aqua("Finding a safe place to teleport..."));
+
         long time = System.currentTimeMillis() - FarLands.getDataHandler().getPluginData().seasonStartTime;
-        rtpPlayer(
-                sender,
-                INNER_RAD,
-                MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD, (int) (time / 180000L)) // 3 * 60 * 1000, 3 minutes per block of rtp
-        );
+        FarLands.getInstance().getServer().getScheduler().runTaskAsynchronously(FarLands.getInstance(), () -> {
+            try {
+                rtpPlayer(
+                    sender,
+                    INNER_RAD,
+                    MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD, (int) (time / 180000L)) // 3 * 60 * 1000, 3 minutes per block of rtp
+                );
+            } catch (ExecutionException | InterruptedException e) {
+                sender.playSound(sender.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
+                sender.sendMessage(ComponentColor.red("Your random teleport randomly failed :("));
+                FarLands.getDebugger().echo(sender.getName() + " /rtp -> fail");
+                e.printStackTrace();
+            }
+        });
         return true;
     }
 
@@ -89,7 +102,7 @@ public class CommandWild extends PlayerCommand {
     }
 
     // in case we decide to make a portal so we can copy into utils
-    public static void rtpPlayer(Player player, int minRange, int maxRange) {
+    public static void rtpPlayer(Player player, int minRange, int maxRange) throws ExecutionException, InterruptedException {
         boolean overworld = player.getWorld().getName().equals("world");
         int dx = getRandom(minRange, maxRange),
             dz = getRandom(
@@ -141,7 +154,8 @@ public class CommandWild extends PlayerCommand {
                 safe.getBlockY() + " " +
                 safe.getBlockZ() + " : " + (64 - ttl)
         );
-        tpPlayer(player, safe);
+        Location finalSafe = safe;
+        FarLands.getInstance().getServer().getScheduler().runTask(FarLands.getInstance(), () -> tpPlayer(player, finalSafe));
 
         if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
             player.sendActionBar(
@@ -152,27 +166,28 @@ public class CommandWild extends PlayerCommand {
         }
     }
 
-    private static Location rtpFindSafe(Location origin) {
+    private static Location rtpFindSafe(Location origin) throws ExecutionException, InterruptedException {
         Location safe = origin.clone();
         safe.setX(safe.getBlockX() + .5);
         safe.setZ(safe.getBlockZ() + .5);
-        safe.getChunk().load();
-        int bottom = 62, top = 1 + safe.getChunk().getChunkSnapshot().getHighestBlockYAt(safe.getBlockX() & 15, safe.getBlockZ() & 15);
+        return safe.getWorld().getChunkAtAsync(safe, true).thenApplyAsync((chunk) -> {
+            int bottom = 62, top = 1 + safe.getChunk().getChunkSnapshot().getHighestBlockYAt(safe.getBlockX() & 15, safe.getBlockZ() & 15);
 
-        if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-            return safe.add(0, .5, 0);
+            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
+                return safe.add(0, .5, 0);
 
-        do {
-            safe.setY((bottom + top + 1) >> 1);
-            if (safe.getBlock().getLightFromSky() <= 8)
-                bottom = safe.getBlockY();
-            else
-                top = safe.getBlockY();
-        } while (top - bottom > 1);
-        safe.setY((bottom + top - 1) >> 1);
+            do {
+                safe.setY((bottom + top + 1) >> 1);
+                if (safe.getBlock().getLightFromSky() <= 8)
+                    bottom = safe.getBlockY();
+                else
+                    top = safe.getBlockY();
+            } while (top - bottom > 1);
+            safe.setY((bottom + top - 1) >> 1);
 
-        if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-            return safe.add(0, 1.5, 0);
-        return null;
+            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
+                return safe.add(0, 1.5, 0);
+            return null;
+        }).get();
     }
 }

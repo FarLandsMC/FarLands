@@ -80,7 +80,7 @@ public class Restrictions extends Mechanic {
                 Logging.broadcastStaff(
                     ComponentColor.red(player.getName() + " has notes. Hover")
                         .append(ComponentUtils.hover(
-                            ComponentColor.aqua("here"),
+                            ComponentColor.aqua(" here"),
                             ComponentColor.gray(String.join("\n", notes)))
                         )
                         .append(Component.text(" to view them."))
@@ -98,7 +98,7 @@ public class Restrictions extends Mechanic {
                     Logging.broadcastStaff(
                         ComponentColor.red(
                             flp.username +
-                                " shartes the same IP as " +
+                                " shares the same IP as " +
                                 banned.size() + " banned player" +
                                 (banned.size() > 1 ? "s" : "") +
                                 ": " +
@@ -110,7 +110,7 @@ public class Restrictions extends Mechanic {
                     Logging.broadcastStaff(
                         ComponentColor.red(
                             flp.username +
-                                " shartes the same IP as " +
+                                " shares the same IP as " +
                                 unbanned.size() + " player" +
                                 (unbanned.size() > 1 ? "s" : "") +
                                 ": " +
