@@ -31,7 +31,7 @@ public class FLPlayerSession {
     public final Player player;
     public final OfflineFLPlayer handle;
     public final PermissionAttachment permissionAttachment;
-    public long lastTimeRecorded;
+    public long vanishStart;
     public long lastUnvanish;
     public double spamAccumulation;
     public boolean afk;
@@ -67,7 +67,7 @@ public class FLPlayerSession {
         this.player = player;
         this.handle = handle;
         this.permissionAttachment = player.addAttachment(FarLands.getInstance());
-        this.lastTimeRecorded = System.currentTimeMillis();
+        this.vanishStart = handle.vanished ? System.currentTimeMillis() : -1;
         this.lastUnvanish = 0;
         this.spamAccumulation = 0.0;
         this.afk = false;
@@ -101,7 +101,7 @@ public class FLPlayerSession {
         this.player = player;
         this.handle = cached.handle;
         this.permissionAttachment = player.addAttachment(FarLands.getInstance());
-        this.lastTimeRecorded = System.currentTimeMillis();
+        this.vanishStart = cached.handle.vanished ? System.currentTimeMillis() : -1;
         this.lastUnvanish = 0;
         this.spamAccumulation = cached.spamAccumulation;
         this.afk = cached.afk;
@@ -297,15 +297,8 @@ public class FLPlayerSession {
     }
 
     public void updatePlaytime() {
-        if (handle.rank.isStaff()) {
-            long ctmillis = System.currentTimeMillis();
-            if (!handle.vanished && !player.isDead())
-                handle.secondsPlayed += (ctmillis - lastTimeRecorded) / 1000L;
-            lastTimeRecorded = ctmillis;
-        } else {
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUniqueId());
-            handle.secondsPlayed = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20;
-        }
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUniqueId());
+        handle.secondsPlayed = offlinePlayer.getStatistic(Statistic.PLAY_ONE_MINUTE) / 20;
     }
 
     public void givePackages() {
@@ -359,8 +352,12 @@ public class FLPlayerSession {
     }
 
     public void updateVanish() {
-        if (!handle.vanished)
+        if (!handle.vanished) {
             lastUnvanish = System.currentTimeMillis();
+            this.removeVanishPlaytime();
+        } else {
+            this.vanishStart = System.currentTimeMillis();
+        }
     }
 
     public boolean isVanishedWithBuffer() {
@@ -427,5 +424,12 @@ public class FLPlayerSession {
     public Location getBackLocation() {
         lastBackLocationModification = System.currentTimeMillis();
         return backLocations.isEmpty() ? null : backLocations.remove(backLocations.size() - 1);
+    }
+
+    public void removeVanishPlaytime() {
+        int vanishDuration = (int) ((System.currentTimeMillis() - vanishStart) / 1000 * 20); // Ticks
+        if (vanishDuration > 0) {
+            this.player.decrementStatistic(Statistic.PLAY_ONE_MINUTE, vanishDuration);
+        }
     }
 }

@@ -1,11 +1,14 @@
 package net.farlands.sanctuary.command.player;
 
+import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -25,18 +28,27 @@ public class CommandRenameItem extends PlayerCommand {
             return true;
         }
 
+        if(sender.getExpToLevel() < 1) {
+            sender.sendMessage(ComponentColor.red("You don't have enough experience to rename an item."));
+            return true;
+        }
+
         String rawName = String.join(" ", args);
-        String nameNoFormat = FLUtils.removeColorCodes(rawName);
-        if (nameNoFormat.length() > 35) {
+        Component name = ComponentUtils.parse(rawName, FarLands.getDataHandler().getOfflineFLPlayer(sender));
+        if (ComponentUtils.toText(name).length() > 35) {
             sender.sendMessage(ComponentColor.red("Item names can be a maximum of 35 characters."));
             return true;
         }
 
-        ItemMeta meta = stack.getItemMeta();
+        if(MessageFilter.INSTANCE.isProfane(ComponentUtils.toText(name))) {
+            sender.sendMessage(ComponentColor.red("You cannot rename an item to this name."));
+            return true;
+        }
 
-        // TODO: Conver this to use adventure components
-        meta.displayName(LegacyComponentSerializer.legacySection().deserialize(FLUtils.applyColorCodes(Rank.SPONSOR, rawName)));
+        ItemMeta meta = stack.getItemMeta();
+        meta.displayName(name.decoration(TextDecoration.ITALIC, false));
         stack.setItemMeta(meta);
+
         if (sender.getGameMode() != GameMode.CREATIVE) {
             sender.giveExpLevels(-1);
         }

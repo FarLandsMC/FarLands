@@ -4,10 +4,8 @@ import com.kicas.rp.util.Pair;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.FLCommandEvent;
 import net.farlands.sanctuary.command.player.CommandMessage;
-import net.farlands.sanctuary.command.staff.CommandVanish;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
@@ -146,22 +144,6 @@ public class AFK extends Mechanic {
             if (player.isOnline()) {
                 // TODO: reinstate AFK bypass after 1.18
                 if (/* "farlands".equals(player.getWorld().getName()) || */ player.isGliding() || session.isInEvent) {
-                    setAFKCooldown(player);
-                    return;
-                }
-
-                if (session.handle.rank.isStaff()) {
-                    // Put the player into vanish
-                    if (!session.handle.vanished) {
-                        FarLands.getCommandHandler().getCommand(CommandVanish.class).execute(session.player, new String[]{"on"});
-                        Logging.broadcastStaff(
-                            ComponentColor.red("%s has gone AFK and is now vanished.", session.handle.username),
-                            DiscordChannel.ALERTS
-                        );
-                        session.handle.secondsPlayed -= session.handle.rank.getAfkCheckInterval() * 60L;
-                    }
-
-                    // Reset the timer
                     setAFKCooldown(player);
                     return;
                 }

@@ -14,7 +14,8 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -22,7 +23,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,23 +64,24 @@ public class CommandEditSign extends PlayerCommand {
             if (args[0].equalsIgnoreCase("set") && args.length > 2) {
                 int line = Integer.parseInt(args[1]) -1;
                 String text = TabCompleterBase.joinArgsBeyond(1, " ", args);
-                if (FLUtils.removeColorCodes(text).length() > 15) {
+                Component comp = ComponentUtils.parse(text, flp);
+                if (ComponentUtils.toText(comp).length() > 15) {
                     sender.sendMessage(ComponentColor.red("Sign lines are limited to 15 characters."));
                     return true;
                 }
-                sign.setLine(line, FLUtils.applyColorCodes(flp.rank, text));
+                sign.line(line, comp);
                 sign.update();
-                sender.sendMessage(ComponentColor.gold("Line " + (line+1) + " set to: " + FLUtils.applyColorCodes(flp.rank, text)));
+                sender.sendMessage(ComponentColor.gold("Line " + (line+1) + " set to: ").append(comp));
             } else if (args[0].equalsIgnoreCase("clear")) {
                 if (args.length == 1) {
                     for (int i = 0; i < 4; i++) {
-                        sign.setLine(i, "");
+                        sign.line(i, Component.empty());
                     }
                     sign.update();
                     sender.sendMessage(ComponentColor.gold("Sign text cleared."));
                 } else {
                     int line = Integer.parseInt(args[1]) - 1;
-                    sign.setLine(line, "");
+                    sign.line(line, Component.empty());
                     sign.update();
                     sender.sendMessage(ComponentColor.gold("Line " + (line+1) + " text cleared."));
                 }
@@ -95,16 +96,21 @@ public class CommandEditSign extends PlayerCommand {
 
     @Override
     public @NotNull List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        if (args.length == 1) {
-            return Arrays.asList("set", "clear");
-        } else if (args.length == 2) {
-            return Arrays.asList("1", "2", "3", "4");
-        } else if (args.length >= 3) {
-            if (FLUtils.removeColorCodes(TabCompleterBase.joinArgsBeyond(1, " ", args)).length() > 15) {
-                return Collections.singletonList("Too Long!");
-            }
-        } else {
-            return Collections.emptyList();
+        return switch(args.length) {
+            case 1 -> List.of("set", "clear");
+            case 2 -> List.of("1", "2", "3", "4");
+            default -> arg3(args, sender);
+        };
+    }
+
+    private List<String> arg3(String[] args, CommandSender sender) {
+        if (ComponentUtils.toText(
+            ComponentUtils.parse(
+                TabCompleterBase.joinArgsBeyond(1, " ", args),
+                FarLands.getDataHandler().getOfflineFLPlayer(sender)
+            )
+        ).length() > 15) {
+            return Collections.singletonList("Too Long!");
         }
         return Collections.emptyList();
     }

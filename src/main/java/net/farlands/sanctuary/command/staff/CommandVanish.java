@@ -9,6 +9,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -16,8 +17,6 @@ import org.bukkit.command.CommandSender;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandVanish extends Command {
     public CommandVanish() {
@@ -28,15 +27,30 @@ public class CommandVanish extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
-        boolean changed = flp.vanished; // make sure we don't "leave" or "join" if our vanish doesn't change
-        if (args.length > 0) {
-            if ("on".equalsIgnoreCase(args[0]))
-                flp.vanished = true;
-            else if ("off".equalsIgnoreCase(args[0]))
-                flp.vanished = false;
+        if (args.length == 0) {
+            if (flp.vanished) {
+                sender.sendMessage( // You are currently vanished.  Use /vanish off to disable.
+                    ComponentColor.gold("You are currently vanished.  Use ")
+                        .append(ComponentUtils.suggestCommand("/vanish off"))
+                        .append(ComponentColor.gold(" to disable."))
+                );
+            } else {
+                sender.sendMessage( // You are not currently vanished.  Use /vanish on to enable.
+                    ComponentColor.gold("You are not currently vanished.  Use ")
+                        .append(ComponentUtils.suggestCommand("/vanish on"))
+                        .append(ComponentColor.gold(" to enable."))
+                );
+            }
+            return true;
+        }
+
+        boolean prev = flp.vanished;
+        flp.vanished = args[0].equalsIgnoreCase("on");
+
+        if (flp.vanished != prev) { // state changes
 
             FLPlayerSession session = flp.getSession();
-            if (session != null) {
+            if (session != null) { // Player is online
                 session.update(false);
                 session.updateVanish();
 
@@ -48,23 +62,18 @@ public class CommandVanish extends Command {
                     ),
                     DiscordChannel.STAFF_COMMANDS
                 );
-            }
-        }
 
-        boolean update = flp.isOnline() && changed != flp.vanished;
-        if (flp.vanished) {
-            sendFormatted(sender, "&(gold)You are now vanished.");
-            if (update) {
-                ChatHandler.playerTransition(flp, false);
-                flp.lastLogin = System.currentTimeMillis();
+                ChatHandler.playerTransition(flp, flp.vanished);
+                if(flp.vanished) {
+                    flp.lastLogin = System.currentTimeMillis();
+                }
+                FarLands.getDiscordHandler().updateStats();
             }
-        } else {
-            sendFormatted(sender, "&(gold)You are no longer vanished.");
-            if (update)
-                ChatHandler.playerTransition(flp, true);
+
+            sender.sendMessage(
+                ComponentColor.gold("You are %s vanished.", flp.vanished ? "now" : "no longer")
+            );
         }
-        if (update)
-            FarLands.getDiscordHandler().updateStats();
         return true;
     }
 

@@ -4,18 +4,15 @@ import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.FLPlayerSession;
+import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.ShareHome;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,14 +23,14 @@ import java.util.stream.Collectors;
 import static com.kicas.rp.util.TextUtils.escapeExpression;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
-public class CommandSharehome extends PlayerCommand {
+public class CommandSharehome extends Command {
     public CommandSharehome() {
         super(Rank.INITIATE, Category.HOMES, "Share a home for another player to add to their homes.",
                 "/sharehome <send|accept|decline> <player> [home|name]", "sharehome");
     }
 
     @Override
-    public boolean execute(Player sender, String[] args) {
+    public boolean execute(CommandSender sender, String[] args) {
         if (args.length == 0)
             return false;
 
@@ -59,7 +56,7 @@ public class CommandSharehome extends PlayerCommand {
     }
 
     // /sharehome send <player> <home> [message]
-    private boolean sendHome(Player sender, String[] args) {
+    private boolean sendHome(CommandSender sender, String[] args) {
         if (args.length < 3) {
             return false;
         }
@@ -70,27 +67,14 @@ public class CommandSharehome extends PlayerCommand {
             sender.sendMessage(ComponentColor.red("Player not found."));
             return true;
         }
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         // Don't let people share homes with themselves
-        if (sender.getUniqueId().equals(recipientFlp.uuid)) {
+        if (flp.uuid.equals(recipientFlp.uuid)) {
             sender.sendMessage(ComponentColor.red("You cannot share a home with yourself."));
             return true;
         }
 
-        // Make sure the sender has exhausted the command cooldown
-        FLPlayerSession senderSession = FarLands.getDataHandler().getSession(sender);
-        long timeRemaining = senderSession.commandCooldownTimeRemaining(this);
-        if (timeRemaining > 0) {
-            sender.sendMessage(
-                ComponentColor.red(
-                    "You can share another home in %s",
-                    TimeInterval.formatTime(50L * timeRemaining, false)
-                )
-            );
-            return true;
-        }
-
-        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         // Make sure that the player has a home with this name
         if (!flp.hasHome(args[2])) {
             sender.sendMessage(ComponentColor.red("You don't have a home called " + args[2]));
@@ -110,7 +94,6 @@ public class CommandSharehome extends PlayerCommand {
         // Players can only queue one item at a time, so make sure this operation actually succeeds
         if (recipientFlp.addSharehome(flp.username, new ShareHome(flp.username, message.isEmpty() ? null : escapedMessage, home))) {
             // Use the same cooldown as /package
-            senderSession.setCommandCooldown(this, senderSession.handle.rank.getPackageCooldown() * 60L * 20L);
             sendFormatted(sender, "&(green)Home shared!");
         } else { // The sender already has a sharehome queued for this person so the transfer failed
             sendFormatted(sender, "&(red)You cannot share a home with %0 right now.", recipientFlp.username);
@@ -120,7 +103,7 @@ public class CommandSharehome extends PlayerCommand {
     }
 
     // /sharehome <accept|decline> <player> [name]
-    private boolean acceptDeclineHome(boolean accepted, Player sender, String[] args) {
+    private boolean acceptDeclineHome(boolean accepted, CommandSender sender, String[] args) {
         if (args.length < 2) {
             return false;
         }

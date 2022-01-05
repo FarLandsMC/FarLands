@@ -22,10 +22,12 @@ public class CommandShrug extends PlayerCommand {
         super(Rank.INITIATE, Category.CHAT, "Append text emojis to the end of your message.",
                 "/" + Arrays
                         .stream(TextEmote.values)
+                    .filter(TextEmote::isCommand)
                         .map(emote -> emote.name().toLowerCase())
                         .collect(Collectors.joining("|")) + " [action]",
                 true, "shrug",
                 Arrays.stream(TextEmote.values)
+                  .filter(TextEmote::isCommand)
                         .map(emote -> emote.name().toLowerCase())
                         .toArray(String[]::new));
     }
@@ -59,18 +61,31 @@ public class CommandShrug extends PlayerCommand {
         TABLEFLIP("(╯°□°）╯︵ ┻━┻"),
         UNFLIP("┬─┬ ノ( ゜-゜ノ)"),
         DAB("ㄥ(⸝ ، ⸍ )‾‾‾‾‾"),
-        SHRUG("\u00AF\\_(\u30C4)_/\u00AF"); // ¯\_(ツ)_/¯
+        SHRUG("¯\\_(ツ)_/¯"), // ¯\_(ツ)_/¯
+        TM("™", false), // :tm: -> ™
+
+        ;
 
         public static TextEmote[] values = values();
 
         private final String value;
+        private final boolean isCommand;
 
         TextEmote(String value) {
+            this(value, true);
+        }
+
+        TextEmote(String value, boolean isCommand) {
             this.value = value;
+            this.isCommand = isCommand;
         }
 
         public String getValue() {
             return this.value;
+        }
+
+        public boolean isCommand() {
+            return this.isCommand;
         }
     }
 }

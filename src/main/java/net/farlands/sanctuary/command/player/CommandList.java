@@ -13,7 +13,6 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -150,10 +149,7 @@ public class CommandList extends Command {
                 .color(NamedTextColor.GOLD);
             if (!players.isEmpty()) {
                 players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> {
-                    cb.append(
-                            Component.text(rank.getName() + ": ")
-                                .color(TextColor.color(rank.getColor().getColor().getRGB()))
-                        )
+                    cb.append(Component.text(rank.getName() + ": ").color(rank.color()))
                         .append(
                             ComponentColor.gold(String.join(", ", players.get(rank)) + '\n')
                         );
@@ -164,23 +160,17 @@ public class CommandList extends Command {
                     cb.append(ComponentColor.gold("- Staff -\n"));
 
                 staff.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank -> {
-                    cb.append(
-                        Component.text(rank.getName() + ": ")
-                            .color(TextColor.color(rank.getColor().getColor().getRGB()))
-                    ).append(
-                        ComponentColor.gold(String.join(", ", staff.get(rank)) + "\n")
-                    );
+                    cb.append(Component.text(rank.getName() + ": ").color(rank.color()))
+                        .append(
+                            ComponentColor.gold(String.join(", ", staff.get(rank)) + "\n")
+                        );
                 });
             }
 
-            boolean applyColour = overworld > 0 || nether > 0 || end > 0 || farlands > 0;
-
             StringBuilder worlds = new StringBuilder();
 
-            if (overworld > 0)
-                worlds.append("\nOverworld: ").append(overworld);
-            if (farlands > 0)
-                worlds.append("\nPocket: ").append(farlands);
+            if (overworld + farlands > 0)
+                worlds.append("\nOverworld: ").append(overworld + farlands);
             if (nether > 0)
                 worlds.append("\nNether: ").append(nether);
             if (end > 0)

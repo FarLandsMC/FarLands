@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -9,8 +7,7 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.TimeInterval;
-
-import org.bukkit.*;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
 import java.util.*;
@@ -18,10 +15,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.kicas.rp.util.TextUtils.sendFormatted;
+
 public class CommandTop extends Command {
     public CommandTop() {
         super(Rank.INITIATE, Category.INFORMATIONAL, "View the people with the most votes or play time.",
-                "/top <votes|playtime|donors|deaths> [page|no-staff|month|all]", "top");
+                "/top <votes|playtime|donors|deaths> [page|month|all]", "top");
     }
 
     @Override
@@ -106,7 +105,7 @@ public class CommandTop extends Command {
 
             case PLAYTIME: {
                 flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .filter(flp -> (args.length <= 1 || !"no-staff".equals(args[1]) || !flp.rank.isStaff()) && flp.secondsPlayed > 0)
+                        .filter(flp -> flp.secondsPlayed > 0)
                         .sorted(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.secondsPlayed)))
                         .collect(Collectors.toList());
 
@@ -226,8 +225,6 @@ public class CommandTop extends Command {
                 return Stream.of("month", "all")
                         .filter(o -> o.startsWith(args[1]))
                         .collect(Collectors.toList());
-            } else if (category == TopCategory.PLAYTIME) {
-                return Collections.singletonList("no-staff");
             }
         }
 

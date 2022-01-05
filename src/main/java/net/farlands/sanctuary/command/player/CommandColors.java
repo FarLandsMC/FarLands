@@ -1,74 +1,92 @@
 package net.farlands.sanctuary.command.player;
 
 import com.google.common.collect.ImmutableMap;
-import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.kyori.adventure.text.minimessage.placeholder.Placeholder;
-import net.kyori.adventure.text.minimessage.placeholder.PlaceholderResolver;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CommandColors extends PlayerCommand {
+
     public CommandColors() {
         super(Rank.ADEPT, Category.COSMETIC, "Show available color codes for chat and signs.", "/colors", "colors", "colours");
     }
 
-    public static final Map<Character, String> CHAR_COLORS = new ImmutableMap.Builder<Character, String>()
-        .put('0', "black")
-        .put('1', "dark_blue")
-        .put('2', "dark_green")
-        .put('3', "dark_aqua")
-        .put('4', "dark_red")
-        .put('5', "dark_purple")
-        .put('6', "gold")
-        .put('7', "gray")
-        .put('8', "dark_gray")
-        .put('9', "blue")
-        .put('a', "green")
-        .put('b', "aqua")
-        .put('c', "red")
-        .put('d', "light_purple")
-        .put('e', "yellow")
-        .put('f', "white")
-        .put('k', "obfuscated")
-        .put('l', "bold")
-        .put('m', "strikethrough")
-        .put('n', "underlined")
-        .put('o', "italic")
-        .put('r', "reset")
+    public static final Map<Character, Style> CHAR_STYLES = new ImmutableMap.Builder<Character, Style>()
+//        .put('0', Style.style(NamedTextColor.BLACK))
+        .put('1', Style.style(NamedTextColor.DARK_BLUE))
+        .put('2', Style.style(NamedTextColor.DARK_GREEN))
+        .put('3', Style.style(NamedTextColor.DARK_AQUA))
+        .put('4', Style.style(NamedTextColor.DARK_RED))
+        .put('5', Style.style(NamedTextColor.DARK_PURPLE))
+        .put('6', Style.style(NamedTextColor.GOLD))
+        .put('7', Style.style(NamedTextColor.GRAY))
+        .put('8', Style.style(NamedTextColor.DARK_GRAY))
+        .put('9', Style.style(NamedTextColor.BLUE))
+        .put('a', Style.style(NamedTextColor.GREEN))
+        .put('b', Style.style(NamedTextColor.AQUA))
+        .put('c', Style.style(NamedTextColor.RED))
+        .put('d', Style.style(NamedTextColor.LIGHT_PURPLE))
+        .put('e', Style.style(NamedTextColor.YELLOW))
+        .put('f', Style.style(NamedTextColor.WHITE))
+//        .put('k', Style.style(TextDecoration.OBFUSCATED))
+        .put('l', Style.style(TextDecoration.BOLD))
+        .put('m', Style.style(TextDecoration.STRIKETHROUGH))
+        .put('n', Style.style(TextDecoration.UNDERLINED))
+        .put('o', Style.style(TextDecoration.ITALIC))
+        .put('r', Style.empty())
         .build();
+
+    public static final Component COLOR_MESSAGE;
+
+    static {
+        TextComponent.Builder builder = Component.text().color(NamedTextColor.GOLD).content("Legacy Color Codes: ");
+
+        CHAR_STYLES.forEach(
+            (k, v) -> builder.append(Component.text("&" + k).style(v)).append(Component.space())
+        );
+
+        builder.append(Component.newline())
+            .append(Component.text("Hexadecimal Colors: "))
+            .append(Component.join(
+                JoinConfiguration.separators(ComponentColor.gold(", "), ComponentColor.gold(", or ")),
+                Stream.of("&#rrggbb", "&#rgb", "<#rrggbb>").map(ComponentColor::aqua).toList()
+            ))
+            .append(Component.text(", like "))
+            .append(Component.join(
+                JoinConfiguration.separators(ComponentColor.gold(", "), ComponentColor.gold(", or ")),
+                List.of(
+                    Component.text("&#92b9bd", TextColor.color(0x92b9bd)),
+                    Component.text("&#5f7", TextColor.color(0x55ff77)),
+                    Component.text("<#1eae98>", TextColor.color(0x1eae98))
+                )
+            ))
+            .append(Component.newline())
+            .append(
+                Component.text("FarLands also supports MiniMessage colors and gradients, which can be found ")
+                    .append(ComponentUtils.link("here", "https://docs.adventure.kyori.net/minimessage"))
+                    .append(Component.text("."))
+            );
+
+        COLOR_MESSAGE = builder.build();
+    }
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        List<ChatColor> chatColors = Arrays.stream(ChatColor.values()).collect(Collectors.toList());
-        chatColors.remove(ChatColor.MAGIC);
-        chatColors.remove(ChatColor.BLACK);
-        MiniMessageWrapper wrapper = MiniMessageWrapper.legacy().toBuilder().advancedTransformations(true).build();
-        sender.sendMessage(wrapper.mmParse(
-            "<gold>Legacy Color Codes:</gold> " + chatColors.stream().map(chatColor ->
-                "<" + CHAR_COLORS.getOrDefault(chatColor.getChar(), "white") + ">" + "\\&"
-                    + chatColor.getChar() + "</" + CHAR_COLORS.getOrDefault(chatColor.getChar(), "white") + ">"
-            ).collect(Collectors.joining(" "))
-        ));
-        PlaceholderResolver resolver = PlaceholderResolver.placeholders(
-            Placeholder.miniMessage("hex_ex_1", "&#92b9bd"),
-            Placeholder.miniMessage("hex_ex_2", "&#5f7")
-        );
-        sender.sendMessage(wrapper.toBuilder().placeholderResolver(resolver).build().mmParse(
-            "<gold>Hexadecimal Colors: &#rrggbb, &#rgb, or \\<#rrggbb>, like <c:#92b9bd><hex_ex_1></c>, " +
-                "<c:#55ff77><hex_ex_2></c>, or <c:#1eae98>\\<#1eae98></c>."
-        ));
-        sender.sendMessage(wrapper.mmParse(
-            "<gold>FarLands also supports all other MiniMessage color codes, including gradients. " +
-                "Read their documentation <click:open_url:'https://docs.adventure.kyori.net/minimessage'><aqua>here</aqua></click>."
-        ));
+        sender.sendMessage(COLOR_MESSAGE);
         return true;
     }
 }

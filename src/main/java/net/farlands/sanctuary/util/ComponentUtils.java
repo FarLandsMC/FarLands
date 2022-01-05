@@ -1,5 +1,7 @@
 package net.farlands.sanctuary.util;
 
+import net.farlands.sanctuary.chat.MiniMessageWrapper;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -218,5 +220,17 @@ public class ComponentUtils {
      */
     public static Color getColor(TextColor color) {
         return new Color(color.value());
+    }
+
+    /**
+     * Parse a string using MiniMessage or Legacy into components, depending on flp's permissions
+     *
+     * (Adept+ and staff)
+     *
+     * @param message The message to parse
+     * @param flp  The sender of the message
+     */
+    public static Component parse(String message, OfflineFLPlayer flp) {
+        return MiniMessageWrapper.farlands(flp).mmParse(message);
     }
 }

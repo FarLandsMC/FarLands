@@ -162,6 +162,7 @@ public class GeneralMechanics extends Mechanic {
             session.seatExit = null;
         }
 
+        session.removeVanishPlaytime();
         updateNightSkip(true);
     }
 

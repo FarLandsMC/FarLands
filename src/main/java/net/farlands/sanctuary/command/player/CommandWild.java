@@ -84,7 +84,7 @@ public class CommandWild extends PlayerCommand {
             } catch (ExecutionException | InterruptedException e) {
                 sender.playSound(sender.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
                 sender.sendMessage(ComponentColor.red("Your random teleport randomly failed :("));
-                FarLands.getDebugger().echo(sender.getName() + " /rtp -> fail");
+                FarLands.getDebugger().echo(sender.getName() + " /rtp → fail");
                 e.printStackTrace();
             }
         });
@@ -145,10 +145,10 @@ public class CommandWild extends PlayerCommand {
             // Pretty much never happens in practice
             player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
             player.sendMessage(ComponentColor.red("Your random teleport randomly failed :("));
-            FarLands.getDebugger().echo(player.getName() + " /rtp -> fail");
+            FarLands.getDebugger().echo(player.getName() + " /rtp → fail");
             return;
         }
-        FarLands.getDebugger().echo(player.getName() + " /rtp -> " +
+        FarLands.getDebugger().echo(player.getName() + " /rtp → " +
                 safe.getWorld().getName() + " " +
                 safe.getBlockX() + " " +
                 safe.getBlockY() + " " +
