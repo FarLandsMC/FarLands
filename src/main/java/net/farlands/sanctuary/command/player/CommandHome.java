@@ -10,8 +10,11 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -57,8 +60,16 @@ public class CommandHome extends PlayerCommand {
             if (matching.size() == 1) {
                 FLUtils.tpPlayer(sender, matching.get(0).getLocation());
             } else if (matching.size() > 1) {
-                sender.sendMessage(ComponentColor.red("Multiple matches found. Please specify one of the following: %s",
-                    String.join(", ", matching.stream().map(Home::getName).toList())));
+                sender.sendMessage(ComponentColor.gold("Multiple matches found. Did you mean ")
+                        .append(Component.join(
+                            JoinConfiguration.separators(ComponentColor.gold(", "), ComponentColor.gold(" or ")),
+                            matching.stream().map(home ->
+                                ComponentUtils.suggestCommand("/home " + home.getName(),
+                                    ComponentColor.aqua(home.getName()),
+                                    ComponentColor.gray("Click to go to this home."))
+                            ).toList())
+                        ).append(ComponentColor.gold("?"))
+                );
             } else {
                 sender.sendMessage(ComponentColor.red("%s not have a home named \"%s\"",
                     gotoUnownedHome ? flp.username + " does" : "You do", name));
