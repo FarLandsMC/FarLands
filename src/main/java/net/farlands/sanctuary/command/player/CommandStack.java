@@ -145,6 +145,19 @@ public class CommandStack extends PlayerCommand {
                 sendWarnings(player, warningsUnstack);
                 return true;
             }
+            case "hotbar": {
+                ItemStack[] storageContents = new ItemStack[9];
+                for (int i = 0; i < 9; i++) {
+                    storageContents[i] = player.getInventory().getItem(i);
+                }
+                ItemStack[] returnedContents = stack(player, storageContents, player.getLocation(), new ArrayList<>());
+                for (int i = 0; i < returnedContents.length; i++) {
+                    player.getInventory().setItem(i, returnedContents[i]);
+                }
+
+                sendWarnings(player, warningsUnstack);
+                return true;
+            }
         }
 
         return false;
@@ -153,7 +166,7 @@ public class CommandStack extends PlayerCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         return args.length <= 1
-                ? TabCompleterBase.filterStartingWith(args[0], Stream.of("container", "echest", "hand"))
+                ? TabCompleterBase.filterStartingWith(args[0], Stream.of("container", "echest", "hand", "hotbar"))
                 : Collections.emptyList();
     }
 
