@@ -63,7 +63,7 @@ public class CommandVanish extends Command {
                     DiscordChannel.STAFF_COMMANDS
                 );
 
-                ChatHandler.playerTransition(flp, flp.vanished);
+                ChatHandler.playerTransition(flp, !flp.vanished);
                 if(flp.vanished) {
                     flp.lastLogin = System.currentTimeMillis();
                 }
