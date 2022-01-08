@@ -41,7 +41,7 @@ public class ComponentUtils {
      */
     public static Component command(String command, TextColor color) {
         Component c = Component.text(command).color(color);
-        return command(command, c, ComponentColor.gray("Click to Run."));
+        return command(command, c, ComponentColor.gray("Click to run"));
     }
 
     /**
@@ -51,7 +51,7 @@ public class ComponentUtils {
      * @param base    The base component
      */
     public static Component command(String command, Component base) {
-        return command(command, base, ComponentColor.gray("Click to Run."));
+        return command(command, base, ComponentColor.gray("Click to run"));
     }
 
     /**
@@ -87,7 +87,7 @@ public class ComponentUtils {
      */
     public static Component suggestCommand(String command, String fillCommand, TextColor color) {
         Component c = Component.text(command).color(color);
-        return suggestCommand(fillCommand, c, ComponentColor.gray("Click to Fill."));
+        return suggestCommand(fillCommand, c, ComponentColor.gray("Click to fill"));
     }
 
 

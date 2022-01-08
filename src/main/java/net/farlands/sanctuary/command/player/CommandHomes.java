@@ -1,123 +1,111 @@
 package net.farlands.sanctuary.command.player;
 
+import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.data.struct.Home;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Home;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class CommandHomes extends Command {
+
     public CommandHomes() {
-        super(Rank.INITIATE, Category.HOMES, "List your homes.", "/homes [page]", "homes");
+        super(Rank.INITIATE, Category.HOMES, "List your homes.", "/homes [page|sort] [sort-method]", "homes");
     }
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
-        if ((sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) && args.length == 0) {
+    public boolean execute(CommandSender sender, String[] argsArr) {
+
+        if ((sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) && argsArr.length == 0) {
             sender.sendMessage(ComponentColor.red("You must be in-game to use this command."));
             return true;
         }
 
-        // Someone else's home (staff)
-        if (Rank.getRank(sender).isStaff() && args.length > 0 && !NumberUtils.isNumber(args[0]) && args[0].length() > 2) {
-            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+        List<String> args = Arrays.stream(argsArr).collect(Collectors.toList()); // Lists are easier to work with :P
+
+        if (!args.isEmpty() && args.get(0).equalsIgnoreCase("sort")) {
+            updateSort(sender, args);
+            return true;
+        }
+
+        int page = 1;
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        boolean self = true;
+
+        if (!args.isEmpty() && args.get(0).matches("(?i)^.+[a-z].+$") && flp.rank.isStaff()) {
+            flp = FarLands.getDataHandler().getOfflineFLPlayer(args.remove(0));
+            self = false;
             if (flp == null) {
                 sender.sendMessage(ComponentColor.red("Player not found."));
                 return true;
             }
-
-            if (flp.homes.isEmpty()) {
-                ComponentColor.gold("This player does not have any homes.");
-                return true;
-            }
-
-            // Build a list of homes to paginate
-            List<Component> lines = new LinkedList<>();
-            flp.homes.forEach(home -> {
-                Location location = home.getLocation();
-                lines.add(
-                    Component.empty()
-                        .hoverEvent(HoverEvent.showText(ComponentColor.gray("Go to home %s", home.getName())))
-                        .clickEvent(ClickEvent.runCommand("/home " + home.getName() + " " + flp.username))
-                        .append(ComponentColor.gold("%s: ", home.getName()))
-                        .append(
-                            ComponentColor.aqua("%d %d %d", location.getBlockX(),
-                            location.getBlockZ(), location.getBlockY())
-                        )
-                );
-            });
-
-            Pagination pagination = new Pagination(
-                ComponentColor.aqua(flp.username + "'s homes"),
-                "/homes " + flp.username
-            ).addLines(lines);
-
-            try {
-                pagination.sendPage(args.length == 1 ? 1 : Integer.parseInt(args[1]), sender);
-            } catch (Pagination.InvalidPageException | NumberFormatException exception) {
-                sender.sendMessage(
-                    ComponentColor.red("Invalid page. Valid pages are 1-%d.", pagination.numPages())
-                );
-                return true;
-            }
         }
-        // The sender's homes
-        else {
-            List<Home> homes = FarLands.getDataHandler().getOfflineFLPlayer(sender).homes;
-            if (homes.isEmpty()) {
-                sender.sendMessage(
-                    ComponentColor.gold("You don't have any homes! Set one with ")
-                        .append(ComponentColor.aqua("/sethome")
-                                .clickEvent(ClickEvent.suggestCommand("/sethome")))
-                );
+
+        if (args.size() >= 1) {
+            if (!args.get(0).matches("\\d+")) {
+                sender.sendMessage(ComponentColor.red("Invalid page number."));
                 return true;
             }
-
-            // Build a list of homes to paginate
-            List<Component> lines = new LinkedList<>();
-            homes.forEach(home -> {
-                Location location = home.getLocation();
-                lines.add(
-                    Component.empty()
-                        .hoverEvent(HoverEvent.showText(ComponentColor.gray("Go to home %s", home.getName())))
-                        .clickEvent(ClickEvent.runCommand("/home " + home.getName()))
-                        .append(ComponentColor.gold("%s: ", home.getName()))
-                        .append(
-                            ComponentColor.aqua("%d %d %d", location.getBlockX(),
-                                location.getBlockZ(), location.getBlockY())
-                        )
-                );
-            });
-
-            Pagination pagination = new Pagination(ComponentColor.aqua("Your homes"), "/homes");
-            pagination.addLines(lines);
-
-            try {
-                pagination.sendPage(args.length == 0 ? 1 : Integer.parseInt(args[0]), sender);
-            } catch (Pagination.InvalidPageException | NumberFormatException exception) {
-                sender.sendMessage(
-                    ComponentColor.red("Invalid page. Valid pages are 1-%d.", pagination.numPages())
-                );
-                return true;
-            }
+            page = Integer.parseInt(args.remove(0));
         }
+
+        List<Component> homes = flp.homes
+            .stream()
+            .sorted(self
+                        ? flp.homesSort.getComparator(flp.getOnlinePlayer())
+                        : FarLands.getDataHandler().getOfflineFLPlayer(sender).homesSort.getComparator(sender instanceof Player plr ? plr : null)
+            )
+            .map(h -> h.asComponent(true, true))
+            .toList();
+
+        Component header = ComponentColor.gold(
+            "%s %d Home%s",
+            self ? "Your" : flp.username + "'s",
+            homes.size(),
+            homes.size() == 1 ? "" : "s"
+        );
+
+        String pageCommand = "/homes " + (self ? "" : flp.username);
+
+        Pagination pagination = new Pagination(header, pageCommand);
+        pagination.addLines(homes);
+
+        pagination.sendPage(page, sender);
+
+
         return true;
+    }
+
+    private void updateSort(CommandSender sender, List<String> args) {
+
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+
+        if (args.size() == 1) {
+            sender.sendMessage(ComponentColor.gold("Currently sorting using: ").append(ComponentColor.aqua(Utils.formattedName(flp.homesSort))));
+            return;
+        }
+
+        SortType type = Utils.valueOfFormattedName(args.get(1), SortType.class);
+        if (type == null) {
+            sender.sendMessage(ComponentColor.red("Invalid sort type. Options: %s", String.join(", ", SortType.NAMES)));
+            return;
+        }
+        flp.homesSort = type;
+        sender.sendMessage(ComponentColor.gold("Now sorting homes using: ").append(ComponentColor.aqua(Utils.formattedName(flp.homesSort))));
     }
 
     @Override
@@ -127,8 +115,56 @@ public class CommandHomes extends Command {
 
     @Override
     public @NotNull List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 && Rank.getRank(sender).isStaff()
-                ? getOnlinePlayers(args[0], sender)
-                : Collections.emptyList();
+        switch (args.length) {
+            case 1 -> {
+                List<String> fill = new ArrayList<>();
+                if (Rank.getRank(sender).isStaff()) {
+                    fill.addAll(getOnlinePlayers(args[0], sender));
+                }
+                fill.add("sort");
+                return fill;
+            }
+            case 2 -> {
+                if (args[0].equalsIgnoreCase("sort")) {
+                    return Utils.filterStartingWith(args[1], SortType.NAMES);
+                }
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    public enum SortType {
+        ALPHABET(p -> (a, b) -> a.getName().compareToIgnoreCase(b.getName())),
+        DISTANCE(p -> {
+            Location pLoc = p == null ? FarLands.getDataHandler().getPluginData().spawn.asLocation() : p.getLocation();
+            return Comparator.comparingDouble(h -> {
+                Location hLoc = h.asLocation().clone();
+                hLoc.setWorld(pLoc.getWorld()); // Prevent errors
+                return hLoc.distanceSquared(pLoc);
+            });
+        }),
+        WORLD(p -> Comparator.comparingInt(
+            h ->
+                switch (h.asLocation().getWorld().getName()) { // sort as overworld, nether, end, party
+                    case "world" -> 1;
+                    case "world_nether" -> 2;
+                    case "world_the_end" -> 3;
+                    default -> 4;
+                }
+        ));
+
+        public static final List<String> NAMES = Arrays.stream(values()).map(Utils::formattedName).toList();
+
+        public final Function<Player, Comparator<Home>> comparatorGenerator;
+
+        SortType(Function<Player, Comparator<Home>> comparator) {
+            this.comparatorGenerator = comparator;
+        }
+
+        public Comparator<Home> getComparator(Player player) {
+            return comparatorGenerator.apply(player);
+        }
+
+
     }
 }

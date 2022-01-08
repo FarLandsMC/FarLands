@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
+import net.farlands.sanctuary.command.player.CommandHomes;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
@@ -74,6 +75,7 @@ public class OfflineFLPlayer {
     public Particles particles;
     public Pronouns pronouns;
     public Rank rank;
+    public CommandHomes.SortType homesSort;
 
     public Map<UUID, IgnoreStatus> ignoreStatusMap;
     public Map<String, ShareHome> pendingSharehomes;
@@ -126,6 +128,7 @@ public class OfflineFLPlayer {
         this.particles = null;
         this.pronouns = null;
         this.rank = Rank.INITIATE;
+        this.homesSort = CommandHomes.SortType.ALPHABET;
 
         this.ignoreStatusMap = new HashMap<>();
         this.notes = new ArrayList<>();
