@@ -124,7 +124,7 @@ public class ComponentUtils {
     public static Component link(String baseText, String url, TextColor color) {
         Component c = Component.text(baseText).style(Style.style(color, TextDecoration.UNDERLINED));
         return c.clickEvent(ClickEvent.openUrl(url))
-            .hoverEvent(HoverEvent.showText(ComponentColor.gray("Click to Open.")));
+            .hoverEvent(HoverEvent.showText(ComponentColor.gray("Click to open")));
     }
 
     /**
