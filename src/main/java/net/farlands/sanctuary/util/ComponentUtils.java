@@ -178,7 +178,7 @@ public class ComponentUtils {
      * @return Item Component
      */
     public static Component item(ItemStack item) {
-        return item(ComponentColor.aqua(FLUtils.itemName(item)), item);
+        return item(ComponentColor.aqua(item.getAmount() > 1 ? item.getAmount() + " * " : "").append(item.displayName()), item);
     }
 
     /**

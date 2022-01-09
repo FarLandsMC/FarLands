@@ -6,12 +6,17 @@ import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.util.TextUtils;
 import com.kicas.rp.util.TextUtils2;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.mechanic.Toggles;
 import net.farlands.sanctuary.scheduling.TaskBase;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -28,6 +33,7 @@ import java.util.stream.Collectors;
  * Handles toggle for an online player.
  */
 public class FLPlayerSession {
+
     public final Player player;
     public final OfflineFLPlayer handle;
     public final PermissionAttachment permissionAttachment;
@@ -51,13 +57,14 @@ public class FLPlayerSession {
 
     // Cooldowns
     public Cooldown afkCheckCooldown,
-            afkCheckInitializerCooldown,
-            flightDetectorMute,
-            flyAlertCooldown,
-            mailCooldown,
-            sharehomeCooldown,
-            spamCooldown;
+        afkCheckInitializerCooldown,
+        flightDetectorMute,
+        flyAlertCooldown,
+        mailCooldown,
+        sharehomeCooldown,
+        spamCooldown;
     private final Map<Class<? extends Command>, Integer> commandCooldowns;
+    public List<Component> afkMessages;
 
     // Internally managed fields
     private final List<Location> backLocations;
@@ -92,6 +99,7 @@ public class FLPlayerSession {
         this.flyAlertCooldown = new Cooldown(10L);
         this.flightDetectorMute = new Cooldown(0L);
         this.commandCooldowns = new HashMap<>();
+        this.afkMessages = new ArrayList<>();
 
         this.backLocations = new ArrayList<>();
         this.lastBackLocationModification = 0L;
@@ -126,6 +134,7 @@ public class FLPlayerSession {
         this.flyAlertCooldown = new Cooldown(10L);
         this.flightDetectorMute = new Cooldown(0L);
         this.commandCooldowns = cached.commandCooldowns;
+        this.afkMessages = cached.afkMessages;
 
         this.backLocations = cached.backLocations;
         this.lastBackLocationModification = 0L;
@@ -166,8 +175,9 @@ public class FLPlayerSession {
         handle.ignoredPlayers.forEach(uuid -> handle.updateIgnoreStatus(uuid, IgnoreStatus.IgnoreType.ALL, true));
         handle.ignoredPlayers.clear();
 
-        if (!handle.username.equals(player.getName()))
+        if (!handle.username.equals(player.getName())) {
             handle.username = player.getName();
+        }
 
         updatePlaytime();
         updatePermissions();
@@ -175,16 +185,17 @@ public class FLPlayerSession {
         // Give donors their claim blocks
         if (handle.bonusClaimBlocksReceived < handle.rank.getClaimBlockBonus()) {
             RegionProtection.getDataManager().modifyClaimBlocks(
-                    handle.uuid,
-                    handle.rank.getClaimBlockBonus() - handle.bonusClaimBlocksReceived
+                handle.uuid,
+                handle.rank.getClaimBlockBonus() - handle.bonusClaimBlocksReceived
             );
             handle.bonusClaimBlocksReceived = handle.rank.getClaimBlockBonus();
         }
 
         // Update rank
         for (int i = handle.rank.ordinal() + 1; i < Rank.VALUES.length - 1; ++i) {
-            if (Rank.VALUES[i].hasRequirements(player, handle) && !Rank.VALUES[i + 1].hasRequirements(player, handle))
+            if (Rank.VALUES[i].hasRequirements(player, handle) && !Rank.VALUES[i + 1].hasRequirements(player, handle)) {
                 handle.setRank(Rank.VALUES[i]);
+            }
         }
 
         handle.setLastLocation(player.getLocation());
@@ -193,19 +204,20 @@ public class FLPlayerSession {
         if (handle.voteRewards > 0) {
             if (sendMessages) {
                 player.sendMessage(ChatColor.GOLD + "Receiving " + handle.voteRewards + " vote reward" +
-                        (handle.voteRewards > 1 ? "s!" : "!"));
+                                   (handle.voteRewards > 1 ? "s!" : "!"));
             }
             giveVoteRewards(handle.voteRewards);
             handle.voteRewards = 0;
         }
 
         player.setOp(handle.rank.hasOP());
-        if (handle.nickname != null)
+        if (handle.nickname != null) {
             player.displayName(handle.nickname);
-        else
-            player.setDisplayName(player.getName());
+        } else {
+            player.displayName(player.name());
+        }
         handle.getDisplayRank().getTeam().addEntry(player.getName());
-        player.setPlayerListName(handle.getDisplayRank().getNameColor() + handle.username);
+        player.playerListName(handle.getDisplayRank().colorName(handle.username));
         handle.lastIP = player.getAddress().getAddress().getHostAddress();
 
         flying = handle.flightPreference;
@@ -217,23 +229,26 @@ public class FLPlayerSession {
             }
         }
         if (!handle.rank.isStaff() && (
-                FarLands.getWorld().equals(player.getWorld()) ||
-                        "world_the_end".equals(player.getWorld().getName()))
+            FarLands.getWorld().equals(player.getWorld()) ||
+            "world_the_end" .equals(player.getWorld().getName()))
         ) {
             flying = false;
         }
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(player.getLocation());
-        if (flags != null && flags.hasFlag(RegionFlag.FLIGHT) && flags.isAllowed(RegionFlag.FLIGHT))
+        if (flags != null && flags.hasFlag(RegionFlag.FLIGHT) && flags.isAllowed(RegionFlag.FLIGHT)) {
             flying = true;
+        }
         player.setAllowFlight(flying || GameMode.CREATIVE.equals(player.getGameMode()) ||
-                GameMode.SPECTATOR.equals(player.getGameMode()));
+                              GameMode.SPECTATOR.equals(player.getGameMode()));
 
         Toggles.hidePlayers(player);
 
-        if (handle.ptime >= 0)
+        if (handle.ptime >= 0) {
             player.setPlayerTime(handle.ptime, false);
-        if (handle.pweather)
+        }
+        if (handle.pweather) {
             player.setPlayerWeather(WeatherType.CLEAR);
+        }
 
         if (!handle.mail.isEmpty() && sendMessages && mailCooldown.isComplete()) {
             mailCooldown.reset();
@@ -248,27 +263,27 @@ public class FLPlayerSession {
             handle.pendingSharehomes.forEach((k, v) -> {
                 String message = v.message() == null ? "" : "&(gold)Message: &(aqua)" + v.message().replaceAll(",", " ") + "\n";
                 pendingHomes.add(
-                        "{" +
-                                "$(click:suggest_command,/sharehome accept " + k + " )" +
-                                "$(hover:show_text," +
-                                "&(gold)Sender: &(aqua)" + k + "\n" +
-                                message + "&(gold)Name: &(aqua)" + v.home().getName() + "\n" +
-                                "&(" +
-                                "gray)Click to accept" +
-                                ")&(aqua)" + k +
-                                "}"
+                    "{" +
+                    "$(click:suggest_command,/sharehome accept " + k + " )" +
+                    "$(hover:show_text," +
+                    "&(gold)Sender: &(aqua)" + k + "\n" +
+                    message + "&(gold)Name: &(aqua)" + v.home().getName() + "\n" +
+                    "&(" +
+                    "gray)Click to accept" +
+                    ")&(aqua)" + k +
+                    "}"
                 );
             });
 
             try {
                 TextUtils2.sendFormatted(
-                        player,
-                        "&(gold)You have pending homes from %0 %1: %2\n" +
-                                "Hover over the %3 to view more info.",
-                        handle.pendingSharehomes.size(),
-                        handle.pendingSharehomes.size() == 1 ? "player" : "players",
-                        String.join(", ", pendingHomes),
-                        handle.pendingSharehomes.size() == 1 ? "name" : "names"
+                    player,
+                    "&(gold)You have pending homes from %0 %1: %2\n" +
+                    "Hover over the %3 to view more info.",
+                    handle.pendingSharehomes.size(),
+                    handle.pendingSharehomes.size() == 1 ? "player" : "players",
+                    String.join(", ", pendingHomes),
+                    handle.pendingSharehomes.size() == 1 ? "name" : "names"
                 );
             } catch (TextUtils2.ParserError e) {
                 e.printStackTrace();
@@ -309,19 +324,28 @@ public class FLPlayerSession {
                 if (sentMessage) {
                     sentMessage = false;
                     // Notify the player how many packages they've been sent
-                    TextUtils.sendFormatted(
-                            player, "&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}.",
-                            packages.size(),
-                            packages.stream().filter(p -> p.forceSend() || handle.packageToggle == PackageToggle.ACCEPT)
-                                    .map(laPackage -> "{" + laPackage.senderName() + "}")
-                                    .collect(Collectors.joining(", "))
-                    );
+                    Component message = ComponentColor.gold("Receiving ")
+                        .append(ComponentColor.aqua(packages.size() + ""))
+                        .append(ComponentColor.gold(" from "))
+                        .append(ComponentColor.aqua(
+                            packages.stream()
+                                .filter(p -> p.forceSend() || handle.packageToggle == PackageToggle.ACCEPT)
+                                .map(Package::senderName)
+                                .collect(Collectors.joining(", ")))
+                        );
+                    player.sendMessage(message);
+                    addAFKMessage(message);
                 }
                 // Give the packages and send the messages
                 final String message = packages.get(i).message();
-                if (message != null && !message.isEmpty())
-                    TextUtils.sendFormatted(player, "&(gold)Item {&(aqua)%0} was sent with the following message {&(aqua)%1}",
-                            FLUtils.itemName(packages.get(i).item()), message);
+                if (message != null && !message.isEmpty()) {
+                    Component messageC = ComponentColor.gold("Item ")
+                        .append(ComponentUtils.item(packages.get(i).item()))
+                        .append(ComponentColor.gold(" was sent with the following message "))
+                        .append(ChatHandler.handleReplacements(message, handle));
+                    player.sendMessage(messageC);
+                    addAFKMessage(messageC);
+                }
                 FLUtils.giveItem(player, packages.get(i).item(), true);
                 packages.remove(i);
             }
@@ -329,19 +353,25 @@ public class FLPlayerSession {
         if (handle.packageToggle == PackageToggle.ASK) {
             if (!packages.isEmpty()) {
                 // Notify the player how many packages they've been sent
-                TextUtils.sendFormatted(
-                        player, "&(gold)Receiving {&(aqua)%0} $(inflect,noun,0,package) from {&(aqua)%1}." +
-                                " Use /paccecpt|pdecline <player> to accept or decline the packages.",
-                        packages.size(),
-                        packages.stream().map(lPackage -> "{" + lPackage.senderName() + "}").collect(Collectors.joining(", "))
-                );
+                Component message = ComponentColor.gold("Receiving ")
+                    .append(ComponentColor.aqua(packages.size() + ""))
+                    .append(ComponentColor.gold(" package%s from ", packages.size() == 1 ? "" : "s"))
+                    .append(ComponentColor.aqua(
+                        packages.stream()
+                            .map(Package::senderName)
+                            .collect(Collectors.joining(", ")))
+                    )
+                    .append(ComponentColor.gold(". Use /paccept|decline [player] to accept or decline the packages."));
+                player.sendMessage(message);
+                addAFKMessage(message);
             }
         }
     }
 
     public boolean unsit() {
-        if (seatExit == null)
+        if (seatExit == null) {
             return false;
+        }
 
         Entity chair = player.getVehicle();
         if (chair != null) {
@@ -378,8 +408,9 @@ public class FLPlayerSession {
 
     public void giveVoteRewards(int amount) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
-        for (int i = 0; i < amount; ++i)
+        for (int i = 0; i < amount; ++i) {
             FarLands.getFLConfig().voteConfig.voteRewards().forEach(reward -> FLUtils.giveItem(player, reward, false));
+        }
         player.giveExpLevels(FarLands.getFLConfig().voteConfig.voteXPBoost * amount);
     }
 
@@ -387,16 +418,22 @@ public class FLPlayerSession {
         TaskBase task = FarLands.getScheduler().getTask(commandCooldowns.getOrDefault(command.getClass(), -1));
         if (task == null) {
             commandCooldowns.put(command.getClass(), FarLands.getScheduler().scheduleAsyncDelayedTask(() -> {
-                if (player.isOnline())
-                    TextUtils.sendFormatted(player, "&(gold)You may use {&(aqua)/%0} again.", command.getName());
+                if (player.isOnline()) {
+                    Component component = ComponentColor.gold("You may use ")
+                        .append(ComponentUtils.suggestCommand("/" + command.getName()))
+                        .append(ComponentColor.gold(" again."));
+                    player.sendMessage(component);
+                    addAFKMessage(component);
+                }
             }, delay));
-        } else
+        } else {
             task.reset();
+        }
     }
 
     public boolean isCommandCooldownComplete(Command command) {
         return !commandCooldowns.containsKey(command.getClass()) ||
-                FarLands.getScheduler().taskTimeRemaining(commandCooldowns.get(command.getClass())) == 0L;
+               FarLands.getScheduler().taskTimeRemaining(commandCooldowns.get(command.getClass())) == 0L;
     }
 
     public long commandCooldownTimeRemaining(Command command) {
@@ -406,16 +443,18 @@ public class FLPlayerSession {
 
     public void completeCooldown(Command command) {
         TaskBase task = FarLands.getScheduler().getTask(commandCooldowns.getOrDefault(command.getClass(), -1));
-        if (task != null)
+        if (task != null) {
             task.complete();
+        }
     }
 
     public void addBackLocation(Location location) {
         long time = System.currentTimeMillis();
         if (time - lastBackLocationModification > 250) {
             backLocations.add(location);
-            if (backLocations.size() > 5)
+            if (backLocations.size() > 5) {
                 backLocations.remove(0);
+            }
 
             lastBackLocationModification = time;
         }
@@ -430,6 +469,26 @@ public class FLPlayerSession {
         int vanishDuration = (int) ((System.currentTimeMillis() - vanishStart) / 1000 * 20); // Ticks
         if (vanishDuration > 0) {
             this.player.decrementStatistic(Statistic.PLAY_ONE_MINUTE, vanishDuration);
+        }
+    }
+
+    public void addAFKMessage(Component message) {
+        if (this.afk) {
+            afkMessages.add(message);
+        }
+    }
+
+    public void sendAFKMessages() {
+        if (!afkMessages.isEmpty()) {
+            player.sendMessage(ComponentColor.green("While you were gone..."));
+            player.sendMessage(
+                Component.join(
+                    JoinConfiguration.separator(Component.newline()),
+                    afkMessages
+                )
+            );
+            afkMessages.clear();
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
         }
     }
 }

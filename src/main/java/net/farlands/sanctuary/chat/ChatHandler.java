@@ -108,7 +108,11 @@ public class ChatHandler {
 
             if (session.replyToggleRecipient != null) {
                 if (session.replyToggleRecipient instanceof Player && ((Player) session.replyToggleRecipient).isOnline()) {
-                    CommandMessage.sendMessages(session.replyToggleRecipient, session.player, PlainTextComponentSerializer.plainText().serialize(formatted));
+                    CommandMessage.sendMessages(
+                        FarLands.getDataHandler().getOfflineFLPlayer(session.replyToggleRecipient),
+                        session.handle,
+                        ComponentUtils.toText(event.message())
+                    );
                     return;
                 }
             }
