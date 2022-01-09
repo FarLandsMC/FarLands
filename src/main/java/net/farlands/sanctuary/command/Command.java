@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command;
 import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;
@@ -167,4 +168,32 @@ public abstract class Command extends org.bukkit.command.Command {
         System.arraycopy(args, index, data, 0, data.length);
         return String.join(delim, data);
     }
+
+    /**
+     * Show an error message to the sender (red)
+     * @param message Formatted with {@link String#format(String, Object...)}
+     * @param replacements Replacements for {@link String#format(String, Object...)}
+     */
+    public static void error(CommandSender sender, String message, Object... replacements) {
+        sender.sendMessage(ComponentColor.red(message, replacements));
+    }
+
+    /**
+     * Show a success message to the sender (green)
+     * @param message Formatted with {@link String#format(String, Object...)}
+     * @param replacements Replacements for {@link String#format(String, Object...)}
+     */
+    public static void success(CommandSender sender, String message, Object... replacements) {
+        sender.sendMessage(ComponentColor.green(message, replacements));
+    }
+
+    /**
+     * Show an info message to the sender (gold)
+     * @param message Formatted with {@link String#format(String, Object...)}
+     * @param replacements Replacements for {@link String#format(String, Object...)}
+     */
+    public static void info(CommandSender sender, String message, Object... replacements) {
+        sender.sendMessage(ComponentColor.gold(message, replacements));
+    }
+
 }

@@ -1,22 +1,30 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.util.Pair;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.data.struct.Home;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.Paginate;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public class CommandSearchHomes extends PlayerCommand {
+
+    private static final int MAX_RADIUS = 500;
+
+    // Collection of last searches to be more efficient when searching in pages
+    //        Search Location, Radius : Homes Lines
+    public Map<Pair<Location, Integer>, List<Component>> searchCache = new HashMap<>();
+    private static final int CACHE_TIME = 15; // Minutes
+
     public CommandSearchHomes() {
         super(Rank.JR_BUILDER, "Search for nearby homes.", "/searchhomes <radius>", "searchhomes");
     }
@@ -24,42 +32,57 @@ public class CommandSearchHomes extends PlayerCommand {
     @Override
     protected boolean execute(Player sender, String[] args) {
         if (args.length > 0) {
-            int radius;
-            try {
-                radius = Integer.parseInt(args[0]);
-                // Seems like a reasonable radius
-                if (radius <= 0 || radius > 500) {
-                    sendFormatted(sender, "&(red)Invalid radius. Must be an integer 1-500."); return true;
+            int radius = parseNumber(args[0], Integer::parseInt, -1);
+
+            if (radius <= 0 || radius > MAX_RADIUS) {
+                error(sender, "Invalid radius. Must be an integer between 1 and %d.", MAX_RADIUS);
+                return true;
+            }
+            List<Component> homes;
+            Pair<Location, Integer> currentSearch = new Pair<>(sender.getLocation(), radius);
+            if (searchCache.containsKey(currentSearch)) {
+                info(sender, "This does not contain homes created in the last %d minutes.", CACHE_TIME);
+                homes = searchCache.get(currentSearch);
+            } else {
+                homes = FarLands
+                    .getDataHandler()
+                    .getOfflineFLPlayers()
+                    .stream()
+                    .flatMap(flp -> flp
+                        .homes
+                        .stream()
+                        .filter(h -> h.getLocation().distance(sender.getLocation()) <= radius)
+                        .map(h -> ComponentColor.gold(flp.username + " - ")
+                            .append(
+                                ComponentUtils.command(
+                                    "/home " + h.getName() + flp.username,
+                                    h.asComponent(false, false),
+                                    ComponentColor.gray("Click to teleport to home.")
+                                )
+                            )
+                        ))
+                    .toList();
+                searchCache.put(currentSearch, homes);
+                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> searchCache.remove(currentSearch), 20 * 60 * CACHE_TIME);
+            }
+
+// <- Nice
+            if (homes.isEmpty()) {
+                error(sender, "No homes found within the radius specified.");
+            }
+
+            Pagination pagination = new Pagination(ComponentColor.gold("Search Homes"), "/searchomes " + radius);
+            pagination.addLines(homes);
+
+            if (args.length > 1) {
+                int pageNumber = parseNumber(args[1], Integer::parseInt, -1);
+                if (pageNumber <= 0 || pageNumber > pagination.numPages()) {
+                    error(sender, "Invalid page number. Must be an integer between 1 and %d.", pagination.numPages());
                 }
-            } catch (Exception ex) {
-                sendFormatted(sender, "&(red)Invalid radius. Must be an integer 1-500."); return true;
+                pagination.sendPage(pageNumber, sender);
+            } else {
+                pagination.sendPage(1, sender);
             }
-            List<String> lines = new ArrayList<>();
-            // Build the list of lines to paginate
-            for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
-                flp.homes.stream().filter(home -> home.getLocation().getWorld() == sender.getWorld()).forEach(home -> {
-                    if (sender.getLocation().distance(home.getLocation()) < radius) {
-                        Location loc = home.getLocation();
-                        String line = "&(gold)\"" + home.getName() + "\"&(aqua) belonging to " + flp.username + " at "
-                                + "$(hovercmd,/chain {gm3} {home " + home.getName() + " " + flp.username + "}"
-                                + ",&(gold)Click to go to home,&(gold)" + loc.getBlockX() + " " + loc.getBlockY() + " "
-                                + loc.getBlockZ() + ")";
-                        lines.add(line);
-                    }
-                });
-            }
-            Pair<String, Integer> foo = new Pair<>();
-            if (lines.isEmpty()) { // No homes found within provided radius
-                sendFormatted(sender, "&(red)Found 0 homes within %0 $(inflect,noun,0,block) " +
-                        "of your location.", radius); return true;
-            }
-            Paginate paginate = new Paginate(lines, "Search Homes", 9, "searchhomes " + radius);
-            String toSend = args.length == 1 ? paginate.getPage(1) : paginate.getPage(Integer.parseInt(args[1]));
-            if (toSend == null) {
-                sendFormatted(sender, "&(red)Invalid page number. Must be between 1 and %0.",
-                        paginate.getMaxPage()); return true;
-            }
-            sendFormatted(sender, toSend);
             return true;
         }
         return false;

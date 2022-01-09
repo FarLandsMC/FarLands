@@ -1,268 +1,201 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.util.Utils;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
+import static com.kicasmads.cs.Utils.filterStartingWith;
 
 public class CommandTop extends Command {
+
     public CommandTop() {
         super(Rank.INITIATE, Category.INFORMATIONAL, "View the people with the most votes or play time.",
-                "/top <votes|playtime|donors|deaths> [page|month|all]", "top");
+              "/top <votes|playtime|donors|deaths> [page|month|all]", "top");
     }
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
-        if (args.length == 0)
+    public boolean execute(CommandSender sender, String[] argsArr) {
+        if (argsArr.length == 0) {
             return false;
+        }
 
-        List<OfflineFLPlayer> flps;
-        TopCategory category = Utils.valueOfFormattedName(args[0], TopCategory.class);
-        if (category == null)
+        List<String> args = new ArrayList<>(List.of(argsArr));
+
+
+        TopCategory category = Utils.valueOfFormattedName(args.remove(0), TopCategory.class);
+        if (category == null) {
             return false;
+        }
 
-        int pageMax;
+        // `args` are now [subcommand, page], [subcommand] or [page]
+        args = new ArrayList<>(args.subList(0, Math.min(2, args.size())));
+
+        String subcommand = args.isEmpty() || args.get(0).matches("\\d+") ? null : args.remove(0);
+        int page = args.isEmpty() ? 1 : parseNumber(args.remove(0), Integer::parseInt, -1);
+
+        List<OfflineFLPlayer> flps = FarLands.getDataHandler().getOfflineFLPlayers();
+        Function<OfflineFLPlayer, Component> toValueComponent = null;
+        Predicate<OfflineFLPlayer> filter = null;
+        Comparator<OfflineFLPlayer> comparator = null;
+        Component header = Component.empty();
+        OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender.getName());
 
         switch (category) {
-            case VOTES: {
-                flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .filter(flp -> flp.totalVotes > 0)
-                        .collect(Collectors.toList());
-                pageMax = flps.size() / 10 + 1;
-                int offset = getOffset(sender, flps.size(), args);
-                if (offset == -1)
-                    return true;
+            case VOTES -> {
+                Comparator<OfflineFLPlayer> compareMonth = Comparator.comparingInt(f -> f.monthVotes);
+                Comparator<OfflineFLPlayer> compareTotal = Comparator.comparingInt(f -> f.totalVotes);
+                Comparator<OfflineFLPlayer> compareSeason = Comparator.comparingInt(f -> f.totalSeasonVotes);
+                comparator = compareMonth.thenComparing(compareTotal).thenComparing(compareSeason);
+                filter = f -> f.totalVotes > 0;
+                toValueComponent = f -> ComponentColor.gold("%d votes this month, %d votes total", f.monthVotes, f.totalVotes);
+                header = ComponentColor.gold("Top Voters (This Month)");
 
-                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-
-                // Month votes
-                if (args.length == 1 || !"all".equals(args[1])) {
-                    // 6 bits for month, 13 for season and total
-                    flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> (flp.monthVotes << 26) + (flp.totalSeasonVotes << 13) + flp.totalVotes)));
-                    int position = position(senderFlp, flps, flp -> flp.uuid);
-
-                    sendFormatted(sender, "&(gold)Showing the top voters for this month (page %0/%1):", offset / 10 + 1, pageMax);
-                    for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
-                        sendFormatted(
-                                sender,
-                                "&(gold){&(%0)%1:} {&(aqua)%2} - %3 $(inflect,noun,3,vote) this month, %4 total $(inflect,noun,4,vote)",
-                                i == position ? "green" : "gold",
-                                i + 1,
-                                flps.get(i).username,
-                                flps.get(i).monthVotes,
-                                flps.get(i).totalSeasonVotes
-                        );
-                    }
-                    if (position != -1) {
-                        sendFormatted(
-                                sender,
-                                "&(gold)You are {&(aqua)#%0} - %1 $(inflect,noun,1,vote) this month, %2 total $(inflect,noun,2,vote)",
-                                position + 1,
-                                senderFlp.monthVotes,
-                                senderFlp.totalSeasonVotes
-                        );
-                    }
+                if (subcommand != null && subcommand.equalsIgnoreCase("all")) {
+                    comparator = compareTotal.thenComparing(compareSeason);
+                    toValueComponent = f -> ComponentColor.gold("%d vote%s", f.totalVotes, f.totalVotes == 1 ? "" : "s");
+                    header = ComponentColor.gold("Top Voters (All Time)");
                 }
-                // All votes
-                else {
-                    flps.sort(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.totalVotes)));
-                    int position = position(senderFlp, flps, flp -> flp.uuid);
+            }
+            case PLAYTIME -> {
+                comparator = Comparator.comparingInt(f -> f.secondsPlayed);
+                filter = f -> f.secondsPlayed > 0;
+                toValueComponent = f -> TimeInterval.formatTimeComponent(1000L * f.secondsPlayed, true);
+                header = ComponentColor.gold("Top Playtime");
+            }
+            case DONORS -> {
+                comparator = Comparator.comparingDouble(f -> f.amountDonated);
+                filter = f -> f.amountDonated > 0;
+                header = ComponentColor.gold("Top Donors");
+            }
+            case DEATHS -> {
+                comparator = Comparator.comparingInt(f -> f.deaths);
+                filter = f -> f.deaths > 0;
+                toValueComponent = f -> ComponentColor.gold("%d death%s", f.deaths, f.deaths == 1 ? "" : "s");
+                header = ComponentColor.gold("Top Deaths");
 
-                    sendFormatted(sender, "&(gold)Showing the top voters of all time (page %0/%1):", offset / 10 + 1, pageMax);
-                    for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
-                        sendFormatted(
-                                sender,
-                                "&(gold){&(%0)%1:} {&(aqua)%2} - %3 $(inflect,noun,3,vote)",
-                                i == position ? "green" : "gold",
-                                i + 1,
-                                flps.get(i).username,
-                                flps.get(i).totalVotes
-                        );
-                    }
-                    if (position != -1) {
-                        sendFormatted(
-                                sender,
-                                "&(gold)You are {&(green)#%0} - %1 $(inflect,noun,1,vote)",
-                                position + 1,
-                                senderFlp.totalVotes
-                        );
-                    }
-                }
-                break;
+            }
+            default -> error(sender, "Invalid category. Options: ", String.join(", ", TopCategory.NAMES));
+        }
+        Pagination pagination = new Pagination(header, "/top " + category + " " + (subcommand == null ? "" : subcommand));
+        flps = flps
+            .stream()
+            .filter(filter)
+            .sorted(Collections.reverseOrder(comparator))
+            .toList();
+        pagination.maxChatWidth(70); // Seems to be a decent length
+
+        List<Component> lines = new ArrayList<>();
+        int index = -1;
+        for (int i = 0; i < flps.size(); i++) {
+            OfflineFLPlayer flp = flps.get(i);
+            TextComponent.Builder bldr = Component.text().color(NamedTextColor.GOLD);
+
+            if (senderFlp.uuid.equals(flp.uuid)) {
+                bldr.append(ComponentColor.green(i + 1 + ": "));
+                index = i + 1;
+            } else {
+                bldr.append(ComponentColor.gold(i + 1 + ": "));
             }
 
-            case PLAYTIME: {
-                flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .filter(flp -> flp.secondsPlayed > 0)
-                        .sorted(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.secondsPlayed)))
-                        .collect(Collectors.toList());
-
-                pageMax = flps.size() / 10 + 1;
-                int offset = getOffset(sender, pageMax, args);
-                if (offset == -1)
-                    return true;
-
-                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-                int position = position(senderFlp, flps, flp -> flp.uuid);
-
-                sendFormatted(sender, "&(gold)Showing the top players with the longest play time (page %0/%1):", offset / 10 + 1, pageMax);
-                for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
-                    sendFormatted(
-                            sender,
-                            "&(gold){&(%0)%1:} {&(aqua)%2} - %3",
-                            i == position ? "green" : "gold",
-                            i + 1,
-                            flps.get(i).username,
-                            TimeInterval.formatTime(1000L * flps.get(i).secondsPlayed, true)
-                    );
-                }
-                if (position != -1) {
-                    sendFormatted(
-                            sender,
-                            "&(gold)You are {&(green)#%0} - %1",
-                            position + 1,
-                            TimeInterval.formatTime(1000L * senderFlp.secondsPlayed, true)
-                    );
-                }
-                break;
+            bldr.append(ComponentColor.aqua(flp.username));
+            if (toValueComponent != null) {
+                bldr.append(ComponentColor.gold(" - "))
+                    .append(toValueComponent.apply(flp));
             }
-
-            case DONORS: {
-                flps = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .filter(flp -> flp.amountDonated > 0)
-                        .sorted(Collections.reverseOrder(Comparator.comparingDouble(flp -> flp.amountDonated)))
-                        .collect(Collectors.toList());
-
-                pageMax = flps.size() / 10 + 1;
-                int offset = getOffset(sender, pageMax, args);
-                if (offset == -1)
-                    return true;
-
-                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-                int position = position(senderFlp, flps, flp -> flp.uuid);
-
-                sendFormatted(sender, "&(gold)Showing the top server donors (page %0/%1):", offset / 10 + 1, pageMax);
-                for (int i = offset; i < Math.min(flps.size(), offset + 10); ++i) {
-                    sendFormatted(
-                            sender,
-                            "&(gold){&(%0)%1:} &(aqua)%2",
-                            i == position ? "green" : "gold",
-                            i + 1,
-                            flps.get(i).username
-                    );
-                }
-                if (position != -1)
-                    sendFormatted(sender, "&(gold)You are {&(green)#%0}", position + 1);
-                break;
+            lines.add(bldr.build());
+        }
+        pagination.addLines(lines);
+        if (page > pagination.numPages() || page < 1) {
+            error(sender, "Invalid page number, must be an integer between 1 and %d.", pagination.numPages());
+            return true;
+        }
+        if (sender instanceof DiscordSender discordSender) {
+            EmbedBuilder embed = new EmbedBuilder()
+                .setTitle(MarkdownProcessor.fromMinecraft(header))
+                .addField(
+                    " ~~---~~ ",
+                    pagination
+                        .render(page)
+                        .stream()
+                        .map(MarkdownProcessor::fromMinecraft)
+                        .filter(s -> !s.startsWith("«")) // Remove the header
+                        .collect(Collectors.joining("\n")),
+                    false
+                )
+                .setColor(NamedTextColor.GOLD.value());
+            if (index != -1) {
+                embed.addField(
+                    String.format("You are #%d", index),
+                    toValueComponent == null ? " " : MarkdownProcessor.fromMinecraft(toValueComponent.apply(senderFlp)),
+                    false
+                );
             }
-
-            case DEATHS: {
-                List<OfflineFLPlayer> topDeaths = FarLands.getDataHandler().getOfflineFLPlayers()
-                    .stream()
-                    .filter(flp -> flp.deaths > 0)
-                    .sorted(Collections.reverseOrder(Comparator.comparingInt(flp -> flp.deaths)))
-                    .collect(Collectors.toList());
-
-                pageMax = topDeaths.size() / 10 + 1;
-                int offset = getOffset(sender, pageMax, args);
-                if (offset == -1)
-                    return true;
-
-                OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-                int position = position(senderFlp, topDeaths, flp -> flp.uuid);
-
-                sendFormatted(sender, "&(gold)Showing the players with the most deaths (page %0/%1):", offset / 10 + 1, pageMax);
-                for (int i = offset; i < Math.min(topDeaths.size(), offset + 10); ++i) {
-                    sendFormatted(
-                            sender,
-                            "&(gold){&(%0)%1:} &(aqua)%2 - %3 $(inflect,noun,3,death)",
-                            i == position ? "green" : "gold",
-                            i + 1,
-                            topDeaths.get(i).username,
-                            topDeaths.get(i).deaths
-                    );
+            discordSender.getChannel().sendMessageEmbeds(embed.build()).queue();
+        } else {
+            pagination.sendPage(page, sender);
+            if (index != -1) {
+                TextComponent.Builder bldr = Component.text().color(NamedTextColor.GOLD).content("You are ")
+                    .append(ComponentColor.aqua("#%d", index));
+                if (toValueComponent != null) {
+                    bldr.append(ComponentColor.gold(" - "))
+                        .append(toValueComponent.apply(senderFlp));
                 }
-                if (position != -1) {
-                    sendFormatted(
-                            sender,
-                            "&(gold)You are {&(green)#%0} - %1 $(inflect,noun,1,death)",
-                            position + 1,
-                            senderFlp.deaths
-                    );
-                }
-                break;
+                sender.sendMessage(bldr.build());
             }
         }
+
 
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        if (args.length == 1) {
-            return Arrays.stream(TopCategory.VALUES)
-                    .map(Utils::formattedName)
-                    .filter(o -> o.startsWith(args.length == 0 ? "" : args[0]))
-                    .collect(Collectors.toList());
-        } else if (args.length == 2) {
-            TopCategory category = Utils.valueOfFormattedName(args[0], TopCategory.class);
-            if (category == null)
+        switch (args.length) {
+            case 1:
+                return filterStartingWith(args[0], TopCategory.NAMES);
+            case 2: {
+                TopCategory cat = Utils.valueOfFormattedName(args[0], TopCategory.class);
+                if (cat == null) return Collections.emptyList();
+                return filterStartingWith(args[1], Utils.valueOfFormattedName(args[0], TopCategory.class).subCategories);
+            }
+            default:
                 return Collections.emptyList();
-
-            if (category == TopCategory.VOTES) {
-                return Stream.of("month", "all")
-                        .filter(o -> o.startsWith(args[1]))
-                        .collect(Collectors.toList());
-            }
         }
-
-        return Collections.emptyList();
     }
 
-    private static int getOffset(CommandSender sender, int max, String[] args) {
-        int offset = 1;
-        if (args.length > 1) {
-            String page = args[args.length == 2 ? 1 : 2];
+    private enum TopCategory {
+        VOTES("month", "all"),
+        PLAYTIME,
+        DONORS,
+        DEATHS,
+        ;
 
-            try {
-                offset = Integer.parseInt(page);
-            } catch (NumberFormatException ex) { }
+        public static final List<String> NAMES = Arrays.stream(values()).map(Utils::formattedName).toList();
+        public static final TopCategory[] VALUES = values();
 
-            if (offset <= 0 || offset > max) {
-                sendFormatted(sender, "&(red)The page number must be between %0 and %1", 1, max);
-                return -1;
-            }
+        public final List<String> subCategories;
+
+        TopCategory(String... subCategories) {
+            this.subCategories = List.of(subCategories);
         }
-        return (offset - 1) * 10;
-    }
-
-    private static <T> int position(T object, Collection<T> collection, Function<T, UUID> toUuid) {
-        int pos = 0;
-        UUID uuid = toUuid.apply(object);
-        for (T other : collection) {
-            if (uuid.equals(toUuid.apply(other)))
-                return pos;
-            pos += 1;
-        }
-
-        return -1;
-    }
-
-    enum TopCategory {
-        VOTES, PLAYTIME, DONORS, DEATHS;
-
-        static final TopCategory[] VALUES = values();
     }
 }

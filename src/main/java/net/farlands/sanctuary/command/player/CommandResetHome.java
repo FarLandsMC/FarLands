@@ -15,6 +15,7 @@ import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -38,7 +39,7 @@ public class CommandResetHome extends PlayerCommand {
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         if (flp == null) {
-            sender.sendMessage(ComponentColor.red("Player not found."));
+            error(sender, "Player not found.");
             return true;
         }
 
@@ -49,14 +50,14 @@ public class CommandResetHome extends PlayerCommand {
                 "world_nether".equals(location.getWorld().getName()) ||
                 "farlands".equals(location.getWorld().getName())
         )) {
-            sender.sendMessage(ComponentColor.red("You can only move homes to the overworld and nether. Reset cancelled"));
+            error(sender, "You can only move homes to the overworld and nether. Reset cancelled");
             return true;
         }
 
         // Check for claims
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(location);
         if (!(flp.rank.isStaff() || flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.ACCESS, flags))) {
-            sender.sendMessage(ComponentColor.red("You do not have permission to move a home into this claim."));
+            error(sender, "You do not have permission to move a home into this claim.");
             return true;
         }
 
@@ -80,27 +81,30 @@ public class CommandResetHome extends PlayerCommand {
 
         // If the home already exists then move it
         if (flp.hasHome(name)) {
+            Location prevLoc = flp.getHome(name).clone();
             flp.moveHome(name, location);
             sender.sendMessage(
                 ComponentColor.green("Moved home with name ")
                     .append(ComponentColor.aqua(name))
+                    .append(ComponentColor.green(" from "))
+                    .append(ComponentColor.aqua(FLUtils.toSimpleString(prevLoc)))
                     .append(ComponentColor.green(" to your location."))
             );
         }
         // If the home does not exist try to make a new one
         else {
             if (moveUnownedHome) {
-                sender.sendMessage(ComponentColor.red("%s does not have a home with this name.", args[1]));
+                error(sender, "%s does not have a home with this name.", args[1]);
                 return true;
             }
 
             // Create the home if it doesn't exist and the user has enough homes to set another
             if (flp.numHomes() >= flp.rank.getHomes()) {
-                sender.sendMessage(ComponentColor.red("This home does not exist and you do not have enough homes to set another."));
+                error(sender, "This home does not exist and you do not have enough homes to set another.");
                 return true;
             } else {
                 if (args.length > 0 && (args[0].isEmpty() || args[0].matches("\\s+") || MessageFilter.INSTANCE.isProfane(args[0]))) {
-                    sender.sendMessage(ComponentColor.red("This home does not exist. Unable to create home with that name."));
+                    error(sender, "This home does not exist. Unable to create home with that name.");
                     return true;
                 }
 

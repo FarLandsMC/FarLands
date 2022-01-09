@@ -1,5 +1,7 @@
 package net.farlands.sanctuary.util;
 
+import net.kyori.adventure.text.Component;
+
 /**
  * Time conversion methods.
  */
@@ -70,6 +72,14 @@ public enum TimeInterval {
 
     public static String formatTime(long millis, boolean abbreviate) {
         return formatTime(millis, abbreviate, VALUES[0]);
+    }
+
+    public static Component formatTimeComponent(long millis, boolean abbreviate, TimeInterval minInterval) {
+        return Component.text(formatTime(millis, abbreviate, minInterval));
+    }
+
+    public static Component formatTimeComponent(long millis, boolean abbreviate) {
+        return Component.text(formatTime(millis, abbreviate));
     }
 
     public static long parseSeconds(String time) {

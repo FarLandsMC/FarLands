@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -70,6 +71,13 @@ public final class FLUtils {
     private static final Pattern HEX_COLOR_PATTERN_SIX = Pattern.compile("&#([0-9a-fA-F]{6})");
     // Pattern matching funny's need for 3 char hex
     private static final Pattern HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
+
+    public static final Map<String, String> WORLD_NAMES = new ImmutableMap.Builder<String, String>()
+        .put("world", "Overworld")
+        .put("world_nether", "Nether")
+        .put("world_the_end", "End")
+        .put("farlands", "Party")
+        .build();
 
     private FLUtils() { }
 
@@ -676,5 +684,9 @@ public final class FLUtils {
             message = message.replaceAll("(?i)(?<!\\\\)(:" + Pattern.quote(emote.name()) + ":)", TextUtils2.escapeExpression(emote.getValue()));
         }
         return message;
+    }
+
+    public static String toSimpleString(Location location) {
+        return String.format("%s - %s %s %s", WORLD_NAMES.getOrDefault(location.getWorld().getName(), "Unknown"), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 }
