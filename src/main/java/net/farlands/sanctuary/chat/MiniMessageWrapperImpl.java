@@ -81,7 +81,7 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
     }
     return MiniMessage.builder().placeholderResolver(this.placeholderResolver).transformations(
         this.advancedTransformations ? this.allTransformations : this.colorTransformations
-    ).build().parse(this.mmString(mmString)).decorations(decorationStateMap);
+    ).build().deserialize(this.mmString(mmString)).decorations(decorationStateMap);
   }
 
   @Override

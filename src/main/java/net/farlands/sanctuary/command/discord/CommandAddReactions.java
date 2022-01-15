@@ -71,8 +71,8 @@ public class CommandAddReactions extends DiscordCommand {
             sender.sendMessage(ComponentColor.red("This command must be used from Discord."));
             return false;
         }
+        if(argsArr.length < 1) return false;
         try {
-
             List<String> args = new ArrayList<>(List.of(argsArr));
 
             String[] parts = args.remove(0).split(":");
@@ -104,7 +104,7 @@ public class CommandAddReactions extends DiscordCommand {
                 String messageID = args.remove(0);
                 message = channel.retrieveMessageById(messageID).complete();
                 if (message == null) {
-                    sender.sendMessage(ComponentColor.red("Unable to find message with id '%s'", messageID));
+                    error(sender, "Unable to find message with id '%s'", messageID);
                     return true;
                 }
             }
@@ -157,7 +157,7 @@ public class CommandAddReactions extends DiscordCommand {
                 String msg = "Invalid Emotes: %s.\nMake sure to only use default Discord emotes and custom ones from this server.".formatted(String.join(", ", badEmotes));
                 commandMessage.reply(msg).queue();
             }
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) { // Gotta catch 'em all (Lots of things throw this, so just catch them all lol)
             return false;
         }
 

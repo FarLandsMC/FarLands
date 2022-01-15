@@ -173,27 +173,33 @@ public abstract class Command extends org.bukkit.command.Command {
      * Show an error message to the sender (red)
      * @param message Formatted with {@link String#format(String, Object...)}
      * @param replacements Replacements for {@link String#format(String, Object...)}
+     * @return true - So that it can be used in a single line: <code>return {@link Command#error(CommandSender, String, Object...)};</code>
      */
-    public static void error(CommandSender sender, String message, Object... replacements) {
+    public static boolean error(CommandSender sender, String message, Object... replacements) {
         sender.sendMessage(ComponentColor.red(message, replacements));
+        return true;
     }
 
     /**
      * Show a success message to the sender (green)
      * @param message Formatted with {@link String#format(String, Object...)}
      * @param replacements Replacements for {@link String#format(String, Object...)}
+     * @return true - So that it can be used in a single line: <code>return {@link Command#success(CommandSender, String, Object...)};</code>
      */
-    public static void success(CommandSender sender, String message, Object... replacements) {
+    public static boolean success(CommandSender sender, String message, Object... replacements) {
         sender.sendMessage(ComponentColor.green(message, replacements));
+        return true;
     }
 
     /**
      * Show an info message to the sender (gold)
      * @param message Formatted with {@link String#format(String, Object...)}
      * @param replacements Replacements for {@link String#format(String, Object...)}
+     * @return true - So that it can be used in a single line: <code>return {@link Command#info(CommandSender, String, Object...)};</code>
      */
-    public static void info(CommandSender sender, String message, Object... replacements) {
+    public static boolean info(CommandSender sender, String message, Object... replacements) {
         sender.sendMessage(ComponentColor.gold(message, replacements));
+        return true;
     }
 
 }

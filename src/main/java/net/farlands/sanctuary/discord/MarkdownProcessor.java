@@ -2,19 +2,28 @@ package net.farlands.sanctuary.discord;
 
 import com.google.common.collect.ImmutableMap;
 import io.papermc.paper.text.PaperComponents;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.ChatFormat;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.apache.commons.lang.StringUtils;
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -22,8 +31,14 @@ import java.util.stream.Collectors;
  */
 public class MarkdownProcessor {
 
-    //                                        \       *    _    ~~    ||    <    >    `
-    private static final String[] ESCAPE = { "\\\\", "*", "_", "~~", "||", "<", ">", "`", };
+    private static final PlainTextComponentSerializer serializer = PlainTextComponentSerializer.builder()
+        .flattener(
+            ComponentFlattener
+                .builder()
+                .mapper(Component.class, MarkdownProcessor::componentToMarkdown)
+                .build()
+        )
+        .build();
 
     private static final Map<TextDecoration, String> DECOR_MD_MAP =
         new ImmutableMap.Builder<TextDecoration, String>()
@@ -33,75 +48,57 @@ public class MarkdownProcessor {
             .put(TextDecoration.STRIKETHROUGH, "~~")
             .build();
 
-    private static final char ESCAPE_CHAR = '\\';
+    // RegEx : TextDecoration
+    private static final Map<String, TextDecoration> SIMPLE_DECORATIONS = new ImmutableMap.Builder<String, TextDecoration>()
+        .put("__", TextDecoration.UNDERLINED)
+        .put("\\*\\*", TextDecoration.BOLD)
+        .put("[*_]", TextDecoration.ITALIC)
+        .put("~~", TextDecoration.STRIKETHROUGH)
+        .build();
+
+    private static final @Language("RegExp")
+    String MARKDOWN_STRING = "(?<!\\\\)(%s)(.+?(?!\\1).)\\1(?!\\1)"; // https://regexr.com/6db8g -- `%s` gets replaced with the symbols -- group 2 is the content
+
     private static final char ZERO_WIDTH_SPACE = '\u200B';
+    private static final Component SPOILER_BASE = ComponentColor.gray("████").decorate(TextDecoration.UNDERLINED);
 
-    private static final String SPOILER_TEXT = "Spoiler: ████";
-
-    /**
-     * Convert from a string styled using Discord's Markdown syntax into {@link Component}s
-     * <br>
-     * TODO: Handle Links
-     *
-     * @param markdown String styled using Discord's flavour of Markdown
-     * @return Components based on the inputted Markdown
-     */
     public static Component toMinecraft(@NotNull String markdown) {
-        Map<String, MarkdownStyle> symbolMap = MarkdownStyle.symbolTypeMap(); // Map of Strings to Symbols
-        BuilderWrapper root = BuilderWrapper.of(Component.text()); // Initial base component
+        Component component = Component.text(markdown);
 
-        Stack<BuilderWrapper> branch = new Stack<>();
-        branch.push(root);
-
-        Stack<MarkdownStyle> styles = new Stack<>();
-
-
-        StringBuilder currentString = new StringBuilder();
-
-        Character curr, next; // Tracking vars
-        char[] chars = markdown.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            curr = chars[i];
-            next = i + 1 == chars.length ? null : chars[i + 1];
-
-            if (curr == ESCAPE_CHAR && next != null) {
-                currentString.append(next);
-                ++i;
-                continue;
-            }
-
-            // curr [+ next] is a valid symbol
-            if (symbolMap.containsKey(curr + "") || symbolMap.containsKey(curr + "" + next)) {
-                boolean twoCharSymbol = symbolMap.containsKey(curr + "" + next);
-                MarkdownStyle decor = symbolMap.get(curr + "" + (twoCharSymbol ? next : "")); // Style based on symbol
-                MarkdownStyle currentStyle = styles.isEmpty() ? MarkdownStyle.NONE : styles.peek(); // Current style is the top of the stack or NONE
-
-                BuilderWrapper c = currentStyle.from(currentString.toString()); // Create builder from current style/text
-                currentString.setLength(0); // Clear builder
-                branch.peek().append(c); // Add new as child to current top
-
-                if (currentStyle != decor) { // Open tag
-                    branch.push(c); // Add it to the end of the current branch
-                    styles.push(decor); // Update the style
-
-                } else { // Closing tag
-                    styles.pop(); // Remove the current style
-                    branch.pop(); // Remove the last one
-                }
-
-                if (twoCharSymbol) ++i; // Skip next character
-            } else {
-                currentString.append(curr);
-            }
+        for (Map.Entry<String, TextDecoration> entry : SIMPLE_DECORATIONS.entrySet()) {
+            component = component.replaceText(
+                TextReplacementConfig
+                    .builder()
+                    .match(Pattern.compile(MARKDOWN_STRING.formatted(entry.getKey())))
+                    .replacement((mr, u) -> Component.text(mr.group(2)).decorate(entry.getValue()))
+                    .build()
+            );
         }
-        MarkdownStyle currentStyle = styles.isEmpty() ? MarkdownStyle.NONE : styles.peek();
 
-        BuilderWrapper c = currentStyle.from(currentString.toString()); // Create builder from current style/text
-        branch.peek().append(c); // Add new as child to current top
+        component = component
+            .replaceText(
+                TextReplacementConfig // Spoiler Blocks
+                    .builder()
+                    .match(Pattern.compile(MARKDOWN_STRING.formatted("||")))
+                    .replacement((mr, u) -> SPOILER_BASE.hoverEvent(HoverEvent.showText(ComponentColor.gray(mr.group(1)))))
+                    .build()
+            )
+            .replaceText(
+                TextReplacementConfig // User mentions
+                    .builder()
+                    .match(Pattern.compile("<@!?(\\d+)>"))
+                    .replacement((mr, u) -> userMention(mr.group(1)))
+                    .build()
+            )
+            .replaceText(
+                TextReplacementConfig // Channel mentions
+                    .builder()
+                    .match(Pattern.compile("<#(\\d+)>"))
+                    .replacement((mr, u) -> channelMention(mr.group(1)))
+                    .build()
+            );
 
-
-        return root.build(); // Build into components
-
+        return component;
     }
 
     /**
@@ -112,29 +109,33 @@ public class MarkdownProcessor {
      */
     public static String fromMinecraft(Component component) {
 
-        if(component == null) return "";
+        if (component == null) return "";
+        return serializer.serialize(component) // Serialize
+            .replaceAll("@", "@" + ZERO_WIDTH_SPACE); // Prevent @everyone, @here, etc.
+    }
 
+    /**
+     * Add the correct symbols for the styling
+     */
+    private static String componentToMarkdown(Component component) {
         String symbols = DECOR_MD_MAP // Get applicable symbols
             .entrySet()
             .stream()
             .filter(e -> component.style().hasDecoration(e.getKey()))
             .map(Map.Entry::getValue)
             .collect(Collectors.joining());
-
-        String childrenText = component.children() // Get the text for the children components
-            .stream()
-            .map(MarkdownProcessor::fromMinecraft)
-            .collect(Collectors.joining());
         String content = "";
-        if (component instanceof TextComponent tc) content = tc.content();
-        else if (component instanceof TranslatableComponent tc) content = PlainTextComponentSerializer.builder().flattener(PaperComponents.flattener()).build().serialize(tc);
-
-
-        return symbols + escapeMarkdown(content) + childrenText + symbols;
+        if (component instanceof TextComponent tc) {
+            content = tc.content();
+        } else if (component instanceof TranslatableComponent tc) {
+            content = PlainTextComponentSerializer.builder().flattener(PaperComponents.flattener()).build().serialize(tc);
+        }
+        return symbols + escapeMarkdown(content) + StringUtils.reverse(symbols);
     }
 
     /**
      * Remove all § and & color codes
+     *
      * @param source The source string
      * @return The cleaned string
      */
@@ -149,10 +150,42 @@ public class MarkdownProcessor {
      * @return The escaped text
      */
     public static String escapeMarkdown(String text) {
-        text = text.replaceAll("([*_`~\\\\|:>])", "\\\\$1");
-        text = text.replaceAll("@", "@" + ZERO_WIDTH_SPACE);
-        return text;
+        return text.replaceAll("([*_`~\\\\|:>])", "\\\\$1")
+            .replaceAll("@", "@" + ZERO_WIDTH_SPACE);
     }
+
+    public static Component userMention(String text) {
+
+        long id = Long.parseLong(text);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(id);
+        if (flp != null) {
+            return ChatFormat.playerMention(flp);
+        }
+        User user = FarLands.getDiscordHandler().getNativeBot().getUserById(id);
+        if (user instanceof Member member) {
+            return Component.text("@" + member.getEffectiveName());
+        }
+        if (user != null) {
+            return Component.text("@" + user.getName());
+        }
+//        return Component.text(text); // If this run, something is funky
+        return null;
+
+    }
+
+    public static Component channelMention(String text) {
+        long id = Long.parseLong(text);
+        GuildChannel channel = FarLands.getDiscordHandler().getGuild().getGuildChannelById(id);
+        if (channel == null) {
+            return null;
+        }
+        return Component.text("#" + channel.getName());
+    }
+
+//    public static Component emoteMention(String text) {
+//        Message
+//        net.dv8tion.jda.internal.utils.Helpers.
+//    }
 
 
     /**
@@ -186,142 +219,4 @@ public class MarkdownProcessor {
     public static String markdownToMC(String markdown) {
         return LegacyComponentSerializer.legacySection().serialize(toMinecraft(markdown));
     }
-
-    /**
-     * Custom styles for use in markdown
-     */
-    private enum MarkdownStyle {
-
-        BOLD("**"),
-        UNDERLINED("__"),
-        ITALIC("*", "_"),
-        STRIKETHROUGH("~~"),
-        SPOILER("||"),
-        CODE_BLOCK("`"),
-        NONE(),
-        ;
-
-        private final String[] symbols;
-        private final Style style;
-
-        MarkdownStyle(String... symbols) {
-            this.symbols = symbols;
-            Style style;
-            try {
-                style = Style.style(TextDecoration.valueOf(name()));
-            } catch (IllegalArgumentException ignored) {
-                style = null;
-            }
-            this.style = style;
-        }
-
-        /**
-         * Create a build wrapper from specific text
-         * <p>
-         * The builder is styled based on the enum
-         *
-         * @param text The text to use for the builder
-         * @return The new {@link BuilderWrapper}
-         */
-        public BuilderWrapper from(String text) {
-            return BuilderWrapper.of(builderFrom(text));
-        }
-
-        /**
-         * Create a builder from specific text
-         * <p>
-         * The builder is styled based on the enum
-         *
-         * @param text The text to use for the builder
-         * @return The new {@link TextComponent.Builder}
-         */
-        private TextComponent.Builder builderFrom(String text) {
-            TextComponent.Builder builder = Component.text().content(text);
-            if (this.style != null) {
-                builder.style(this.style);
-                return Component.text().content(text).style(this.style);
-            }
-            return switch (this) {
-                case SPOILER -> Component.text()
-                    .content(SPOILER_TEXT)
-                    .style(Style.style(NamedTextColor.GRAY))
-                    .hoverEvent(
-                        HoverEvent.showText(
-                            ComponentColor.gray(text)
-                        )
-                    );
-                case CODE_BLOCK -> Component.text().content(text).color(NamedTextColor.GRAY);
-                default -> Component.text().content(text);
-            };
-        }
-
-        /**
-         * @return A map for the symbol to decoration
-         */
-        public static Map<String, MarkdownStyle> symbolTypeMap() {
-            Map<String, MarkdownStyle> map = new HashMap<>();
-            for (MarkdownStyle value : values()) {
-                for (String symbol : value.symbols) {
-                    map.put(symbol, value);
-                }
-            }
-            return map;
-        }
-
-    }
-
-    /**
-     * A mutable wrapper for the {@link TextComponent.Builder}
-     */
-    private static class BuilderWrapper {
-
-        private final TextComponent.Builder builder;
-        private final List<BuilderWrapper> children;
-
-        public BuilderWrapper(TextComponent.Builder builder) {
-            this.builder = builder;
-            this.children = new ArrayList<>();
-        }
-
-        /**
-         * Add a child builder to this wrapper
-         *
-         * @param builder the builder to add
-         */
-        public void append(TextComponent.Builder builder) {
-            this.children.add(new BuilderWrapper(builder));
-        }
-
-
-        /**
-         * Add a child builder to this wrapper
-         *
-         * @param builder the builder to add
-         */
-        public void append(BuilderWrapper builder) {
-            this.children.add(builder);
-        }
-
-        /**
-         * Build this wrapper based on the children and builder
-         *
-         * @return The Component from building the children and itself
-         */
-        public Component build() {
-            TextComponent.Builder builder = this.builder.build().toBuilder();
-            this.children.stream().map(BuilderWrapper::build).forEach(builder::append);
-            return builder.build();
-        }
-
-        /**
-         * Create a {@link BuilderWrapper} from a specified builder
-         *
-         * @param builder The builder to wrap
-         * @return A new BuilderWrapper
-         */
-        public static BuilderWrapper of(TextComponent.Builder builder) {
-            return new BuilderWrapper(builder);
-        }
-    }
-
 }

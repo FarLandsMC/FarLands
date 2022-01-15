@@ -184,7 +184,7 @@ public class ChatHandler {
     public static Component getPrefix(OfflineFLPlayer sender) {
         // Does the player have permission to have a nickname? - Based on `/nick` permission
 
-        Component rankPrefix = sender.rank.getLabel(); // Ex: "Dev", "Knight" (with color and bold?)
+        Component rankPrefix = sender.getDisplayRank().getLabel(); // Ex: "Dev", "Knight" (with color and bold?)
         Component nameDisplay = sender.getDisplayName() // Colored Username or Nickname
             .hoverEvent(
                 HoverEvent.showText(
@@ -208,12 +208,7 @@ public class ChatHandler {
     public static Component handleReplacements(String message, OfflineFLPlayer sender) {
 
         Component component = MiniMessageWrapper.farlands(sender).mmParse(message); // Parse colors and mm tags
-
-        component = ChatFormat.translateEmotes(component); // :shrug: -> ¯\_(ツ)_/¯
-        component = ChatFormat.translateLinks(component); // Highlight Links
-        component = ChatFormat.translatePings(component, sender, false); // Make @<name> have hover text with stats
-        component = ChatFormat.translateCommands(component); // `cmd` -> cmd (with hover and click event)
-        component = ChatFormat.translateItems(component, sender.getOnlinePlayer()); // [i] -> "[i] <name>" with hover text
+        component = ChatFormat.translateAll(component, sender); // Translate all chat features
 
         return component;
     }

@@ -51,7 +51,7 @@ public class Logging {
      * Parses MiniMessage
      */
     public static void broadcastIngame(String message, boolean sendToDiscord) {
-        Component c = MM.parse(message);
+        Component c = MM.deserialize(message);
         broadcastIngame(c, sendToDiscord);
     }
 
@@ -95,7 +95,7 @@ public class Logging {
      * @param message Message, formatted with {@link String#format(String, Object...)}
      */
     public static void broadcastFormatted(String message, boolean sendToDiscord, Object... replacements) {
-        Component c = MM.parse(String.format(message, replacements));
+        Component c = MM.deserialize(String.format(message, replacements));
         if (sendToDiscord) {
             broadcastDiscord(MarkdownProcessor.fromMinecraft(c), DiscordChannel.IN_GAME);
         }
@@ -109,7 +109,7 @@ public class Logging {
      * @param message Message, formatted with {@link String#format(String, Object...)}
      */
     public static void broadcast(Predicate<FLPlayerSession> filter, String message, Object... replacements) {
-        Component c = MM.parse(String.format(message, replacements));
+        Component c = MM.deserialize(String.format(message, replacements));
         Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getSession).filter(filter).forEach(s -> {
             s.player.sendMessage(c);
         });
@@ -160,7 +160,7 @@ public class Logging {
      * @param channel Channel to send message to -- null to not send
      */
     public static void broadcastStaff(String message, DiscordChannel channel) {
-        broadcastStaff(MM.parse(message), channel);
+        broadcastStaff(MM.deserialize(message), channel);
     }
 
     /**
@@ -168,6 +168,6 @@ public class Logging {
      * @param message Message to send -- formatted with minimessage
      */
     public static void broadcastStaff(String message) {
-        broadcastStaff(MM.parse(message));
+        broadcastStaff(MM.deserialize(message));
     }
 }

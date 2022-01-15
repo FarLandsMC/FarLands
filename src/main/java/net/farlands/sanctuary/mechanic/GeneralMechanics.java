@@ -514,16 +514,14 @@ public class GeneralMechanics extends Mechanic {
 
     @EventHandler
     public void onAnvilPrepared(PrepareAnvilEvent event) {
-        Rank rank = Rank.getRank(event.getView().getPlayer());
-        if (rank.specialCompareTo(Rank.SPONSOR) >= 0) {
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getView().getPlayer());
+        if (flp.rank.specialCompareTo(Rank.SPONSOR) >= 0) {
             ItemStack result = event.getResult();
             if (result != null) {
                 ItemMeta meta = result.getItemMeta();
-                meta.displayName(
-                    ComponentUtils.parse(
-                        ComponentUtils.toText(meta.displayName()),
-                        FarLands.getDataHandler().getOfflineFLPlayer(event.getView().getPlayer())
-                    ));
+                String rawName = ComponentUtils.toText(meta.displayName());
+                if(rawName.isEmpty()) return;
+                meta.displayName(ComponentUtils.parse(rawName, flp));
                 result.setItemMeta(meta);
             }
         }

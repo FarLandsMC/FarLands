@@ -17,6 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommandArtifact extends DiscordCommand {
@@ -41,24 +42,38 @@ public class CommandArtifact extends DiscordCommand {
         }
 
         // Locate the attachment
-        String channelId = args[0].substring(0, args[0].indexOf(':')), messageId = args[0].substring(args[0].indexOf(':') + 1);
+        String channelId = args[0].substring(0, args[0].indexOf(':'));
+        String messageId = args[0].substring(args[0].indexOf(':') + 1);
         Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).retrieveMessageById(messageId).complete();
+
         List<Message.Attachment> attachments = message.getAttachments();
         if (attachments.isEmpty()) {
             sender.sendMessage("You must attach the jar to the command message.");
             return true;
         }
 
-        File dest = FarLands.getDataHandler().getTempFile(attachments.get(0).getFileName());
-        if (dest.exists())
-            dest.delete();
+        List<String> failures = new ArrayList<>();
+        attachments.forEach(attachment -> {
 
-        try {
-            attachments.get(0).downloadToFile(dest).get();
-        } catch (Exception ex) {
-            sender.sendMessage(ChatColor.RED + "Failed to upload artifact due to an internal error.");
-            Logging.error(ex.getMessage());
-            ex.printStackTrace();
+            File dest = FarLands.getDataHandler().getTempFile(attachment.getFileName());
+            if (dest.exists())
+                dest.delete();
+
+            try {
+                attachment.downloadToFile(dest).get();
+            } catch (Exception ex) {
+                failures.add(attachment.getFileName());
+                Logging.error(ex.getMessage());
+                ex.printStackTrace();
+            }
+        });
+        if(!failures.isEmpty()) {
+            error(
+                sender,
+                "Unable to download file(s): %s%s",
+                String.join(", ", failures),
+                args.length > 1 && args[1].equalsIgnoreCase("true") ? "\nAborting Restart..." : ""
+            );
             return true;
         }
 
@@ -73,8 +88,10 @@ public class CommandArtifact extends DiscordCommand {
                 paperDownload = "unused"; // Give it a non-null value
                 downloadPaper = false;
             } else {
-                String fileName = paperDownload.substring(paperDownload.lastIndexOf('/') + 1).replace(".jar", "");
-                sender.sendMessage(ComponentColor.green("Downloading latest paper version: %s", fileName));
+                if (downloadPaper) {
+                    String fileName = paperDownload.substring(paperDownload.lastIndexOf('/') + 1).replace(".jar", "");
+                    success(sender, "Downloading latest paper version: %s", fileName);
+                }
             }
             FarLands.executeScript(
                 "artifact.sh",

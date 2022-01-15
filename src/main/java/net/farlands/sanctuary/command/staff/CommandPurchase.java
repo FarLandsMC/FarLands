@@ -129,7 +129,7 @@ public class CommandPurchase extends Command {
             case 1:
                 return getOnlinePlayers(args[0], sender);
             case 2:
-                return Rank.PURCHASED_RANKS.stream().map(Rank::toString).collect(Collectors.toList());
+                return Arrays.stream(Rank.DONOR_RANKS).map(Rank::toString).collect(Collectors.toList());
             default:
                 return Collections.emptyList();
         }

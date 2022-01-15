@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import com.kicas.rp.util.TextUtils;
-import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;

@@ -13,21 +13,39 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.intellij.lang.annotations.Language;
 
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class ChatFormat {
 
     // Patterns
-    private static final Pattern LINK = Pattern.compile("(?i)(?<link>https?://(www\\.)?[-a-z0-9@:%._+~#=]+\\.[a-z0-9()]{1,6}\\b([-a-z0-9()@:%_+.~#?&/=]*))");
-    private static final Pattern PING = Pattern.compile("(?i)(?<!\\\\)(@[a-z_]+)");
-    private static final Pattern ITEM = Pattern.compile("(?i)(?<!\\\\)(\\[i(tem)?])");
-    private static final Pattern COMMAND = Pattern.compile("(?i)(?<!\\\\)(`[^`]+`)");
+    private static final Pattern LINK = Pattern.compile("(?i)(?<link>\\\\?https?://(www\\.)?[-a-z0-9@:%._+~#=]+\\.[a-z0-9()]{1,6}\\b([-a-z0-9()@:%_+.~#?&/=]*))");
+    private static final Pattern PING = Pattern.compile("(?i)\\\\?@[a-z_\\d]{3,}");
+    private static final Pattern ITEM = Pattern.compile("(?i)\\\\?\\[i(tem)?]");
+    private static final Pattern COMMAND = Pattern.compile("(?i)\\\\?`/[^`]+`");
+    private static final @Language("RegExp") String EMOTE = "(?i)\\\\?%EMOTE%"; // %EMOTE% gets replaced with the emote name
+
+    public static Component translateAll(Component component, OfflineFLPlayer sender) {
+        component = ChatFormat.translateEmotes(component); // :shrug: -> ¯\_(ツ)_/¯
+        component = ChatFormat.translateLinks(component); // Highlight Links
+        component = ChatFormat.translatePings(component, sender, false); // Make @<name> have hover text with stats
+        component = ChatFormat.translateCommands(component); // `cmd` -> cmd (with hover and click event)
+        component = ChatFormat.translateItems(component, sender.getOnlinePlayer()); // [i] -> "[i] <name>" with hover text
+        return component;
+    }
 
     public static Component translateEmotes(Component message) {
         for (CommandShrug.TextEmote emote : CommandShrug.TextEmote.values) {
-            message = message.replaceText(TextReplacementConfig.builder().match(Pattern.compile("(?i)(?<!\\\\)(:"
-                                                                                                + Pattern.quote(emote.name()) + ":)")).replacement(emote.getValue()).build());
+            message = message
+                .replaceText(
+                    TextReplacementConfig
+                        .builder()
+                        .match(Pattern.compile(EMOTE.replace("%EMOTE%", emote.name())))
+                        .replacement((result, input) -> escapeOr(result.group(), n -> Component.text(emote.getValue())))
+                        .build()
+                );
         }
         return message;
     }
@@ -36,7 +54,7 @@ public class ChatFormat {
         return message.replaceText(
             TextReplacementConfig.builder()
                 .match(LINK)
-                .replacement((result, input) -> ComponentUtils.link(result.group()))
+                .replacement((result, input) -> escapeOr(result.group(), ComponentUtils::link))
                 .build()
         );
     }
@@ -45,11 +63,11 @@ public class ChatFormat {
         return message.replaceText(
             TextReplacementConfig.builder()
                 .match(PING)
-                .replacement((result, input) -> {
-                    String name = result.group().substring(1);
+                .replacement((result, input) -> escapeOr(result.group(), text -> {
+                    String name = text.substring(1);
                     OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(name);
                     if (flp == null) {
-                        return Component.text(result.group());
+                        return Component.text(text);
                     }
 
                     if (!silent && flp.getOnlinePlayer() != null && !flp.getIgnoreStatus(sender).includesChat()) {
@@ -62,10 +80,8 @@ public class ChatFormat {
                             );
                     }
 
-                    return Component.text("@" + flp.username)
-                        .color(flp.rank.nameColor())
-                        .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(flp, false)));
-                })
+                    return playerMention(flp);
+                }))
                 .build()
         );
     }
@@ -75,18 +91,18 @@ public class ChatFormat {
         return message.replaceText(
             TextReplacementConfig.builder()
                 .match(ITEM)
-                .replacement((result, input) -> {
+                .replacement((result, input) -> escapeOr(result.group(), text -> {
                     ItemStack item = sender.getEquipment().getItemInMainHand();
                     if (item.getType() == Material.AIR) {
                         item = sender.getEquipment().getItemInOffHand();
                     }
 
                     if (item.getType() == Material.AIR) {
-                        return Component.text(result.group());
+                        return Component.text(text);
                     }
 
                     return ComponentColor.aqua("[i] ").append(ComponentUtils.item(item));
-                })
+                }))
                 .build()
         );
     }
@@ -95,8 +111,25 @@ public class ChatFormat {
         return message.replaceText(
             TextReplacementConfig.builder()
                 .match(COMMAND)
-                .replacement((result, input) -> ComponentUtils.suggestCommand(result.group().replaceAll("`", "")))
+                .replacement((result, input) -> escapeOr(result.group(), text -> ComponentUtils.suggestCommand(text.replaceAll("`", ""))))
                 .build()
         );
+    }
+
+    /**
+     * Returns an escaped message if it starts with '\'
+     * @param message
+     * @param ifNotEscaped Method to run on input if string is not escaped
+     * @return Plain text component if not escaped, otherwise a component generated by ifNotEscaped function
+     */
+    public static Component escapeOr(String message, Function<String, Component> ifNotEscaped) {
+        return message.startsWith("\\") ? Component.text(message.substring(1)) : ifNotEscaped.apply(message);
+
+    }
+
+    public static Component playerMention(OfflineFLPlayer flp) {
+        return Component.text("@" + flp.username)
+            .color(flp.rank.nameColor())
+            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(flp, false)));
     }
 }

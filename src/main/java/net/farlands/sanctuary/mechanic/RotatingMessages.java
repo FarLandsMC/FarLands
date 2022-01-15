@@ -83,7 +83,7 @@ public class RotatingMessages extends Mechanic {
         }
 
         private Message(Predicate<OfflineFLPlayer> filter, String message) {
-            this(filter, MiniMessage.miniMessage().parse(message));
+            this(filter, MiniMessage.miniMessage().deserialize(message));
         }
 
         private void broadcast() {

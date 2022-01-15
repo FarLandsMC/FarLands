@@ -46,7 +46,11 @@ public class CommandRenameItem extends PlayerCommand {
         }
 
         ItemMeta meta = stack.getItemMeta();
-        meta.displayName(name.decoration(TextDecoration.ITALIC, false));
+        if(rawName.isBlank()) {
+            meta.displayName(null);
+        } else {
+            meta.displayName(name.decoration(TextDecoration.ITALIC, false));
+        }
         stack.setItemMeta(meta);
 
         if (sender.getGameMode() != GameMode.CREATIVE) {

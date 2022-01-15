@@ -326,7 +326,7 @@ public class DiscordHandler extends ListenerAdapter {
             return;
         }
         String bodyRaw = event.getMessage().getContentStripped();
-        message = MiniMessage.miniMessage().serialize(MarkdownProcessor.toMinecraft(message));
+        message = MiniMessage.miniMessage().serialize(MarkdownProcessor.toMinecraft(event.getMessage().getContentRaw()));
 
         if (
             bodyRaw.length() > 256 && // Message is too long for in-game chat and
@@ -395,7 +395,8 @@ public class DiscordHandler extends ListenerAdapter {
 
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
 
-        Component component = replacements(message, staffChat, flp);
+//        Component component = replacements(message, staffChat, flp);
+        Component component = MiniMessage.miniMessage().deserialize(message);
         Component censorComponent = MessageFilter.INSTANCE.censor(component);
 
         Component finalMessage = Component.text()
@@ -478,7 +479,7 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     private Component replacements(String message, boolean silent, OfflineFLPlayer flp) {
-        Component component = MiniMessage.miniMessage().parse(message);
+        Component component = MiniMessage.miniMessage().deserialize(message);
         component = ChatFormat.translatePings(component, flp, silent);
         component = ChatFormat.translateEmotes(component);
         component = ChatFormat.translateLinks(component);
