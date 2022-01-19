@@ -33,7 +33,6 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_18_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
@@ -43,11 +42,9 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Handles command registration, querying, and Discord command execution.
@@ -244,9 +241,9 @@ public class CommandHandler extends Mechanic {
         Command command = getCommand(commandName);
         // Ensure the command was sent in a channel where we accept commands
         if (
-                (!(command instanceof DiscordCommand)) &&
-                        FarLands.getDiscordHandler().getChannel(DiscordChannel.IN_GAME).getIdLong() != message.getChannel().getIdLong() &&
-                        FarLands.getDiscordHandler().getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() != message.getChannel().getIdLong()
+                (!(command instanceof DiscordCommand))
+                && DiscordChannel.IN_GAME.id() != message.getChannel().getIdLong()
+                && DiscordChannel.STAFF_COMMANDS.id() != message.getChannel().getIdLong()
         ) {
             return false;
         }
@@ -256,64 +253,44 @@ public class CommandHandler extends Mechanic {
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, sender.getName() + ": " + rawStringCommand);
 
         if (command == null) {
-            // Get the list of registered commands
-            Map<String, org.bukkit.command.Command> knownCommands = (Map<String, org.bukkit.command.Command>) ReflectionHelper.getFieldValue(
-                    "knownCommands",
-                    SimpleCommandMap.class,
-                    ((CraftServer) Bukkit.getServer()).getCommandMap()
-            );
 
             // Try to find a command
-            org.bukkit.command.Command bukkitCommand = knownCommands.get(commandName);
+            org.bukkit.command.Command bukkitCommand = Bukkit.getServer().getCommandMap().getCommand(commandName);
 
             // See if it's a vanilla command
             if (bukkitCommand instanceof VanillaCommandWrapper cmd) {
                 // Ensure the sender has permission
-                if (!cmd.testPermission(sender))
+                if (!cmd.testPermission(sender)) {
                     return false;
+                }
 
                 Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
                     MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
                     WorldServer world = NMSUtils.getWorldServer(server, World.f); // World.f = World.OVERWORLD
 
                     CommandListenerWrapper wrapper = new CommandListenerWrapper(
-                            sender,
-                            // Position
-                            world == null ? Vec3D.a : Vec3D.b(world.w()), // 0, 0, 0 or World Spawn
-                            Vec2F.a, // Rotation Vec2F.a = Vec2f.ORIGIN
-                            world, // World
-                            sender.isOp() ? 4 : 0, // Permission level
-                            // Name (required twice apparently)
-                            sender.getName(),
-                            new ChatComponentText(sender.getName()),
-                            server,
-                            null
+                        sender,
+                        // Position
+                        world == null ? Vec3D.a : Vec3D.b(world.w()), // 0, 0, 0 or World Spawn
+                        Vec2F.a, // Rotation Vec2F.a = Vec2f.ORIGIN
+                        world, // World
+                        sender.isOp() ? 4 : 0, // Permission level
+                        // Name (required twice apparently)
+                        sender.getName(),
+                        new ChatComponentText(sender.getName()),
+                        server,
+                        null
                     );
 
                     // Dispatcher for the command (thing that runs it)
-                    Object dispatcher = ReflectionHelper.getFieldValue(
-                            "dispatcher",
-                            VanillaCommandWrapper.class,
-                            bukkitCommand
-                    );
-
-                    // Method that actually sends the command to the dispatcher
-                    Method toDispatcher = ReflectionHelper.getMethod(
-                            "toDispatcher",
-                            VanillaCommandWrapper.class,
-                            String[].class,
-                            String.class
+                    CommandDispatcher dispatcher = (CommandDispatcher) ReflectionHelper.getFieldValue(
+                        "dispatcher",
+                        VanillaCommandWrapper.class,
+                        cmd
                     );
 
                     // Run the vanilla command
-                    ReflectionHelper.invoke(
-                            "a",
-                            CommandDispatcher.class,
-                            dispatcher,
-                            wrapper,
-                            ReflectionHelper.invoke(toDispatcher, bukkitCommand, args, bukkitCommand.getName()),
-                            ReflectionHelper.invoke(toDispatcher, bukkitCommand, args, commandName)
-                    );
+                    dispatcher.dispatchServerCommand(wrapper, rawStringCommand.substring(1));
                 });
 
                 return true;

@@ -1,5 +1,8 @@
 package net.farlands.sanctuary.discord;
 
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.farlands.sanctuary.FarLands;
+
 /**
  * All discord channels.
  */
@@ -19,4 +22,12 @@ public enum DiscordChannel {
     COMMAND_LOG;
 
     public static final DiscordChannel[] VALUES = values();
+
+    public long id() {
+        return this.getChannel().getIdLong();
+    }
+
+    public MessageChannel getChannel() {
+        return FarLands.getDiscordHandler().getChannel(this);
+    }
 }

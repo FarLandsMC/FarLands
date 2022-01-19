@@ -2,7 +2,9 @@ package net.farlands.sanctuary.gui;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.PlayerTrade;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
@@ -37,18 +39,18 @@ public class GuiTradepost extends Gui {
         int totalPages = totalPages();
 
         if (page < totalPages - 1)
-            addActionItem(53, Material.EMERALD_BLOCK, ChatColor.GOLD.toString() + ChatColor.BOLD + "Next", () -> changeInventory(1));
+            addActionItem(53, Material.EMERALD_BLOCK, ComponentColor.gold("Next").decorate(TextDecoration.BOLD), () -> changeInventory(1));
         else
-            addLabel(53, Material.REDSTONE_BLOCK, ChatColor.RED.toString() + ChatColor.BOLD + "No Next Page");
+            addLabel(53, Material.REDSTONE_BLOCK, ComponentColor.red("No Next Page").decorate(TextDecoration.BOLD));
 
         if (page > 0)
-            addActionItem(45, Material.EMERALD_BLOCK, ChatColor.GOLD.toString() + ChatColor.BOLD + "Previous", () -> changeInventory(-1));
+            addActionItem(45, Material.EMERALD_BLOCK, ComponentColor.gold("Previous").decorate(TextDecoration.BOLD), () -> changeInventory(-1));
         else
-            addLabel(45, Material.REDSTONE_BLOCK, ChatColor.RED.toString() + ChatColor.BOLD + "No Previous Page");
+            addLabel(45, Material.REDSTONE_BLOCK, ComponentColor.red("No Previous Page").decorate(TextDecoration.BOLD));
     }
 
-    private static String windowName(int page) {
-        return "Tradepost (Page " + (page + 1) + "/" + totalPages() + ")";
+    private static Component windowName(int page) {
+        return Component.text(String.format("Tradepost (Page %d/%d)", page + 1, totalPages()));
     }
 
     private static int totalPages() {

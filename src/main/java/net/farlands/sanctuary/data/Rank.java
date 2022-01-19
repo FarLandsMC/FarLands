@@ -23,26 +23,24 @@ import java.util.Arrays;
  * FarLands ranks.
  */
 public enum Rank {
+
     /* Player Ranks */
 
-    // symbol color playTimeRequired homes tpDelay shops wildCooldown
-    INITIATE ("Initiate", NamedTextColor.GRAY, 0, 1, 7, 0, 3),
+    // symbol color playTimeRequired homes tpDelay shops wildCooldown [advancement]
+    INITIATE ("Initiate", NamedTextColor.GRAY,         0,   1,  7, 0,  3                                            ),
+    BARD     ("Bard",     NamedTextColor.YELLOW,       3,   3,  6, 2,  18, "story/mine_diamond"         ),
+    ESQUIRE  ("Esquire",  NamedTextColor.DARK_GREEN,   12,  5,  6, 5,  15, "story/enchant_item"         ),
+    KNIGHT   ("Knight",   NamedTextColor.GOLD,         24,  8,  5, 10, 12, "nether/get_wither_skull"    ),
+    SAGE     ("Sage",     NamedTextColor.AQUA,         72,  10, 5, 15, 9,  "end/find_end_city"          ),
+    ADEPT    ("Adept",    NamedTextColor.GREEN,        144, 12, 4, 20, 8,  "adventure/totem_of_undying" ),
+    SCHOLAR  ("Scholar",  NamedTextColor.BLUE,         240, 16, 3, 30, 7,  "adventure/adventuring_time" ),
 
-    // symbol color playTimeRequired totalVotesRequired homes tpDelay shops wildCooldown advancement
-    BARD     ("Bard",     NamedTextColor.YELLOW,     3,   3,  6, 2,  18, "story/mine_diamond"         ),
-    ESQUIRE  ("Esquire",  NamedTextColor.DARK_GREEN, 12,  5,  6, 5,  15, "story/enchant_item"         ),
-    KNIGHT   ("Knight",   NamedTextColor.GOLD,       24,  8,  5, 10, 12, "nether/get_wither_skull"    ),
-    SAGE     ("Sage",     NamedTextColor.AQUA,       72,  10, 5, 15, 9,  "end/find_end_city"          ),
-    ADEPT    ("Adept",    NamedTextColor.GREEN,      144, 12, 4, 20, 8,  "adventure/totem_of_undying" ),
-    SCHOLAR  ("Scholar",  NamedTextColor.BLUE,       240, 16, 3, 30, 7,  "adventure/adventuring_time" ),
-
-    // symbol color playTimeRequired homes tpDelay shops wildCooldown
-    VOTER    ("Voter",    NamedTextColor.LIGHT_PURPLE, -1, 16, 3, 30, 7 ), // Same as Scholar
-    BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1, 16, 3, 30, 7 ),
-    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1, 24, 2, 40, 6 ),
-    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1, 32, 0, 50, 3 ),
-    SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1, 40, 0, 50, 1 ),
-    MEDIA    ("Media",    NamedTextColor.YELLOW,       -1, 40, 0, 50, 1 ), // Same as Sponsor
+    VOTER    ("Voter",    NamedTextColor.LIGHT_PURPLE, -1,  16, 3, 30, 7 ), // Same as Scholar
+    BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1,  16, 3, 30, 7 ),
+    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1,  24, 2, 40, 6 ),
+    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1,  32, 0, 50, 3 ),
+    SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1,  40, 0, 50, 1 ),
+    MEDIA    ("Media",    NamedTextColor.YELLOW,       -1,  40, 0, 50, 1 ), // Same as Sponsor
 
     /* Staff Ranks */
 

@@ -1,12 +1,11 @@
 package net.farlands.sanctuary.gui;
 
 import com.kicas.rp.util.Pair;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -29,7 +28,7 @@ public abstract class Gui {
     protected Player user;
     private boolean ignoreClose;
 
-    protected Gui(String guiName, String displayName, int size) {
+    protected Gui(String guiName, Component displayName, int size) {
         this.guiName = guiName;
         this.clickActions = new HashMap<>();
         this.inv = Bukkit.createInventory(null, size, displayName);
@@ -54,32 +53,33 @@ public abstract class Gui {
         FarLands.getGuiHandler().registerActiveGui(this);
     }
 
-    protected void setItem(int slot, Material material, String name, String... lore) {
+    protected void setItem(int slot, Material material, Component name, Component... lore) {
         ItemStack stack = new ItemStack(material);
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatColor.RESET + name + ChatColor.RESET);
-        meta.setLore(Arrays.asList(lore));
+        meta.displayName(Component.empty().decoration(TextDecoration.ITALIC, false).append(name));
+        meta.lore(Arrays.asList(lore));
         stack.setItemMeta(meta);
         inv.setItem(slot, stack);
     }
 
-    protected void setLore(int slot, String... lore) {
+    protected void setLore(int slot, Component... lore) {
         ItemStack stack = inv.getItem(slot);
+        if (stack == null) return; // Don't set the lore if there's nothing there.
         ItemMeta meta = stack.getItemMeta();
-        meta.setLore(Arrays.asList(lore));
+        meta.lore(Arrays.asList(lore));
         stack.setItemMeta(meta);
     }
 
-    protected void addActionItem(int slot, Material material, String name, Runnable action, boolean rightClickOnly, String... lore) {
+    protected void addActionItem(int slot, Material material, Component name, Runnable action, boolean rightClickOnly, Component... lore) {
         setItem(slot, material, name, lore);
         clickActions.put(slot, new Pair<>(action == null ? FLUtils.NO_ACTION : action, rightClickOnly));
     }
 
-    protected void addActionItem(int slot, Material material, String name, Runnable action, String... lore) {
+    protected void addActionItem(int slot, Material material, Component name, Runnable action, Component... lore) {
         addActionItem(slot, material, name, action, false, lore);
     }
 
-    protected void addLabel(int slot, Material material, String name, String... lore) {
+    protected void addLabel(int slot, Material material, Component name, Component... lore) {
         addActionItem(slot, material, name, FLUtils.NO_ACTION, lore);
     }
 
@@ -92,7 +92,7 @@ public abstract class Gui {
         addActionItem(slot, stack, action, false);
     }
 
-    protected void newInventory(int size, String displayName) {
+    protected void newInventory(int size, Component displayName) {
         ignoreClose = true;
         user.closeInventory();
         inv = Bukkit.createInventory(null, size, displayName);

@@ -25,7 +25,7 @@ public class ChatFormat {
     private static final Pattern PING = Pattern.compile("(?i)\\\\?@[a-z_\\d]{3,}");
     private static final Pattern ITEM = Pattern.compile("(?i)\\\\?\\[i(tem)?]");
     private static final Pattern COMMAND = Pattern.compile("(?i)\\\\?`/[^`]+`");
-    private static final @Language("RegExp") String EMOTE = "(?i)\\\\?%EMOTE%"; // %EMOTE% gets replaced with the emote name
+    private static final @Language("RegExp") String EMOTE = "(?i)\\\\?:%EMOTE%:"; // %EMOTE% gets replaced with the emote name
 
     public static Component translateAll(Component component, OfflineFLPlayer sender) {
         component = ChatFormat.translateEmotes(component); // :shrug: -> ¯\_(ツ)_/¯

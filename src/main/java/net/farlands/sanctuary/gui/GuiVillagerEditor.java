@@ -1,7 +1,8 @@
 package net.farlands.sanctuary.gui;
 
 import net.farlands.sanctuary.FarLands;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftVillager;
 import org.bukkit.entity.Villager;
@@ -24,7 +25,7 @@ public class GuiVillagerEditor extends Gui {
     private final List<List<ItemStack>> screens;
     private int screen;
 
-    private static final String[] SCREEN_NAMES = {"Trades Page 1", "Trades Page 2", "Trades Page 3", "Trades Page 4", "Settings"};
+    private static final String[] SCREEN_NAMES = { "Trades Page 1", "Trades Page 2", "Trades Page 3", "Trades Page 4", "Settings" };
 
     private void init() {
         // This is important
@@ -49,7 +50,7 @@ public class GuiVillagerEditor extends Gui {
     }
 
     public GuiVillagerEditor(CraftVillager villager) {
-        super("Villager Editor", SCREEN_NAMES[0], 54);
+        super("Villager Editor", Component.text(SCREEN_NAMES[0]), 54);
         this.villager = villager;
         this.screens = new ArrayList<>();
         this.screen = 0;
@@ -60,9 +61,9 @@ public class GuiVillagerEditor extends Gui {
         saveScreen();
         screen = newScreen;
         if (screen == screens.size())
-            newInventory(27, SCREEN_NAMES[SCREEN_NAMES.length - 1]);
+            newInventory(27, Component.text(SCREEN_NAMES[SCREEN_NAMES.length - 1]));
         else
-            newInventory(54, SCREEN_NAMES[newScreen]);
+            newInventory(54, Component.text(SCREEN_NAMES[newScreen]));
     }
 
     @Override
@@ -70,48 +71,50 @@ public class GuiVillagerEditor extends Gui {
         int size = inv.getSize();
 
         // Add the screen changers
-        addActionItem(size - 9, Material.DIAMOND, ChatColor.GOLD + SCREEN_NAMES[0], () -> changeScreen(0));
-        addActionItem(size - 7, Material.EMERALD, ChatColor.GOLD + SCREEN_NAMES[1], () -> changeScreen(1));
-        addActionItem(size - 5, Material.GOLD_INGOT, ChatColor.GOLD + SCREEN_NAMES[2], () -> changeScreen(2));
-        addActionItem(size - 3, Material.IRON_INGOT, ChatColor.GOLD + SCREEN_NAMES[3], () -> changeScreen(3));
-        addActionItem(size - 1, Material.PAPER, ChatColor.GOLD + SCREEN_NAMES[4], () -> changeScreen(screens.size()));
+        addActionItem(size - 9, Material.DIAMOND,    ComponentColor.gold(SCREEN_NAMES[0]), () -> changeScreen(0));
+        addActionItem(size - 7, Material.EMERALD,    ComponentColor.gold(SCREEN_NAMES[1]), () -> changeScreen(1));
+        addActionItem(size - 5, Material.GOLD_INGOT, ComponentColor.gold(SCREEN_NAMES[2]), () -> changeScreen(2));
+        addActionItem(size - 3, Material.IRON_INGOT, ComponentColor.gold(SCREEN_NAMES[3]), () -> changeScreen(3));
+        addActionItem(size - 1, Material.PAPER,      ComponentColor.gold(SCREEN_NAMES[4]), () -> changeScreen(screens.size()));
 
         if (screen == screens.size()) { // Settings
             // Profession options
-            addActionItem(0, Material.WHEAT, ChatColor.GOLD + "Farmer", () -> villager.setProfession(FARMER));
-            addActionItem(1, Material.ENCHANTED_BOOK, ChatColor.GOLD + "Librarian", () -> villager.setProfession(LIBRARIAN));
-            addActionItem(2, Material.EXPERIENCE_BOTTLE, ChatColor.GOLD + "Priest", () -> villager.setProfession(CLERIC));
-            addActionItem(3, Material.CHAINMAIL_CHESTPLATE, ChatColor.GOLD + "Armorer", () -> villager.setProfession(ARMORER));
-            addActionItem(4, Material.IRON_SWORD, ChatColor.GOLD + "Blacksmith", () -> villager.setProfession(WEAPONSMITH));
-            addActionItem(5, Material.BRICK, ChatColor.GOLD + "Mason", () -> villager.setProfession(MASON));
-            addActionItem(6, Material.PORKCHOP, ChatColor.GOLD + "Butcher", () -> villager.setProfession(BUTCHER));
-            addActionItem(7, Material.LEATHER, ChatColor.GOLD + "Leatherworker", () -> villager.setProfession(LEATHERWORKER));
-            addActionItem(8, Material.DIRT, ChatColor.GOLD + "Nitwit", () -> villager.setProfession(NITWIT));
+            addActionItem(0, Material.WHEAT, ComponentColor.gold("Farmer"), () -> villager.setProfession(FARMER));
+            addActionItem(1, Material.ENCHANTED_BOOK, ComponentColor.gold("Librarian"), () -> villager.setProfession(LIBRARIAN));
+            addActionItem(2, Material.EXPERIENCE_BOTTLE, ComponentColor.gold("Priest"), () -> villager.setProfession(CLERIC));
+            addActionItem(3, Material.CHAINMAIL_CHESTPLATE, ComponentColor.gold("Armorer"), () -> villager.setProfession(ARMORER));
+            addActionItem(4, Material.IRON_SWORD, ComponentColor.gold("Blacksmith"), () -> villager.setProfession(WEAPONSMITH));
+            addActionItem(5, Material.BRICK, ComponentColor.gold("Mason"), () -> villager.setProfession(MASON));
+            addActionItem(6, Material.PORKCHOP, ComponentColor.gold("Butcher"), () -> villager.setProfession(BUTCHER));
+            addActionItem(7, Material.LEATHER, ComponentColor.gold("Leatherworker"), () -> villager.setProfession(LEATHERWORKER));
+            addActionItem(8, Material.DIRT, ComponentColor.gold("Nitwit"), () -> villager.setProfession(NITWIT));
 
             // Other settings
-            addActionItem(9, Material.MAP, ChatColor.GOLD + "No AI", () -> {
+            addActionItem(9, Material.MAP, ComponentColor.gold("No AI"), () -> {
                 villager.setAI(!villager.hasAI());
-                setLore(9, "Value: " + !villager.hasAI());
-            }, "Value: " + !villager.hasAI());
-            addActionItem(10, Material.ELYTRA, ChatColor.GOLD + "No Gravity", () -> {
+                setLore(9, Component.text("Value: " + !villager.hasAI()));
+            }, Component.text("Value: " + !villager.hasAI()));
+
+            addActionItem(10, Material.ELYTRA, ComponentColor.gold("No Gravity"), () -> {
                 villager.setGravity(!villager.hasGravity());
-                setLore(10, "Value: " + !villager.hasGravity());
-            }, "Value: " + !villager.hasGravity());
-            addActionItem(11, Material.GLASS, ChatColor.GOLD + "Invisible", () -> {
+                setLore(10, Component.text("Value: " + !villager.hasGravity()));
+            }, Component.text("Value: " + !villager.hasGravity()));
+
+            addActionItem(11, Material.GLASS, ComponentColor.gold("Invisible"), () -> {
                 if (villager.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
                     villager.removePotionEffect(PotionEffectType.INVISIBILITY);
-                    setLore(11, "Value: false");
+                    setLore(11, Component.text("Value: false"));
                 } else {
-                    villager.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false), true);
-                    setLore(11, "Value: true");
+                    villager.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
+                    setLore(11, Component.text("Value: true"));
                 }
-            }, "Value: " + villager.hasPotionEffect(PotionEffectType.INVISIBILITY));
+            }, Component.text("Value: " + villager.hasPotionEffect(PotionEffectType.INVISIBILITY)));
         } else {
             // Add the labels at the top
             for (int i = 0; i < 9; i += 3) {
-                addLabel(i, Material.DIAMOND, ChatColor.BLUE + "Buy 1");
-                addLabel(i + 1, Material.DIAMOND, ChatColor.BLUE + "Buy 2");
-                addLabel(i + 2, Material.LEATHER_HELMET, ChatColor.BLUE + "Sell", "Right-click the sold item for a trade", "to remove that trade.");
+                addLabel(i, Material.DIAMOND, ComponentColor.blue("Buy 1"));
+                addLabel(i + 1, Material.DIAMOND, ComponentColor.blue("Buy 2"));
+                addLabel(i + 2, Material.LEATHER_HELMET, ComponentColor.blue("Sell"), Component.text("Right-click the sold item for a trade"), Component.text("to remove that trade."));
             }
             // Add the trade items to the window
             populateTrades(screens.get(screen));

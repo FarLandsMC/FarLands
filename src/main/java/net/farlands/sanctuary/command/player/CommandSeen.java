@@ -1,22 +1,19 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.TimeInterval;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -25,6 +22,8 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandSeen extends Command {
     public CommandSeen() {
@@ -52,9 +51,11 @@ public class CommandSeen extends Command {
         sb.append("&(gold)Last Seen: &(aqua)").append(TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false));
 
         // Test to see if this command isn't in #in-game essentially; make sure punishment info is private
-        if (sender instanceof DiscordSender && ((DiscordSender) sender).getChannel().getIdLong() ==
-                FarLands.getFLConfig().discordBotConfig.channels.get(DiscordChannel.STAFF_COMMANDS) ||
-                sender instanceof Player && rank.isStaff() || sender instanceof ConsoleCommandSender) {
+        if (
+            sender instanceof DiscordSender && ((DiscordSender) sender).getChannel().getIdLong() == FarLands.getFLConfig().discordBotConfig.channels.get(DiscordChannel.STAFF_COMMANDS)
+            || sender instanceof Player && rank.isStaff()
+            || sender instanceof ConsoleCommandSender
+        ) {
             cb.append(Component.text("\nMuted: "))
                 .append(ComponentColor.aqua(flp.isMuted() + ""));
 
@@ -63,7 +64,7 @@ public class CommandSeen extends Command {
                 int hourIndex = 0;
                 cb.append(Component.text("Punishments: "));
                 for (Punishment p : flp.punishments) {
-                    cb.append(Component.text("\n - " + p.toFormattedString(hourIndex)));
+                    cb.append(Component.text("\n - " + ComponentUtils.toText(p.asComponent(hourIndex))));
                     if(validPunishments.contains(p))
                         ++hourIndex;
                 }

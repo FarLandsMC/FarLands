@@ -7,6 +7,7 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
@@ -45,10 +46,11 @@ public class CommandStats extends Command {
                 Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, false, true);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("`" + flp.username + "`'s stats")
-                    .setColor(flp.getDisplayRank().getColor().getColor());
+                    .setColor(flp.getDisplayRank().color().value());
                 for (PlayerStat stat : PlayerStat.values()) {
                     Object value = playerInfoMap.getOrDefault(stat, "");
                     String str = (value instanceof Component c) ? ComponentUtils.toText(c) : value.toString();
+                    str = MarkdownProcessor.removeChatColor(str);
                     if (!str.isEmpty()) {
                         embedBuilder.addField(stat.humanName, str, false);
                     }
@@ -63,7 +65,7 @@ public class CommandStats extends Command {
                 }
 
 
-                ((DiscordSender) sender).getChannel().sendMessage(embedBuilder.build()).queue();
+                ((DiscordSender) sender).getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
             } else {
                 sender.sendMessage(getFormattedStats(flp, isPersonal && sender instanceof Player));
             }

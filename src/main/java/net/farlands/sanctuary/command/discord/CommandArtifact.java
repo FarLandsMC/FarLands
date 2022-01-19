@@ -32,12 +32,12 @@ public class CommandArtifact extends DiscordCommand {
             return true;
 
         if (!(sender instanceof DiscordSender)) {
-            sender.sendMessage(ComponentColor.red("This command must be used from Discord."));
+            error(sender, "This command must be used from Discord.");
             return false;
         }
 
         if (FarLands.getFLConfig().isScreenSessionNotSet()) {
-            sender.sendMessage("The screen session for this server instance is not specified. This command requires that field to run.");
+            error(sender, "The screen session for this server instance is not specified.  This command requires that field to run.");
             return true;
         }
 

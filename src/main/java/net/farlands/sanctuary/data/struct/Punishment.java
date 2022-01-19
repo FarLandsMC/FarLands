@@ -2,7 +2,9 @@ package net.farlands.sanctuary.data.struct;
 
 import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
+import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 
 import java.text.SimpleDateFormat;
@@ -119,16 +121,17 @@ public final class Punishment {
      * @param index The punishment #
      * @return String formatted with ChatColors
      */
-    public String toFormattedString(int index) {
-        String suffix = null;
-        if (pardoned)
-            suffix = ChatColor.GREEN + "[Pardoned]";
-        if (isActive(index) && suffix == null)
-            suffix = ChatColor.RED + "[Active]";
+    public Component asComponent(int index) {
+        Component suffix = Component.empty();
+        if (pardoned) {
+            suffix = ComponentColor.green("[Pardoned]");
+        } else if (isActive(index)) {
+            suffix = ComponentColor.red("[Active]");
+        }
 
-        return ChatColor.GOLD + punishmentType.getHumanName() +
-                ChatColor.AQUA + " (" + SDF.format(new Date(dateIssued)) + ")" +
-                ChatColor.GREEN + " " + (suffix == null ? "" : suffix);
+        return ComponentColor.gold(punishmentType.getHumanName() + " ")
+            .append(ComponentColor.aqua("(%s)", SDF.format(new Date(dateIssued))))
+            .append(suffix);
     }
 
     public enum PunishmentType {
