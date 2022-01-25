@@ -1,15 +1,17 @@
 package net.farlands.sanctuary.command.discord;
 
 import com.kicas.rp.util.Pair;
-
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -18,11 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandVerify extends DiscordCommand {
     private final Map<UUID, Pair<DiscordSender, Long>> verificationMap;
-    private static final long VERIFICATION_EXPIRATION_TIME = 2L * 60L * 1000L;
+    private static final long VERIFICATION_EXPIRATION_TIME = 2L * 60L * 1000L; // 2min * 60sec * 1000ms
 
     public CommandVerify() {
         super(Rank.INITIATE, Category.MISCELLANEOUS, "Links your discord account to your Minecraft account.", "/verify <inGameName>", "verify");
@@ -38,28 +38,44 @@ public class CommandVerify extends DiscordCommand {
             flp.updateDiscord();
 
             if (flp.isDiscordVerified())
-                sendFormatted(sender, "&(green)Successfully manually verified %0.", args[0]);
+                success(sender, "Successfully manually verified %s.", args[0]);
             else
-                sendFormatted(sender, "&(red)Manual verification failed. Are you sure you copied the discord ID correctly?");
+                error(sender, "Manual verification failed. Are you sure you copied the discord ID correctly?");
 
             return true;
         }
 
         // From discord
-        if (sender instanceof DiscordSender) {
+        if (sender instanceof DiscordSender ds) {
             if (args.length == 0)
                 return false;
 
             Player player = getPlayer(args[0], sender);
             if (player == null) {
-                sender.sendMessage("Please log on to our server then run the command again.");
+                // Player not online
+                ds.getChannel().sendMessageEmbeds(
+                    new EmbedBuilder()
+                        .setTitle("Please log onto our server and run the command again.")
+                        .setDescription("**Server IP:** `farlandsmc.net`")
+                        .setColor(NamedTextColor.GOLD.value())
+                        .build()
+                ).queue();
                 return true;
             }
 
             // Check if they have a verification pending
-            if (verificationMap.containsKey(player.getUniqueId()) && System.currentTimeMillis() -
-                    verificationMap.get(player.getUniqueId()).getSecond() < VERIFICATION_EXPIRATION_TIME) {
-                sender.sendMessage("This player already has a verification pending. Make sure to run /verify in-game to complete your verification.");
+            if (
+                verificationMap.containsKey(player.getUniqueId())
+                && System.currentTimeMillis() - verificationMap.get(player.getUniqueId()).getSecond() < VERIFICATION_EXPIRATION_TIME
+            ) {
+                // Verification is already pending
+                ds.getChannel().sendMessageEmbeds(
+                    new EmbedBuilder()
+                        .setTitle("This player already has a verification pending.")
+                        .setDescription("Make sure to run `/verify` in-game to complete your verification.")
+                        .setColor(NamedTextColor.RED.value())
+                        .build()
+                ).queue();
                 return true;
             }
 
@@ -69,16 +85,34 @@ public class CommandVerify extends DiscordCommand {
                     new Pair<>((DiscordSender) sender, System.currentTimeMillis())
             );
 
-            sendFormatted(player, "&(gold)Type {&(aqua)/verify} in-game to verify your account.");
+            // Message the player on Discord
+            ds.getChannel().sendMessageEmbeds(
+                new EmbedBuilder()
+                    .setTitle("Verification pending.")
+                    .setDescription("Please run `/verify` in-game to complete the verification.")
+                    .setColor(NamedTextColor.GREEN.value())
+                    .build()
+            ).queue();
+
+            // Message the player in-game
+            player.sendMessage(
+                ComponentColor.gold("Type ")
+                    .append(ComponentUtils.suggestCommand("/verify"))
+                    .append(ComponentColor.gold(" to verify your account."))
+            );
             player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 5.0F, 1.0F);
-        } else if (sender instanceof Player) { // From in-game
-            Player player = (Player) sender;
+        } else if (sender instanceof Player player) { // From in-game
 
             Pair<DiscordSender, Long> data = verificationMap.remove(player.getUniqueId());
             // Check if they have a verification pending
             if (data == null || System.currentTimeMillis() - data.getSecond() > VERIFICATION_EXPIRATION_TIME) {
-                sendFormatted(sender, "&(red)You have no verification pending. Did you type " +
-                        "{&(gold)/verify %0} in our discord server yet?", sender.getName());
+                player.sendMessage(
+                    ComponentColor.red("You have no verification pending. Have you run ")
+                        .append(ComponentColor.gold("/verify %s", sender.getName()))
+                        .append(ComponentColor.red(" in our "))
+                        .append(ComponentUtils.command("/discord", ComponentColor.aqua("Discord")))
+                        .append(ComponentColor.red(" server yet?"))
+                );
                 return true;
             }
 
@@ -88,11 +122,19 @@ public class CommandVerify extends DiscordCommand {
             flp.updateDiscord();
 
             // Tell them that they're verified
-            sendFormatted(player, "&(green)Account verified!");
+            success(player, "Account verified!");
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
-            data.getFirst().sendMessage("Account verified!");
-        } else
-            sender.sendMessage(ChatColor.RED + "You must use this command from in-game or discord.");
+            data.getFirst().getChannel().sendMessageEmbeds(
+                new EmbedBuilder()
+                    .setTitle("Account verified!")
+                    .setThumbnail(FLUtils.getHeadUrl(flp))
+                    .setColor(NamedTextColor.GREEN.value())
+                    .build()
+            ).queue();
+        } else {
+
+            error(sender, "You must use this command from in-game or discord.");
+        }
 
         return true;
     }

@@ -41,10 +41,7 @@ import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
@@ -53,7 +50,9 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
  * Handles events related to plugin restrictions.
  */
 public class Restrictions extends Mechanic {
-    private final HashSet<UUID> endWarnings = new HashSet<>();
+
+    private final Set<UUID> endWarnings        = new HashSet<>();
+    public final  Set<UUID> mediaFlyProtection = new HashSet<>();
 
     @Override
     public void onStartup() {
@@ -339,10 +338,35 @@ public class Restrictions extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
         Location to = event.getTo();
-        int max = (int)to.getWorld().getWorldBorder().getSize() >> 1; // size / 2 (rounded down)
+        int max = (int) to.getWorld().getWorldBorder().getSize() / 2;
         if (Math.abs(to.getX()) > max || Math.abs(to.getZ()) > max) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot leave the world.");
+        }
+
+        // ------------------------
+        // Media flight restriction
+        // ------------------------
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
+        if (flp.rank == Rank.MEDIA) {
+            if (!event.getPlayer().isFlying()) {
+                mediaFlyProtection.remove(flp.uuid); // remove the temp protection if they stop flying
+            }
+            if (
+                event.getPlayer().isFlying()
+                && !FLUtils.canMediaFly(event.getPlayer(), event.getTo()) // Check if the player can fly in the given location
+            ) {
+                Region rgFrom = RegionProtection.getDataManager().getHighestPriorityRegionAt(event.getFrom());
+                if (rgFrom != null && rgFrom.isOwner(flp.uuid)) { // Leaving a region they own
+                    event.getPlayer().sendMessage(ComponentColor.red("Flight is disabled outside of claims that you own. Flight stopping in 5 seconds."));
+                    mediaFlyProtection.add(flp.uuid); // Add them to the temp protection list
+                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                        mediaFlyProtection.remove(flp.uuid);
+                        FarLands.getDataHandler().getSession(event.getPlayer()).giveFallImmunity(5); // Give time to fall if they're really high up
+                    }, 5 * 20L);
+                }
+            }
+
         }
     }
 

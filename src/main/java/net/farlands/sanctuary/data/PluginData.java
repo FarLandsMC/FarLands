@@ -2,8 +2,8 @@ package net.farlands.sanctuary.data;
 
 import net.farlands.sanctuary.data.struct.PlayerTrade;
 import net.farlands.sanctuary.data.struct.Proposal;
-import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.LocationWrapper;
 import org.bukkit.Location;
 
 import java.util.*;

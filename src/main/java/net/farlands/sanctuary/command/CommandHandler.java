@@ -462,11 +462,18 @@ public class CommandHandler extends Mechanic {
         );
     }
 
+    private final List<Class<? extends Command>> commandExcludes = List.of(
+        CommandPropose.class,
+        CommandKick.class,
+        CommandMute.class,
+        CommandPunish.class,
+        CommandStaffChat.class,
+        CommandSetRank.class,
+        CommandJS.class
+    );
+
     private boolean shouldLog(Command command) {
         return command == null || command.getMinRankRequirement().specialCompareTo(Rank.MEDIA) >= 0 &&
-                !(command instanceof CommandPropose || command instanceof CommandKick ||
-                        command instanceof CommandMute || command instanceof CommandPunish ||
-                        command instanceof CommandStaffChat || command instanceof CommandSetRank ||
-                        command instanceof CommandJS);
+                !commandExcludes.contains(command.getClass());
     }
 }

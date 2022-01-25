@@ -56,11 +56,9 @@ public class CommandStats extends Command {
                     }
                 }
 
-                String textureUrl = FLUtils.getSkinUrl(flp);
+                String headUrl = FLUtils.getHeadUrl(flp);
 
-                if (textureUrl != null) {
-                    String headUrl = "https://minecraft-heads.com/scripts/3d-head.php?hrh=00&aa=true&headOnly=true&ratio=6&imageUrl=" +
-                        textureUrl.substring(textureUrl.lastIndexOf('/') + 1);
+                if (headUrl != null) {
                     embedBuilder.setThumbnail(headUrl);
                 }
 

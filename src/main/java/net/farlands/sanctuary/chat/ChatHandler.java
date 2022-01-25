@@ -216,8 +216,8 @@ public class ChatHandler {
     private static boolean handleCensor(Player player, OfflineFLPlayer sender, String message) {
         if (sender.rank.isStaff()) return false;
         if (MessageFilter.INSTANCE.autoCensor(message)) {
-            boolean alertPlayer = sender.secondsPlayed < 60 * 15;
-            if (alertPlayer) { // Less than 15 minutes of playtime
+            boolean alertPlayer = sender.secondsPlayed > 60 * 15;
+            if (alertPlayer) { // More than 15 minutes of playtime
                 player.sendMessage(
                     ComponentColor.red(
                         "Your message has not been sent, because it may contain messages or phrases offensive to some"

@@ -10,6 +10,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.kicas.rp.RegionProtection;
+import com.kicas.rp.data.Region;
+import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.ReflectionHelper;
 import com.kicas.rp.util.TextUtils2;
@@ -17,6 +20,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandShrug;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.mechanic.Restrictions;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.chat.ChatClickable;
@@ -80,6 +84,13 @@ public final class FLUtils {
         .build();
 
     private FLUtils() { }
+
+    public static String getHeadUrl(OfflineFLPlayer flp) {
+        String skinTexture = FLUtils.getSkinUrl(flp);
+        return skinTexture != null
+            ? "https://minecraft-heads.com/scripts/3d-head.php?hrh=00&aa=true&headOnly=true&ratio=6&imageUrl=" + skinTexture.substring(skinTexture.lastIndexOf('/') + 1)
+            : null;
+    }
 
     public static String getSkinUrl(OfflineFLPlayer flp) {
         try {
@@ -688,5 +699,22 @@ public final class FLUtils {
 
     public static String toSimpleString(Location location) {
         return String.format("%s - %s %s %s", WORLD_NAMES.getOrDefault(location.getWorld().getName(), "Unknown"), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
+    public static boolean canMediaFly(Player player) {
+        return canMediaFly(player, player.getLocation());
+    }
+
+    public static boolean canMediaFly(Player player, Location loc) {
+        Region rg = RegionProtection.getDataManager().getHighestPriorityRegionAt(loc);
+        return rg != null
+               && (
+                   rg.isOwner(player.getUniqueId())
+                   || rg.isAllowed(RegionFlag.FLIGHT)
+               )
+               || FarLands.getMechanicHandler()
+                   .getMechanic(Restrictions.class)
+                   .mediaFlyProtection
+                   .contains(player.getUniqueId());
     }
 }

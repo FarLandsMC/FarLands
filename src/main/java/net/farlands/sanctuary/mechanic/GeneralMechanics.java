@@ -463,8 +463,12 @@ public class GeneralMechanics extends Mechanic {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDamaged(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
-            FarLands.getDataHandler().getSession((Player) event.getEntity()).unsit();
+        if (event.getEntity() instanceof Player player) {
+            FLPlayerSession session = FarLands.getDataHandler().getSession(player);
+            session.unsit();
+            if (event.getCause() == EntityDamageEvent.DamageCause.FALL && session.fallDamageImmune) {
+                event.setCancelled(true);
+            }
         }
     }
 

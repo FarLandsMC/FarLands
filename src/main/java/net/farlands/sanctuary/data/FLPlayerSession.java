@@ -45,6 +45,7 @@ public class FLPlayerSession {
     public boolean showStaffChat;
     public boolean autoSendStaffChat;
     public boolean isInEvent;
+    public boolean fallDamageImmune;
     public CommandSender replyToggleRecipient;
     public Location seatExit;
     public TeleportRequest outgoingTeleportRequest;
@@ -82,6 +83,7 @@ public class FLPlayerSession {
         this.showStaffChat = true;
         this.autoSendStaffChat = false;
         this.isInEvent = false;
+        this.fallDamageImmune = false;
         this.replyToggleRecipient = null;
         this.seatExit = null;
         this.outgoingTeleportRequest = null;
@@ -117,6 +119,7 @@ public class FLPlayerSession {
         this.showStaffChat = cached.showStaffChat;
         this.autoSendStaffChat = cached.autoSendStaffChat;
         this.isInEvent = cached.isInEvent;
+        this.fallDamageImmune = false;
         this.replyToggleRecipient = cached.replyToggleRecipient;
         this.seatExit = null;
         this.outgoingTeleportRequest = null;
@@ -226,6 +229,10 @@ public class FLPlayerSession {
             if (handle.rank != Rank.MEDIA) {
                 flying = false;
                 handle.vanished = false;
+            } else {
+                if(!FLUtils.canMediaFly(player)) {
+                    flying = false;
+                }
             }
         }
         if (!handle.rank.isStaff() && (
@@ -238,8 +245,11 @@ public class FLPlayerSession {
         if (flags != null && flags.hasFlag(RegionFlag.FLIGHT) && flags.isAllowed(RegionFlag.FLIGHT)) {
             flying = true;
         }
-        player.setAllowFlight(flying || GameMode.CREATIVE.equals(player.getGameMode()) ||
-                              GameMode.SPECTATOR.equals(player.getGameMode()));
+        player.setAllowFlight(
+            flying
+            || GameMode.CREATIVE.equals(player.getGameMode())
+            || GameMode.SPECTATOR.equals(player.getGameMode())
+        );
 
         Toggles.hidePlayers(player);
 
@@ -490,5 +500,15 @@ public class FLPlayerSession {
             afkMessages.clear();
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
         }
+    }
+
+    public void giveFallImmunity(int seconds) {
+        boolean prevState = this.fallDamageImmune;
+        this.fallDamageImmune = true;
+        Bukkit.getScheduler().runTaskLater(
+            FarLands.getInstance(),
+            () -> this.fallDamageImmune = prevState,
+            seconds * 20L
+        );
     }
 }
