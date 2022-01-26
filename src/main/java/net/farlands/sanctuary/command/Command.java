@@ -4,7 +4,6 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -23,31 +22,46 @@ import java.util.stream.Stream;
  * Base class for all plugin commands.
  */
 public abstract class Command extends org.bukkit.command.Command {
-    protected static final List<String> TRUE_OR_FALSE = Arrays.asList("true", "false");
+    protected final CommandConfig config;
 
-    protected final List<String> aliases;
-    protected final Rank minimumRankRequirement;
-    protected final boolean requiresAlias; // Whether we should pass the alias in the arguments
-    protected final Category category;
-
-    protected Command(Rank minRank, Category category, String description, String usage, boolean requiresAlias,
-                      String name, String... aliases) {
-        super(name, description, usage, Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList()));
-        this.aliases = Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList());
-        this.minimumRankRequirement = minRank;
-        this.requiresAlias = requiresAlias;
-        this.category = category;
+    protected Command(CommandConfig config) {
+        super(config.name, config.description, config.usage, config.aliasesList());
+        this.config = config;
     }
 
+    @Deprecated
+    protected Command(Rank minRank, Category category, String description, String usage, boolean requiresAlias, String name, String... aliases) {
+        super(name, description, usage, Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList()));
+        this.config = CommandConfig
+            .builder()
+            .name(name)
+            .description(description)
+            .category(category)
+            .usage(usage)
+            .requirement(
+                CommandRequirement
+                    .builder()
+                    .rank(minRank)
+                    .build()
+            )
+            .aliases(aliases);
+        if(requiresAlias) {
+            this.config.requireAlias();
+        }
+    }
+
+    @Deprecated
     protected Command(Rank minRank, Category category, String description, String usage, String name, String... aliases) {
         this(minRank, category, description, usage, false, name, aliases);
     }
 
+    @Deprecated
     protected Command(Rank minRank, String description, String usage, boolean requiresAlias,
                       String name, String... aliases) {
         this(minRank, Category.STAFF, description, usage, requiresAlias, name, aliases);
     }
 
+    @Deprecated
     protected Command(Rank minRank, String description, String usage, String name, String... aliases) {
         this(minRank, description, usage, false, name, aliases);
     }
@@ -60,8 +74,8 @@ public abstract class Command extends org.bukkit.command.Command {
     public final boolean execute(CommandSender sender, String alias, String[] args0) {
         try {
             // Add the alias to the args array if needed
-            String[] args = requiresAlias ? new String[args0.length + 1] : args0;
-            if (requiresAlias) {
+            String[] args = this.config.requireAlias ? new String[args0.length + 1] : args0;
+            if (this.config.requireAlias) {
                 args[0] = alias.toLowerCase();
                 System.arraycopy(args0, 0, args, 1, args0.length);
             }
@@ -100,7 +114,7 @@ public abstract class Command extends org.bukkit.command.Command {
 
     public boolean matches(String command) { // Does this command math the given token?
         command = command.toLowerCase();
-        return command.equalsIgnoreCase(getName()) || aliases.contains(command);
+        return command.equalsIgnoreCase(getName()) || this.config.aliases.contains(command);
     }
 
     public boolean canUse(CommandSender sender) {
@@ -108,13 +122,11 @@ public abstract class Command extends org.bukkit.command.Command {
     }
 
     public boolean canUse(CommandSender sender, boolean alertSender) {
-        if (Rank.getRank(sender).specialCompareTo(minimumRankRequirement) < 0) {
-            if (alertSender)
-                sender.sendMessage(ChatColor.RED + "You must be at least rank " +
-                        FLUtils.capitalize(minimumRankRequirement.toString()) + " to use this command.");
-            return false;
+        if(this.config.requirement.matches(sender)) return true;
+        if(alertSender) {
+            this.config.requirement.sendRequirements(sender);
         }
-        return true;
+        return false;
     }
 
     public boolean showErrorsOnDiscord() {
@@ -126,11 +138,11 @@ public abstract class Command extends org.bukkit.command.Command {
     }
 
     public Rank getMinRankRequirement() {
-        return minimumRankRequirement;
+        return this.config.requirement.rank();
     }
 
     public Category getCategory() {
-        return category;
+        return this.config.category;
     }
 
     protected void showUsage(CommandSender sender) {
