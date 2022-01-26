@@ -241,7 +241,7 @@ public class CommandHandler extends Mechanic {
         Command command = getCommand(commandName);
         // Ensure the command was sent in a channel where we accept commands
         if (
-                (!(command instanceof DiscordCommand))
+                !(command instanceof DiscordCommand)
                 && DiscordChannel.IN_GAME.id() != message.getChannel().getIdLong()
                 && DiscordChannel.STAFF_COMMANDS.id() != message.getChannel().getIdLong()
         ) {
@@ -249,8 +249,9 @@ public class CommandHandler extends Mechanic {
         }
 
         // Add command to the extended audit log
-        if (Rank.getRank(sender).specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(command))
+        if (sender.isVerified() && Rank.getRank(sender).specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(command)) {
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.COMMAND_LOG, sender.getName() + ": " + rawStringCommand);
+        }
 
         if (command == null) {
 
@@ -313,7 +314,7 @@ public class CommandHandler extends Mechanic {
                 return;
 
             // Check permission
-            if (!command.canUse(sender))
+            if (sender.isVerified() && !command.canUse(sender))
                 return;
 
             String[] argsCopy = args;

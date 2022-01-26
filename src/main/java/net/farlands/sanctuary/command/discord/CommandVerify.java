@@ -50,7 +50,8 @@ public class CommandVerify extends DiscordCommand {
             if (args.length == 0)
                 return false;
 
-            Player player = getPlayer(args[0], sender);
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(args[0]);
+            Player player = flp.vanished ? null : flp.getOnlinePlayer();
             if (player == null) {
                 // Player not online
                 ds.getChannel().sendMessageEmbeds(
