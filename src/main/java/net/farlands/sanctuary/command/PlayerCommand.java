@@ -32,8 +32,8 @@ public abstract class PlayerCommand extends Command {
         this(minRank, description, usage, false, name, aliases);
     }
 
-    protected PlayerCommand(CommandConfig config) {
-        super(config);
+    protected PlayerCommand(CommandData data) {
+        super(data);
     }
 
     protected abstract boolean execute(Player sender, String[] args);

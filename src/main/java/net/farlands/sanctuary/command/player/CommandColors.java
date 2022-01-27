@@ -1,7 +1,10 @@
 package net.farlands.sanctuary.command.player;
 
 import com.google.common.collect.ImmutableMap;
+import com.kicas.rp.util.Materials;
+import com.kicas.rp.util.Pair;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -13,16 +16,40 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 public class CommandColors extends PlayerCommand {
 
     public CommandColors() {
-        super(Rank.ADEPT, Category.COSMETIC, "Show available color codes for chat and signs.", "/colors", "colors", "colours");
+        super(CommandData
+            .withRank("colors", "Show available color codes for chat and signs.", "/colors", Rank.ADEPT)
+            .aliases(false, "colours")
+            .category(Category.COSMETIC)
+            .rankCompare(CommandData.BooleanOperation.OR)
+            // TODO: 1/27/22 This doesn't have to be added, but I put it to demonstrate how to use the custom requirement. - majek
+            .customRequirement(sender -> {
+                if (sender == null) {
+                    return new Pair<>(true, Component.text("You must craft one of every dye."));
+                }
+                if (sender instanceof Player player) {
+                    AtomicBoolean complete = new AtomicBoolean(true);
+                    Materials.materialsEndingWith("DYE").forEach(material -> {
+                        if (player.getStatistic(Statistic.CRAFT_ITEM, material) == 0) {
+                            complete.set(false);
+                        }
+                    });
+                    return new Pair<>(complete.get(), Component.text("You must craft one of every dye."));
+                } else {
+                    return new Pair<>(true, Component.text("You must craft one of every dye."));
+                }
+            })
+        );
     }
 
     public static final Map<Character, Style> CHAR_STYLES = new ImmutableMap.Builder<Character, Style>()
