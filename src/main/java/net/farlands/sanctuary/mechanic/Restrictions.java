@@ -357,8 +357,10 @@ public class Restrictions extends Mechanic {
                 && !FLUtils.canMediaFly(event.getPlayer(), event.getTo()) // Check if the player can fly in the given location
             ) {
                 Region rgFrom = RegionProtection.getDataManager().getHighestPriorityRegionAt(event.getFrom());
-                if (rgFrom != null && rgFrom.isOwner(flp.uuid)) { // Leaving a region they own
-                    event.getPlayer().sendMessage(ComponentColor.red("Flight is disabled outside of claims that you own. Flight stopping in 5 seconds."));
+                if (rgFrom != null && (rgFrom.isOwner(flp.uuid) || rgFrom.<TrustMeta>getFlagMeta(RegionFlag.TRUST)
+                    .hasTrust(event.getPlayer(), TrustLevel.ACCESS, rgFrom))) { // Leaving a region they own or have at in
+                    event.getPlayer().sendMessage(ComponentColor.red("Flight is disabled outside of claims that " +
+                        "you own or have access trust in. Flight stopping in 5 seconds."));
                     mediaFlyProtection.add(flp.uuid); // Add them to the temp protection list
                     Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                         mediaFlyProtection.remove(flp.uuid);

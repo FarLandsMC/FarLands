@@ -13,6 +13,8 @@ import com.google.gson.JsonParser;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.Region;
 import com.kicas.rp.data.RegionFlag;
+import com.kicas.rp.data.flagdata.TrustLevel;
+import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.ReflectionHelper;
 import com.kicas.rp.util.TextUtils2;
@@ -711,6 +713,7 @@ public final class FLUtils {
                && (
                    rg.isOwner(player.getUniqueId())
                    || rg.isAllowed(RegionFlag.FLIGHT)
+                   || rg.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.ACCESS, rg)
                )
                || FarLands.getMechanicHandler()
                    .getMechanic(Restrictions.class)

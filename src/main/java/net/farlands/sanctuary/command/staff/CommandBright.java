@@ -9,7 +9,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class CommandBright extends PlayerCommand {
     public CommandBright() {
-        super(Rank.JR_BUILDER, "Toggle on or off brightness.", "/bright", "bright");
+        super(Rank.MEDIA, "Toggle on or off brightness.", "/bright", "bright");
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 public class CommandVanish extends Command {
     public CommandVanish() {
-        super(Rank.MEDIA, "Toggle on and off vanish mode.", "/vanish <on|off>", "vanish");
+        super(Rank.JR_BUILDER, "Toggle on and off vanish mode.", "/vanish <on|off>", "vanish");
     }
 
     @Override
