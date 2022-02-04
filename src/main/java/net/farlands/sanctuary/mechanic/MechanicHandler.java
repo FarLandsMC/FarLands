@@ -52,7 +52,6 @@ public class MechanicHandler implements Listener {
         registerMechanic(new Items());
         registerMechanic(new RotatingMessages());
         registerMechanic(new ChatMechanic());
-        registerMechanic(new QuenchingFireAdvancement());
 
         Logging.log("Finished registering mechanics.");
     }

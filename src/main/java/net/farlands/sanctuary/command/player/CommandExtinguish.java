@@ -4,7 +4,6 @@ import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
-import net.farlands.sanctuary.mechanic.QuenchingFireAdvancement;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -20,8 +19,7 @@ public class CommandExtinguish extends PlayerCommand {
                 Rank.PATRON
             )
             .aliases(false, "ext")
-            .rankCompare(CommandData.BooleanOperation.AND)
-            .customRequirement(new QuenchingFireAdvancement())
+            .rankCompare(CommandData.BooleanOperation.OR)
         );
     }
 
