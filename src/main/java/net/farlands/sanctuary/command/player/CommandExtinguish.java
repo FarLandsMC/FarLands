@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
+import net.farlands.sanctuary.command.requirement.QuenchingFireRequirement;
 import net.farlands.sanctuary.data.Rank;
 
 import net.farlands.sanctuary.util.ComponentColor;
@@ -20,6 +21,7 @@ public class CommandExtinguish extends PlayerCommand {
             )
             .aliases(false, "ext")
             .rankCompare(CommandData.BooleanOperation.OR)
+            .customRequirement(new QuenchingFireRequirement())
         );
     }
 
