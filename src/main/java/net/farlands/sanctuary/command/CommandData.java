@@ -155,11 +155,17 @@ public class CommandData {
     }
     OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
-    if (this.minimumRank.isStaff() && sender instanceof Player player && player.getGameMode() == GameMode.CREATIVE) {
+    if (this.minimumRank.isStaff()) {
       return flp.rank.isStaff();
     }
 
     boolean rankMatches = flp.rank.specialCompareTo(this.minimumRank) >= 0;
+
+    // If the sender is staff and in gmc ignore all requirements except rank
+    if (flp.rank.isStaff() && sender instanceof Player player && player.getGameMode() == GameMode.CREATIVE) {
+      return rankMatches;
+    }
+
     boolean everythingElse =
         this.advancementsCompleted(sender)
             && this.itemsCrafted(sender)
