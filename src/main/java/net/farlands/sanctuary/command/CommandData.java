@@ -10,10 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Statistic;
+import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -158,8 +155,7 @@ public class CommandData {
     }
     OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
-    // TODO: 1/26/22 Add check for if player is in GMC after staff discussion on whether we'd like to have to unlock commands for GMS as well
-    if (this.minimumRank.isStaff()) {
+    if (this.minimumRank.isStaff() && sender instanceof Player player && player.getGameMode() == GameMode.CREATIVE) {
       return flp.rank.isStaff();
     }
 
