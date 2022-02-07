@@ -428,12 +428,11 @@ public class CommandData {
   /**
    * Add advancements that must be completed before the command can be used.
    *
-   * @param advancementNames the keys for the advancements
+   * @param advancementKeys the keys for the advancements
    * @return this data
    */
-  public @NotNull CommandData advancementsRequired(final @NotNull String... advancementNames) {
-    this.advancementsRequired.addAll(Arrays.stream(advancementNames).map(name ->
-        Bukkit.getAdvancement(NamespacedKey.minecraft(name))).toList());
+  public @NotNull CommandData advancementsRequired(final @NotNull NamespacedKey... advancementKeys) {
+    this.advancementsRequired.addAll(Arrays.stream(advancementKeys).map(Bukkit::getAdvancement).toList());
     return this;
   }
 

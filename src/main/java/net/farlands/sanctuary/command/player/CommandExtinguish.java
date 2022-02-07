@@ -2,12 +2,13 @@ package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.command.requirement.QuenchingFireRequirement;
 import net.farlands.sanctuary.data.Rank;
-
 import net.farlands.sanctuary.util.ComponentColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import java.util.Objects;
 
 public class CommandExtinguish extends PlayerCommand {
 
@@ -21,7 +22,7 @@ public class CommandExtinguish extends PlayerCommand {
             )
             .aliases(false, "ext")
             .rankCompare(CommandData.BooleanOperation.OR)
-            .customRequirement(new QuenchingFireRequirement())
+            .advancementsRequired(Objects.requireNonNull(NamespacedKey.fromString("farlands:nether/quenching-fire")))
         );
     }
 

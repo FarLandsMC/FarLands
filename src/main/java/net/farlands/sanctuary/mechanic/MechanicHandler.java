@@ -1,8 +1,8 @@
 package net.farlands.sanctuary.mechanic;
 
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.advancement.QuenchingFire;
 import net.farlands.sanctuary.chat.ChatMechanic;
-import net.farlands.sanctuary.command.requirement.QuenchingFireRequirement;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.mechanic.region.AutumnEvent;
 import net.farlands.sanctuary.mechanic.region.Spawn;
@@ -36,6 +36,10 @@ public class MechanicHandler implements Listener {
         registerMechanic(FarLands.getCommandHandler());
         registerMechanic(FarLands.getDataHandler());
         registerMechanic(FarLands.getGuiHandler());
+        registerMechanic(FarLands.getAdvancementHandler());
+
+        // Advancement mechanics
+        registerMechanic(new QuenchingFire());
 
         if (AutumnEvent.isActive())
             registerMechanic(new AutumnEvent());
@@ -53,12 +57,11 @@ public class MechanicHandler implements Listener {
         registerMechanic(new Items());
         registerMechanic(new RotatingMessages());
         registerMechanic(new ChatMechanic());
-        registerMechanic(new QuenchingFireRequirement());
 
         Logging.log("Finished registering mechanics.");
     }
 
-    private void registerMechanic(Mechanic mechanic) {
+    public void registerMechanic(Mechanic mechanic) {
         mechanics.add(mechanic);
         Bukkit.getPluginManager().registerEvents(mechanic, FarLands.getInstance());
     }

@@ -45,10 +45,11 @@ public class ChatMechanic extends Mechanic {
     public void onAdvancement(PlayerAdvancementDoneEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         if (
-            flp.vanished || // Player is vanished or
-                !event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("minecraft") // Not a vanilla advancement
+            flp.vanished // Player is vanished or
+                || (!event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("minecraft") // Not a vanilla advancement
+                && !event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("farlands")) // Not a farlands advancement
         ) {
-            //event.message(null); // Make no message
+            event.message(null); // Make no message
         } else {
             Bukkit.getOnlinePlayers()
                 .stream()
