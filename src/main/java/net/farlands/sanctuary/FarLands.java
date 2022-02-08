@@ -11,6 +11,7 @@ import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -144,5 +145,20 @@ public class FarLands extends JavaPlugin {
 
     public static Moshi getMoshi() {
         return moshi;
+    }
+
+    /**
+     * Get a {@link NamespacedKey} with the FarLands namespace. Do not include {@code farlands:} in the parameter.
+     *
+     * @param key the key for the {@link NamespacedKey}
+     * @return new {@link NamespacedKey}
+     * @throws IllegalArgumentException if the parameter is invalid
+     */
+    public static @NotNull NamespacedKey namespacedKey(final @NotNull String key) {
+        NamespacedKey namespacedKey = NamespacedKey.fromString(key, instance);
+        if (namespacedKey == null) {
+            throw new IllegalArgumentException("Invalid NamespacedKey: " + key);
+        }
+        return namespacedKey;
     }
 }

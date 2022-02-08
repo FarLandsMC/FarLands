@@ -3,6 +3,7 @@ package net.farlands.sanctuary.util;
 import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -13,6 +14,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * Utility class for creating/manipulating components
@@ -232,5 +234,16 @@ public class ComponentUtils {
      */
     public static Component parse(String message, OfflineFLPlayer flp) {
         return MiniMessageWrapper.farlands(flp).mmParse(message);
+    }
+
+    /**
+     * Join strings together into a {@link Component}.
+     *
+     * @param joinConfig the config for how to join the strings
+     * @param strings the strings that will be converted to text components
+     * @return new component
+     */
+    public static Component join(JoinConfiguration joinConfig, String... strings) {
+        return Component.join(joinConfig, Arrays.stream(strings).map(Component::text).toList());
     }
 }
