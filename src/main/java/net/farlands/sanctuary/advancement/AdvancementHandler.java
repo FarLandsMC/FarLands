@@ -52,8 +52,8 @@ public class AdvancementHandler extends Mechanic {
    */
   @Override
   public void onStartup() {
-    registerCustomAdvancements();
-    registerRankAdvancements();
+    this.registerCustomAdvancements();
+    this.registerRankAdvancements();
 
     Bukkit.reloadData(); // Do this once to load all advancements
   }
@@ -85,9 +85,10 @@ public class AdvancementHandler extends Mechanic {
    * @param player the player
    * @param advancementKey the key of the advancement to check
    * @return whether the advancement is complete
+   * @throws IllegalArgumentException if no advancement with the specified key is found
    */
   public boolean hasCompletedAdvancement(final @NotNull Player player, final @NotNull NamespacedKey advancementKey) {
-    org.bukkit.advancement.Advancement advancement = Bukkit.getAdvancement(advancementKey);
+    final org.bukkit.advancement.Advancement advancement = Bukkit.getAdvancement(advancementKey);
     if (advancement == null) {
       throw new IllegalArgumentException("Unable to find advancement with key " + advancementKey.asString());
     }
@@ -108,7 +109,7 @@ public class AdvancementHandler extends Mechanic {
     }
 
     // Give appropriate donation rank based on amount donated
-    OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+    final OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
     if (flp.amountDonated >= 60) {
       Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "advancement grant "
           + player.getName() + " only farlands:ranks/sponsor");
@@ -150,6 +151,7 @@ public class AdvancementHandler extends Mechanic {
   }
 
   private void registerCustomAdvancements() {
+    // Quenching fire
     this.registerAdvancement(
         Advancement
             .builder(
@@ -161,11 +163,13 @@ public class AdvancementHandler extends Mechanic {
             )
             .makeChild(NamespacedKey.minecraft("nether/obtain_blaze_rod"))
             .rewards(
-                Rewards.create().function(
-                    MinecraftFunction.create(
-                        Objects.requireNonNull(NamespacedKey.fromString("fl_rewards:nether/quenching-fire"))
-                    ).addLine("give @s minecraft:blaze_rod 2") // TODO: 2/8/22 Change this - added for testing - majek
-                ).experience(100)
+                Rewards.create()
+                    .function(
+                        MinecraftFunction.create(
+                            Objects.requireNonNull(NamespacedKey.fromString("fl_rewards:nether/quenching-fire"))
+                        ).addLine("give @s minecraft:blaze_rod 2") // TODO: 2/8/22 Change this - added for testing - majek
+                    )
+                    .experience(100)
             )
             .frame(Frame.CHALLENGE)
             .build()
@@ -173,7 +177,7 @@ public class AdvancementHandler extends Mechanic {
   }
 
   private void registerRankAdvancements() {
-    JoinConfiguration joinConfig = JoinConfiguration.separator(Component.newline());
+    final JoinConfiguration joinConfig = JoinConfiguration.separator(Component.newline());
 
     // Root
     this.registerAdvancement(
@@ -249,7 +253,7 @@ public class AdvancementHandler extends Mechanic {
                 ComponentUtils.join(joinConfig, "12 hours playtime", "5 homes", "/stack").color(WHITE),
                 Map.of("impossible", new ImpossibleTrigger())
             )
-            .makeChild(Objects.requireNonNull(NamespacedKey.fromString("farlands:ranks/bard")))
+            .makeChild(FarLands.namespacedKey("ranks/bard"))
             .toast(false)
             .announce(false)
             .build()
@@ -350,7 +354,6 @@ public class AdvancementHandler extends Mechanic {
                 Map.of("impossible", new ImpossibleTrigger())
             )
             .makeChild(FarLands.namespacedKey("ranks/donation"))
-            .toast(false)
             .announce(false)
             .build()
     );
@@ -367,7 +370,6 @@ public class AdvancementHandler extends Mechanic {
                 Map.of("impossible", new ImpossibleTrigger())
             )
             .makeChild(FarLands.namespacedKey("ranks/donation"))
-            .toast(false)
             .announce(false)
             .build()
     );
@@ -384,7 +386,6 @@ public class AdvancementHandler extends Mechanic {
                 Map.of("impossible", new ImpossibleTrigger())
             )
             .makeChild(FarLands.namespacedKey("ranks/donation"))
-            .toast(false)
             .announce(false)
             .build()
     );
