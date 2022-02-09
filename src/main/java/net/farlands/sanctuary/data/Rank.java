@@ -35,7 +35,7 @@ public enum Rank {
     ADEPT    ("Adept",    NamedTextColor.GREEN,        144, 12, 4, 20, 8,  "adventure/totem_of_undying" ),
     SCHOLAR  ("Scholar",  NamedTextColor.BLUE,         240, 16, 3, 30, 7,  "adventure/adventuring_time" ),
 
-    VOTER    ("Voter",    NamedTextColor.LIGHT_PURPLE, -1,  16, 3, 30, 7 ), // Same as Scholar
+    VOTER    ("Voter",    TextColor.color(0xff6213),   -1,  16, 3, 30, 7 ), // Same as Scholar
     BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1,  16, 3, 30, 7 ),
     DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1,  24, 2, 40, 6 ),
     PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1,  32, 0, 50, 3 ),
