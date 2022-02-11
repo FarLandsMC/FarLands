@@ -6,11 +6,12 @@ import com.kicas.rp.data.RegionFlag;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.util.FLUtils;
-
-import static org.bukkit.Material.*;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import static org.bukkit.Material.*;
 
 /**
  * Checks for players fly hacking.
@@ -20,6 +21,7 @@ public class FlightStore {
     private final boolean sendAlerts;
     private double lastVy;
     private int strikes;
+    private boolean muted;
 
     private static final double JUMP_TOLERANCE = (99.0 - FarLands.getFLConfig().getFDS()) * (2.0 / 990.0) + 0.25;
     private static final double VELOCITY_DELTA_TOLERANCE = (100 - FarLands.getFLConfig().getFDS()) / 400.0;
@@ -30,6 +32,7 @@ public class FlightStore {
         this.sendAlerts = sendAlerts;
         this.lastVy = player.getVelocity().getY();
         this.strikes = 0;
+        this.muted = false;
     }
 
     static {
@@ -38,7 +41,13 @@ public class FlightStore {
     }
 
     public void mute(long ticks) {
-
+        boolean prev = this.muted;
+        this.muted = true;
+        Bukkit.getScheduler().runTaskLater(
+            FarLands.getInstance(),
+            () -> this.muted = prev,
+            ticks
+        );
     }
 
     public void onUpdate() {
@@ -54,10 +63,10 @@ public class FlightStore {
             // Calculates what the player's jump velocity should be, with some buffer to prevent false alarms (the +0.025)
             double vyMax = 0.41999998688697815 + 0.1 * (jumpBoost == null ? 0 : jumpBoost.getAmplifier() + 1) + JUMP_TOLERANCE;
             if (vy > vyMax && !FLUtils.checkNearby(player.getLocation(), SLIME_BLOCK, BUBBLE_COLUMN)) {
-                if (sendAlerts)
+                if (sendAlerts && !muted)
                     AntiCheat.broadcast(player.getName(), "jumped too high.");
-                FarLands.getDebugger().echo("vy: " + vy +
-                                            "\nvyMax: " +  vyMax);
+                if(!muted)
+                FarLands.getDebugger().echo("vy: %f\nvyMax: %f".formatted(vy, vyMax));
             }
             lastVy = vy;
             return;
@@ -88,16 +97,14 @@ public class FlightStore {
             ++strikes;
             FLPlayerSession session = FarLands.getDataHandler().getSession(player);
             if (strikes > MAX_STRIKES && session.flyAlertCooldown.isComplete()) {
-                if (sendAlerts) {
+                if (sendAlerts && !muted) {
                     AntiCheat.broadcast(session.handle.username, "might be flying.");
                     session = FarLands.getDataHandler().getSession(session.player);
                 }
 
-                FarLands.getDebugger().echo("pdiff: " + pdiff + "\nloc: " +
-                        player.getLocation().getBlockX() + ", " +
-                        player.getLocation().getBlockY() + ", " +
-                        player.getLocation().getBlockZ() + ", " +
-                        player.getWorld().getName());
+                if (!muted) {
+                    FarLands.getDebugger().echo("pdiff: " + pdiff + "\nloc: " + FLUtils.coords(player.getLocation()));
+                }
 
                 session.flyAlertCooldown.reset();
             }

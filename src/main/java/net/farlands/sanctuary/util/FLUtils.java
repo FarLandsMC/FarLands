@@ -703,6 +703,10 @@ public final class FLUtils {
         return String.format("%s - %s %s %s", WORLD_NAMES.getOrDefault(location.getWorld().getName(), "Unknown"), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
+    public static String coords(Location location) {
+        return String.format("%s, %s, %s, %s", location.getBlockX(), location.getBlockY(), location.getBlockZ(), location.getWorld().getName());
+    }
+
     public static boolean canMediaFly(Player player) {
         return canMediaFly(player, player.getLocation());
     }
