@@ -159,3 +159,5 @@ const runTaskTimer = (callback, intervalMS) => {
     const delayMS = toTicks(intervalMS);
     return Bukkit.getScheduler().runTaskTimer(plugin, callback, delayMS, delayMS);
 };
+
+const toFile = (string) => '$$file$$' + string
