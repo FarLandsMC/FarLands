@@ -1,18 +1,29 @@
 package net.farlands.sanctuary.command.player;
 
-import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-
 import net.farlands.sanctuary.util.ComponentColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import java.util.Objects;
 
 public class CommandExtinguish extends PlayerCommand {
 
     public CommandExtinguish() {
-        super(Rank.PATRON, Category.UTILITY, "Extinguish the fire effect if you are currently on fire.", "/extinguish",
-              "extinguish", "ext");
+        super(CommandData
+            .withRank(
+                "extinguish",
+                "Extinguish the fire effect if you are currently on fire.",
+                "/extinguish",
+                Rank.PATRON
+            )
+            .aliases(false, "ext")
+            .rankCompare(CommandData.BooleanOperation.OR)
+            .advancementsRequired(Objects.requireNonNull(NamespacedKey.fromString("farlands:nether/quenching-fire")))
+        );
     }
 
     @Override

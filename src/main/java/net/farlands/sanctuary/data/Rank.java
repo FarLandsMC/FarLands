@@ -110,6 +110,15 @@ public enum Rank {
         return permissionLevel > 0;
     }
 
+    /**
+     * Check if this rank is one of the donation ranks.
+     *
+     * @return whether rank is donor/patron/sponsor
+     */
+    public boolean isDonationRank() {
+        return this == DONOR || this == PATRON || this == SPONSOR;
+    }
+
     public boolean isPlaytimeObtainable() {
         return playTimeRequired >= 0;
     }
@@ -149,7 +158,7 @@ public enum Rank {
     }
 
     /**
-     * @Depricated Move to {@link Rank#color()}
+     * @deprecated Move to {@link Rank#color()}
      */
     @Deprecated
     public ChatColor getColor() {

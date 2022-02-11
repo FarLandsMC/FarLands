@@ -1,16 +1,12 @@
 package net.farlands.sanctuary.command.staff;
 
 import com.google.common.collect.ImmutableMap;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -22,6 +18,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandEdit extends Command {
     // 0: no restriction, 1: read-only, 2: no reading or writing
@@ -153,7 +151,7 @@ public class CommandEdit extends Command {
                             .filter(s -> s.toLowerCase().startsWith(args[3].toLowerCase())).collect(Collectors.toList());
                 }
                 if (Boolean.class.equals(ReflectionHelper.asWrapper(value.getClass())))
-                    return TRUE_OR_FALSE;
+                    return List.of("true", "false");
                 final List<String> split = Arrays.asList(args[3].split(","));
                 String last = args[3].endsWith(",") ? "" : split.get(split.size() - 1);
                 return last.contains("=")

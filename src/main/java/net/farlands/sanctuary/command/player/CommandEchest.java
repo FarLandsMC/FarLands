@@ -1,14 +1,23 @@
 package net.farlands.sanctuary.command.player;
 
-import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.command.PlayerCommand;
+import net.farlands.sanctuary.command.*;
 import net.farlands.sanctuary.data.Rank;
-
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
 public class CommandEchest extends PlayerCommand {
+
     public CommandEchest() {
-        super(Rank.DONOR, Category.UTILITY, "Open your enderchest.", "/echest", "echest");
+        super(CommandData
+            .simple("echest", "Open your ender chest.", "/echest")
+            .category(Category.UTILITY)
+            .minimumRank(Rank.DONOR)
+            .rankCompare(CommandData.BooleanOperation.OR)
+            .playedHoursRequired(12)
+            .advancementsRequired(NamespacedKey.minecraft("end/dragon_egg"))
+            .craftedItemsRequired(Material.ENDER_CHEST, Material.ENDER_EYE)
+        );
     }
 
     @Override

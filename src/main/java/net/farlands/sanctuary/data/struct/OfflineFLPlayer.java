@@ -293,6 +293,9 @@ public class OfflineFLPlayer {
     public void setRank(Rank rank) {
         Player player = getOnlinePlayer();
         boolean online = player != null;
+        if (online) {
+            FarLands.getAdvancementHandler().updateAdvancements(player, rank);
+        }
         if (rank.specialCompareTo(this.rank) > 0) {
             Logging.broadcastIngame(
                 ComponentColor.gold(" ** ") // " ** <username> has ranked up to <rank> ** "

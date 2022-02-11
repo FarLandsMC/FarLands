@@ -1,6 +1,7 @@
 package net.farlands.sanctuary;
 
 import com.squareup.moshi.Moshi;
+import net.farlands.sanctuary.advancement.AdvancementHandler;
 import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.data.*;
 import net.farlands.sanctuary.discord.DiscordHandler;
@@ -8,10 +9,9 @@ import net.farlands.sanctuary.gui.GuiHandler;
 import net.farlands.sanctuary.mechanic.MechanicHandler;
 import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +27,7 @@ public class FarLands extends JavaPlugin {
     private final CommandHandler commandHandler;
     private final DiscordHandler discordHandler;
     private final GuiHandler guiHandler;
+    private final AdvancementHandler advancementHandler;
     private World farlandsWorld;
 
     private static final Moshi moshi = createMoshi();
@@ -47,6 +48,7 @@ public class FarLands extends JavaPlugin {
         this.commandHandler = new CommandHandler();
         this.discordHandler = new DiscordHandler();
         this.guiHandler = new GuiHandler();
+        this.advancementHandler = new AdvancementHandler();
     }
 
     public static FarLands getInstance() {
@@ -55,6 +57,10 @@ public class FarLands extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+        //Reload the data cache after all advancements have been added
+        Bukkit.reloadData();
+
         // TODO: reinstate seed
         // farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
         farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).generateStructures(true).createWorld();
@@ -125,6 +131,10 @@ public class FarLands extends JavaPlugin {
         return instance.guiHandler;
     }
 
+    public static AdvancementHandler getAdvancementHandler() {
+        return instance.advancementHandler;
+    }
+
     public static Debugger getDebugger() {
         return instance.debugger;
     }
@@ -135,5 +145,20 @@ public class FarLands extends JavaPlugin {
 
     public static Moshi getMoshi() {
         return moshi;
+    }
+
+    /**
+     * Get a {@link NamespacedKey} with the FarLands namespace. Do not include {@code farlands:} in the parameter.
+     *
+     * @param key the key for the {@link NamespacedKey}
+     * @return new {@link NamespacedKey}
+     * @throws IllegalArgumentException if the parameter is invalid
+     */
+    public static @NotNull NamespacedKey namespacedKey(final @NotNull String key) {
+        NamespacedKey namespacedKey = NamespacedKey.fromString(key, instance);
+        if (namespacedKey == null) {
+            throw new IllegalArgumentException("Invalid NamespacedKey: " + key);
+        }
+        return namespacedKey;
     }
 }

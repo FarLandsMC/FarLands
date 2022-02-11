@@ -161,6 +161,9 @@ public class DiscordHandler extends ListenerAdapter {
      * Send a message directly to the specified channel (no processing)
      */
     public void sendMessageRaw(MessageChannel channel, String message) {
+        if (!active) {
+            return;
+        }
         channelHandler.sendMessage(channel, message);
     }
 
@@ -204,10 +207,16 @@ public class DiscordHandler extends ListenerAdapter {
      * @param embedBuilder Embed builder for the embed
      */
     public void sendMessageEmbed(DiscordChannel channel, EmbedBuilder embedBuilder) {
+        if (!active) {
+            return;
+        }
         getChannel(channel).sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     public void sendMessageEmbed(DiscordChannel channel, EmbedBuilder embedBuilder, Consumer<? super Message> success) {
+        if (!active) {
+            return;
+        }
         getChannel(channel).sendMessageEmbeds(embedBuilder.build()).queue(success);
     }
 
