@@ -40,3 +40,6 @@ target/
 .vscode/
 arch/
 srcold/
+
+# Maven Javadocs
+docs/

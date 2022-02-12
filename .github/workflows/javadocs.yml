@@ -1,0 +1,30 @@
+name: javadoc
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  javadoc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: build with maven
+        run: mvn -B package --file pom.xml -DskipTests
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          token: ${{ secrets.DEPLOY_GITHUB_TOKEN }}
+          branch: gh-pages
+          clean: true
+          folder: docs
+          git-config-name: FarLands
+          git-config-email: <>
