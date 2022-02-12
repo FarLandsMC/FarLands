@@ -1,0 +1,15 @@
+net.farlands.sanctuary
+net.farlands.sanctuary.chat
+net.farlands.sanctuary.command
+net.farlands.sanctuary.command.discord
+net.farlands.sanctuary.command.player
+net.farlands.sanctuary.command.staff
+net.farlands.sanctuary.data
+net.farlands.sanctuary.data.struct
+net.farlands.sanctuary.discord
+net.farlands.sanctuary.gui
+net.farlands.sanctuary.mechanic
+net.farlands.sanctuary.mechanic.anticheat
+net.farlands.sanctuary.mechanic.region
+net.farlands.sanctuary.scheduling
+net.farlands.sanctuary.util
