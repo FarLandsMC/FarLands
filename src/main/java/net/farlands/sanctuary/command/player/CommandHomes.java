@@ -9,6 +9,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
@@ -19,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class CommandHomes extends Command {
 
@@ -35,7 +35,7 @@ public class CommandHomes extends Command {
             return true;
         }
 
-        List<String> args = Arrays.stream(argsArr).collect(Collectors.toList()); // Lists are easier to work with :P
+        List<String> args = new ArrayList<>(Arrays.asList(argsArr)); // Lists are easier to work with :P
 
         if (!args.isEmpty() && args.get(0).equalsIgnoreCase("sort")) {
             updateSort(sender, args);
@@ -50,9 +50,12 @@ public class CommandHomes extends Command {
             flp = FarLands.getDataHandler().getOfflineFLPlayer(args.remove(0));
             self = false;
             if (flp == null) {
-                sender.sendMessage(ComponentColor.red("Player not found."));
-                return true;
+                return error(sender, "Player not found.");
             }
+        }
+
+        if(flp.homes.isEmpty()) {
+            return error(sender, "%s no homes.", self ? "You have" : flp.username + " has");
         }
 
         if (args.size() >= 1) {
@@ -63,13 +66,18 @@ public class CommandHomes extends Command {
             page = Integer.parseInt(args.remove(0));
         }
 
+        boolean finalSelf = self;
+        String username = flp.username;
         List<Component> homes = flp.homes
             .stream()
             .sorted(self
                         ? flp.homesSort.getComparator(flp.getOnlinePlayer())
                         : FarLands.getDataHandler().getOfflineFLPlayer(sender).homesSort.getComparator(sender instanceof Player plr ? plr : null)
             )
-            .map(h -> h.asComponent(true, true))
+            .map(h -> ComponentUtils.command(
+                "/home " + h.getName() + " " + (finalSelf ? "" : username),
+                h.asComponent(true, false)
+            ))
             .toList();
 
         Component header = ComponentColor.gold(
@@ -85,7 +93,6 @@ public class CommandHomes extends Command {
         pagination.addLines(homes);
 
         pagination.sendPage(page, sender);
-
 
         return true;
     }
