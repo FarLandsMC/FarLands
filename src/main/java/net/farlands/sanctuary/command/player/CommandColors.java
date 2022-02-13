@@ -27,7 +27,6 @@ public class CommandColors extends PlayerCommand {
             .withRank("colors", "Show available color codes for chat and signs.", "/colors", Rank.ADEPT)
             .aliases(false, "colours")
             .category(Category.COSMETIC)
-            .rankCompare(CommandData.BooleanOperation.OR)
         );
     }
 

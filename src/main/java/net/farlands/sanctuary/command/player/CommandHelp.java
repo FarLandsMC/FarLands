@@ -2,13 +2,11 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
-import com.kicas.rp.util.ReflectionHelper;
-import com.kicas.rp.util.TextUtils2;
 import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
@@ -19,25 +17,24 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class CommandHelp extends net.farlands.sanctuary.command.Command {
 
-    private static final int COMMANDS_PER_PAGE = 8;
-
     public CommandHelp() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "View information on available commands.",
-              "/help [category|command] [page]", "help");
+        super(
+            CommandData.simple("help", "View information on commands and command categories", "/help [category|command]")
+                .category(Category.INFORMATIONAL)
+        );
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean execute(CommandSender sender, String[] args) throws TextUtils2.ParserError {
+    public boolean execute(CommandSender sender, String[] args) {
         // Show list of categories
         if (args.length == 0) {
             Component comp = ComponentColor.gold("Command Categories (Click to view commands):\n")
@@ -71,30 +68,32 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
         } else {
             List<Command> commands;
             if (category == Category.CLAIMS) {
-                Map<String, Command> knownCommands = (Map<String, org.bukkit.command.Command>) ReflectionHelper.getFieldValue(
-                    "knownCommands",
-                    SimpleCommandMap.class,
-                    ((CraftServer) Bukkit.getServer()).getCommandMap()
-                );
-                Set<Command> commandSet = knownCommands.values().stream()
+                commands = Bukkit.getServer()
+                    .getCommandMap()
+                    .getKnownCommands()
+                    .values()
+                    .stream()
                     .filter(command -> command instanceof PluginCommand pcmd && pcmd.getPlugin() == RegionProtection.getInstance())
-                    .collect(Collectors.toSet());
-                commands = commandSet.stream()
+                    .distinct() // Originally collected to a set and then back to a stream, my guess is to dedupe, but this is better
                     .sorted(Comparator.comparing(Command::getUsage))
-                    .collect(Collectors.toList());
+                    .toList();
             } else {
                 commands = FarLands.getCommandHandler().getCommands().stream()
                     .filter(command -> command.getCategory().equals(category))
                     .sorted(Comparator.comparing(Command::getUsage))
-                    .collect(Collectors.toList());
+                    .map(flcmd -> (Command) flcmd)
+                    .toList();
             }
 
-            Pagination pagination = new Pagination(ComponentColor.gold(category.getAlias()), "/help " + category.name().toLowerCase());
+            Pagination pagination = new Pagination(
+                ComponentColor.gold(category.getAlias()),
+                "/help " + category.name().toLowerCase()
+            );
 
             pagination.addLines(
                 commands.stream().map(command -> {
                     Component hover = ComponentColor.gray(command.getDescription());
-                    if(command instanceof net.farlands.sanctuary.command.Command flcmd) {
+                    if (command instanceof net.farlands.sanctuary.command.Command flcmd) {
                         hover = hover.append(Component.newline().append(flcmd.data().getRequirements()));
                     }
                     return ComponentUtils.hover(usage(command.getUsage()), hover);

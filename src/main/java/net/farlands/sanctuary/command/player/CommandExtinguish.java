@@ -19,7 +19,6 @@ public class CommandExtinguish extends PlayerCommand {
                 Rank.PATRON
             )
             .aliases(false, "ext")
-            .rankCompare(CommandData.BooleanOperation.OR)
         );
     }
 
