@@ -3,6 +3,7 @@ package net.farlands.sanctuary.util;
 import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -232,5 +233,14 @@ public class ComponentUtils {
      */
     public static Component parse(String message, OfflineFLPlayer flp) {
         return MiniMessageWrapper.farlands(flp).mmParse(message);
+    }
+
+    /**
+     * Remove hover and click events from the supplied ComponentLike
+     * @param componentLike Source
+     * @return Source without events
+     */
+    public static Component noEvent(ComponentLike componentLike) {
+        return componentLike.asComponent().hoverEvent(null).clickEvent(null);
     }
 }
