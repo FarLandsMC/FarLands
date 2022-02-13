@@ -10,22 +10,30 @@ import org.bukkit.entity.Player;
  * the sender being an online player.
  */
 public abstract class PlayerCommand extends Command {
+    @Deprecated
     protected PlayerCommand(Rank minRank, Category category, String description, String usage, boolean requiresAlias,
                             String name, String... aliases) {
         super(minRank, category, description, usage, requiresAlias, name, aliases);
     }
 
+    @Deprecated
     protected PlayerCommand(Rank minRank, Category category, String description, String usage, String name, String... aliases) {
         this(minRank, category, description, usage, false, name, aliases);
     }
 
+    @Deprecated
     protected PlayerCommand(Rank minRank, String description, String usage, boolean requiresAlias,
                             String name, String... aliases) {
         this(minRank, Category.STAFF, description, usage, requiresAlias, name, aliases);
     }
 
+    @Deprecated
     protected PlayerCommand(Rank minRank, String description, String usage, String name, String... aliases) {
         this(minRank, description, usage, false, name, aliases);
+    }
+
+    protected PlayerCommand(CommandData data) {
+        super(data);
     }
 
     protected abstract boolean execute(Player sender, String[] args);

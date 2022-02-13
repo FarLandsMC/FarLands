@@ -4,13 +4,13 @@ import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,31 +23,44 @@ import java.util.stream.Stream;
  * Base class for all plugin commands.
  */
 public abstract class Command extends org.bukkit.command.Command {
-    protected static final List<String> TRUE_OR_FALSE = Arrays.asList("true", "false");
+    protected final CommandData data;
 
-    protected final List<String> aliases;
-    protected final Rank minimumRankRequirement;
-    protected final boolean requiresAlias; // Whether we should pass the alias in the arguments
-    protected final Category category;
-
-    protected Command(Rank minRank, Category category, String description, String usage, boolean requiresAlias,
-                      String name, String... aliases) {
-        super(name, description, usage, Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList()));
-        this.aliases = Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList());
-        this.minimumRankRequirement = minRank;
-        this.requiresAlias = requiresAlias;
-        this.category = category;
+    /**
+     * Get the command's data. Things like usage, requirements, minimum rank, etc.
+     *
+     * @return command data
+     */
+    public CommandData data() {
+        return this.data;
     }
 
+    protected Command(CommandData data) {
+        super(data.name(), data.description(), data.usage(), data.aliases());
+        this.data = data;
+    }
+
+    @Deprecated
+    protected Command(Rank minRank, Category category, String description, String usage, boolean requiresAlias, String name, String... aliases) {
+        super(name, description, usage, Arrays.stream(aliases).map(String::toLowerCase).collect(Collectors.toList()));
+        this.data = CommandData
+            .simple(name, description, usage)
+            .category(category)
+            .aliases(requiresAlias, aliases)
+            .minimumRank(minRank);
+    }
+
+    @Deprecated
     protected Command(Rank minRank, Category category, String description, String usage, String name, String... aliases) {
         this(minRank, category, description, usage, false, name, aliases);
     }
 
+    @Deprecated
     protected Command(Rank minRank, String description, String usage, boolean requiresAlias,
                       String name, String... aliases) {
         this(minRank, Category.STAFF, description, usage, requiresAlias, name, aliases);
     }
 
+    @Deprecated
     protected Command(Rank minRank, String description, String usage, String name, String... aliases) {
         this(minRank, description, usage, false, name, aliases);
     }
@@ -57,11 +70,11 @@ public abstract class Command extends org.bukkit.command.Command {
 
     // The only point of this having a return value is to make bukkit happy
     @Override
-    public final boolean execute(CommandSender sender, String alias, String[] args0) {
+    public final boolean execute(@NotNull CommandSender sender, @NotNull String alias, String[] args0) {
         try {
             // Add the alias to the args array if needed
-            String[] args = requiresAlias ? new String[args0.length + 1] : args0;
-            if (requiresAlias) {
+            String[] args = this.data.requiresAlias() ? new String[args0.length + 1] : args0;
+            if (this.data.requiresAlias()) {
                 args[0] = alias.toLowerCase();
                 System.arraycopy(args0, 0, args, 1, args0.length);
             }
@@ -100,7 +113,7 @@ public abstract class Command extends org.bukkit.command.Command {
 
     public boolean matches(String command) { // Does this command math the given token?
         command = command.toLowerCase();
-        return command.equalsIgnoreCase(getName()) || aliases.contains(command);
+        return command.equalsIgnoreCase(getName()) || this.data.aliases().contains(command);
     }
 
     public boolean canUse(CommandSender sender) {
@@ -108,13 +121,13 @@ public abstract class Command extends org.bukkit.command.Command {
     }
 
     public boolean canUse(CommandSender sender, boolean alertSender) {
-        if (Rank.getRank(sender).specialCompareTo(minimumRankRequirement) < 0) {
-            if (alertSender)
-                sender.sendMessage(ChatColor.RED + "You must be at least rank " +
-                        FLUtils.capitalize(minimumRankRequirement.toString()) + " to use this command.");
-            return false;
+        if (this.data.canUse(sender)) {
+            return true;
         }
-        return true;
+        if (alertSender) {
+            this.data.sendRequirements(sender);
+        }
+        return false;
     }
 
     public boolean showErrorsOnDiscord() {
@@ -126,11 +139,11 @@ public abstract class Command extends org.bukkit.command.Command {
     }
 
     public Rank getMinRankRequirement() {
-        return minimumRankRequirement;
+        return this.data.minimumRank();
     }
 
     public Category getCategory() {
-        return category;
+        return this.data.category();
     }
 
     protected void showUsage(CommandSender sender) {

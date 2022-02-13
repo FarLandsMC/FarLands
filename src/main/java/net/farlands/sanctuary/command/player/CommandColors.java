@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.player;
 
 import com.google.common.collect.ImmutableMap;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -22,7 +23,11 @@ import java.util.stream.Stream;
 public class CommandColors extends PlayerCommand {
 
     public CommandColors() {
-        super(Rank.ADEPT, Category.COSMETIC, "Show available color codes for chat and signs.", "/colors", "colors", "colours");
+        super(CommandData
+            .withRank("colors", "Show available color codes for chat and signs.", "/colors", Rank.ADEPT)
+            .aliases(false, "colours")
+            .category(Category.COSMETIC)
+        );
     }
 
     public static final Map<Character, Style> CHAR_STYLES = new ImmutableMap.Builder<Character, Style>()
