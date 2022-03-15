@@ -7,11 +7,33 @@ import org.bukkit.event.Listener;
  * Base class for plugin mechanics.
  */
 public class Mechanic implements Listener {
-    public void onStartup() { }
 
-    public void onShutdown() { }
+    /**
+     * Runs when the server starts
+     */
+    public void onStartup() {
+    }
 
-    public void onPlayerJoin(Player player, boolean isNew) { }
+    /**
+     * Runs when the server shuts down
+     */
+    public void onShutdown() {
+    }
 
-    public void onPlayerQuit(Player player) { }
+    /**
+     * Runs when a player connects to the server
+     *
+     * @param player The player in question
+     * @param isNew  If this is the player's first time
+     */
+    public void onPlayerJoin(Player player, boolean isNew) {
+    }
+
+    /**
+     * Runs when a player disconnects from the server
+     *
+     * @param player The player in question
+     */
+    public void onPlayerQuit(Player player) {
+    }
 }

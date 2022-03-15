@@ -5,8 +5,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftFirework;
-import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftFirework;
+import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Handles creating new custom fireworks.
+ * Custom firework builder
  */
 public class FireworkBuilder {
     private final List<Explosion> explosions;

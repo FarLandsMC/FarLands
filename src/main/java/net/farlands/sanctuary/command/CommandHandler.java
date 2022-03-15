@@ -19,7 +19,6 @@ import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.farlands.sanctuary.util.NMSUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.commands.CommandDispatcher;
@@ -33,8 +32,8 @@ import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_18_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_18_R2.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -267,12 +266,12 @@ public class CommandHandler extends Mechanic {
 
                 Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
                     MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
-                    WorldServer world = NMSUtils.getWorldServer(server, World.f); // World.f = World.OVERWORLD
+                    WorldServer world = server.a(World.f); // World.f = World.OVERWORLD
 
                     CommandListenerWrapper wrapper = new CommandListenerWrapper(
                         sender,
                         // Position
-                        world == null ? Vec3D.a : Vec3D.b(world.w()), // 0, 0, 0 or World Spawn
+                        world == null ? Vec3D.a : Vec3D.c(world.v()), // 0, 0, 0 or World Spawn
                         Vec2F.a, // Rotation Vec2F.a = Vec2f.ORIGIN
                         world, // World
                         sender.isOp() ? 4 : 0, // Permission level

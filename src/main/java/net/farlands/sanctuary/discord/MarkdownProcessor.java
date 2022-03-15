@@ -59,8 +59,8 @@ public class MarkdownProcessor {
     private static final @Language("RegExp")
     String MARKDOWN_STRING = "(?<!\\\\)(%s)(.+?(?!\\1).)\\1(?!\\1)"; // https://regexr.com/6db8g -- `%s` gets replaced with the symbols -- group 2 is the content
 
-    private static final char ZERO_WIDTH_SPACE = '\u200B';
-    private static final Component SPOILER_BASE = ComponentColor.gray("████").decorate(TextDecoration.UNDERLINED);
+    private static final char      ZERO_WIDTH_SPACE = '\u200B';
+    private static final Component SPOILER_BASE     = ComponentColor.gray("████").decorate(TextDecoration.UNDERLINED);
 
     public static Component toMinecraft(@NotNull String markdown) {
         Component component = Component.text(markdown);

@@ -40,7 +40,7 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
 
     @SuppressWarnings("all")
     private final TagResolver colorTags = TagResolver.resolver(
-        StandardTags.color(), StandardTags.decoration(),
+        StandardTags.color(), StandardTags.decorations(),
         StandardTags.gradient(), StandardTags.rainbow()
     );
 

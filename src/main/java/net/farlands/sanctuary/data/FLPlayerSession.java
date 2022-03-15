@@ -23,10 +23,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,27 +31,28 @@ import java.util.stream.Collectors;
  */
 public class FLPlayerSession {
 
-    public final Player player;
-    public final OfflineFLPlayer handle;
+    public final Player               player;
+    public final OfflineFLPlayer      handle;
     public final PermissionAttachment permissionAttachment;
-    public long vanishStart;
-    public long lastUnvanish;
-    public double spamAccumulation;
-    public boolean afk;
-    public boolean flying;
-    public boolean showStaffChat;
-    public boolean autoSendStaffChat;
-    public boolean isInEvent;
-    public boolean fallDamageImmune;
-    public CommandSender replyToggleRecipient;
-    public Location seatExit;
-    public TeleportRequest outgoingTeleportRequest;
+
+    public long                  vanishStart;
+    public long                  lastUnvanish;
+    public double                spamAccumulation;
+    public boolean               afk;
+    public boolean               flying;
+    public boolean               showStaffChat;
+    public boolean               autoSendStaffChat;
+    public boolean               isInEvent;
+    public boolean               fallDamageImmune;
+    public CommandSender         replyToggleRecipient;
+    public Location              seatExit;
+    public TeleportRequest       outgoingTeleportRequest;
     public List<TeleportRequest> incomingTeleportRequests;
 
-    // Transient fields
-    public TransientField<Player> givePetRecipient;
-    public TransientField<CommandSender> lastMessageSender;
-    public TransientField<String> lastDeletedHomeName;
+    // Timed fields
+    public TimedField<Player>        givePetRecipient;
+    public TimedField<CommandSender> lastMessageSender;
+    public TimedField<String>        lastDeletedHomeName;
 
     // Cooldowns
     public Cooldown afkCheckCooldown,
@@ -65,11 +63,11 @@ public class FLPlayerSession {
         sharehomeCooldown,
         spamCooldown;
     private final Map<Class<? extends Command>, Integer> commandCooldowns;
-    public List<Component> afkMessages;
+    public        List<Component>                        afkMessages;
 
     // Internally managed fields
     private final List<Location> backLocations;
-    private long lastBackLocationModification;
+    private       long           lastBackLocationModification;
 
     public FLPlayerSession(Player player, OfflineFLPlayer handle) {
         this.player = player;
@@ -89,9 +87,9 @@ public class FLPlayerSession {
         this.outgoingTeleportRequest = null;
         this.incomingTeleportRequests = new ArrayList<>();
 
-        this.givePetRecipient = new TransientField<>();
-        this.lastMessageSender = new TransientField<>();
-        this.lastDeletedHomeName = new TransientField<>();
+        this.givePetRecipient = new TimedField<>();
+        this.lastMessageSender = new TimedField<>();
+        this.lastDeletedHomeName = new TimedField<>();
 
         this.afkCheckInitializerCooldown = null;
         this.afkCheckCooldown = new Cooldown(30L * 20L);
@@ -125,15 +123,15 @@ public class FLPlayerSession {
         this.outgoingTeleportRequest = null;
         this.incomingTeleportRequests = new ArrayList<>();
 
-        this.givePetRecipient = new TransientField<>();
-        this.lastMessageSender = new TransientField<>();
-        this.lastDeletedHomeName = new TransientField<>();
+        this.givePetRecipient = new TimedField<>();
+        this.lastMessageSender = new TimedField<>();
+        this.lastDeletedHomeName = new TimedField<>();
 
         this.afkCheckInitializerCooldown = null;
-        this.afkCheckCooldown = new Cooldown(30L * 20L);
-        this.mailCooldown = new Cooldown(60L * 20L);
-        this.sharehomeCooldown = new Cooldown(60L * 20L);
-        this.spamCooldown = new Cooldown(160L);
+        this.afkCheckCooldown = new Cooldown(30 * 20L);
+        this.mailCooldown = new Cooldown(60 * 20L);
+        this.sharehomeCooldown = new Cooldown(60 * 20L);
+        this.spamCooldown = new Cooldown(80 * 20L);
         this.flyAlertCooldown = new Cooldown(10L);
         this.flightDetectorMute = new Cooldown(0L);
         this.commandCooldowns = cached.commandCooldowns;
@@ -214,11 +212,7 @@ public class FLPlayerSession {
         }
 
         player.setOp(handle.rank.hasOP());
-        if (handle.nickname != null) {
-            player.displayName(handle.nickname);
-        } else {
-            player.displayName(player.name());
-        }
+        player.displayName(Objects.requireNonNullElseGet(handle.nickname, player::name));
         handle.getDisplayRank().getTeam().addEntry(player.getName());
         player.playerListName(handle.getDisplayRank().colorName(handle.username));
         handle.lastIP = player.getAddress().getAddress().getHostAddress();
@@ -230,14 +224,14 @@ public class FLPlayerSession {
                 flying = false;
                 handle.vanished = false;
             } else {
-                if(!FLUtils.canMediaFly(player)) {
+                if (!FLUtils.canMediaFly(player)) {
                     flying = false;
                 }
             }
         }
         if (!handle.rank.isStaff() && (
             FarLands.getWorld().equals(player.getWorld()) ||
-            "world_the_end" .equals(player.getWorld().getName()))
+            "world_the_end".equals(player.getWorld().getName()))
         ) {
             flying = false;
         }

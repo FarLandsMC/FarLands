@@ -44,23 +44,22 @@ import org.bukkit.potion.PotionEffect;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 /**
- * Handles events related to plugin restrictions.
+ * Handles restrictions on players
  */
 public class Restrictions extends Mechanic {
 
-    private final Set<UUID> endWarnings        = new HashSet<>();
-    public final  Set<UUID> mediaFlyProtection = new HashSet<>();
+    private final Set<UUID> endWarnings        = new HashSet<>(); // Warnings for flying machines in the end
+    public final  Set<UUID> mediaFlyProtection = new HashSet<>(); // Players who have temporary flight from exiting a claim
 
     @Override
     public void onStartup() {
         // Fix nether claim heights
-        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> { // Set the height of all claims in the nether to 128 (top bedrock)
             RegionProtection.getDataManager().getRegionsInWorld(Bukkit.getWorld("world_nether")).forEach(region -> {
-                if (region.isAdminOwned())
+                if (region.isAdminOwned()) {
                     return;
+                }
 
                 Pair<Location, Location> bounds = region.getBounds();
                 bounds.getSecond().setY(128);
@@ -75,7 +74,8 @@ public class Restrictions extends Mechanic {
         if (!flp.rank.isStaff()) {
             player.setGameMode(GameMode.SURVIVAL);
             List<String> notes = flp.notes;
-            if (!notes.isEmpty()) {
+
+            if (!notes.isEmpty()) { // If they have notes, announce them to online staff
                 Logging.broadcastStaff(
                     ComponentColor.red(player.getName() + " has notes. Hover")
                         .append(ComponentUtils.hover(
@@ -85,23 +85,23 @@ public class Restrictions extends Mechanic {
                         .append(Component.text(" to view them."))
                 );
             }
-            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> { // Give staff information about the player's potential alts
                 List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
-                        .collect(Collectors.toList());
+                    .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid)).toList();
                 List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
-                        unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
+                    unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
                 if (!banned.isEmpty()) {
                     Logging.broadcastStaff(ChatColor.RED + flp.username + " shares the same IP as " + banned.size() + " banned player" +
-                            (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? DiscordChannel.ALERTS : null);
+                                           (banned.size() > 1 ? "s" : "") + ": " + String.join(", ", banned), isNew ? DiscordChannel.ALERTS : null);
                     Logging.broadcastStaff(
                         ComponentColor.red(
                             flp.username +
-                                " shares the same IP as " +
-                                banned.size() + " banned player" +
-                                (banned.size() > 1 ? "s" : "") +
-                                ": " +
-                                String.join(", ", banned)),
+                            " shares the same IP as " +
+                            banned.size() + " banned player" +
+                            (banned.size() > 1 ? "s" : "") +
+                            ": " +
+                            String.join(", ", banned)),
                         isNew ? DiscordChannel.ALERTS : null
                     );
                 }
@@ -109,11 +109,11 @@ public class Restrictions extends Mechanic {
                     Logging.broadcastStaff(
                         ComponentColor.red(
                             flp.username +
-                                " shares the same IP as " +
-                                unbanned.size() + " player" +
-                                (unbanned.size() > 1 ? "s" : "") +
-                                ": " +
-                                String.join(", ", unbanned)),
+                            " shares the same IP as " +
+                            unbanned.size() + " player" +
+                            (unbanned.size() > 1 ? "s" : "") +
+                            ": " +
+                            String.join(", ", unbanned)),
                         isNew ? DiscordChannel.ALERTS : null
                     );
                 }
@@ -123,7 +123,7 @@ public class Restrictions extends Mechanic {
                         Logging.broadcastStaff(
                             ComponentColor.red(
                                 "Punishing " + flp.username + " for ban evasion"
-                                    + (unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned))
+                                + (unbanned.isEmpty() ? "." : ", along with the following alts: " + String.join(", ", unbanned))
                             ),
                             DiscordChannel.NOTEBOOK
                         );
@@ -133,12 +133,11 @@ public class Restrictions extends Mechanic {
                 }
             }, 60L);
 
-            List<Punishment> alertablePunishments =
-                flp.punishments.stream()
-                    .filter(p -> p.getType().isRejoinAlert() && p.notAlerted())
-                    .collect(Collectors.toList());
+            List<Punishment> alertablePunishments = flp.punishments.stream()
+                .filter(p -> p.getType().isRejoinAlert() && p.notAlerted())
+                .toList();
 
-            if (!alertablePunishments.isEmpty()) {
+            if (!alertablePunishments.isEmpty()) { // Alert of certain punishments
                 Logging.broadcastStaff(
                     ComponentColor.red(
                         "%s has joined for the first time since receiving the following punishment%s:",
@@ -156,13 +155,9 @@ public class Restrictions extends Mechanic {
 
         }
 
-        if (isNew) {
-            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
-                if (spawn != null)
-                    player.teleport(spawn.asLocation());
-            }, 5L);
-        } else if (flp.lastLocation != null) {
+        if (isNew) { // Teleport to spawn if a new player
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), flp::moveToSpawn, 5L);
+        } else if (flp.lastLocation != null) { // Otherwise, tp to their last location
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> player.teleport(flp.getLastLocation()), 5L);
         }
     }
@@ -171,13 +166,15 @@ public class Restrictions extends Mechanic {
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) { // Handles bans
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getUniqueId());
 
-        if (flp == null && !FarLands.getDataHandler().allowNewPlayers())
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "You cannot join the server right now. Try again in 5-10 minutes.");
+        if (flp == null && !FarLands.getDataHandler().allowNewPlayers()) { // Server is currently blocking new players
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, ComponentColor.red("You cannot join the server right now. Try again in 5-10 minutes."));
+        }
 
         if (flp != null) {
             flp.lastIP = event.getAddress().getHostAddress();
-            if (flp.isBanned())
+            if (flp.isBanned()) { // Give the player a ban message
                 event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
+            }
         }
     }
 
@@ -186,8 +183,8 @@ public class Restrictions extends Mechanic {
         if (!event.isBedSpawn()) {
             LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
             if (spawn == null) {
-                event.getPlayer().sendMessage(ChatColor.RED + "Server spawn not set! Please contact an owner, " +
-                        "administrator, or developer and notify them of this problem.");
+                event.getPlayer().sendMessage(ComponentColor.red("Server spawn not set! Please contact an owner, " +
+                                                                 "administrator, or developer and notify them of this problem."));
                 return;
             }
             event.setRespawnLocation(spawn.asLocation());
@@ -197,19 +194,19 @@ public class Restrictions extends Mechanic {
     @Override // Removes all infinite potion effects.
     public void onPlayerQuit(Player player) {
         player.getActivePotionEffects().stream().filter(pe -> pe.getDuration() >= 100 * 60 * 20) // 100m for bad omen
-                .map(PotionEffect::getType).forEach(player::removePotionEffect);
+            .map(PotionEffect::getType).forEach(player::removePotionEffect);
     }
 
     @EventHandler
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         String[] args = event.getMessage().split(" ");
-        if (event.getMessage().startsWith("/trigger") && args.length > 1 && !"as_help".equalsIgnoreCase(args[1])) {
+        if (event.getMessage().startsWith("/trigger") && args.length > 1 && !"as_help".equalsIgnoreCase(args[1])) { // /trigger command -- used for armour stand statues
             Player player = event.getPlayer();
 
             // Check for claims
             FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(player.getLocation());
-            if (!(flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.BUILD, flags))) {
-                sendFormatted(player, "&(red)You do not have permission to edit armor stands here.");
+            if (!(flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(player, TrustLevel.BUILD, flags))) { // Check if the player has build trust
+                player.sendMessage(ComponentColor.red("You do not have permission to edit armor stands here."));
                 event.setCancelled(true);
             }
         }
@@ -219,10 +216,10 @@ public class Restrictions extends Mechanic {
     public void onShopCreation(ShopCreateEvent event) {
         Player player = event.getPlayer();
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
-        if (!flp.canAddShop()) {
+        if (!flp.canAddShop()) { // Limit the amount of shops that a player can create
             event.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "You have reached the maximum number of shops you can build. " +
-                    "Rank up to gain more shops.");
+            player.sendMessage(ComponentColor.red("You have reached the maximum number of shops you can build. " +
+                                                  "Rank up to gain more shops."));
             return;
         }
         flp.addShop();
@@ -236,9 +233,10 @@ public class Restrictions extends Mechanic {
         int sellAmount = event.getShop().getSellAmount();
         ItemStack sold = event.getShop().getSellItem();
 
+        // Add simple logging for shop transactions
         CoreProtect.getInstance().getAPI().logContainerTransaction("[SHOP] " + player.getName(), event.getShop().getChestLocation());
         Logging.log(player.getName() + " bought " + sellAmount + " " + sold.getType().toString().toLowerCase()
-                + " with " + buyAmount + " " + bought.getType().toString().toLowerCase());
+                    + " with " + buyAmount + " " + bought.getType().toString().toLowerCase());
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -250,7 +248,7 @@ public class Restrictions extends Mechanic {
     public void onPortalCreation(PortalCreateEvent event) {
         switch (event.getReason()) {
             case NETHER_PAIR: // Prevent portals forming in spawn
-                if(event.getBlocks()
+                if (event.getBlocks()
                     .stream()
                     .map(block -> block.getBlock().getLocation())
                     .anyMatch(FLUtils::isInSpawn)
@@ -258,7 +256,7 @@ public class Restrictions extends Mechanic {
                     event.setCancelled(true);
                 }
             case FIRE: // Prevent portals forming in the pocket world
-                if(event.getWorld().getName().equals("farlands")) {
+                if (event.getWorld().getName().equals("farlands")) {
                     event.setCancelled(true);
                 }
         }
@@ -269,14 +267,15 @@ public class Restrictions extends Mechanic {
         String signText = Arrays.stream(event.getLines())
             .filter(s -> !s.isBlank())
             .map(s -> ChatColor.GRAY + s)
-            .collect(Collectors.joining("\n"));
+            .collect(Collectors.joining("\n"))
+            .trim();
 
-        if (!signText.isBlank()) {
+        if (!signText.isBlank()) { // Log the sign content to staff
             Location loc = event.getBlock().getLocation();
             Logging.broadcastStaff(
                 ChatColor.GRAY + event.getPlayer().getName() + " placed a sign at " +
-                    loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ":\n" +
-                    signText
+                loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ":\n" +
+                signText
             );
         }
     }
@@ -284,42 +283,37 @@ public class Restrictions extends Mechanic {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (
-                "world_the_end".equals(event.getBlock().getWorld().getName()) && (
-                        event.getBlockPlaced().getType() == Material.SLIME_BLOCK ||
-                        event.getBlockPlaced().getType() == Material.HONEY_BLOCK
-                )
+            "world_the_end".equals(event.getBlock().getWorld().getName()) && (
+                event.getBlockPlaced().getType() == Material.SLIME_BLOCK ||
+                event.getBlockPlaced().getType() == Material.HONEY_BLOCK
+            )
         ) {
-            if (!endWarnings.contains(event.getPlayer().getUniqueId())) {
+            if (!this.endWarnings.contains(event.getPlayer().getUniqueId())) { // Give players end warnings
                 event.getPlayer().sendMessage(
                     ComponentColor.red(
-                            "Flying machine related deaths will not be considered " +
-                                "server error and as a result, will "
+                            "Flying machine related deaths will not be considered server error and as a result, will "
                         )
-                        .append(Component.text("not").style(Style.style(TextDecoration.BOLD)))
+                        .append(Component.text("not", Style.style(TextDecoration.BOLD)))
                         .append(ComponentColor.red(" be restored! \nTravel safely by riding in a boat or minecart that is attached to the machine."))
                 );
-                endWarnings.add(event.getPlayer().getUniqueId());
+                this.endWarnings.add(event.getPlayer().getUniqueId());
             }
-        }
-        else if ((
-                event.getBlockAgainst().getType() == Material.SLIME_BLOCK ||
-                event.getBlockAgainst().getType() == Material.HONEY_BLOCK
-            ) && (
-                event.getBlockPlaced().getType().name().endsWith("FAN") ||
-                event.getBlockPlaced().getType().name().endsWith("CORAL")
-        )) {
+        } else if (( // Alert to staff any attempts to build a duper
+                       event.getBlockAgainst().getType() == Material.SLIME_BLOCK ||
+                       event.getBlockAgainst().getType() == Material.HONEY_BLOCK
+                   ) && (
+                       event.getBlockPlaced().getType().name().endsWith("FAN") ||
+                       event.getBlockPlaced().getType().name().endsWith("CORAL")
+                   )) {
             Location location = event.getBlock().getLocation();
             AntiCheat.broadcast(event.getPlayer().getName(), "may be attempting to build a duper @ " +
-                    location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
+                                                             location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ());
             event.getPlayer().sendMessage(
-                ComponentColor.red(
-                        "It appears that you are building a duping device, " +
-                            " this is against the "
-                    )
+                ComponentColor.red("It appears that you are building a duping device,  this is against the ")
                     .append(ComponentUtils.command("/rules").color(NamedTextColor.DARK_RED))
                     .append(ComponentColor.red(
                         " (#1) as duping is a form of exploit. " +
-                            "\nIf you ingore this warning and do not remove the machine immediately, you will be subject to a punishment"
+                        "\nIf you ignore this warning and do not remove the machine immediately, you will be subject to a punishment"
                     ))
             );
         }
@@ -328,7 +322,7 @@ public class Restrictions extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE &&
-                !Rank.getRank(event.getPlayer()).isStaff()) { // Prevent players from teleporting using spectator mode
+            !Rank.getRank(event.getPlayer()).isStaff()) { // Prevent players from teleporting using spectator mode
             event.setCancelled(true);
             return;
         }
@@ -339,7 +333,7 @@ public class Restrictions extends Mechanic {
     public void onPlayerMove(PlayerMoveEvent event) {
         Location to = event.getTo();
         int max = (int) to.getWorld().getWorldBorder().getSize() / 2;
-        if (Math.abs(to.getX()) > max || Math.abs(to.getZ()) > max) {
+        if (Math.abs(to.getX()) > max || Math.abs(to.getZ()) > max) { // Prevent the player from leaving the world border
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED + "You cannot leave the world.");
         }
@@ -350,7 +344,7 @@ public class Restrictions extends Mechanic {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         if (flp.rank == Rank.MEDIA) {
             if (!event.getPlayer().isFlying()) {
-                mediaFlyProtection.remove(flp.uuid); // remove the temp protection if they stop flying
+                this.mediaFlyProtection.remove(flp.uuid); // remove the temp protection if they stop flying
             }
             if (
                 event.getPlayer().isFlying()
@@ -360,10 +354,10 @@ public class Restrictions extends Mechanic {
                 if (rgFrom != null && (rgFrom.isOwner(flp.uuid) || rgFrom.<TrustMeta>getFlagMeta(RegionFlag.TRUST)
                     .hasTrust(event.getPlayer(), TrustLevel.ACCESS, rgFrom))) { // Leaving a region they own or have at in
                     event.getPlayer().sendMessage(ComponentColor.red("Flight is disabled outside of claims that " +
-                        "you own or have access trust in. Flight stopping in 5 seconds."));
-                    mediaFlyProtection.add(flp.uuid); // Add them to the temp protection list
+                                                                     "you own or have access trust in. Flight stopping in 5 seconds."));
+                    this.mediaFlyProtection.add(flp.uuid); // Add them to the temp protection list
                     Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                        mediaFlyProtection.remove(flp.uuid);
+                        this.mediaFlyProtection.remove(flp.uuid);
                         FarLands.getDataHandler().getSession(event.getPlayer()).giveFallImmunity(5); // Give time to fall if they're really high up
                     }, 5 * 20L);
                 }
@@ -382,29 +376,32 @@ public class Restrictions extends Mechanic {
         checkClaim(event.getDelegate(), event.getRegion(), event);
     }
 
+    /**
+     * Validate that a claim is allowed to be created by the player
+     */
     private void checkClaim(Player delegate, Region region, Cancellable event) {
         Location min = region.getMin(),
-                 max = region.getMax();
+            max = region.getMax();
         final int NETHER_CLAIM_LIMIT = 15000;
         if (region.getWorld().getEnvironment() == World.Environment.NETHER &&
-                (
-                        Math.abs(min.getBlockX()) > NETHER_CLAIM_LIMIT || Math.abs(min.getBlockZ()) > NETHER_CLAIM_LIMIT ||
-                        Math.abs(max.getBlockX()) > NETHER_CLAIM_LIMIT || Math.abs(max.getBlockZ()) > NETHER_CLAIM_LIMIT
-                )
+            (
+                Math.abs(min.getBlockX()) > NETHER_CLAIM_LIMIT || Math.abs(min.getBlockZ()) > NETHER_CLAIM_LIMIT ||
+                Math.abs(max.getBlockX()) > NETHER_CLAIM_LIMIT || Math.abs(max.getBlockZ()) > NETHER_CLAIM_LIMIT
+            )
         ) {
-            if (delegate != null)
+            if (delegate != null) {
                 delegate.sendMessage(ChatColor.RED + "You cannot create a claim more than 15k blocks from 0,0.");
+            }
             event.setCancelled(true);
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerCraft(PrepareItemCraftEvent event) {
-        if (event.getRecipe() == null)
-            return;
+        if (event.getRecipe() == null) return;
         Material result = event.getInventory().getContents()[0].getType();
 
-        if (result == Material.SHIELD) {
+        if (result == Material.SHIELD) { // Fix shield duping bug
             event.getInventory().getContents()[0].setAmount(1);
         }
     }
@@ -417,16 +414,16 @@ public class Restrictions extends Mechanic {
                 return;
             }
 
-            event.setCancelled(CommandKittyCannon.CANNON.isSimilar(event.getCursor()) ||
-                    CommandKittyCannon.CANNON.isSimilar(event.getCurrentItem()));
+            event.setCancelled(CommandKittyCannon.CANNON.isSimilar(event.getCursor()) || // Prevent kitty cannon being used as horse armor
+                               CommandKittyCannon.CANNON.isSimilar(event.getCurrentItem()));
         }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onBookEdit(PlayerEditBookEvent event) {
-        if (event.isSigning() && "Statues".equals(event.getNewBookMeta().getTitle())) {
+        if (event.isSigning() && "Statues".equals(event.getNewBookMeta().getTitle())) { // Prevent creation of statues book
             event.getPlayer().sendMessage(ChatColor.RED + "You are not allowed to manually create the armor stand " +
-                    "editor book, use /editarmorstand instead.");
+                                          "editor book, use /editarmorstand instead.");
             event.setCancelled(true);
         }
     }

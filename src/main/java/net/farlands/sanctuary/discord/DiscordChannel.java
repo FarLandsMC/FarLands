@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.farlands.sanctuary.FarLands;
 
 /**
- * All discord channels.
+ * Discord channels that the bot can interact with
  */
 public enum DiscordChannel {
     NOTEBOOK,
@@ -27,6 +27,9 @@ public enum DiscordChannel {
         return this.getChannel().getIdLong();
     }
 
+    /**
+     * Get the appropriate {@link MessageChannel} for the channel
+     */
     public MessageChannel getChannel() {
         return FarLands.getDiscordHandler().getChannel(this);
     }

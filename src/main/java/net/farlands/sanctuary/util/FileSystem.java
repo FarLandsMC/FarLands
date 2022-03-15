@@ -19,39 +19,68 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * Handles writing and reading FL files.
+ * Util class for reading and writing files
  */
 public final class FileSystem {
-    private FileSystem() {
-    }
 
+    /**
+     * Get a file object from a path
+     *
+     * @param basedir      The base directory to get the file from
+     * @param pathElements The path down the directory tree to the file
+     */
     public static File getFile(File basedir, String... pathElements) {
         return new File(basedir.getAbsolutePath() + File.separator + String.join(File.separator, pathElements));
     }
 
+    /**
+     * v
+     * Get the file and create it if it doesn't exist
+     *
+     * @param basedir      The base directory to get the file from
+     * @param pathElements The path down the directory tree to the file
+     */
     public static File getFileAndCreate(File basedir, String... pathElements) throws IOException {
         File file = getFile(basedir, pathElements);
-        if (!file.exists())
+        if (!file.exists()) {
             file.createNewFile();
+        }
         return file;
     }
 
-    public static File[] listFiles(File file) { // Provide some null safety in this dangerous, nullable world
+    /**
+     * Return all files in a directory -- null safe
+     *
+     * @param file Directory in which to search
+     */
+    public static File[] listFiles(File file) {
         File[] files = file.listFiles();
         return files == null ? new File[0] : files;
     }
 
+    /**
+     * Create a file if it doesn't exist
+     *
+     * @param file The file to create
+     */
     public static boolean createFile(File file) throws IOException {
-        if (file.exists())
+        if (file.exists()) {
             return false;
+        }
         file = file.getAbsoluteFile();
         file.getParentFile().mkdirs();
         return file.createNewFile();
     }
 
+    /**
+     * Delete a file if it exists
+     *
+     * @param file The file to delete
+     */
     public static void delete(File file) throws IOException {
-        if (!file.exists())
+        if (!file.exists()) {
             return;
+        }
         if (file.isDirectory()) {
             Files.walkFileTree(file.toPath(), new FileVisitor<>() {
                 @Override
@@ -62,8 +91,9 @@ public final class FileSystem {
                 @Override
                 public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
                     File f = p.toFile();
-                    if (f.isFile())
+                    if (f.isFile()) {
                         f.delete();
+                    }
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -78,19 +108,33 @@ public final class FileSystem {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        } else
+        } else {
             file.delete();
+        }
     }
 
+    /**
+     * Write utf-8 content to a file
+     *
+     * @param data The utf-8 data to write
+     * @param file The target file
+     */
     public static void writeUTF8(String data, File file) throws IOException {
-        if (!file.exists())
+        if (!file.exists()) {
             createFile(file);
+        }
         FileOutputStream ofstream = new FileOutputStream(file);
         ofstream.write(data.getBytes(StandardCharsets.UTF_8));
         ofstream.flush();
         ofstream.close();
     }
 
+    /**
+     * Write utf-8 content to a file -- handles {@link IOException}s
+     *
+     * @param data The utf-8 data to write
+     * @param file The target file
+     */
     public static void writeUTF8Safe(String data, File file) {
         try {
             writeUTF8(data, file);
@@ -100,12 +144,24 @@ public final class FileSystem {
         }
     }
 
+    /**
+     * Read utf-8 content from a file
+     *
+     * @param file The target file to read
+     */
     public static String readUTF8(File file) throws IOException {
-        if (!file.exists())
+        if (!file.exists()) {
             return "";
+        }
         return Files.readString(file.toPath());
     }
 
+    /**
+     * Load JSON data for a class from a file
+     *
+     * @param clazz The class to attempt to load into
+     * @param file  The target file to read
+     */
     public static <T> T loadJson(Class<T> clazz, File file) {
         try {
             if (!file.exists()) {
@@ -122,6 +178,13 @@ public final class FileSystem {
         }
     }
 
+    /**
+     * Attempt to load JSON data for a type from a file
+     *
+     * @param type         The target type
+     * @param defaultValue The default value if unable to read or the file doesn't exist
+     * @param file         The target file to read
+     */
     public static <T> T loadJson(Type type, T defaultValue, File file) {
         try {
             if (!file.exists()) {
@@ -141,12 +204,25 @@ public final class FileSystem {
         }
     }
 
+    /**
+     * Attempt to save JSON data to a file
+     *
+     * @param object The data to save
+     * @param file   The target file
+     */
     public static <T> void saveJson(T object, File file) {
         saveJson(FarLands.getMoshi(), object, file);
     }
 
+    /**
+     * Attempt to save JSON data to a file
+     *
+     * @param object The data to save
+     * @param file   the target file
+     * @param indent If the file to should be indented and formatted nicely.
+     */
     public static <T> void saveJson(T object, File file, boolean indent) {
-        if(!indent) {
+        if (!indent) {
             saveJson(FarLands.getMoshi(), object, file);
             return;
         }
@@ -155,11 +231,25 @@ public final class FileSystem {
         writeUTF8Safe(adapter.toJson(object), file);
     }
 
+    /**
+     * Attempt to save JSON using a specific {@link Moshi} instance
+     *
+     * @param moshi  The {@link Moshi} instance to use
+     * @param object The data to save
+     * @param file   The target file
+     */
     public static <T> void saveJson(Moshi moshi, T object, File file) {
         JsonAdapter<T> adapter = moshi.adapter((Type) object.getClass());
         writeUTF8Safe(adapter.toJson(object), file);
     }
 
+    /**
+     * Attempt to save JSON using a specific {@link JsonAdapter}
+     *
+     * @param adapter The {@link JsonAdapter} to use
+     * @param object  The data to save
+     * @param file    The target file
+     */
     public static <T> void saveJson(JsonAdapter<T> adapter, T object, File file) {
         writeUTF8Safe(adapter.toJson(object), file);
     }

@@ -26,7 +26,7 @@ import static org.bukkit.Material.*;
 import static org.bukkit.entity.EntityType.*;
 
 /**
- * Handles events related to items.
+ * Handles events related to custom items
  */
 public class Items extends Mechanic {
     private final Map<UUID, TNTArrow> tntArrows;
@@ -49,17 +49,18 @@ public class Items extends Mechanic {
 
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent event) {
-        if (EntityType.PLAYER != event.getEntity().getType())
-            return;
+        if (event.getEntity().getType() != EntityType.PLAYER) return; // If not shot by a player, return
+
         PlayerInventory inv = ((Player) event.getEntity()).getInventory();
         ItemStack arrow = null;
         int arrowIndex = -1;
-        if (Material.ARROW == inv.getItemInOffHand().getType()) {
+
+        if (inv.getItemInOffHand().getType() == Material.ARROW) { // If the item in offhand is an arrow, set the arrow and the index
             arrow = inv.getItemInOffHand();
             arrowIndex = 0;
-        } else {
+        } else { // Find the position of the first arrow in the inventory, checking the hotbar first
             for (int i = 27; i < 36; ++i) {
-                if (inv.getItem(i) != null && Material.ARROW == inv.getItem(i).getType()) {
+                if (inv.getItem(i) != null && inv.getItem(i).getType() == Material.ARROW) {
                     arrow = inv.getItem(i);
                     arrowIndex = i;
                     break;

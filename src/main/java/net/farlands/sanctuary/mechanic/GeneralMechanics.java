@@ -25,7 +25,7 @@ import org.bukkit.*;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_18_R2.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -54,17 +54,25 @@ import java.util.stream.Collectors;
 import static com.kicas.rp.util.TextUtils.format;
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
+/**
+ * General mechics that don't fit into other categories
+ */
 public class GeneralMechanics extends Mechanic {
 
     private final Map<UUID, Player> fireworkLaunches;
-    private BaseComponent[] joinMessage;
+    private       BaseComponent[]   joinMessage;
 
-    private static final List<EntityType> LEASHABLE_ENTITIES = Arrays.asList(EntityType.SKELETON_HORSE,
-                                                                             EntityType.VILLAGER, EntityType.TURTLE, EntityType.PANDA, EntityType.FOX);
+    private static final List<EntityType> LEASHABLE_ENTITIES = List.of(
+        EntityType.SKELETON_HORSE,
+        EntityType.VILLAGER,
+        EntityType.TURTLE,
+        EntityType.PANDA,
+        EntityType.FOX
+    );
 
-    private final Cooldown nightSkip;
+    private final Cooldown   nightSkip;
     private final List<UUID> leashedEntities;
-    private BukkitTask nightSkipTask;
+    private       BukkitTask nightSkipTask;
 
     // Recently punished players (since server restart)
     public static final List<OfflineFLPlayer> recentlyPunished = new ArrayList<>();
@@ -149,7 +157,7 @@ public class GeneralMechanics extends Mechanic {
             }
         }
 
-        if ("world" .equals(player.getWorld().getName())) {
+        if ("world".equals(player.getWorld().getName())) {
             updateNightSkip(true);
         }
     }
@@ -325,16 +333,17 @@ public class GeneralMechanics extends Mechanic {
         Entity ent = event.getRightClicked();
         ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
         if (EntityType.VILLAGER == event.getRightClicked().getType() && GameMode.CREATIVE == event.getPlayer().getGameMode() &&
-                Material.BLAZE_ROD == hand.getType() && Rank.getRank(event.getPlayer()).isStaff()) {
+            Material.BLAZE_ROD == hand.getType() && Rank.getRank(event.getPlayer()).isStaff()) {
             event.setCancelled(true);
             FarLands.getDataHandler().getPluginData().addSpawnTrader(ent.getUniqueId());
             (new GuiVillagerEditor((CraftVillager) ent)).openGui(event.getPlayer());
         } else if (LEASHABLE_ENTITIES.contains(event.getRightClicked().getType()) && !FLUtils.isInSpawn(event.getRightClicked().getLocation()) &&
-                event.getRightClicked() instanceof LivingEntity) {
+                   event.getRightClicked() instanceof LivingEntity) {
             final LivingEntity entity = (LivingEntity) ent;
             if (Material.LEAD == hand.getType()) {
-                if (entity.isLeashed())
+                if (entity.isLeashed()) {
                     return;
+                }
                 event.setCancelled(true); // Don't open any GUIs
 
                 // Prevent double lead usage with nitwits
@@ -424,8 +433,8 @@ public class GeneralMechanics extends Mechanic {
     public void onEntityTeleport(EntityPortalEvent event) {
         if (
             event.getEntityType() != EntityType.PLAYER &&
-            "world_the_end" .equals(event.getFrom().getWorld().getName()) &&
-            "world" .equals(event.getTo().getWorld().getName())
+            "world_the_end".equals(event.getFrom().getWorld().getName()) &&
+            "world".equals(event.getTo().getWorld().getName())
         ) {
             Location end = new Location(event.getFrom().getWorld(), 0, 58, 0);
             double minDist = 576, // (24 * 24) only players close to 0 0
@@ -508,7 +517,7 @@ public class GeneralMechanics extends Mechanic {
             ItemMeta meta = skull.getItemMeta();
             meta.displayName(ComponentColor.red(player.getName() + "'s Head"));
             Component message = event.deathMessage();
-            if(message != null) {
+            if (message != null) {
                 meta.lore(List.of(message));
             }
             skull.setItemMeta(meta);
@@ -524,7 +533,7 @@ public class GeneralMechanics extends Mechanic {
             if (result != null) {
                 ItemMeta meta = result.getItemMeta();
                 String rawName = ComponentUtils.toText(meta.displayName());
-                if(rawName.isEmpty()) return;
+                if (rawName.isEmpty()) return;
                 meta.displayName(ComponentUtils.parse(rawName, flp));
                 result.setItemMeta(meta);
             }
@@ -543,7 +552,7 @@ public class GeneralMechanics extends Mechanic {
             }
 
             List<Player> online = Bukkit.getOnlinePlayers().stream()
-                .filter(player -> "world" .equals(player.getWorld().getName()))
+                .filter(player -> "world".equals(player.getWorld().getName()))
                 .map(player -> (Player) player)
                 .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
                 .collect(Collectors.toList());
