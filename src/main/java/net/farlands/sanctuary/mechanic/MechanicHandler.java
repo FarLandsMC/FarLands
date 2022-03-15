@@ -22,6 +22,7 @@ import java.util.List;
  * Handles all plugin mechanics.
  */
 public class MechanicHandler implements Listener {
+
     private final List<Mechanic> mechanics;
 
     public MechanicHandler() {
@@ -36,8 +37,9 @@ public class MechanicHandler implements Listener {
         registerMechanic(FarLands.getDataHandler());
         registerMechanic(FarLands.getGuiHandler());
 
-        if (AutumnEvent.isActive())
+        if (AutumnEvent.isActive()) { // Initialise the autumn event if it's active
             registerMechanic(new AutumnEvent());
+        }
 
         // Feature mechanics
         registerMechanic(new AFK());
@@ -57,35 +59,52 @@ public class MechanicHandler implements Listener {
     }
 
     private void registerMechanic(Mechanic mechanic) {
-        mechanics.add(mechanic);
+        this.mechanics.add(mechanic);
         Bukkit.getPluginManager().registerEvents(mechanic, FarLands.getInstance());
     }
 
+    /**
+     * Get a mechanic by its class
+     */
     @SuppressWarnings("unchecked")
     public <T extends Mechanic> T getMechanic(Class<T> clazz) {
-        return (T)mechanics.stream().filter(m -> m.getClass().equals(clazz)).findAny().orElse(null);
+        return (T) this.mechanics.stream().filter(m -> m.getClass().equals(clazz)).findAny().orElse(null);
     }
 
+    /**
+     * Calls the {@link Mechanic#onStartup} method for all register mechanics
+     */
     @EventHandler
     public void onPluginEnable(PluginEnableEvent event) {
-        if (FarLands.class.equals(event.getPlugin().getClass()))
-            mechanics.forEach(Mechanic::onStartup);
+        if (FarLands.class.equals(event.getPlugin().getClass())) {
+            this.mechanics.forEach(Mechanic::onStartup);
+        }
     }
 
+    /**
+     * Calls the {@link Mechanic#onShutdown} method for all register mechanics
+     */
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {
-        if (FarLands.class.equals(event.getPlugin().getClass()))
-            mechanics.forEach(Mechanic::onShutdown);
+        if (FarLands.class.equals(event.getPlugin().getClass())) {
+            this.mechanics.forEach(Mechanic::onShutdown);
+        }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST)
+    /**
+     * Calls the {@link Mechanic#onPlayerJoin} method for all register mechanics
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        mechanics.forEach(mechanic -> mechanic.onPlayerJoin(event.getPlayer(),
-                FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).secondsPlayed < 10));
+        boolean isNew = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer()).secondsPlayed < 10;
+        this.mechanics.forEach(mechanic -> mechanic.onPlayerJoin(event.getPlayer(), isNew));
     }
 
+    /**
+     * Calls the {@link Mechanic#onPlayerQuit} method for all register mechanics
+     */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        mechanics.forEach(mechanic -> mechanic.onPlayerQuit(event.getPlayer()));
+        this.mechanics.forEach(mechanic -> mechanic.onPlayerQuit(event.getPlayer()));
     }
 }

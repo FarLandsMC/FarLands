@@ -3,14 +3,14 @@ package net.farlands.sanctuary.data;
 import net.farlands.sanctuary.FarLands;
 
 /**
- * A transient field.
+ * A field that contains a temporary value that only lasts for a certain amount of time
  * @param <T> object
  */
-public class TransientField<T> {
+public class TimedField<T> {
     private T value;
     private int expirationTaskUid;
 
-    public TransientField() {
+    public TimedField() {
         this.value = null;
         this.expirationTaskUid = -1;
     }

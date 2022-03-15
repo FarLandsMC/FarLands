@@ -13,7 +13,6 @@ import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.GeneralMechanics;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
@@ -68,9 +67,9 @@ public class OfflineFLPlayer {
     public boolean viewedPatchnotes;
 
     public Birthday birthday;
-    public NamedTextColor staffChatColor;
+    public NamedTextColor  staffChatColor;
     public LocationWrapper lastLocation;
-    public Mute currentMute;
+    public Mute            currentMute;
     public PackageToggle packageToggle;
     public Particles particles;
     public Pronouns pronouns;
@@ -317,15 +316,15 @@ public class OfflineFLPlayer {
     }
 
     public Location getLastLocation() {
-        return lastLocation.asLocation();
+        return this.lastLocation.asLocation();
     }
 
     public void setLastLocation(Location location) {
-        lastLocation = new LocationWrapper(location);
+        this.lastLocation = new LocationWrapper(location);
     }
 
     public void setLastLocation(UUID world, double x, double y, double z, float yaw, float pitch) {
-        lastLocation = new LocationWrapper(world, x, y, z, yaw, pitch);
+        this.lastLocation = new LocationWrapper(world, x, y, z, yaw, pitch);
     }
 
     public List<String> getIgnoreList() {
@@ -374,13 +373,7 @@ public class OfflineFLPlayer {
         Player player = getOnlinePlayer();
         if (player != null)
             player.kickPlayer(p.generateBanMessage(validPunishments.size() - 1, true));
-        LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
-        if (spawn != null) { // Make sure spawn is set
-            if (player != null)
-                FLUtils.tpPlayer(player, spawn.asLocation());
-            else
-                lastLocation = spawn;
-        }
+        this.moveToSpawn();
         GeneralMechanics.recentlyPunished.add(this);
         return p.totalTime(validPunishments.size() - 1);
     }
@@ -550,10 +543,11 @@ public class OfflineFLPlayer {
 
     public void moveToSpawn() {
         LocationWrapper spawn = FarLands.getDataHandler().getPluginData().spawn;
+        if(spawn == null) return;
         Player player = getOnlinePlayer();
         if (player != null) // If the player is online, teleport them to spawn
             player.teleport(spawn.asLocation());
-        else // Otherwise move their last location
+        else // Otherwise, move their last location
             lastLocation = spawn;
     }
 

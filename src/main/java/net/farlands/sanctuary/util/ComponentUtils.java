@@ -216,6 +216,7 @@ public class ComponentUtils {
 
     /**
      * Convert from a {@link TextColor} into {@link Color}
+     *
      * @param color The color to convert from
      * @return The converted color
      */
@@ -225,11 +226,11 @@ public class ComponentUtils {
 
     /**
      * Parse a string using MiniMessage or Legacy into components, depending on flp's permissions
-     *
+     * <p>
      * (Adept+ and staff)
      *
      * @param message The message to parse
-     * @param flp  The sender of the message
+     * @param flp     The sender of the message
      */
     public static Component parse(String message, OfflineFLPlayer flp) {
         return MiniMessageWrapper.farlands(flp).mmParse(message);
@@ -237,6 +238,7 @@ public class ComponentUtils {
 
     /**
      * Remove hover and click events from the supplied ComponentLike
+     *
      * @param componentLike Source
      * @return Source without events
      */

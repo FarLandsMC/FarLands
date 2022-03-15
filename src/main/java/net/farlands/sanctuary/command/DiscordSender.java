@@ -214,7 +214,7 @@ public class DiscordSender implements CommandSender, ICommandListener {
     }
 
     @Override
-    public boolean F_() {
+    public boolean G_() {
         return shouldBroadcastCommands();
     }
 

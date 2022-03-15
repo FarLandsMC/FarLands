@@ -12,17 +12,19 @@ import java.util.*;
  * Contains any private data that needs to be serialized. This class is loaded and managed by the data handler.
  */
 public class PluginData {
-    public int currentMonth;
-    public int lastPatch;
-    public int votesUntilParty;
-    public long seasonStartTime;
-    public byte[] lastPatchnotesMD5;
-    public LocationWrapper spawn;
-    public LocationWrapper pvpIslandSpawn;
-    public Set<UUID> spawnTraders;
-    public Map<String, LocationWrapper> warps;
-    public List<Proposal> proposals;
-    public Map<UUID, PlayerTrade> playerTrades;
+
+    public int             currentMonth;
+    public int             lastPatch; // Number for the latest patchnotes
+    public byte[]          lastPatchnotesMD5; // Hash for last patchnotes
+    public int             votesUntilParty; // Votes until voteparty
+    public long            seasonStartTime; // Millis since season start
+    public LocationWrapper spawn; // Spawn location
+    public LocationWrapper pvpIslandSpawn; // Location for pvp island
+    public Set<UUID>       spawnTraders; // Villagers at spawn
+    public List<Proposal>  proposals; // Currently pending staff proposals
+
+    public Map<String, LocationWrapper> warps; // Warps
+    public Map<UUID, PlayerTrade>       playerTrades; // Player trade offers
 
     public PluginData() {
         this.currentMonth = FLUtils.getMonthInYear();
@@ -55,12 +57,12 @@ public class PluginData {
     }
 
     public Location getWarp(String name) {
-        LocationWrapper lw = warps.entrySet().stream().filter(e -> name.equalsIgnoreCase(e.getKey())).map(Map.Entry::getValue).findAny().orElse(null);
+        LocationWrapper lw = this.warps.entrySet().stream().filter(e -> name.equalsIgnoreCase(e.getKey())).map(Map.Entry::getValue).findAny().orElse(null);
         return lw == null ? null : lw.asLocation();
     }
 
     public void addWarp(String name, Location location) {
-        warps.put(name, new LocationWrapper(location));
+        this.warps.put(name, new LocationWrapper(location));
     }
 
     public void removeWarp(String name) {

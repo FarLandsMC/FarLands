@@ -20,17 +20,18 @@ import java.io.IOException;
  * Plugin class and "main" class for the plugin.
  */
 public class FarLands extends JavaPlugin {
-    private final Scheduler scheduler;
-    private final Debugger debugger;
-    private final DataHandler dataHandler;
-    private final MechanicHandler mechanicHandler;
-    private final CommandHandler commandHandler;
-    private final DiscordHandler discordHandler;
-    private final GuiHandler guiHandler;
-    private World farlandsWorld;
 
-    private static final Moshi moshi = createMoshi();
-    private static FarLands instance;
+    private final Scheduler       scheduler;
+    private final Debugger        debugger;
+    private final DataHandler     dataHandler;
+    private final MechanicHandler mechanicHandler;
+    private final CommandHandler  commandHandler;
+    private final DiscordHandler  discordHandler;
+    private final GuiHandler      guiHandler;
+    private       World           farlandsWorld;
+
+    private static final Moshi    moshi = createMoshi();
+    private static       FarLands instance;
 
     public static Moshi createMoshi() {
         Moshi.Builder builder = new Moshi.Builder();
@@ -57,14 +58,14 @@ public class FarLands extends JavaPlugin {
     public void onEnable() {
         // TODO: reinstate seed
         // farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
-        farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).generateStructures(true).createWorld();
-        dataHandler.preStartup();
+        this.farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).generateStructures(true).createWorld();
+        this.dataHandler.preStartup();
         Rank.createTeams();
-        scheduler.start();
-        mechanicHandler.registerMechanics();
-        discordHandler.startBot();
+        this.scheduler.start();
+        this.mechanicHandler.registerMechanics();
+        this.discordHandler.startBot();
         Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
-                instance.getDescription().getVersion() + "."), 50L);
+                                                                   instance.getDescription().getVersion() + "."), 50L);
         Bukkit.getScheduler().runTaskLater(this, () -> {
             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "headdatabase:hdb r");
             Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "petblocks:petblockreload");
@@ -73,13 +74,16 @@ public class FarLands extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        scheduler.interrupt();
-        if (discordHandler.isActive()) {
-            discordHandler.getNativeBot().shutdown();
+        this.scheduler.interrupt();
+        if (this.discordHandler.isActive()) {
+            this.discordHandler.getNativeBot().shutdown();
         }
-        discordHandler.setActive(false);
+        this.discordHandler.setActive(false);
     }
 
+    /**
+     * Execute a script in the root dir with the given args
+     */
     public static void executeScript(String script, String... args) {
         String[] command = new String[args.length + 3];
         command[0] = "nohup";

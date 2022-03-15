@@ -4,7 +4,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.FLUtils;
 
 /**
- * Class to determine if a given amount of time has passed in ticks
+ * Custom cooldown times that can be applied to commands and such.
  */
 public class Cooldown {
     private final long delay;

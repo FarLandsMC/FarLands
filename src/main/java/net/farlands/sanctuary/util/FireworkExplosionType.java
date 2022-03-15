@@ -3,7 +3,7 @@ package net.farlands.sanctuary.util;
 import java.util.Random;
 
 /**
- * Types of firework explosions.
+ * Types of firework explosions
  */
 public enum FireworkExplosionType {
     SMALL_BALL,

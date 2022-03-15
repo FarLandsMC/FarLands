@@ -32,6 +32,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
  */
 public class ChatHandler {
 
+    /**
+     * Run event on a player login or logout
+     * @param event Either {@link PlayerJoinEvent} or {@link PlayerQuitEvent}
+     */
     public static void playerLog(PlayerEvent event) {
         boolean join = event instanceof PlayerJoinEvent;
         if (join) { // Reset message
@@ -56,6 +60,11 @@ public class ChatHandler {
 
     }
 
+    /**
+     * Send a player's transition message to chat
+     * @param flp Player in question
+     * @param join If the player was transitioning into the game
+     */
     public static void playerTransition(OfflineFLPlayer flp, boolean join) {
         String joinOrLeave = join ? "joined" : "left";
         Component message = Component.text() // > <player> has <joined/left>.
@@ -71,6 +80,9 @@ public class ChatHandler {
 
     }
 
+    /**
+     * Method run on chat event
+     */
     public static void onChat(AsyncChatEvent event) {
         if (event.isCancelled()) return; //  If something cancels the event, don't do anything.
         event.setCancelled(true);
@@ -99,14 +111,14 @@ public class ChatHandler {
 
         Component formatted = handleReplacements(message, sender);
 
-        if (!shout) {
+        if (!shout) { // If the player isn't "shouting" (! before message)
             FLPlayerSession session = FarLands.getDataHandler().getSession(player);
-            if (sender.vanished || session.autoSendStaffChat) {
+            if (sender.vanished || session.autoSendStaffChat) { // Send to sc
                 staffChat(player, PlainTextComponentSerializer.plainText().serialize(formatted));
                 return;
             }
 
-            if (session.replyToggleRecipient != null) {
+            if (session.replyToggleRecipient != null) { // Auto reply
                 if (session.replyToggleRecipient instanceof Player && ((Player) session.replyToggleRecipient).isOnline()) {
                     CommandMessage.sendMessages(
                         FarLands.getDataHandler().getOfflineFLPlayer(session.replyToggleRecipient),

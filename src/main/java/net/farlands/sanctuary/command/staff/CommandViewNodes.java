@@ -1,14 +1,11 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Pair;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.mechanic.anticheat.Detecting;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -16,6 +13,8 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandViewNodes extends Command {
 
@@ -70,7 +69,7 @@ public class CommandViewNodes extends Command {
                    .append(node.getSecond().getBlockY()).append(" ")
                    .append(node.getSecond().getBlockZ()).append(" ~ ~ ")
                    .append(node.getSecond().getWorld().getName()).append("},{&(gray)Click to tp},&(")
-                   .append(node.getFirst().getColor().name().toLowerCase()).append(")")
+                   .append(node.getFirst().color().toString().toLowerCase()).append(")")
                    .append(node.getFirst().toString()).append(" @ ")
                    .append(node.getSecond().getBlockX()).append(" ")
                    .append(node.getSecond().getBlockY()).append(" ")

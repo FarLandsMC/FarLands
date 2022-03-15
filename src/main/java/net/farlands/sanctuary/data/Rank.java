@@ -24,8 +24,7 @@ import java.util.Arrays;
  */
 public enum Rank {
 
-    /* Player Ranks */
-
+    // Player Ranks:
     // symbol color playTimeRequired homes tpDelay shops wildCooldown [advancement]
     INITIATE ("Initiate", NamedTextColor.GRAY,         0,   1,  7, 0,  3                                            ),
     BARD     ("Bard",     NamedTextColor.YELLOW,       3,   3,  6, 2,  18, "story/mine_diamond"         ),
@@ -42,8 +41,7 @@ public enum Rank {
     SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1,  40, 0, 50, 1 ),
     MEDIA    ("Media",    NamedTextColor.YELLOW,       -1,  40, 0, 50, 1 ), // Same as Sponsor
 
-    /* Staff Ranks */
-
+    // Staff Ranks:
     // permissionLevel symbol color
     JR_BUILDER (1, "Jr. Builder", TextColor.color(0xbf6bff) ),
     JR_MOD     (1, "Jr. Mod",     TextColor.color(0xd7493d) ),
@@ -54,11 +52,12 @@ public enum Rank {
     DEV        (3, "Dev",         TextColor.color(0x09816b) ),
     OWNER      (4, "Owner",       NamedTextColor.GOLD       );
 
-    private final int permissionLevel; // 0: players, 1+: staff
-    private final String name;
-    private final TextColor color;
     private final NamedTextColor teamColor; // Determined from color
-    private final String advancement;
+    private final TextColor      color;
+    private final String         name;
+    private final String         advancement;
+
+    private final int permissionLevel; // 0: players, 1+: staff
     private final int playTimeRequired; // Hours
     private final int homes;
     private final int tpDelay; // Seconds
@@ -67,9 +66,9 @@ public enum Rank {
 
     private final Component label;
 
-    public static final Rank[] VALUES = values();
-    public static final int[] DONOR_RANK_COSTS = { 10, 30, 60 };
-    public static final Rank[] DONOR_RANKS = { DONOR, PATRON, SPONSOR };
+    public static final Rank[] VALUES           = values();
+    public static final int[]  DONOR_RANK_COSTS = { 10, 30, 60 };
+    public static final Rank[] DONOR_RANKS      = { DONOR, PATRON, SPONSOR };
 
     Rank(int permissionLevel, String name, TextColor color, String advancement, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown) {
         this.permissionLevel = permissionLevel;
@@ -99,8 +98,12 @@ public enum Rank {
         this(permissionLevel, name, color, null, -1, Integer.MAX_VALUE, 0, 60, 0);
     }
 
+    /**
+     * Compare to another rank
+     * <br>
+     * For the players, order in the enum specifies the hierarchy; for staff, only the permission level specifies the hierarchy.
+     */
     public int specialCompareTo(Rank other) {
-        // For the players, order in the enum specifies the hierarchy; for staff, only the permission level specifies the hierarchy.
         return permissionLevel == other.permissionLevel
                ? (permissionLevel == 0 ? Integer.compare(ordinal(), other.ordinal()) : 0)
                : Integer.compare(permissionLevel, other.permissionLevel);
@@ -114,10 +117,6 @@ public enum Rank {
         return playTimeRequired >= 0;
     }
 
-    public boolean hasPlaytime(OfflineFLPlayer flp) {
-        return playTimeRequired >= 0 && flp.secondsPlayed >= (playTimeRequired - flp.totalSeasonVotes) * 3600;
-    }
-
     public boolean hasOP() {
         return permissionLevel > 1;
     }
@@ -127,6 +126,9 @@ public enum Rank {
         return this.specialCompareTo(Rank.PATRON) >= 0 ? 30 : 15;
     }
 
+    /**
+     * Get the amount of bonus claimblocks this rank should receive
+     */
     public int getClaimBlockBonus() {
         return switch (this) {
             case DONOR -> 15000;
@@ -170,11 +172,24 @@ public enum Rank {
         return advancement == null ? null : Bukkit.getServer().getAdvancement(NamespacedKey.minecraft(advancement));
     }
 
+    /**
+     * Check if a player has the correct amount of playtime to rankup to this rank, subtracts 1 hour for each vote in current season
+     */
+    public boolean hasPlaytime(OfflineFLPlayer flp) {
+        return playTimeRequired >= 0 && flp.secondsPlayed >= (playTimeRequired - flp.totalSeasonVotes) * 3600;
+    }
+
+    /**
+     * Check if the given player has completed the advancement required for this rank
+     */
     public boolean completedAdvancement(Player player) {
         Advancement adv = getAdvancement();
         return adv == null || player.getAdvancementProgress(adv).isDone();
     }
 
+    /**
+     * Check if a player has the requirements to rankup to this rank
+     */
     public boolean hasRequirements(Player player, OfflineFLPlayer flp) {
         return hasPlaytime(flp) && completedAdvancement(player);
     }
@@ -199,10 +214,17 @@ public enum Rank {
         return wildCooldown;
     }
 
+    /**
+     * Get the next rank in the rankup path
+     * @return The next rank, or <code>this</code> if it's the highest rank
+     */
     public Rank getNextRank() {
         return equals(VALUES[VALUES.length - 1]) ? this : VALUES[ordinal() + 1];
     }
 
+    /**
+     * Get the rank of a CommandSender
+     */
     public static Rank getRank(CommandSender sender) {
         if (sender instanceof ConsoleCommandSender) {
             return VALUES[VALUES.length - 1]; // Highest possible perms
@@ -212,10 +234,16 @@ public enum Rank {
         return FarLands.getDataHandler().getOfflineFLPlayer(sender).rank;
     }
 
+    /**
+     * Get the name of the scoreboard team that this rank is associated with
+     */
     private String getTeamName() {
         return specialCompareTo(VOTER) >= 0 ? (char) ('a' + ordinal()) + getName() : "aDefault"; // Prefixes to order teams alphabetically
     }
 
+    /**
+     * Get the scoreboard team that this rank is associated with
+     */
     public Team getTeam() {
         return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(getTeamName());
     }
@@ -224,10 +252,16 @@ public enum Rank {
         return this.label;
     }
 
+    /**
+     * Colorise the name given with the correct colours for the rank ({@link Rank#nameColor})
+     */
     public Component colorName(String name) {
         return Component.text(name).color(nameColor());
     }
 
+    /**
+     * Create the scoreboard teams for each rank
+     */
     public static void createTeams() {
         final Scoreboard sc = Bukkit.getScoreboardManager().getMainScoreboard();
         sc.getTeams().forEach(Team::unregister); // Remove old teams

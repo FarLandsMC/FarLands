@@ -15,6 +15,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatFormat;
 import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.DiscordSender;
+import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -27,28 +28,26 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Main discord handler.
+ * Handler for all discord events, such as messages and commands
  */
 public class DiscordHandler extends ListenerAdapter {
 
-    private DiscordBotConfig config;
-    private final MessageChannelHandler channelHandler;
-    private JDA jdaBot;
-    private boolean active;
+    private       Config.DiscordBotConfig config;
+    private final MessageChannelHandler   channelHandler;
+    private       JDA                     jdaBot;
+    private       boolean                 active;
 
-    public static final String VERIFIED_ROLE = "Verified";
-    public static final String STAFF_ROLE = "Staff";
+    public static final String       VERIFIED_ROLE    = "Verified";
+    public static final String       STAFF_ROLE       = "Staff";
     public static final List<String> IMAGE_EXTENSIONS = List.of("png", "jpg", "jpeg", "gif", "webp");
 
     public DiscordHandler() {
@@ -58,7 +57,12 @@ public class DiscordHandler extends ListenerAdapter {
         this.active = false;
     }
 
-    public void startBot() { // Called in FarLands#onEnable
+    /**
+     * Start the discord bot with the correct configurationg
+     * <br>
+     * Called in {@link FarLands#onEnable()}
+     */
+    public void startBot() {
         config = FarLands.getFLConfig().discordBotConfig;
         try {
             if (config.token.isEmpty()) {
@@ -88,6 +92,9 @@ public class DiscordHandler extends ListenerAdapter {
         return jdaBot;
     }
 
+    /**
+     * Get a discord role by name
+     */
     public Role getRole(String name) {
         if (!active) {
             return null;
@@ -96,6 +103,9 @@ public class DiscordHandler extends ListenerAdapter {
         return roles.isEmpty() ? null : roles.get(0);
     }
 
+    /**
+     * Get the discord guild
+     */
     public Guild getGuild() {
         if (!active) {
             return null;
@@ -111,6 +121,9 @@ public class DiscordHandler extends ListenerAdapter {
         this.active = active;
     }
 
+    /**
+     * Update the bot's activity
+     */
     public synchronized void updateStats() {
         if (!active) {
             return;
@@ -119,11 +132,14 @@ public class DiscordHandler extends ListenerAdapter {
         jdaBot.getPresence().setActivity(getStats());
     }
 
+    /**
+     * Get the activity that the discord bot should show, determined based on the online players
+     */
     private Activity getStats() {
-        List<Player> onlinePlayers = Bukkit.getOnlinePlayers()
+        List<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers()
             .stream()
             .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
-            .collect(Collectors.toList());
+            .toList();
 
         String status = "with ";
         if (onlinePlayers.size() == 1) {
@@ -133,18 +149,6 @@ public class DiscordHandler extends ListenerAdapter {
         }
 
         return Activity.of(Activity.ActivityType.DEFAULT, status);
-    }
-
-    @Deprecated
-    public void sendMessage(DiscordChannel channel, BaseComponent[] message) {
-        StringBuilder sb = new StringBuilder();
-        for (BaseComponent bc : message) {
-            if (bc instanceof TextComponent) {
-                sb.append(bc.toLegacyText());
-            }
-        }
-        sendMessageRaw(channel, MarkdownProcessor.escapeMarkdown(sb.toString().replaceAll("(?i)§[0-9a-f]", "")));
-
     }
 
     /**
@@ -223,7 +227,7 @@ public class DiscordHandler extends ListenerAdapter {
      */
     public static boolean isManagedRole(Role role) {
         return Stream.of(Rank.VALUES).anyMatch(rank -> role.getName().equals(rank.getName())) ||
-            STAFF_ROLE.equals(role.getName()) || VERIFIED_ROLE.equals(role.getName());
+               STAFF_ROLE.equals(role.getName()) || VERIFIED_ROLE.equals(role.getName());
     }
 
     /**
@@ -237,7 +241,7 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     /**
-     * When a new user joins the server
+     * When a new user joins the discord server
      */
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
@@ -250,9 +254,9 @@ public class DiscordHandler extends ListenerAdapter {
             .openPrivateChannel()
             .queue((channel) -> channel.sendMessage(
                 "Welcome to the FarLands official discord server! To access more channels and voice chat, " +
-                    "Type `/verify <minecraftUsername>` in the unverified general channel while you are on the server. You " +
-                    "should replace `<minecraftUsername>` with your exact minecraft username, respecting capitalization and spelling. " +
-                    "After doing that, type `/verify` in-game, and you're set."
+                "Type `/verify <minecraftUsername>` in the unverified general channel while you are on the server. You " +
+                "should replace `<minecraftUsername>` with your exact minecraft username, respecting capitalization and spelling. " +
+                "After doing that, type `/verify` in-game, and you're set."
             ).queue());
     }
 
@@ -301,25 +305,6 @@ public class DiscordHandler extends ListenerAdapter {
         }
 
         DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel());
-
-        // TODO: this magic
-//        String[] contentRaw = event.getMessage().getContentRaw().split(" ");
-//        String[] contentDisplay = event.getMessage().getContentDisplay().split(" ");
-//
-//        StringBuilder sb = new StringBuilder();
-//
-//        for (int i = 0; i < contentRaw.length; i++) {
-//            String wordRaw = contentRaw[i];
-//            String wordDisplay = contentDisplay[i];
-//
-//            if (wordRaw.matches("^<@!?(\\d+)>$")) {
-//                sb.append(wordRaw).append(" ");
-//                continue;
-//            }
-//            sb.append(wordDisplay).append(" ");
-//        }
-//
-//        String message = sb.toString().strip();
         String message = event.getMessage().getContentDisplay().strip();
 
         if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage())) {
@@ -330,17 +315,17 @@ public class DiscordHandler extends ListenerAdapter {
 
         if (
             bodyRaw.length() > 256 && // Message is too long for in-game chat and
-                channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong() // Message in #in-game
+            channelHandler.getChannel(DiscordChannel.IN_GAME).getIdLong() == event.getChannel().getIdLong() // Message in #in-game
         ) {
             message = message.substring(0, 232).strip();
 
             message += String.format(
                 "<gray>... View more on " +
-                    "<click:open_url:%s>" +
-                        "<hover:show_text:<gray>Click to open.>" +
-                            "<aqua>Discord</aqua>" +
-                        "</hover>" +
-                    "</click>." +
+                "<click:open_url:%s>" +
+                "<hover:show_text:<gray>Click to open.>" +
+                "<aqua>Discord</aqua>" +
+                "</hover>" +
+                "</click>." +
                 "</gray>",
                 FarLands.getFLConfig().discordInvite
             );
@@ -379,7 +364,7 @@ public class DiscordHandler extends ListenerAdapter {
             messagePrefix.append(ComponentColor.gray("[Reply] ").hoverEvent(HoverEvent.showText(replyHover)));
         }
 
-        if (!event.getMessage().getAttachments().isEmpty()) {
+        if (!event.getMessage().getAttachments().isEmpty()) { // Add the suffix of [Image] or [Attachment]
             boolean isImage = IMAGE_EXTENSIONS.contains(event.getMessage().getAttachments().get(0).getFileExtension());
 
             Component image = ComponentUtils.link(
@@ -395,7 +380,6 @@ public class DiscordHandler extends ListenerAdapter {
 
         boolean staffChat = channelHandler.getChannel(DiscordChannel.STAFF_COMMANDS).getIdLong() == event.getChannel().getIdLong();
 
-//        Component component = replacements(message, staffChat, flp);
         Component component = MiniMessage.miniMessage().deserialize(message);
         Component censorComponent = MessageFilter.INSTANCE.censor(component);
 
@@ -447,8 +431,8 @@ public class DiscordHandler extends ListenerAdapter {
                     sendMessageRaw(
                         DiscordChannel.ALERTS,
                         "Deleted message from in-game channel:\n```" +
-                            ComponentUtils.toText(finalMessage) +
-                            "```\nSent by: `" + sender.getName() + "`.");
+                        ComponentUtils.toText(finalMessage) +
+                        "```\nSent by: `" + sender.getName() + "`.");
 
                     event.getMessage().delete().queue();
                     return;
@@ -484,10 +468,6 @@ public class DiscordHandler extends ListenerAdapter {
         component = ChatFormat.translateEmotes(component);
         component = ChatFormat.translateLinks(component);
         return component;
-    }
-
-    public Emote getEmote(String id) {
-        return getGuild().getEmoteById(id);
     }
 
     public Emote getEmote(long id) {

@@ -44,8 +44,8 @@ public class RotatingMessages extends Mechanic {
      * Broadcast the next message and cycle
      */
     public void broadcast() {
-        Message msg = queue.poll(); // Cycle message to end
-        queue.offer(msg);
+        Message msg = this.queue.poll(); // Cycle message to end
+        this.queue.offer(msg);
 
         if (msg == null) return;
         msg.broadcast();
@@ -57,7 +57,7 @@ public class RotatingMessages extends Mechanic {
      * @param message The message to add -- Formatted with MiniMessage
      */
     public void addMessage(String message) {
-        queue.add(new Message(message));
+        this.queue.add(new Message(message));
     }
 
 
@@ -68,13 +68,13 @@ public class RotatingMessages extends Mechanic {
      * @param message The message to add -- Formatted with MiniMessage
      */
     public void addMessage(Predicate<OfflineFLPlayer> filter, String message) {
-        queue.add(new Message(filter, message));
+        this.queue.add(new Message(filter, message));
     }
 
     /**
      * Data class for rotating messages.
      */
-    private static record Message(Predicate<OfflineFLPlayer> filter, Component message) {
+    private record Message(Predicate<OfflineFLPlayer> filter, Component message) {
 
         private static final Predicate<OfflineFLPlayer> ALL = flp -> true;
 
@@ -90,7 +90,7 @@ public class RotatingMessages extends Mechanic {
             Bukkit.getOnlinePlayers()
                 .stream()
                 .map(FarLands.getDataHandler()::getOfflineFLPlayer)
-                .filter(filter)
+                .filter(this.filter)
                 .map(OfflineFLPlayer::getOnlinePlayer)
                 .forEach(player -> player.sendMessage(this.message));
         }

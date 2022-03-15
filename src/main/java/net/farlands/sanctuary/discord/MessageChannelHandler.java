@@ -10,11 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Handles different discord channels.
+ * Handles different discord channels
  */
 public class MessageChannelHandler {
+
     private final Map<DiscordChannel, MessageChannel> channels;
-    private final Map<DiscordChannel, List<String>> buffers;
+    private final Map<DiscordChannel, List<String>>   buffers;
 
     public MessageChannelHandler() {
         this.channels = new HashMap<>();
@@ -25,6 +26,9 @@ public class MessageChannelHandler {
         FarLands.getScheduler().scheduleAsyncRepeatingTask(this::flush, 0L, 5L);
     }
 
+    /**
+     * Flush all queued messages
+     */
     private synchronized void flush() {
         StringBuilder sb = new StringBuilder();
         channels.forEach((channel, messageChannel) -> {
@@ -37,8 +41,9 @@ public class MessageChannelHandler {
                         }
                         sb.append(messageBuffer.substring(i, Math.min(i + 1999, messageBuffer.length())).trim()).append('\n');
                     }
-                } else
+                } else {
                     sb.append(messageBuffer.trim()).append('\n');
+                }
             });
 
             if (sb.length() > 0 && !sb.toString().matches("\\s+")) {
@@ -59,18 +64,26 @@ public class MessageChannelHandler {
         return channels.get(channel);
     }
 
+    /**
+     * Queue a message to be sent to the provided channel
+     */
     public synchronized void sendMessage(MessageChannel channel, String message) {
         DiscordChannel key = FLUtils.getKey(channels, channel);
-        if (key == null)
+        if (key == null) {
             channel.sendMessage(message).queue();
-        else
+        } else {
             sendMessage(key, message);
+        }
     }
 
+    /**
+     * Queue a message to be sent to the provided channel
+     */
     public synchronized void sendMessage(DiscordChannel channel, String message) {
         List<String> buffer = buffers.get(channel);
-        if (buffer == null)
+        if (buffer == null) {
             return;
+        }
 
         buffer.add(message);
     }

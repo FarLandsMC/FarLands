@@ -5,6 +5,9 @@ package net.farlands.sanctuary.chat;
  */
 public class ChatControl {
 
+    /**
+     * Limit the amount of characters that are allowed to be in a row
+     */
     public static String limitFlood(String message) {
         int row = 0;
         char last = ' ';
@@ -23,19 +26,22 @@ public class ChatControl {
         return output.toString();
     }
 
+    /**
+     * Limit the amount of capital letters in a message
+     */
     public static String limitCaps(String message) {
         if (message.length() < 6) {
             return message;
         }
 
-        float uppers = 0;
+        int uppers = 0;
         for (char c : message.toCharArray()) {
             if (Character.isUpperCase(c)) {
                 ++uppers;
             }
         }
 
-        if (uppers / message.length() >= 5f / 12) {
+        if (uppers / (double) message.length() >= 5 / 12.0) {
             return message.substring(0, 1).toUpperCase() + message.substring(1).toLowerCase();
         } else {
             return message;
