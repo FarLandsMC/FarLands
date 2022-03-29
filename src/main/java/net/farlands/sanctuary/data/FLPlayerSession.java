@@ -44,6 +44,7 @@ public class FLPlayerSession {
     public boolean               autoSendStaffChat;
     public boolean               isInEvent;
     public boolean               fallDamageImmune;
+    public boolean               gamemodeImmune; // Disable the automatic gamemode check (Used for granting temporary creative mode to certain players, like founders)
     public CommandSender         replyToggleRecipient;
     public Location              seatExit;
     public TeleportRequest       outgoingTeleportRequest;
@@ -82,6 +83,7 @@ public class FLPlayerSession {
         this.autoSendStaffChat = false;
         this.isInEvent = false;
         this.fallDamageImmune = false;
+        this.gamemodeImmune = false;
         this.replyToggleRecipient = null;
         this.seatExit = null;
         this.outgoingTeleportRequest = null;
@@ -118,6 +120,7 @@ public class FLPlayerSession {
         this.autoSendStaffChat = cached.autoSendStaffChat;
         this.isInEvent = cached.isInEvent;
         this.fallDamageImmune = false;
+        this.gamemodeImmune = cached.gamemodeImmune;
         this.replyToggleRecipient = cached.replyToggleRecipient;
         this.seatExit = null;
         this.outgoingTeleportRequest = null;
@@ -173,9 +176,6 @@ public class FLPlayerSession {
             player.sendMessage(ChatColor.GREEN + "Your mute has expired.");
         }
 
-        handle.ignoredPlayers.forEach(uuid -> handle.updateIgnoreStatus(uuid, IgnoreStatus.IgnoreType.ALL, true));
-        handle.ignoredPlayers.clear();
-
         if (!handle.username.equals(player.getName())) {
             handle.username = player.getName();
         }
@@ -219,7 +219,9 @@ public class FLPlayerSession {
 
         flying = handle.flightPreference;
         if (!handle.rank.isStaff()) {
-            player.setGameMode(GameMode.SURVIVAL);
+            if(!this.gamemodeImmune) {
+                player.setGameMode(GameMode.SURVIVAL);
+            }
             if (handle.rank != Rank.MEDIA) {
                 flying = false;
                 handle.vanished = false;

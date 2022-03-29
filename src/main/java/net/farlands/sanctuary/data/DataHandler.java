@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.data;
 
+import com.kicasmads.cs.ChestShops;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -830,6 +831,13 @@ public class DataHandler extends Mechanic {
             }
         });
 
+        // Update flp's shop counts
+        ChestShops.getDataHandler()
+            .getAllShops()
+            .forEach(shop -> {
+                getOfflineFLPlayer(shop.getOwner()).shops++;
+            });
+
         loadEvidenceLockers();
         loadDeathDatabase();
         loadPackages();
@@ -837,7 +845,7 @@ public class DataHandler extends Mechanic {
     }
 
     public void saveData() {
-        // Disable pretty-printing and handle the @SkipSerializing annotation
+        // Create plain moshi instance without indentation
         Moshi.Builder playerDataBuilder = new Moshi.Builder();
         CustomAdapters.register(playerDataBuilder);
 

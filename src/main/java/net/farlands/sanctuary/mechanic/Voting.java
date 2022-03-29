@@ -89,7 +89,10 @@ public class Voting extends Mechanic {
             .orElse(null);
         OfflineFLPlayer actualTop = FarLands.getDataHandler().getOfflineFLPlayers().stream()
             .filter(flp -> !flp.rank.isStaff())
-            .max(Comparator.comparingInt(flp -> (flp.monthVotes << 26) + (flp.totalSeasonVotes << 13) + flp.totalVotes)) // Compare votes with month votes having the highest weight
+            .max(Comparator.<OfflineFLPlayer>
+                comparingInt(f -> f.monthVotes)
+                     .thenComparingInt(f1 -> f1.totalVotes)
+                     .thenComparingInt(f2 -> f2.totalSeasonVotes))
             .orElse(null);
 
         if (currentTop != null) {

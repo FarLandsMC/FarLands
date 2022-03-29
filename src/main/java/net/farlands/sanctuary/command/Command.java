@@ -6,7 +6,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -82,10 +81,10 @@ public abstract class Command extends org.bukkit.command.Command {
                 if (!execute(sender, args))
                     showUsage(sender);
             } catch (TextUtils.SyntaxException ex) {
-                sender.sendMessage(ChatColor.RED + ex.getMessage());
+                error(sender, ex.getMessage());
             }
         } catch (Throwable ex) {
-            sender.sendMessage("There was an error executing this command.");
+            error(sender, "There was an error executing this command.");
             StringBuilder error = new StringBuilder();
             error.append(ex.getClass().getName()).append(": ").append(ex.getMessage()).append('\n');
             for (StackTraceElement ste : ex.getStackTrace())

@@ -51,7 +51,6 @@ public class OfflineFLPlayer {
     public int monthVotes;
     public int voteRewards;
     public int secondsPlayed;
-    public int shops;
     public int deaths;
 
     public double amountDonated;
@@ -83,7 +82,7 @@ public class OfflineFLPlayer {
     public List<Punishment> punishments;
     public List<String> notes;
 
-    public transient Set<UUID> ignoredPlayers;
+    transient public int shops;
 
     public OfflineFLPlayer(UUID uuid, String username) {
         this.uuid = uuid;
@@ -136,7 +135,6 @@ public class OfflineFLPlayer {
         this.pendingSharehomes = new HashMap<>();
         this.mail = new ArrayList<>();
 
-        this.ignoredPlayers = new HashSet<>();
     }
 
     @SuppressWarnings("unused")

@@ -1,17 +1,19 @@
 package net.farlands.sanctuary.command.discord;
 
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.StringPrintStream;
+import org.apache.logging.log4j.core.tools.picocli.CommandLine;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -21,43 +23,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandArtifact extends DiscordCommand {
+
+    /**
+     * Should the server update paper on next artifact restart?
+     * <p>
+     * TODO: Make this work for all server restarts, not just those caused by artifacting.
+     */
+    public static boolean updatePaper = false;
+
     public CommandArtifact() {
-        super(Rank.ADMIN, "Set the current plugin artifact on the server.",
-                "/artifact [forcePush=false] [updateSpigot=false] {add jar as attachment}", "artifact");
+        super(CommandData.withRank(
+            "artifact",
+            "Set the current plugin artifact on the server.",
+            "/artifact [args]",
+            Rank.ADMIN));
     }
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
-        if (!canUse(sender)) // Extra security
-            return true;
-
-        if (!(sender instanceof DiscordSender)) {
-            error(sender, "This command must be used from Discord.");
-            return false;
-        }
-
+    public boolean execute(CommandSender sender, String[] argsArr) {
+        if (!canUse(sender)) return true; // Extra security (Paranoia)
+        if (!(sender instanceof DiscordSender)) return error(sender, "This command must be used from Discord.");
         if (FarLands.getFLConfig().isScreenSessionNotSet()) {
-            error(sender, "The screen session for this server instance is not specified.  This command requires that field to run.");
+            return error(sender, "The screen session for this server instance is not specified.  This command requires that field to run.");
+        }
+
+        Arguments args = new Arguments();
+        Message message = getMessage(argsArr[0]);
+
+        try {
+            if(argsArr.length > 1) {
+                new CommandLine(args).parse(joinArgsBeyond(0, " ", argsArr));
+            }
+        } catch (Exception e) {
+            args.help = true; // Show the usage
+        }
+
+        if (args.help) {
+            StringPrintStream ps = new StringPrintStream();
+            CommandLine.usage(args, ps, CommandLine.Help.Ansi.OFF);
+            message.reply("Usage: ```\n%s```".formatted(ps.toString())).queue();
             return true;
         }
 
-        // Locate the attachment
-        String channelId = args[0].substring(0, args[0].indexOf(':'));
-        String messageId = args[0].substring(args[0].indexOf(':') + 1);
-        Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).retrieveMessageById(messageId).complete();
+        if (args.updatePaper) updatePaper = true;
 
-        List<Message.Attachment> attachments = message.getAttachments();
-        if (attachments.isEmpty()) {
-            sender.sendMessage("You must attach the jar to the command message.");
-            return true;
-        }
+        // Get the attachments
+        List<Attachment> attachments = message.getAttachments().stream().filter(attachment -> "jar".equalsIgnoreCase(attachment.getFileExtension())).toList();
+        if (attachments.isEmpty()) success(sender, "No attached jars found.");
 
         List<String> failures = new ArrayList<>();
         attachments.forEach(attachment -> {
 
             File dest = FarLands.getDataHandler().getTempFile(attachment.getFileName());
-            if (dest.exists())
-                dest.delete();
+            if (dest.exists()) dest.delete();
 
             try {
                 attachment.downloadToFile(dest).get();
@@ -67,62 +85,76 @@ public class CommandArtifact extends DiscordCommand {
                 ex.printStackTrace();
             }
         });
-        if(!failures.isEmpty()) {
-            error(
+
+        if (!failures.isEmpty()) {
+            return error(
                 sender,
                 "Unable to download file(s): %s%s",
                 String.join(", ", failures),
-                args.length > 1 && args[1].equalsIgnoreCase("true") ? "\nAborting Restart..." : ""
+                args.restartServer ? "\nAborting Restart..." : ""
             );
-            return true;
         }
 
-        Config cfg = FarLands.getFLConfig();
 
-        if (args.length > 1 && "true".equals(args[1])) {
-            boolean downloadPaper = args.length > 2 && args[2].equalsIgnoreCase("true");
-            String paperDownload = downloadPaper ? FLUtils.getLatestReleaseUrl() : "unused";
-            if(paperDownload == null) {
-                Logging.error("Failed to get latest paper download url.");
-                sender.sendMessage(ComponentColor.red("Failed to get latest paper download url."));
-                paperDownload = "unused"; // Give it a non-null value
-                downloadPaper = false;
-            } else {
-                if (downloadPaper) {
-                    String fileName = paperDownload.substring(paperDownload.lastIndexOf('/') + 1).replace(".jar", "");
-                    success(sender, "Downloading latest paper version: %s", fileName);
-                }
-            }
-            FarLands.executeScript(
-                "artifact.sh",
-                cfg.screenSession,
-                paperDownload,
-                cfg.dedicatedMemory,
-                downloadPaper ? "true" : "false");
-            FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
-        }
+        if (args.restartServer) restart(sender);
 
         return true;
     }
 
     @Override
     public boolean canUse(CommandSender sender) {
-        if (sender instanceof ConsoleCommandSender)
+        if (sender instanceof ConsoleCommandSender) {
             return true;
-        else if (sender instanceof BlockCommandSender) // Prevent people circumventing permissions by using a command block
-            return false;
+        } else if (sender instanceof BlockCommandSender) {
+            return false; // Prevent people circumventing permissions by using a command block
+        }
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null || !FarLands.getFLConfig().jsUsers.contains(flp.uuid.toString())) {
-            sender.sendMessage(ChatColor.RED + "You cannot use this command.");
+            error(sender, "You cannot use this command.");
             return false;
         }
 
         return super.canUse(sender);
     }
 
+    public void restart(CommandSender sender) {
+        Config cfg = FarLands.getFLConfig();
+        String paperDownload = updatePaper ? FLUtils.getLatestReleaseUrl() : "unused";
+        if (paperDownload == null) {
+            error(sender, "Failed to get latest paper download url.");
+            paperDownload = "unused"; // Give it a non-null value
+        } else {
+            if (updatePaper) {
+                String fileName = paperDownload.substring(paperDownload.lastIndexOf('/') + 1).replace(".jar", "");
+                success(sender, "Downloading latest paper version: %s", fileName);
+            }
+        }
+        FarLands.executeScript(
+            "artifact.sh",
+            cfg.screenSession,
+            paperDownload,
+            cfg.dedicatedMemory,
+            updatePaper + "");
+        FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
+    }
+
     @Override
     public boolean requiresMessageID() {
         return true;
+    }
+
+    @CommandLine.Command(name = "/artifact", header = "Artifact a jar or make changes to the server.")
+    private static class Arguments {
+
+        @CommandLine.Option(names = { "-u", "--update-paper" }, description = "Update Paper to the latest version on next restart")
+        private boolean updatePaper;
+
+        @CommandLine.Option(names = { "-r", "--restart" }, description = "Artifact and restart")
+        private boolean restartServer;
+
+        @CommandLine.Option(names = { "-h", "--help" }, usageHelp = true, description = "Display this help and exit")
+        private boolean help;
+
     }
 }

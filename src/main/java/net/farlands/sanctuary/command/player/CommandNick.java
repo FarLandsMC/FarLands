@@ -36,29 +36,27 @@ public class CommandNick extends PlayerCommand {
 
         // Set the nickname
         if ("nick".equals(args[0])) {
-            Component nickname = MiniMessageWrapper.farlands(flp).mmParse(TabCompleterBase.joinArgsBeyond(0, " ", args));
+            Component nickname;
+            try {
+                nickname = MiniMessageWrapper.farlands(flp).mmParse(TabCompleterBase.joinArgsBeyond(0, " ", args));
+            } catch (Exception e) {
+                return error(sender, "Failed to parse nickname colors.  Use /colors to see the options.");
+            }
             // Get rid of colors for length checking
             String rawNick = PlainTextComponentSerializer.plainText().serialize(nickname);
             // Prevent whitespace and profanity
             if (args[1].isEmpty() || args[1].matches("\\s+") || MessageFilter.INSTANCE.isProfane(rawNick)) {
-                sender.sendMessage(ComponentColor.red("You cannot set your nickname to this."));
-                return true;
+                return error(sender, "You cannot set your nickname to this.");
             }
 
             // Check length
             int rawLen = rawNick.length();
-            if (rawLen > 16) {
-                sender.sendMessage(ComponentColor.red("That username is too long."));
-                return true;
-            } else if (rawLen < 3) {
-                sender.sendMessage(ComponentColor.red("Your nickname must be at least three characters long."));
-                return true;
-            }
+            if (rawLen > 16) return error(sender, "That name is too long.");
+            else if (rawLen < 3) return error(sender, "Your nickname must be at least three characters long.");
 
             // Make sure there are three word characters in a row
             if (!rawNick.matches("(.+)?(\\w\\w\\w)(.+)?")) {
-                sender.sendMessage(ComponentColor.red("Your nickname must have at least three word characters in a row in it."));
-                return true;
+                return error(sender, "Your nickname must have at least three word characters in a row in it.");
             }
 
             // Count the number of non-ascii characters for a percentage calculation
@@ -70,10 +68,7 @@ public class CommandNick extends PlayerCommand {
             }
 
             // Enforce 60% ASCII
-            if (nonAscii / rawLen > 0.4) {
-                sender.sendMessage(ComponentColor.red("Your nickname must be at least 60% ASCII characters."));
-                return true;
-            }
+            if (nonAscii / rawLen > 0.4) return error(sender, "Your nickname must be at least 60% ASCII characters.");
 
             // Disallow duplicate names
             for ( // Ignore the sender, they can use their own name
@@ -82,8 +77,7 @@ public class CommandNick extends PlayerCommand {
             ) {
                 if (rawNick.equalsIgnoreCase(flpl.username) ||
                     flpl.nickname != null && rawNick.equalsIgnoreCase(PlainTextComponentSerializer.plainText().serialize(flpl.nickname))) {
-                    sender.sendMessage(ComponentColor.red("Another player already has this name."));
-                    return true;
+                    return error(sender, "Another player already has this name.");
                 }
             }
 
@@ -97,29 +91,20 @@ public class CommandNick extends PlayerCommand {
                 flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
 
                 // Make sure the player exists
-                if (flp == null) {
-                    sender.sendMessage(ComponentColor.red("Player not found."));
-                    return true;
-                }
+                if (flp == null) return error(sender, "Player not found.");
 
                 // Make sure the player actually has a nickname to remove
-                if (flp.nickname == null) {
-                    sender.sendMessage(ComponentColor.red("This person has no nickname to remove."));
-                    return true;
-                }
+                if (flp.nickname == null) return error(sender, "This person has no nickname to remove.");
 
             }
             // The sender removes their own nickname
             else {
                 // Make sure the player actually has a nickname to remove
-                if (flp.nickname == null) {
-                    sender.sendMessage(ComponentColor.red("You have no nickname to remove."));
-                    return true;
-                }
+                if (flp.nickname == null) return error(sender, "You have no nickname to remove.");
             }
 
             flp.nickname = null;
-            sender.sendMessage(ComponentColor.green("Removed nickname."));
+            success(sender, "Removed nickname.");
         }
 
         // Update their player's display name
