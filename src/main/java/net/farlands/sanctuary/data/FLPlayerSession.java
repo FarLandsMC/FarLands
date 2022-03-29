@@ -45,6 +45,7 @@ public class FLPlayerSession {
     public boolean               isInEvent;
     public boolean               fallDamageImmune;
     public boolean               gamemodeImmune; // Disable the automatic gamemode check (Used for granting temporary creative mode to certain players, like founders)
+    public boolean               deathMute; // Mutes deaths from player in chat when enabled
     public CommandSender         replyToggleRecipient;
     public Location              seatExit;
     public TeleportRequest       outgoingTeleportRequest;
@@ -84,6 +85,7 @@ public class FLPlayerSession {
         this.isInEvent = false;
         this.fallDamageImmune = false;
         this.gamemodeImmune = false;
+        this.deathMute = false;
         this.replyToggleRecipient = null;
         this.seatExit = null;
         this.outgoingTeleportRequest = null;
@@ -121,6 +123,7 @@ public class FLPlayerSession {
         this.isInEvent = cached.isInEvent;
         this.fallDamageImmune = false;
         this.gamemodeImmune = cached.gamemodeImmune;
+        this.deathMute = cached.deathMute;
         this.replyToggleRecipient = cached.replyToggleRecipient;
         this.seatExit = null;
         this.outgoingTeleportRequest = null;

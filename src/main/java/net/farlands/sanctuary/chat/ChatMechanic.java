@@ -29,11 +29,16 @@ public class ChatMechanic extends Mechanic {
     }
 
     /**
-     * Send death message to Discord
+     * Cancel the death message if `deathMute` is enabled for the player's session, otherwise send to Discord
      */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.deathMessage());
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getEntity());
+        if(flp != null && flp.getSession().deathMute) {
+            event.deathMessage(null);
+        } else {
+            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.deathMessage());
+        }
     }
 
     @EventHandler
