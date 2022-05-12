@@ -230,7 +230,11 @@ public class CommandHandler extends Mechanic {
 
         // Parse out the command name
         String commandName = rawStringCommand.substring(
-                rawStringCommand.startsWith("/") ? 1 : 0,
+                rawStringCommand.startsWith("\\/")
+                    ? 2
+                    : rawStringCommand.startsWith("/")
+                        ? 1
+                        : 0,
                 FLUtils.indexOfDefault(rawStringCommand.indexOf(' '), rawStringCommand.length())
         ).trim();
 

@@ -307,7 +307,7 @@ public class DiscordHandler extends ListenerAdapter {
         DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel());
         String message = event.getMessage().getContentDisplay().strip();
 
-        if (message.startsWith("/") && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage())) {
+        if ((message.startsWith("/") || message.startsWith("\\/")) && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage())) {
             return;
         }
         String bodyRaw = event.getMessage().getContentStripped();
