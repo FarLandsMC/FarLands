@@ -198,8 +198,8 @@ public class DiscordSender implements CommandSender, ICommandListener {
     }
 
     @Override
-    public void a(IChatBaseComponent iChatBaseComponent, UUID uuid) {
-        sendMessage(iChatBaseComponent, uuid);
+    public void a(IChatBaseComponent iChatBaseComponent) {
+        sendMessage(iChatBaseComponent.getString());
     }
 
     // Pretty sure this is the correct order

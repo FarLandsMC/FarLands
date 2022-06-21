@@ -4,7 +4,6 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
-import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
@@ -21,19 +20,11 @@ import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minecraft.commands.CommandDispatcher;
-import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.network.chat.ChatComponentText;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.level.World;
-import net.minecraft.world.phys.Vec2F;
-import net.minecraft.world.phys.Vec3D;
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R2.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -270,34 +261,7 @@ public class CommandHandler extends Mechanic {
                     return false;
                 }
 
-                Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
-                    MinecraftServer server = ((CraftServer) Bukkit.getServer()).getServer();
-                    WorldServer world = server.a(World.f); // World.f = World.OVERWORLD
-
-                    CommandListenerWrapper wrapper = new CommandListenerWrapper(
-                        sender,
-                        // Position
-                        world == null ? Vec3D.a : Vec3D.c(world.v()), // 0, 0, 0 or World Spawn
-                        Vec2F.a, // Rotation Vec2F.a = Vec2f.ORIGIN
-                        world, // World
-                        sender.isOp() ? 4 : 0, // Permission level
-                        // Name (required twice apparently)
-                        sender.getName(),
-                        new ChatComponentText(sender.getName()),
-                        server,
-                        null
-                    );
-
-                    // Dispatcher for the command (thing that runs it)
-                    CommandDispatcher dispatcher = (CommandDispatcher) ReflectionHelper.getFieldValue(
-                        "dispatcher",
-                        VanillaCommandWrapper.class,
-                        cmd
-                    );
-
-                    // Run the vanilla command
-                    dispatcher.dispatchServerCommand(wrapper, rawStringCommand.substring(1));
-                });
+                cmd.execute(sender, commandName, args);
 
                 return true;
             }

@@ -25,7 +25,7 @@ import org.bukkit.*;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

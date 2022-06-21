@@ -49,19 +49,22 @@ public class ChatMechanic extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
+        if(event.message() == null) return;
         if (
-            flp.vanished || // Player is vanished or
-                !event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("minecraft") // Not a vanilla advancement
+            flp.vanished // Player is vanished
+            || !event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("minecraft") // or not a vanilla advancement
         ) {
             event.message(null); // Make no message
-        } else {
-            Bukkit.getOnlinePlayers()
-                .stream()
-                .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
-                .forEach(p -> p.sendMessage(event.message()));
-
-            // Send advancement message to Discord
-            FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.message());
+            return;
         }
+
+        Bukkit.getOnlinePlayers()
+            .stream()
+            .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
+            .forEach(p -> p.sendMessage(event.message()));
+
+        // Send advancement message to Discord
+        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.message());
+
     }
 }

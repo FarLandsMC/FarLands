@@ -30,9 +30,8 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_18_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
@@ -198,7 +197,7 @@ public final class FLUtils {
      */
     public static double serverMspt() {
         long totalMspt = 0;
-        long[] mspts = ((CraftServer) Bukkit.getServer()).getServer().o; // o = mspts field
+        long[] mspts = Bukkit.getServer().getTickTimes();
         for (long v : mspts) {
             totalMspt += v;
         }
@@ -415,7 +414,7 @@ public final class FLUtils {
      * Get the {@link NBTTagCompound} of the given {@link ItemStack}
      */
     public static NBTTagCompound getTag(ItemStack stack) {
-        return stack == null ? null : CraftItemStack.asNMSCopy(stack).t();
+        return stack == null ? null : CraftItemStack.asNMSCopy(stack).v();
     }
 
     /**
