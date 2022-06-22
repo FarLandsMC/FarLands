@@ -235,7 +235,7 @@ public class FLPlayerSession {
             }
         }
         if (!handle.rank.isStaff() && (
-            FarLands.getWorld().equals(player.getWorld()) ||
+            Worlds.FARLANDS.matches(player.getWorld()) ||
             "world_the_end".equals(player.getWorld().getName()))
         ) {
             flying = false;

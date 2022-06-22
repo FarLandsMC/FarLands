@@ -246,19 +246,14 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onPortalCreation(PortalCreateEvent event) {
-        switch (event.getReason()) {
-            case NETHER_PAIR: // Prevent portals forming in spawn
-                if (event.getBlocks()
-                    .stream()
-                    .map(block -> block.getBlock().getLocation())
-                    .anyMatch(FLUtils::isInSpawn)
-                ) {
-                    event.setCancelled(true);
-                }
-            case FIRE: // Prevent portals forming in the pocket world
-                if (event.getWorld().getName().equals("farlands")) {
-                    event.setCancelled(true);
-                }
+        // Prevent portals forming in spawn
+        if (event.getReason() == PortalCreateEvent.CreateReason.NETHER_PAIR
+            && event.getBlocks()
+            .stream()
+            .map(block -> block.getBlock().getLocation())
+            .anyMatch(FLUtils::isInSpawn))
+        {
+            event.setCancelled(true);
         }
     }
 

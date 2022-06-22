@@ -19,6 +19,7 @@ public class PluginData {
     public int             votesUntilParty; // Votes until voteparty
     public long            seasonStartTime; // Millis since season start
     public LocationWrapper spawn; // Spawn location
+    public LocationWrapper pocketSpawn; // Pocket world spawn location
     public LocationWrapper pvpIslandSpawn; // Location for pvp island
     public Set<UUID>       spawnTraders; // Villagers at spawn
     public List<Proposal>  proposals; // Currently pending staff proposals
@@ -33,6 +34,7 @@ public class PluginData {
         this.seasonStartTime = System.currentTimeMillis();
         this.lastPatchnotesMD5 = new byte[0];
         this.spawn = null;
+        this.pocketSpawn = null;
         this.pvpIslandSpawn = null;
         this.spawnTraders = new HashSet<>();
         this.warps = new HashMap<>();
@@ -42,6 +44,10 @@ public class PluginData {
 
     public void setSpawn(Location spawn) {
         this.spawn = new LocationWrapper(spawn);
+    }
+
+    public void setPocketSpawn(Location loc) {
+        this.pocketSpawn = new LocationWrapper(loc);
     }
 
     public void addSpawnTrader(UUID uuid) {
@@ -96,4 +102,5 @@ public class PluginData {
     public void clearTrade(UUID player) {
         playerTrades.remove(player);
     }
+
 }

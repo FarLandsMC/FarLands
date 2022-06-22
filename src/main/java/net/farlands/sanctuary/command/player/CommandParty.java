@@ -1,12 +1,11 @@
 package net.farlands.sanctuary.command.player;
 
-import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.mechanic.region.AutumnEvent;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,7 +21,7 @@ public class CommandParty extends PlayerCommand {
     @Override
     public boolean execute(Player player, String[] args) {
         if (AutumnEvent.isActive()) {
-            if (FarLands.getWorld().equals(player.getWorld())) {
+            if (Worlds.FARLANDS.matches(player.getWorld())) {
                 FLUtils.tpPlayer(player, AutumnEvent.getSpawn());
             } else {
                 FLUtils.tpPlayer(player, TREE);

@@ -1,12 +1,13 @@
 package net.farlands.sanctuary.command.staff;
 
-import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -14,15 +15,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-public class CommandPartyReset extends Command {
+public class CommandPocketReset extends Command {
 
     private final Set<OfflineFLPlayer> needsConfirm;
 
-    public CommandPartyReset() {
-        super(Rank.BUILDER, Category.STAFF, "Remove all set homes from the party/1.17 world and set logout " +
-                "locations from that world to spawn.", "/partyreset [confirm]", "partyreset");
+    public CommandPocketReset() {
+        super(Rank.ADMIN, Category.STAFF, "Remove all set homes from the pocket world and set logout " +
+                "locations from that world to spawn.", "/resetpocket [confirm]", "resetpocket"); // Not /pocketreset to prevent accidental tab-complete when doing /pocket
         needsConfirm = new HashSet<>();
     }
 
@@ -40,8 +40,8 @@ public class CommandPartyReset extends Command {
                 // Remove all homes in the party world - this does work
                 List<Home> partyHomes = flp.homes // Get all homes in party world
                     .stream()
-                    .filter(home -> home.getLocation().getWorld().getName().equalsIgnoreCase("farlands"))
-                    .collect(Collectors.toList());
+                    .filter(home -> Worlds.POCKET.matches(home.getLocation().getWorld()))
+                    .toList();
 
                 partyHomes.forEach(home -> flp.removeHome(home.getName())); // Remove the homes
 
@@ -49,24 +49,32 @@ public class CommandPartyReset extends Command {
                 removedHomes += partyHomes.size(); // Add to the amount of removed homes
 
                 // Teleport them to spawn if needed
-                if (flp.lastLocation.asLocation().getWorld().getName().equalsIgnoreCase("farlands")) {
+                if (Worlds.POCKET.matches(flp.lastLocation.asLocation().getWorld())) {
                     flp.moveToSpawn();
                     ++movedPlayers;
                 }
             }
             needsConfirm.remove(FarLands.getDataHandler().getOfflineFLPlayer(sender));
-            TextUtils.sendFormatted(sender, "&(green)1.17 world reset. " +
-                "Removed %0 $(inflect,noun,0,home) from %1 $(inflect,noun,1,player) and " +
-                "moved %2 $(inflect,noun,2,player) to spawn.", removedHomes, playersWithHomes, movedPlayers);
+            success(
+                sender,
+            "Pocket world reset. Removed %s %s from %s %s and moved %s %s to spawn.",
+                 removedHomes, removedHomes == 1 ? "home" : "homes",
+                 playersWithHomes, playersWithHomes == 1 ? "player" : "players",
+                 movedPlayers, movedPlayers == 1 ? "player" : "players"
+
+            );
         } else {
-            TextUtils.sendFormatted(sender, "&(gold)Please confirm this command with {&(aqua)/partyreset confirm}.");
+            sender.sendMessage(ComponentColor.gold("Please confirm this command with ").append(ComponentColor.aqua("/resetpocket confirm")));
             needsConfirm.add(FarLands.getDataHandler().getOfflineFLPlayer(sender));
         }
+
+
         return true;
     }
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
+        if(args.length != 0) return Collections.emptyList();
         return Collections.singletonList("confirm");
     }
 }

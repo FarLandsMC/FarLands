@@ -48,9 +48,9 @@ public class CommandResetHome extends PlayerCommand {
         if (!(
                 "world".equals(location.getWorld().getName()) ||
                 "world_nether".equals(location.getWorld().getName()) ||
-                "farlands".equals(location.getWorld().getName())
+                "pocket".equals(location.getWorld().getName())
         )) {
-            error(sender, "You can only move homes to the overworld and nether. Reset cancelled");
+            error(sender, "You can only move homes to the overworld, nether, and pocket dimensions. Reset cancelled");
             return true;
         }
 

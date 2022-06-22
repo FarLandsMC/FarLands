@@ -63,7 +63,6 @@ public class DataHandler extends Mechanic {
     private final Map<String, ItemStack>       items; // Individual item storage, used for items like the armor stand book
     private final Map<String, List<ItemStack>> itemLists; // List of specific items, used for voting rewards
 
-    public static final  List<String> WORLDS  = Arrays.asList("world", "world_nether", "world_the_end", "farlands"); // Names of worlds
     private static final List<String> SCRIPTS = Arrays.asList("artifact.sh", "server.sh", "backup.sh", "restart.sh"); // Scripts needed to copy into the root from /scripts in the resources folder
 
     private static final String MAIN_CONFIG_FILE      = "mainConfig.json"; // Name of the main config file
@@ -889,4 +888,5 @@ public class DataHandler extends Mechanic {
 
         public static final Server[] VALUES = values();
     }
+
 }

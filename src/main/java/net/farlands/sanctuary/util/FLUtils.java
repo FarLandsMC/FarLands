@@ -6,7 +6,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -19,6 +18,7 @@ import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Restrictions;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -73,13 +73,6 @@ public final class FLUtils {
     private static final Pattern         HEX_COLOR_PATTERN_SIX   = Pattern.compile("&#([0-9a-fA-F]{6})");
     // Pattern matching funny's need for 3 char hex
     private static final Pattern         HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
-
-    public static final Map<String, String> WORLD_NAMES = new ImmutableMap.Builder<String, String>()
-        .put("world", "Overworld")
-        .put("world_nether", "Nether")
-        .put("world_the_end", "End")
-        .put("farlands", "Party")
-        .build();
 
     /**
      * Get a player's 3D head texture URL
@@ -921,7 +914,7 @@ public final class FLUtils {
      * Create a simple string in the format of "world - x y z"
      */
     public static String toSimpleString(Location location) {
-        return String.format("%s - %s %s %s", WORLD_NAMES.getOrDefault(location.getWorld().getName(), "Unknown"), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        return String.format("%s - %s %s %s", Worlds.getByName(location.getWorld().getName()), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     /**
