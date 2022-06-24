@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class PocketMechanic extends Mechanic {
+public class PocketMechanics extends Mechanic {
 
     @EventHandler
     public void onPortalCreate(PortalCreateEvent event) {
