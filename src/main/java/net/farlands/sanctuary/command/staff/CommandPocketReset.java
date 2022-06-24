@@ -18,8 +18,10 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.WorldBorder;
 import org.bukkit.command.CommandSender;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -87,7 +89,7 @@ public class CommandPocketReset extends Command {
             success(sender, "Attempting to delete world files...");
             long start = System.currentTimeMillis();
             byte[] uidDat; // uid.dat file -- saved to keep the UUID of the world
-            var worldFolder = Paths.get(System.getProperty("user.dir"), Worlds.POCKET.getName()).toFile();
+            File worldFolder = Worlds.POCKET.getWorld().getWorldFolder();
             try {
                 Bukkit.unloadWorld(Worlds.POCKET.getWorld(), false);
 
@@ -106,11 +108,16 @@ public class CommandPocketReset extends Command {
             try {
                 // Restore uid.dat file
                 worldFolder.mkdirs();
-                var fos = new FileOutputStream(Paths.get(worldFolder.getAbsolutePath(), "uid.dat").toFile());
+                FileOutputStream fos = new FileOutputStream(Paths.get(worldFolder.getAbsolutePath(), "uid.dat").toFile());
                 fos.write(uidDat);
                 fos.close();
 
                 Worlds.POCKET.createWorld();
+
+                WorldBorder wb = Worlds.POCKET.getWorld().getWorldBorder();
+                wb.setCenter(0.5, 0.5);
+                wb.setSize(5000 * 2 + 1); // Diameter + 1 for centre block
+
             } catch (Exception e) {
                 error(sender, "Unable to load the new pocket world");
                 return true;
