@@ -65,7 +65,7 @@ public class CommandPocketReset extends Command {
                 removedHomes += partyHomes.size(); // Add to the amount of removed homes
 
                 // Teleport them to spawn if needed
-                if (Worlds.POCKET.matches(flp.lastLocation.asLocation().getWorld())) {
+                if (flp.lastLocation != null && Worlds.POCKET.matches(flp.lastLocation.asLocation().getWorld())) {
                     flp.moveToSpawn();
                     ++movedPlayers;
                 }
