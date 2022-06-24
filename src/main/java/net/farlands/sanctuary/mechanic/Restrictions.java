@@ -22,6 +22,7 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
 import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -41,7 +42,10 @@ import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -259,18 +263,23 @@ public class Restrictions extends Mechanic {
 
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
-        String signText = Arrays.stream(event.getLines())
+        List<Component> lines = event.lines()
+            .stream()
+            .map(ComponentUtils::toText)
             .filter(s -> !s.isBlank())
-            .map(s -> ChatColor.GRAY + s)
-            .collect(Collectors.joining("\n"))
-            .trim();
+            .map(ComponentColor::gray)
+            .toList();
 
-        if (!signText.isBlank()) { // Log the sign content to staff
+        if (!lines.isEmpty()) { // Log the sign content to staff
             Location loc = event.getBlock().getLocation();
             Logging.broadcastStaff(
-                ChatColor.GRAY + event.getPlayer().getName() + " placed a sign at " +
-                loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + ":\n" +
-                signText
+                ComponentColor.gray(
+                    "%s placed a sign at %s %s %s:\n",
+                    event.getPlayer().getName(),
+                    loc.getBlockX(),
+                    loc.getBlockY(),
+                    loc.getBlockZ()
+                ).append(Component.join(JoinConfiguration.newlines(), lines))
             );
         }
     }
