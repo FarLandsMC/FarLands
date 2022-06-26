@@ -10,7 +10,6 @@ import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -56,9 +55,9 @@ public class FarLands extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // TODO: reinstate seed
-        // farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).seed(0xc0ffee).generateStructures(false).createWorld();
-        this.farlandsWorld = (new WorldCreator(DataHandler.WORLDS.get(3))).generateStructures(true).createWorld();
+        this.farlandsWorld = Worlds.FARLANDS.createWorld();
+        Worlds.POCKET.createWorld();
+
         this.dataHandler.preStartup();
         Rank.createTeams();
         this.scheduler.start();
@@ -133,6 +132,10 @@ public class FarLands extends JavaPlugin {
         return instance.debugger;
     }
 
+    /**
+     * @deprecated Use {@link Worlds#getWorld} on {@link Worlds#FARLANDS}
+     */
+    @Deprecated
     public static World getWorld() {
         return instance.farlandsWorld;
     }

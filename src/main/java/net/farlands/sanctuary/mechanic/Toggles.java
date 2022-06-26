@@ -16,7 +16,7 @@ import net.minecraft.world.level.EnumGamemode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -72,7 +72,8 @@ public class Toggles extends Mechanic {
                                 currentInfoData.a(),
                                 currentInfoData.b(),
                                 EnumGamemode.a,
-                                currentInfoData.d()
+                                currentInfoData.d(),
+                                currentInfoData.e()
                             );
                             infoList.set(i, newInfoData);
                         }

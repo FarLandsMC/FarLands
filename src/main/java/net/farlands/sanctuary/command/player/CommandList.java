@@ -44,7 +44,7 @@ public class CommandList extends Command {
         int total = 0,
             staffTotal = 0,
             overworld = 0,
-            farlands = 0,
+            pocket = 0,
             nether = 0,
             end = 0;
         boolean listHasVanishedPlayer = false;
@@ -71,8 +71,8 @@ public class CommandList extends Command {
                 bucket.put(flp.rank, new ArrayList<>());
 
             switch (player.getWorld().getName()) {
-                case "farlands": {
-                    ++farlands;
+                case "pocket": {
+                    ++pocket;
                     break;
                 }
                 case "world": {
@@ -102,8 +102,8 @@ public class CommandList extends Command {
             List<String> embedDesc = new ArrayList<>();
             if (overworld > 0)
                 embedDesc.add("Overworld: " + overworld);
-            if (farlands > 0)
-                embedDesc.add("Pocket: " + farlands);
+            if (pocket > 0)
+                embedDesc.add("Pocket: " + pocket);
             if (nether > 0)
                 embedDesc.add("Nether: " + nether);
             if (end > 0)
@@ -169,8 +169,8 @@ public class CommandList extends Command {
 
             StringBuilder worlds = new StringBuilder();
 
-            if (overworld + farlands > 0)
-                worlds.append("\nOverworld: ").append(overworld + farlands);
+            if (overworld + pocket > 0)
+                worlds.append("\nOverworld: ").append(overworld + pocket);
             if (nether > 0)
                 worlds.append("\nNether: ").append(nether);
             if (end > 0)

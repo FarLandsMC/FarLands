@@ -8,6 +8,7 @@ import net.farlands.sanctuary.command.FLCommandEvent;
 import net.farlands.sanctuary.command.player.CommandMessage;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
+import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
@@ -152,8 +153,7 @@ public class AFK extends Mechanic {
 
         session.afkCheckInitializerCooldown.reset(() -> {
             if (player.isOnline()) {
-                // TODO: reinstate AFK bypass after 1.18
-                if (/* "farlands".equals(player.getWorld().getName()) || */ player.isGliding() || session.isInEvent) {
+                if (Worlds.FARLANDS.matches(player.getWorld()) || player.isGliding() || session.isInEvent) {
                     setAFKCooldown(player);
                     return;
                 }

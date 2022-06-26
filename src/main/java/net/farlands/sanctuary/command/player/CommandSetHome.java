@@ -39,9 +39,9 @@ public class CommandSetHome extends PlayerCommand {
         if (!(
                 "world".equals(location.getWorld().getName()) ||
                 "world_nether".equals(location.getWorld().getName()) ||
-                "farlands".equals(location.getWorld().getName())
+                "pocket".equals(location.getWorld().getName())
         )) {
-            sender.sendMessage(ComponentColor.red("You can only set homes in the overworld and nether."));
+            sender.sendMessage(ComponentColor.red("You can only set homes in the overworld, nether, and pocket dimensions."));
             return true;
         }
 
