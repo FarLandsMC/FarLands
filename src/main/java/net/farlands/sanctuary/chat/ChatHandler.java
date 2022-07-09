@@ -55,24 +55,25 @@ public class ChatHandler {
                 DiscordChannel.STAFF_COMMANDS
             );
         } else {
-            playerTransition(flp, join);
+            playerTransition(event.getPlayer(), flp, join);
         }
 
     }
 
     /**
      * Send a player's transition message to chat
+     * @param player Player in question (used to get name if changed)
      * @param flp Player in question
      * @param join If the player was transitioning into the game
      */
-    public static void playerTransition(OfflineFLPlayer flp, boolean join) {
+    public static void playerTransition(Player player, OfflineFLPlayer flp, boolean join) {
         String joinOrLeave = join ? "joined" : "left";
         Component message = Component.text() // > <player> has <joined/left>.
             .color(NamedTextColor.YELLOW)
             .append(
                 Component.text(" > ").style(Style.style(TextDecoration.BOLD))
             )
-            .append(flp.rank.colorName(flp.username))
+            .append(flp.rank.colorName(player == null ? flp.username : player.getName()))
             .append(ComponentColor.yellow(" has %s.", joinOrLeave))
             .build();
         Bukkit.broadcast(message);

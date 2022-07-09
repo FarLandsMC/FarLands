@@ -37,6 +37,7 @@ const ItemStack = org.bukkit.inventory.ItemStack;
 const Material = org.bukkit.Material;
 const ItemCollection = fl.data.struct.ItemCollection;
 const ItemReward = fl.data.struct.ItemReward;
+const Worlds = fl.data.Worlds
 
 const privateConfig = { // Config of things within the JS File
     logColors: {

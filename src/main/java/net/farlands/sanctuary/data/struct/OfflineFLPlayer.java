@@ -575,4 +575,15 @@ public class OfflineFLPlayer {
     public void chat(String prefix, String message) {
         ChatHandler.chat(this, Component.text(prefix), ChatHandler.handleReplacements(message, this));
     }
+
+    public void unverifyDiscord() {
+        if (this.isDiscordVerified()) {
+            DiscordHandler dh = FarLands.getDiscordHandler();
+            dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(DiscordHandler.VERIFIED_ROLE)).queue();
+            dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(DiscordHandler.STAFF_ROLE)).queue();
+            if (this.rank.specialCompareTo(Rank.DONOR) > 0) {
+                dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(this.rank.getName())).queue();
+            }
+        }
+    }
 }

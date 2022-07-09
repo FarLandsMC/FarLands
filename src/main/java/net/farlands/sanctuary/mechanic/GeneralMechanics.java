@@ -489,8 +489,8 @@ public class GeneralMechanics extends Mechanic {
                 Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     Block block = event.getEntity().getWorld().getBlockAt(0, 75, 0);
                     block.setType(Material.DRAGON_EGG);
-                    block.getWorld().getNearbyEntities(block.getLocation(), 50, 50, 50)
-                        .forEach(e -> sendFormatted(e, "&(gray)As the dragon dies, an egg forms below."));
+                    block.getWorld().getNearbyPlayers(block.getLocation(), 50, 50, 50)
+                        .forEach(e -> e.sendMessage(ComponentColor.gray("As the dragon dies, an egg forms below.")));
                 }, 15L * 20L);
             }
             case VILLAGER -> FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
@@ -542,7 +542,7 @@ public class GeneralMechanics extends Mechanic {
 
     private void updateNightSkip(boolean sendBroadcast) {
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-            int dayTime = (int) (Bukkit.getWorld("world").getTime() % 24000);
+            int dayTime = (int) (Worlds.OVERWORLD.getWorld().getTime() % 24000);
             if (12541 > dayTime || dayTime > 23458) {
                 return;
             }
@@ -555,7 +555,9 @@ public class GeneralMechanics extends Mechanic {
                 .filter(player -> "world".equals(player.getWorld().getName()))
                 .map(player -> (Player) player)
                 .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
-                .collect(Collectors.toList());
+                .filter(player -> !FarLands.getDataHandler().getSession(player).afk)
+                .toList();
+
             int sleeping = (int) online.stream().filter(Player::isSleeping).count();
             if (sleeping == 0) {
                 return;

@@ -34,6 +34,7 @@ public class CommandVerify extends DiscordCommand {
         // Usage case: /verify <username> <uuid> <discordId>
         if (args.length >= 3 && Rank.getRank(sender).specialCompareTo(Rank.BUILDER) >= 0) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(UUID.fromString(args[1]), args[0]);
+            flp.unverifyDiscord();
             flp.setDiscordID(Long.parseLong(args[2]));
             flp.updateDiscord();
 
@@ -119,6 +120,7 @@ public class CommandVerify extends DiscordCommand {
 
             // Actually do the verification
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+            flp.unverifyDiscord();
             flp.setDiscordID(data.getFirst().getUserID());
             flp.updateDiscord();
 

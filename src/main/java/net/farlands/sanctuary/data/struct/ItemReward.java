@@ -14,7 +14,7 @@ import java.util.List;
  * A reward!
  */
 public class ItemReward {
-    private final int rarity;
+    private int rarity;
     private final ItemStack stack;
 
     public static ItemReward fromNbt(CompoundBinaryTag tag) {
@@ -35,6 +35,14 @@ public class ItemReward {
 
     public ItemStack getStack() {
         return stack;
+    }
+
+    public int getRarity() {
+        return rarity;
+    }
+
+    public void setRarity(int rarity) {
+        this.rarity = rarity;
     }
 
     // The larger the bias, the less likely a rare item is to be selected

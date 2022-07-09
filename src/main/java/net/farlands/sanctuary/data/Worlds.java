@@ -14,7 +14,7 @@ public enum Worlds {
     NETHER("world_nether"),
     END("world_the_end"),
     FARLANDS("farlands", wc -> wc.generateStructures(true).seed(0xc0ffee)), // "party" world, used for events
-    POCKET("pocket", true, wc -> {}),
+    POCKET("pocket", true, null),
     ;
 
     private static final List<String> names = Arrays.stream(values()).map(Worlds::getName).toList();
@@ -37,7 +37,7 @@ public enum Worlds {
 
     private final String                 name;
     private final Consumer<WorldCreator> worldCreatorConfigurator;
-    public final boolean enabled;
+    public final  boolean                enabled;
 
     Worlds(String name) {
         this.name = name;
@@ -84,7 +84,7 @@ public enum Worlds {
      * @return If the world provided matches names with this
      */
     public boolean matches(World world) {
-        if(world == null) return false;
+        if (world == null) return false;
         return world.getName().equals(this.name);
     }
 
@@ -94,9 +94,11 @@ public enum Worlds {
      * @return The new world if created otherwise null
      */
     public World createWorld() {
-        if (this.worldCreatorConfigurator != null && this.enabled) {
+        if (this.enabled) {
             WorldCreator worldCreator = new WorldCreator(this.name);
-            this.worldCreatorConfigurator.accept(worldCreator);
+            if (this.worldCreatorConfigurator != null) {
+                this.worldCreatorConfigurator.accept(worldCreator);
+            }
             return worldCreator.createWorld();
         }
         return null;

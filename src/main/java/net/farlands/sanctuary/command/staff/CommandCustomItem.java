@@ -5,6 +5,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.DataHandler;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.gui.VPRewardsGui;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.Component;
@@ -79,6 +80,19 @@ public class CommandCustomItem extends PlayerCommand {
                 }
                 FLUtils.giveItem(player, stack, true);
                 return true;
+            }
+            case VP_REWARDS -> {
+                var gui = new VPRewardsGui();
+                gui.openGui(player);
+                player.sendMessage(ComponentColor.gold(
+                    """
+                        Left Click: Increase Rarity
+                        Right Click: Decrease Rarity
+                        Shift + Left Click: Get Copy of Item
+                        Shift + Right Click: Remove Item"""
+                ));
+                return true;
+
             }
             case CONFIRM -> {
                 if (!pendingConfirms.containsKey(player.getUniqueId())) {
@@ -186,7 +200,7 @@ public class CommandCustomItem extends PlayerCommand {
 
     private int requiredArgsLength(Action action) {
         return switch (action) {
-            case CANCEL, CONFIRM, LIST -> 1;
+            case CANCEL, CONFIRM, LIST, VP_REWARDS -> 1;
             default -> 2;
         };
 
@@ -202,7 +216,7 @@ public class CommandCustomItem extends PlayerCommand {
     }
 
     public enum Action {
-        PUT, GET, REMOVE, CONFIRM, CANCEL, LIST;
+        PUT, GET, REMOVE, CONFIRM, CANCEL, LIST, VP_REWARDS;
     }
 
     private record PendingConfirm(int taskId, Action command, String key, ItemStack item) {

@@ -145,6 +145,16 @@ public abstract class Gui {
     }
 
     /**
+     * Add an item that does nothing when clicked
+     *
+     * @param slot     Slot to add the item -- must be between 0 and size - 1
+     * @param stack    The ItemStack to add
+     */
+    protected void addLabel(@Range(from = 0, to = 53) int slot, ItemStack stack) {
+        addActionItem(slot, stack, FLUtils.NO_ACTION);
+    }
+
+    /**
      * Add item that runs an event when clicked
      *
      * @param slot           Slot to add the item -- must be between 0 and size - 1

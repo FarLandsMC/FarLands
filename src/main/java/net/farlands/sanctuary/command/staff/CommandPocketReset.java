@@ -16,9 +16,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.WorldBorder;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
@@ -50,10 +48,9 @@ public class CommandPocketReset extends Command {
             args.length > 0 &&
             args[0].equalsIgnoreCase("confirm")
         ) {
-            for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
 
-                success(sender, "Resetting Pocket World...");
-                // Remove all homes in the party world - this does work
+            success(sender, "Resetting Pocket World...");
+            for (OfflineFLPlayer flp : FarLands.getDataHandler().getOfflineFLPlayers()) {
                 List<Home> partyHomes = flp.homes // Get all homes in party world
                     .stream()
                     .filter(home -> Worlds.POCKET.matches(home.getLocation().getWorld()))
@@ -113,10 +110,13 @@ public class CommandPocketReset extends Command {
                 fos.close();
 
                 Worlds.POCKET.createWorld();
+                World world = Worlds.POCKET.getWorld();
 
-                WorldBorder wb = Worlds.POCKET.getWorld().getWorldBorder();
+                WorldBorder wb = world.getWorldBorder();
                 wb.setCenter(0.5, 0.5);
                 wb.setSize(5000 * 2 + 1); // Diameter + 1 for centre block
+
+                world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 1);
 
             } catch (Exception e) {
                 error(sender, "Unable to load the new pocket world");

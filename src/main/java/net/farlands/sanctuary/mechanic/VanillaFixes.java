@@ -104,15 +104,15 @@ public class VanillaFixes extends Mechanic {
         final Location destination = event.getTo();
         final Region claim = RegionProtection.getDataManager().getHighestPriorityRegionAt(from);
 
+        if (from.getWorld().equals(destination.getWorld()) && from.distanceSquared(destination) < 100) return; // Less than 10 block distance doesn't need to warn
+
         // Get all nearby pets from the teleport location
-        final Collection<Tameable> nearbyPets = from.getNearbyLivingEntities(20.0).stream()
-            .filter(
-                animal -> animal instanceof Tameable
-            ).map(
-                animal -> (Tameable) animal
-            ).filter(
-                pet -> pet.getOwnerUniqueId() != null && pet.getOwnerUniqueId().equals(player.getUniqueId())
-            ).toList();
+        final Collection<Tameable> nearbyPets = from.getNearbyLivingEntities(20.0)
+            .stream()
+            .filter(animal -> animal instanceof Tameable)
+            .map(animal -> (Tameable) animal)
+            .filter(pet -> pet.getOwnerUniqueId() != null && pet.getOwnerUniqueId().equals(player.getUniqueId()))
+            .toList();
 
         // Try to teleport standing pets
         AtomicInteger failedToTeleport = new AtomicInteger();

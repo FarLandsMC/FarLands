@@ -6,6 +6,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
@@ -36,17 +37,18 @@ public class CommandList extends Command {
                         FarLands.getFLConfig().discordBotConfig.channels.get(DiscordChannel.STAFF_COMMANDS)
                 : Rank.getRank(sender).isStaff();
 
+
+
         Map<Rank, List<String>>
             players = new HashMap<>(),
             staff = new HashMap<>(),
             bucket;
 
         int total = 0,
-            staffTotal = 0,
-            overworld = 0,
-            pocket = 0,
-            nether = 0,
-            end = 0;
+            staffTotal = 0;
+
+        Map<Worlds, Integer> worlds = new HashMap<>();
+
         boolean listHasVanishedPlayer = false;
         OfflineFLPlayer flp;
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -70,24 +72,8 @@ public class CommandList extends Command {
             if (!bucket.containsKey(flp.rank))
                 bucket.put(flp.rank, new ArrayList<>());
 
-            switch (player.getWorld().getName()) {
-                case "pocket": {
-                    ++pocket;
-                    break;
-                }
-                case "world": {
-                    ++overworld;
-                    break;
-                }
-                case "world_nether": {
-                    ++nether;
-                    break;
-                }
-                case "world_the_end": {
-                    ++end;
-                    break;
-                }
-            }
+            // Increment count
+            worlds.compute(Worlds.getByWorld(player.getWorld()), (k, v) -> v == null ? 1 : v + 1);
 
             bucket.get(flp.rank).add(name);
             ++total;
@@ -100,20 +86,21 @@ public class CommandList extends Command {
 
         if (sender instanceof DiscordSender) {
             List<String> embedDesc = new ArrayList<>();
-            if (overworld > 0)
-                embedDesc.add("Overworld: " + overworld);
-            if (pocket > 0)
-                embedDesc.add("Pocket: " + pocket);
-            if (nether > 0)
-                embedDesc.add("Nether: " + nether);
-            if (end > 0)
-                embedDesc.add("End: " + end);
+
+            if (worlds.containsKey(Worlds.OVERWORLD))
+                embedDesc.add("Overworld: " + worlds.get(Worlds.OVERWORLD));
+            if (worlds.containsKey(Worlds.POCKET))
+                embedDesc.add("Pocket: " + worlds.get(Worlds.POCKET));
+            if (worlds.containsKey(Worlds.NETHER))
+                embedDesc.add("Nether: " + worlds.get(Worlds.NETHER));
+            if (worlds.containsKey(Worlds.END))
+                embedDesc.add("End: " + worlds.get(Worlds.END));
 
             EmbedBuilder eb = new EmbedBuilder()
-                .setTitle(+ total + " Player" + (total == 1 ? "" : "s") + " Online")
+                .setTitle(total + " Player" + (total == 1 ? "" : "s") + " Online")
                 .setDescription(String.join(" | ", embedDesc) +
                         (listHasVanishedPlayer ? "\n*\\*These players are vanished*" : ""))
-                .setColor(0x00AAAA); // DARK_AQUA
+                .setColor(NamedTextColor.DARK_AQUA.value());
 
             if (!players.isEmpty()) {
                 players.keySet().stream().sorted(Rank::specialCompareTo).forEach(rank ->
@@ -167,17 +154,19 @@ public class CommandList extends Command {
                 });
             }
 
-            StringBuilder worlds = new StringBuilder();
+            StringBuilder worldSB = new StringBuilder();
 
-            if (overworld + pocket > 0)
-                worlds.append("\nOverworld: ").append(overworld + pocket);
-            if (nether > 0)
-                worlds.append("\nNether: ").append(nether);
-            if (end > 0)
-                worlds.append("\nEnd: ").append(end);
+            if (worlds.containsKey(Worlds.OVERWORLD))
+                worldSB.append("\nOverworld: ").append(worlds.get(Worlds.OVERWORLD));
+            if (worlds.containsKey(Worlds.POCKET))
+                worldSB.append("\nPocket: ").append(worlds.get(Worlds.POCKET));
+            if (worlds.containsKey(Worlds.NETHER))
+                worldSB.append("\nNether: ").append(worlds.get(Worlds.NETHER));
+            if (worlds.containsKey(Worlds.END))
+                worldSB.append("\nEnd: ").append(worlds.get(Worlds.END));
 
-            if (!worlds.isEmpty()) {
-                cb.append(ComponentColor.aqua(worlds.toString()));
+            if (!worldSB.isEmpty()) {
+                cb.append(ComponentColor.aqua(worldSB.toString()));
             }
 
             if (listHasVanishedPlayer)
