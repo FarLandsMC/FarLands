@@ -3,7 +3,6 @@
 
 sleep 12
 screen -S $1 -p 0 -X stuff "cd $2\n"
-screen -S $1 -p 0 -X stuff "time rm -rf $4\n"
-screen -S $1 -p 0 -X stuff "time rsync -r --exclude=database.db $3/ $4/\n"
+screen -S $1 -p 0 -X stuff "time rsync -a --exclude=database.db $3/ $4\n"
 screen -S $1 -p 0 -X stuff "cd $3\n"
 screen -S $1 -p 0 -X stuff "./server.sh $5\n"
