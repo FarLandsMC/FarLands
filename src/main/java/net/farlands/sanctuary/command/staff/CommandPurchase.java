@@ -20,8 +20,6 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandPurchase extends Command {
     private final Map<UUID, Long> commandCooldowns;
     private static final long PURCHASE_COMMAND_COOLDOWN = 5000L;
@@ -40,8 +38,7 @@ public class CommandPurchase extends Command {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
             if (args.length <3) { // love donates
-                sendFormatted(sender, "&(red)Player not found.");
-                return true;
+                return error(sender, "Player not found.");
             }
             UUID uuid;
             try {
@@ -108,7 +105,7 @@ public class CommandPurchase extends Command {
 
             Player player = flp.getOnlinePlayer();
             if (player != null) // Notify the player if they're online
-                sendFormatted(player, "&(green)Your rank has been updated to " + rank.getColor() + rank.toString());
+                player.sendMessage(ComponentColor.green("Your rank has been updated to ").append(rank));
         }
 
         if (price > 0)

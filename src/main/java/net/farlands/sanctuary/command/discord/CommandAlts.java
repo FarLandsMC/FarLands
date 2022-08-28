@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.discord;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.data.Rank;
@@ -10,6 +8,8 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandAlts extends DiscordCommand {
     public CommandAlts() {
@@ -22,8 +22,7 @@ public class CommandAlts extends DiscordCommand {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
 
         List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
@@ -31,14 +30,14 @@ public class CommandAlts extends DiscordCommand {
                 .collect(Collectors.toList());
 
         if (alts.isEmpty())
-            sendFormatted(sender, "&(gold)This player has no alts.");
+            info(sender, "This player has not alts.");
         else {
             List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
                     unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
             if (!banned.isEmpty())
-                sendFormatted(sender, "&(gold)Banned alts: %0", String.join(", ", banned));
+                info(sender, "Banned Alts: %s", String.join(", ", banned));
             if (!unbanned.isEmpty())
-                sendFormatted(sender, "&(gold)Alts: %0", String.join(", ", unbanned));
+                info(sender, "Alts: %s", String.join(", ", unbanned));
         }
 
         return true;

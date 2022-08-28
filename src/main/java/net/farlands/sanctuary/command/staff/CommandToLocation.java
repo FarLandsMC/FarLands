@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 
@@ -33,13 +31,11 @@ public class CommandToLocation extends PlayerCommand {
             yaw   = args.length <= 3 || args[3].equals("~") ? sender.getLocation().getYaw()   : Float.parseFloat(args[3]);
             pitch = args.length <= 4 || args[4].equals("~") ? sender.getLocation().getPitch() : Float.parseFloat(args[4]);
         } catch (NumberFormatException ex) {
-            sendFormatted(sender, "&(red)Could not find location: " + ex.getMessage());
-            return true;
+            return error(sender, "Could not find location: %s", ex.getMessage());
         }
         World world = args.length >= 6 ? Bukkit.getWorld(args[5]) : sender.getWorld();
         if (world == null) {
-            sendFormatted(sender, "&(red)Invalid world: " + args[5]);
-            return true;
+            return error(sender, "Invalid world: %s", args[5]);
         }
         Location newLocation = new Location(world, x, y, z, yaw, pitch);
         sender.teleport(newLocation);

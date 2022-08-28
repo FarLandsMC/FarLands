@@ -1,16 +1,15 @@
 package net.farlands.sanctuary.command.discord;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -18,6 +17,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandNotes extends DiscordCommand {
     public CommandNotes() {
@@ -31,34 +32,35 @@ public class CommandNotes extends DiscordCommand {
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
 
         Action action = Utils.valueOfFormattedName(args[0], Action.class);
         if (action == null) {
-            sendFormatted(sender, "&(red)Invalid action: %0", args[0]);
-            return true;
+            return error(sender, "Invalid action: %s", args[0]);
         }
 
         switch (action) {
             case VIEW:
                 if (flp.notes.isEmpty())
-                    sendFormatted(sender, "&(gold){&(aqua)%0} does not have any notes.", flp.username);
+                    info(sender, "%s does not have any notes.", flp.username);
                 else {
                     if (sender instanceof DiscordSender) {
                         EmbedBuilder eb = new EmbedBuilder()
                             .setTitle("Notes for " + flp.username)
-                            .setColor(ChatColor.YELLOW.getColor());
+                            .setColor(NamedTextColor.YELLOW.value());
                         flp.notes.forEach(note -> {
                             String[] parts = note.split(":");
                             eb.addField(parts[0], joinArgsBeyond(0, ":", parts), false);
                         });
                         ((DiscordSender) sender).getChannel().sendMessage(eb.build()).queue();
                     } else {
-                        sendFormatted(sender, "&(gold)Showing notes for {&(aqua)%0:}\n&(gray)%1",
-                                flp.username, String.join("\n", flp.notes));
-
+                        sender.sendMessage(
+                            ComponentColor.gold("Showing notes for ")
+                                               .append(ComponentColor.aqua(flp.username))
+                                .append(ComponentColor.gold(":\n"))
+                                .append(ComponentColor.gray(String.join("\n", flp.notes)))
+                        );
                     }
                 }
                 break;
@@ -66,12 +68,12 @@ public class CommandNotes extends DiscordCommand {
             case ADD:
                 flp.notes.add(FLUtils.dateToString(System.currentTimeMillis(), "MM/dd/yyyy") + " " +
                         sender.getName() + ": " + joinArgsBeyond(1, " ", args));
-                sendFormatted(sender, "&(gold)Note added.");
+                info(sender, "Notes added.");
                 break;
 
             case CLEAR:
                 flp.notes.clear();
-                sendFormatted(sender, "&(gold)Cleared notes of &(aqua)%0", flp.username);
+                info(sender, "Cleared notes of %s", flp.username);
                 break;
         }
 

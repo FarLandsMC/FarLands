@@ -1,13 +1,10 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,9 +29,15 @@ public class CommandFly extends PlayerCommand {
             else if ("off".equalsIgnoreCase(args[0]))
                 flp.flightPreference = false;
             flp.updateSessionIfOnline(false);
+            info(sender, "Flying %0.", flp.flightPreference ? "enabled" : "disabled");
+        } else {
+            if (flp.flightPreference) {
+                info(sender, "Flying enabled, disable it with /fly off");
+            } else {
+                info(sender, "Flying disabled, enable it with /fly on");
+            }
         }
 
-        sendFormatted(sender, "&(gold)Flying %0.", flp.flightPreference ? "enabled" : "disabled");
         return true;
     }
 

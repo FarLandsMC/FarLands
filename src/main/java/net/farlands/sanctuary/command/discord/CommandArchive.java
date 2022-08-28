@@ -1,18 +1,14 @@
 package net.farlands.sanctuary.command.discord;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.util.Utils;
-
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -27,6 +23,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandArchive extends DiscordCommand {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
@@ -47,9 +45,8 @@ public class CommandArchive extends DiscordCommand {
 
         Action action = Utils.valueOfFormattedName(args[1], Action.class);
         if (action == null) {
-            sendFormatted(sender, "&(red)Invalid action: %0. Valid actions: %1.", args[1],
+            return error(sender, "Invalid action: %s. Valid actions: %s", args[1],
                     Arrays.stream(Action.VALUES).map(Utils::formattedName).collect(Collectors.joining(", ")));
-            return true;
         }
 
         // Allow this potentially long process to run on another thread

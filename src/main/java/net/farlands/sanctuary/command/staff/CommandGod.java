@@ -1,14 +1,10 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
-
-import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,9 +28,15 @@ public class CommandGod extends PlayerCommand {
             else if ("off".equalsIgnoreCase(args[0]))
                 flp.god = false;
             flp.updateSessionIfOnline(false);
+            info(sender, "God mode %s.", flp.god ? "enabled" : "disabled");
+        } else {
+            if (flp.flightPreference) {
+                info(sender, "God mode enabled, disable it with /god off");
+            } else {
+                info(sender, "God mode disabled, enable it with /god on");
+            }
         }
 
-        sendFormatted(sender, "&(gold)God mode %0.", flp.god ? "enabled" : "disabled");
         return true;
     }
 

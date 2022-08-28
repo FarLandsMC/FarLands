@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -22,6 +23,8 @@ import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Restrictions;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.entity.EntityInsentient;
 import net.minecraft.world.item.trading.MerchantRecipe;
@@ -73,6 +76,13 @@ public final class FLUtils {
     private static final Pattern         HEX_COLOR_PATTERN_SIX   = Pattern.compile("&#([0-9a-fA-F]{6})");
     // Pattern matching funny's need for 3 char hex
     private static final Pattern         HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
+    public static Map<Worlds, TextColor> WORLD_COLORS            = new ImmutableMap.Builder<Worlds, TextColor>()
+        .put(Worlds.OVERWORLD, NamedTextColor.GREEN)
+        .put(Worlds.NETHER, NamedTextColor.RED)
+        .put(Worlds.END, NamedTextColor.YELLOW) // not possible, but here for completion :P
+        .put(Worlds.FARLANDS, NamedTextColor.DARK_GREEN)
+        .put(Worlds.POCKET, NamedTextColor.DARK_GREEN)
+        .build();
 
     /**
      * Get a player's 3D head texture URL

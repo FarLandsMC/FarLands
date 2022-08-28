@@ -1,17 +1,13 @@
 package net.farlands.sanctuary.command.discord;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.TimeInterval;
-
 import org.bukkit.command.CommandSender;
 
 public class CommandDevReport extends DiscordCommand {
@@ -30,8 +26,7 @@ public class CommandDevReport extends DiscordCommand {
 
         long t = globalCooldown.timeRemaining();
         if (t > 0) {
-            sendFormatted(sender, "&(red)You can use this command again in %0.", TimeInterval.formatTime(50L * t, false));
-            return true;
+            return error(sender, "You can use this command again in %s.", TimeInterval.formatTime(50L * t, false));
         }
 
         String body = joinArgsBeyond(0, " ", args).replaceAll("`", "`\u200B");

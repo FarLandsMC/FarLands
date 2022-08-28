@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
@@ -18,8 +16,7 @@ public class CommandBack extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         Location backLocation = FarLands.getDataHandler().getSession(sender).getBackLocation();
         if(backLocation == null) {
-            sendFormatted(sender, "&(red)You have nowhere to teleport back to.");
-            return true;
+            return error(sender, "You have nowhere to teleport back to.");
         }
         FLUtils.tpPlayer(sender, backLocation);
         return true;

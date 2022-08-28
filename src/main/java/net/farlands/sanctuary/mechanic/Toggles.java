@@ -46,9 +46,9 @@ public class Toggles extends Mechanic {
             if (session.autoSendStaffChat) {
                 player.sendActionBar(ComponentColor.gray("Staff chat auto-messaging is toggled on."));
             } else if (session.handle.vanished) {
-                player.sendActionBar(ComponentColor.gray("&(gray)You are vanished."));
+                player.sendActionBar(ComponentColor.gray("You are vanished."));
             } else if (session.replyToggleRecipient != null) {
-                player.sendActionBar(ComponentColor.gray("&(gray)You are messaging %s.", session.replyToggleRecipient.getName()));
+                player.sendActionBar(ComponentColor.gray("You are messaging %s.", session.replyToggleRecipient.getName()));
             }
         }), 0L, 40L);
 
@@ -179,7 +179,7 @@ public class Toggles extends Mechanic {
             }
 
             Bukkit.getOnlinePlayers().stream().filter(pl -> pl != player).forEach(pl -> {
-                if (!flp.vanished) {
+                if (!flp.vanished || FarLands.getDataHandler().getOfflineFLPlayer(pl).rank.isStaff()) {
                     pl.showPlayer(player);
                 } else {
                     pl.hidePlayer(player);

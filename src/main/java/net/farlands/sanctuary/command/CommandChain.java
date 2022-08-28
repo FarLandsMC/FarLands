@@ -1,12 +1,9 @@
 package net.farlands.sanctuary.command;
 
 import com.kicas.rp.util.Pair;
-
-import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -48,11 +45,11 @@ public class CommandChain extends Command {
             }
         }
         if (!badCommands.isEmpty()) {
-            TextUtils.sendFormatted(
-                    sender,
-                    "&(red)You do not have permission to run the following $(inflect,noun,0,command): %1",
-                    badCommands.size(),
-                    String.join(", ", badCommands)
+            error(
+                sender,
+                "You do not have permission to run the following command%s: %s",
+                badCommands.size(),
+                String.join(", ", badCommands)
             );
         }
         return true;

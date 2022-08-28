@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.PluginData;
@@ -20,11 +18,9 @@ public class CommandSetWarp extends PlayerCommand {
             return false;
         PluginData pd = FarLands.getDataHandler().getPluginData();
         if(pd.getWarpNames().stream().anyMatch(args[0]::equalsIgnoreCase)) {
-            sendFormatted(sender, "&(red)A warp with that name already exists.");
-            return true;
+            return error(sender, "A warp with that name already exists.");
         }
         pd.addWarp(args[0], sender.getLocation());
-        sendFormatted(sender, "&(green)Warp set.");
-        return true;
+        return success(sender, "Warp set.");
     }
 }

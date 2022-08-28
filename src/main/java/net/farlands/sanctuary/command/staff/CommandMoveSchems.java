@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
 
@@ -29,9 +28,7 @@ public class CommandMoveSchems extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         // Make sure the config has been setup correctly
         if (Arrays.stream(DataHandler.Server.VALUES).anyMatch(server -> !FarLands.getFLConfig().serverRoots.containsKey(server))) {
-            sendFormatted(sender, "&(red)The config has not been setup to support this command, " +
-                    "please contact a developer about this.");
-            return true;
+            return error(sender, "The config has not been setup to support this command, please contact a developer about this.");
         }
 
         // Enforce the string constants
@@ -40,30 +37,26 @@ public class CommandMoveSchems extends Command {
 
         // Check to make sure at least one schematic is specified
         if (args.length == 4) {
-            sendFormatted(sender, "&(red)Please specify one or more schematic files to move.");
-            return true;
+            return error(sender, "Please specify one or more schematic files to move.");
         }
 
         // Parse the "from" server and get the directory
         DataHandler.Server fromServer = Utils.valueOfFormattedName(args[1], DataHandler.Server.class);
         if (fromServer == null) {
-            sendFormatted(sender, "&(red)Invalid source server: %0", args[1]);
-            return true;
+            return error(sender, "Invalid source server: %s", args[1]);
         }
         String fromDirectory = FarLands.getFLConfig().serverRoots.get(fromServer);
 
         // Parse the "to" server and get the directory
         DataHandler.Server toServer = Utils.valueOfFormattedName(args[3], DataHandler.Server.class);
         if (toServer == null) {
-            sendFormatted(sender, "&(red)Invalid destination server: %0", args[3]);
-            return true;
+            return error(sender, "Invalid destination server: %s", args[3]);
         }
         String toDirectory = FarLands.getFLConfig().serverRoots.get(toServer);
 
         // Ensure the servers aren't the same
         if (fromServer == toServer) {
-            sendFormatted(sender, "&(red)The two servers specified must be different.");
-            return true;
+            return error(sender, "The two servers specified must be different.");
         }
 
         // Perform the copy
@@ -74,13 +67,11 @@ public class CommandMoveSchems extends Command {
                 Files.deleteIfExists(dest);
                 Files.copy(Paths.get(fromDirectory, "plugins", "WorldEdit", "schematics", args[i]), dest);
             } catch (IOException ex) {
-                sendFormatted(sender, "&(red)Failed to copy schematics.");
-                return true;
+                return error(sender, "Failed to copy schematics.");
             }
         }
 
-        sendFormatted(sender, "&(green)Successfully copied schematics.");
-        return true;
+        return success(sender, "Successfully copied schematics.");
     }
 
     @Override

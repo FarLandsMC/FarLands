@@ -1,11 +1,7 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
-
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,13 +17,11 @@ public class CommandSmite extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if(args.length == 0) {
-            sendFormatted(sender, "&(red)Please specify the peasant you wish to smite.");
-            return true;
+            return error(sender, "Please specify the peasant you wish to smite.");
         }
         Player player = getPlayer(args[0], sender);
         if(player == null) {
-            sendFormatted(sender, "&(red)This peasant does not exist.");
-            return true;
+            return error(sender, "This peasant does not exist.");
         }
         player.getWorld().strikeLightning(player.getLocation());
         return true;

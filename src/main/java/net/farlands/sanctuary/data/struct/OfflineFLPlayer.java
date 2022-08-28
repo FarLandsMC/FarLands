@@ -13,20 +13,19 @@ import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.GeneralMechanics;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
  * All data related to a FarLands player.
@@ -225,6 +224,17 @@ public class OfflineFLPlayer {
             ? Component.text(username).color(rank.nameColor()) : nickname;
     }
 
+    /**
+     * @param displayName If it should use {@link OfflineFLPlayer#getDisplayName} or the username
+     * @return The player's full display name, including display rank
+     */
+    public Component getFullDisplayName(boolean displayName) {
+        return Component.empty()
+            .append(this.getDisplayRank())
+            .append(Component.space())
+            .append(displayName ? this.getDisplayName() : this.rank.colorName(this.username));
+    }
+
     public void addVote() {
         ++totalVotes;
         ++totalSeasonVotes;
@@ -238,7 +248,7 @@ public class OfflineFLPlayer {
         FLPlayerSession session = getSession();
         if (session != null) {
             session.giveVoteRewards(1);
-            session.player.sendMessage(ChatColor.GOLD + "Receiving 1 vote reward!");
+            session.player.sendMessage(ComponentColor.gold("Receiving 1 vote reward!"));
         } else
             ++voteRewards;
     }
@@ -295,7 +305,7 @@ public class OfflineFLPlayer {
                 ComponentColor.gold(" ** ") // " ** <username> has ranked up to <rank> ** "
                     .append(ComponentColor.green(username))
                     .append(ComponentColor.gold(" has ranked up to "))
-                    .append(rank.getLabel())
+                    .append(rank)
                     .append(ComponentColor.gold(" ** ")),
                 false
             );
@@ -474,14 +484,17 @@ public class OfflineFLPlayer {
 
         Player player = getOnlinePlayer();
         if (player != null) { // If the player is online, notify
-            sendFormatted(player,
-                    "&(gold){&(aqua)%0} has sent you a home: {&(aqua)%1}%2" +
-                            "\nYou can accept it with ${hovercmd,/sharehome accept %0,&(aqua)Click to Run,&(aqua)/sharehome accept %0} " +
-                            "and decline with ${hovercmd,/sharehome decline %0,&(aqua)Click to Run,&(aqua)/sharehome decline %0}",
-                    sender,
-                    shareHome.home().getName(),
-                    shareHome.message() == null ? "" : "\nMessage: {&(aqua)%3}",
-                    shareHome.message()
+            player.sendMessage(
+                ComponentColor.gold("")
+                    .append(ComponentColor.aqua(sender))
+                    .append(Component.text(" has sent you a home: "))
+                    .append(ComponentColor.aqua(shareHome.home().getName()))
+                    .append(shareHome.message() == null ? Component.empty() : Component.text("\nMessage: " + shareHome.message()))
+                    .append(Component.text("\nYou can accept it with "))
+                    .append(ComponentUtils.command("/sharehome accept " + sender))
+                    .append(Component.text(" or decline it with "))
+                    .append(ComponentUtils.command("/sharehome decline " + sender))
+                    .append(Component.text("."))
             );
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
         }
@@ -494,21 +507,18 @@ public class OfflineFLPlayer {
         return pendingSharehomes.remove(sender) != null;
     }
 
-    public void addMail(String sender, String message) {
+    public void addMail(String sender, Component message) {
         mail.add(new MailMessage(sender, message));
 
         Player player = getOnlinePlayer();
-        if (player != null) // Notify the player if online
-            sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read," +
-                    "{&(gray)Click to Run},&(yellow)/mail read)");
+        if (player != null) {
+            player.sendMessage(MailMessage.UNREAD_MAIL);
+            this.getSession().addAFKMessage(MailMessage.UNREAD_MAIL);
+        }
     }
 
-    public void clearMail() {
-        mail.clear();
-    }
-
-    public void setTimeZone(String id) {
-        this.timezone = id;
+    public void setTimezone(String tz) {
+        this.timezone = tz;
     }
 
     /**
@@ -517,26 +527,14 @@ public class OfflineFLPlayer {
      * @return the formatted time, null if no timezone set
      */
     public String currentTime() {
-        if (timezone == null || timezone.isEmpty()) {
-            return null;
-        }
+        if (this.timezone == null || this.timezone.isEmpty()) return null;
         Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
 
-        TimeZone tz = TimeZone.getTimeZone(timezone);
+        cal.setTimeZone(TimeZone.getTimeZone(this.timezone));
+        sdf.setTimeZone(cal.getTimeZone());
 
-        cal.setTimeZone(tz);
-
-        int hour = cal.get(Calendar.HOUR);
-        int min = cal.get(Calendar.MINUTE);
-
-        if (hour == 0) {
-            hour = 12;
-        }
-
-        String ampm = cal.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM";
-
-        return String.format("%d:%02d %s", hour, min, ampm);
-
+        return sdf.format(cal.getTime());
     }
 
     public void moveToSpawn() {

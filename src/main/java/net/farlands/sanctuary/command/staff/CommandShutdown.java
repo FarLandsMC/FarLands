@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandShutdown extends Command {
     private static final Map<Integer, String> NOTIFICATION_TIMES = (new ImmutableMap.Builder<Integer, String>())
             .put(3600, "Server restarting in 1 hour.")
@@ -46,19 +44,16 @@ public class CommandShutdown extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if(FarLands.getFLConfig().isScreenSessionNotSet()) {
-            sendFormatted(sender, "&(red)The screen session for this server instance is not specified. " +
+            return error(sender, "The screen session for this server instance is not specified. " +
                     "This command requires that field to run.");
-            return true;
         }
         if(args.length < 2 || !TYPES.contains(args[0]))
             return false;
         final int seconds = (int)TimeInterval.parseSeconds(args[1]);
         if(seconds < 0) {
-            sendFormatted(sender, "&(red)Invalid time.");
-            return true;
+            return error(sender, "Invalid time.");
         }else if(seconds > MAX_DELAY) {
-            sendFormatted(sender, "&(red)You cannot schedule a shutdown more that 8 hours in advance.");
-            return true;
+            return error(sender, "You cannot schedule a shutdown more that 8 hours in advance.");
         }
         execute0(seconds, args[0]);
         return true;

@@ -22,8 +22,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandUploadSchem extends DiscordCommand {
     public CommandUploadSchem() {
         super(Rank.BUILDER, "Upload a schematic file to the server.", "/uploadschem {add schematic as attachment}",
@@ -33,8 +31,7 @@ public class CommandUploadSchem extends DiscordCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof DiscordSender)) {
-            sendFormatted(sender, "&(red)This command must be used from discord.");
-            return false;
+            return error(sender, "This command must be used from Discord");
         }
 
         // Locate the attachment
@@ -42,8 +39,7 @@ public class CommandUploadSchem extends DiscordCommand {
         Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).retrieveMessageById(messageId).complete();
         List<Message.Attachment> attachments = message.getAttachments();
         if (attachments.isEmpty()) {
-            sender.sendMessage("You must attach the schematic to the command message.");
-            return true;
+            return error(sender, "You must attach the schematic to the command message.");
         }
 
         String fileName = attachments.get(0).getFileName();
@@ -60,8 +56,7 @@ public class CommandUploadSchem extends DiscordCommand {
             } catch (InterruptedException | ExecutionException ex) {
                 Logging.error(ex);
                 ex.printStackTrace();
-                sender.sendMessage("Failed to upload schematics.");
-                return true;
+                return error(sender, "Failed to upload schematics.");
             }
 
             // Unpack the zip

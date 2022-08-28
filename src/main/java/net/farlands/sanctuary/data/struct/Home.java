@@ -1,29 +1,21 @@
 package net.farlands.sanctuary.data.struct;
 
-import com.google.common.collect.ImmutableMap;
+import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * A player home.
  */
 public final class Home extends LocationWrapper {
-    private static Map<String, TextColor> WORLD_COLORS = new ImmutableMap.Builder < String, TextColor>()
-        .put("world", NamedTextColor.GREEN)
-        .put("world_nether", NamedTextColor.RED)
-        .put("world_the_end", NamedTextColor.YELLOW) // not possible, but here for completion :P
-        .put("farlands", NamedTextColor.DARK_GREEN)
-        .build();
 
 
     private String name;
@@ -55,7 +47,7 @@ public final class Home extends LocationWrapper {
      * @return component representation of this home.
      */
     public Component asComponent(boolean colorDimension, boolean clickTp) {
-        Component nameC = Component.text(this.name + ": ").color(colorDimension ? WORLD_COLORS.get(asLocation().getWorld().getName()) : NamedTextColor.GOLD);
+        Component nameC = Component.text(this.name + ": ").color(colorDimension ? FLUtils.WORLD_COLORS.get(Worlds.getByWorld(asLocation().getWorld())) : NamedTextColor.GOLD);
         Component coords = ComponentColor.aqua("%d %d %d", (int) x, (int) y, (int) z);
         Component finalC = nameC.append(Component.space()).append(coords);
         if(clickTp) {

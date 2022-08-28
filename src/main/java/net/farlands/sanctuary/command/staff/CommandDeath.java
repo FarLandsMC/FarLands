@@ -1,12 +1,11 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.PlayerDeath;
-
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,13 +25,11 @@ public class CommandDeath extends PlayerCommand {
             return false;
         UUID uuid = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]).uuid;
         if(uuid == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
         List<PlayerDeath> deaths = FarLands.getDataHandler().getDeaths(uuid);
         if(deaths.isEmpty()) {
-            sendFormatted(sender, "&(red)This player has no deaths on record.");
-            return true;
+            return error(sender, "This player has no deaths on record.");
         }
 
         int death;
@@ -42,21 +39,24 @@ public class CommandDeath extends PlayerCommand {
             try {
                 death = deaths.size() - Integer.parseInt(args[1]);
             } catch (NumberFormatException ex) {
-                sendFormatted(sender, "&(red)Invalid death number. If you wish to rollback a death, use " +
-                        "/restoredeath.");
-                return true;
+                return error(sender, "Invalid death number.  If you wish to rollback a death, use /restoredeath");
             }
             if (deaths.size() - 1 < death || death < 0) {
-                sender.sendMessage("Death number must be between 1 and " + deaths.size());
-                return true;
+                return error(sender, "Death number must be between 1 and %d", deaths.size());
             }
         }
         Location deathLocation = deaths.get(death).location();
         sender.teleport(deathLocation);
-        sendFormatted(sender, "&(gray)Player {&(white)%0} died at " +
-                        "$(hovercmd,/tl %1 %2 %3 %4 %5 %6,{&(gray)Click to teleport},&(white)%1 %2 %3 %4 %5 %6)",
-                args[0], deathLocation.getX(), deathLocation.getY(), deathLocation.getZ(),
-                deathLocation.getYaw(), deathLocation.getPitch(), deathLocation.getWorld().getName());
+        sender.sendMessage(
+            ComponentColor.gray("Player ").append(ComponentColor.white(args[0]))
+                .append(ComponentColor.gray(" died at "))
+                .append(ComponentUtils.command(
+                    String.format("/tl %s %s %s %s %s %s", deathLocation.getX(), deathLocation.getY(), deathLocation.getZ(),
+                                  deathLocation.getYaw(), deathLocation.getPitch(), deathLocation.getWorld().getName()),
+                    ComponentColor.white(String.format("%s %s %s %s %s %s", deathLocation.getX(), deathLocation.getY(), deathLocation.getZ(),
+                                                       deathLocation.getYaw(), deathLocation.getPitch(), deathLocation.getWorld().getName()))
+                ))
+        );
         return true;
     }
 

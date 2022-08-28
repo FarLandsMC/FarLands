@@ -354,7 +354,7 @@ public class DiscordHandler extends ListenerAdapter {
                     replyHover.append(ComponentColor.white(refMessage.getAuthor().getName() + ": "));
                 } else { // "[rank] <name>: "
                     if (refFlp.rank.isStaff()) {
-                        replyHover.append(refFlp.rank.getLabel()).append(Component.space()); // Add rank if staff
+                        replyHover.append(refFlp.rank).append(Component.space()); // Add rank if staff
                     }
                     replyHover.append(refFlp.rank.colorName(refFlp.username + ": ")); // Add name
                 }
@@ -441,7 +441,7 @@ public class DiscordHandler extends ListenerAdapter {
                 TextComponent.Builder discordPrefix = Component.text()
                     .append(ComponentColor.darkGray("DISCORD "));
 
-                if (flp.rank.isStaff()) discordPrefix.append(flp.rank.getLabel()).append(Component.space());
+                if (flp.rank.isStaff()) discordPrefix.append(flp.rank).append(Component.space());
 
                 discordPrefix
                     .append(flp.rank.colorName(flp.username))

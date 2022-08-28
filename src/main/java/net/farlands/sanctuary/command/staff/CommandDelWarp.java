@@ -1,12 +1,9 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.Rank;
-
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,12 +23,10 @@ public class CommandDelWarp extends PlayerCommand {
             return false;
         PluginData pd = FarLands.getDataHandler().getPluginData();
         if(!pd.getWarpNames().contains(args[0])) {
-            sendFormatted(sender, "&(red)Warp not found.");
-            return true;
+            return error(sender, "Warp not found.");
         }
         pd.removeWarp(args[0]);
-        sendFormatted(sender, "&(green)Warp removed.");
-        return true;
+        return success(sender, "Warp removed.");
     }
     
     @Override

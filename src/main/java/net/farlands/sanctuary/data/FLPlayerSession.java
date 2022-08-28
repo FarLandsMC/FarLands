@@ -3,13 +3,12 @@ package net.farlands.sanctuary.data;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
-import com.kicas.rp.util.TextUtils;
-import com.kicas.rp.util.TextUtils2;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.*;
+import net.farlands.sanctuary.mechanic.TabListMechanics;
 import net.farlands.sanctuary.mechanic.Toggles;
 import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -176,7 +175,7 @@ public class FLPlayerSession {
         // Data maintenance
         if (handle.currentMute != null && handle.currentMute.hasExpired()) {
             handle.currentMute = null;
-            player.sendMessage(ChatColor.GREEN + "Your mute has expired.");
+            player.sendMessage(ComponentColor.green("Your mute has expired."));
         }
 
         if (!handle.username.equals(player.getName())) {
@@ -207,8 +206,12 @@ public class FLPlayerSession {
         // Give vote rewards
         if (handle.voteRewards > 0) {
             if (sendMessages) {
-                player.sendMessage(ChatColor.GOLD + "Receiving " + handle.voteRewards + " vote reward" +
-                                   (handle.voteRewards > 1 ? "s!" : "!"));
+                player.sendMessage(
+                    ComponentColor.gold(
+                        "Receiving %d vote reward%s!",
+                        handle.voteRewards,
+                        handle.voteRewards == 1 ? "s" : "")
+                );
             }
             giveVoteRewards(handle.voteRewards);
             handle.voteRewards = 0;
@@ -251,6 +254,7 @@ public class FLPlayerSession {
         );
 
         Toggles.hidePlayers(player);
+        TabListMechanics.update();
 
         if (handle.ptime >= 0) {
             player.setPlayerTime(handle.ptime, false);
@@ -261,42 +265,37 @@ public class FLPlayerSession {
 
         if (!handle.mail.isEmpty() && sendMessages && mailCooldown.isComplete()) {
             mailCooldown.reset();
-            TextUtils.sendFormatted(player, "&(gold)You have mail. Read it with $(hovercmd,/mail read,{&(gray)Click to Run},&(yellow)/mail read)");
+            this.player.sendMessage(MailMessage.UNREAD_MAIL);
         }
 
         if (!handle.pendingSharehomes.isEmpty() && sendMessages && sharehomeCooldown.isComplete()) {
             sharehomeCooldown.reset();
 
-            List<String> pendingHomes = new ArrayList<>();
+            List<Component> pendingHomes = new ArrayList<>();
 
             handle.pendingSharehomes.forEach((k, v) -> {
-                String message = v.message() == null ? "" : "&(gold)Message: &(aqua)" + v.message().replaceAll(",", " ") + "\n";
+                Component message = ComponentColor.gold("Message: ").append(ComponentColor.gold(v.message() + "\n"));
                 pendingHomes.add(
-                    "{" +
-                    "$(click:suggest_command,/sharehome accept " + k + " )" +
-                    "$(hover:show_text," +
-                    "&(gold)Sender: &(aqua)" + k + "\n" +
-                    message + "&(gold)Name: &(aqua)" + v.home().getName() + "\n" +
-                    "&(" +
-                    "gray)Click to accept" +
-                    ")&(aqua)" + k +
-                    "}"
+                    ComponentUtils.suggestCommand(
+                        "/sharehome accept " + k,
+                        ComponentColor.aqua(k),
+                        ComponentColor.gold("Sender: ").append(ComponentColor.aqua(k))
+                            .append(message).append(Component.newline())
+                            .append(ComponentColor.gold("Name: ")).append(ComponentColor.aqua(v.home().getName() + "\n"))
+                            .append(ComponentColor.gray("Click to accept"))
+                        )
                 );
             });
 
-            try {
-                TextUtils2.sendFormatted(
-                    player,
-                    "&(gold)You have pending homes from %0 %1: %2\n" +
-                    "Hover over the %3 to view more info.",
-                    handle.pendingSharehomes.size(),
-                    handle.pendingSharehomes.size() == 1 ? "player" : "players",
-                    String.join(", ", pendingHomes),
-                    handle.pendingSharehomes.size() == 1 ? "name" : "names"
-                );
-            } catch (TextUtils2.ParserError e) {
-                e.printStackTrace();
-            }
+            player.sendMessage(
+                ComponentColor.gold(
+                        "You have pending homes from %d player%s",
+                        pendingHomes.size(),
+                        pendingHomes.size() == 1 ? "" : "s"
+                    )
+                    .append(Component.join(JoinConfiguration.commas(true), pendingHomes))
+                    .append(ComponentColor.gold("Hover over the name%s to view more info.", pendingHomes.size() == 1 ? "" : "s"))
+            );
         }
     }
 

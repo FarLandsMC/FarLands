@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandList extends Command {
     public CommandList() {
         super(Rank.INITIATE, Category.INFORMATIONAL, "See the players currently online.", "/list", "list", "who");
@@ -80,8 +78,7 @@ public class CommandList extends Command {
         }
 
         if (players.size() + staff.size() == 0) {
-            sendFormatted(sender, "&(gold)There are no players online currently.");
-            return true;
+            return info(sender, "There are no players online currently.");
         }
 
         if (sender instanceof DiscordSender) {

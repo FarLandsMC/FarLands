@@ -2,6 +2,7 @@ package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatControl;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -101,7 +102,7 @@ public class PlayerTrade {
             if (mailSenders.add(clicker.getUniqueId())) {
                 clicker.sendMessage(ChatColor.GOLD + "The person offering this trade is offline, they will see that you " +
                         "would like to trade when they log back in.");
-                flp.addMail("Tradepost", clicker.getName() + " would like to trade with you.");
+                flp.addMail("Tradepost", ComponentColor.gold("%s would like to trade with you.", clicker.getName()));
             }
             return;
         }

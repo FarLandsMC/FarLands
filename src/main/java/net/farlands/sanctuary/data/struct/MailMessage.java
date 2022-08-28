@@ -1,18 +1,26 @@
 package net.farlands.sanctuary.data.struct;
 
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 /**
  * A message being mailed.
  */
-public final class MailMessage {
+public final class MailMessage implements ComponentLike {
 
-    private final String sender;
-    private final String message;
+    public static final Component UNREAD_MAIL = ComponentColor.gold("You have mail. Read it with ").append(ComponentUtils.command("/mail read"));
+    private final       String    sender;
+    private final       Component message;
 
     /**
+     *
      */
-    public MailMessage(String sender, String message) {
+    public MailMessage(String sender, Component message) {
         this.sender = sender;
         this.message = message;
     }
@@ -25,7 +33,7 @@ public final class MailMessage {
         return sender;
     }
 
-    public String message() {
+    public Component message() {
         return message;
     }
 
@@ -50,4 +58,8 @@ public final class MailMessage {
                "message=" + message + ']';
     }
 
+    @Override
+    public @NotNull Component asComponent() {
+        return this.message;
+    }
 }

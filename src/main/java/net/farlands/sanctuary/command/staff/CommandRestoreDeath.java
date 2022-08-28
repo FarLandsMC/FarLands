@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
@@ -28,14 +27,12 @@ public class CommandRestoreDeath extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         Player player = args.length < 1 ? null : getPlayer(args[0], sender);
         if (player == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
 
         List<PlayerDeath> deaths = FarLands.getDataHandler().getDeaths(player.getUniqueId());
         if(deaths.isEmpty()) {
-            sendFormatted(sender, "&(red)This player has no deaths on record.");
-            return true;
+            return error(sender, "This player has no deaths on record.");
         }
 
         boolean preview = "preview".equalsIgnoreCase(args[args.length - 1]);
@@ -48,12 +45,10 @@ public class CommandRestoreDeath extends Command {
             try {
                 death = deaths.size() - Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                sendFormatted(sender, "&(red)Death number must be a number between 1 and " + deaths.size());
-                return true;
+                return error(sender, "Death number must be a number between 1 and " + deaths.size());
             }
             if (deaths.size() - 1 < death || death < 0) {
-                sendFormatted(sender, "&(red)Death number must be between 1 and " + deaths.size());
-                return true;
+                return error(sender, "Death number must be between 1 and " + deaths.size());
             }
         }
 

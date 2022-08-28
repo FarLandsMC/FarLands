@@ -1,7 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
 
@@ -23,8 +21,7 @@ public class CommandToPlayer extends PlayerCommand {
             return false;
         Player player = getPlayer(args[0], sender);
         if(player == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
         sender.teleport(player.getLocation());
         return true;

@@ -860,6 +860,14 @@ public class DataHandler extends Mechanic {
         saveItems();
     }
 
+    public Map<UUID, FLPlayerSession> getCachedSessions() {
+        return this.cachedSessions;
+    }
+
+    public Map<UUID, FLPlayerSession> getSessionMap() {
+        return this.sessionMap;
+    }
+
     private static String path(Object... parts) {
         return String.join(File.separator, Arrays.stream(parts).map(Object::toString).toArray(String[]::new));
     }

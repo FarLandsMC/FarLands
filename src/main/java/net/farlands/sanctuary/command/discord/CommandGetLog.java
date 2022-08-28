@@ -1,13 +1,11 @@
 package net.farlands.sanctuary.command.discord;
 
-import com.kicas.rp.util.TextUtils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.FileSystem;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.farlands.sanctuary.util.FileSystem;
 import org.bukkit.command.CommandSender;
 
 import java.io.*;
@@ -24,8 +22,7 @@ public class CommandGetLog extends DiscordCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof DiscordSender)) {
-            TextUtils.sendFormatted(sender, "&(red)This command must be used from discord.");
-            return true;
+            return error(sender, "This command must be used from Discord.");
         }
 
         // Get a numeric representation of the start and end dates
@@ -37,8 +34,7 @@ public class CommandGetLog extends DiscordCommand {
                 start = parseDate(args[0]);
                 end = args.length == 1 ? start : parseDate(args[1]);
             } catch (IllegalArgumentException ex) {
-                sender.sendMessage("Invalid date \"" + ex.getMessage() + "\". Expected format: yyyy-mm-dd.");
-                return true;
+                return error(sender, "Invalid date \"%s\".  Expected format: yyyy-mm-dd", ex.getMessage());
             }
         }
 

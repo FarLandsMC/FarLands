@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.kicas.rp.util.TextUtils.escapeExpression;
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandSharehome extends Command {
     public CommandSharehome() {
@@ -37,17 +36,17 @@ public class CommandSharehome extends Command {
         switch (args[0]) {
             case "send": // /sharehome send <home> <player> [message]
                 if (!sendHome(sender, args)) {
-                    sender.sendMessage(ComponentColor.red("Usage: /sharehome send <player> <home> [message]"));
+                    error(sender, "Usage: /sharehome send <player> <home> [message]");
                 }
                 return true;
             case "accept":
                 if (!acceptDeclineHome(true, sender, args)) {
-                    sender.sendMessage(ComponentColor.red("Usage: /sharehome accept <player> [name]"));
+                    error(sender, "Usage: /sharehome accept <player> [name]");
                 }
                 return true;
             case "decline":
                 if (!acceptDeclineHome(false, sender, args)) {
-                    sender.sendMessage(ComponentColor.red("Usage: /sharehome decline <player>"));
+                    error(sender, "Usage: /sharehome decline <player>");
                 }
                 return true;
             default:
@@ -64,20 +63,20 @@ public class CommandSharehome extends Command {
         // Get the recipient and make sure they exist
         OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if (recipientFlp == null) {
-            sender.sendMessage(ComponentColor.red("Player not found."));
+            error(sender, "Player not found.");
             return true;
         }
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         // Don't let people share homes with themselves
         if (flp.uuid.equals(recipientFlp.uuid)) {
-            sender.sendMessage(ComponentColor.red("You cannot share a home with yourself."));
+            error(sender, "You cannot share a home with yourself.");
             return true;
         }
 
         // Make sure that the player has a home with this name
         if (!flp.hasHome(args[2])) {
-            sender.sendMessage(ComponentColor.red("You don't have a home called " + args[2]));
+            error(sender, "You don't have a home called " + args[2]);
             return true;
         }
         Home home = new Home(args[2], flp.getHome(args[2]));
@@ -87,16 +86,16 @@ public class CommandSharehome extends Command {
             escapedMessage = escapeExpression(message);
 
         if (recipientFlp.getIgnoreStatus(sender).includesSharehomes() || !recipientFlp.canAddHome()) {
-            sender.sendMessage(ComponentColor.red("You cannot share a home with this person."));
+            error(sender, "You cannot share a home with this person.");
             return true;
         }
 
         // Players can only queue one item at a time, so make sure this operation actually succeeds
         if (recipientFlp.addSharehome(flp.username, new ShareHome(flp.username, message.isEmpty() ? null : escapedMessage, home))) {
             // Use the same cooldown as /package
-            sendFormatted(sender, "&(green)Home shared!");
+            success(sender, "Home shared!");
         } else { // The sender already has a sharehome queued for this person so the transfer failed
-            sendFormatted(sender, "&(red)You cannot share a home with %0 right now.", recipientFlp.username);
+            error(sender, "You cannot share a home with %s right now.", recipientFlp.username);
         }
 
         return true;
@@ -112,34 +111,29 @@ public class CommandSharehome extends Command {
         ShareHome shareHome = flp.pendingSharehomes.get(args[1]);
 
         if (shareHome == null) {
-            sender.sendMessage(ComponentColor.red("This player hasn't sent you a home."));
-            return true;
+            return error(sender, "This player hasn't sent you a home.");
         }
 
         if (accepted) {
             if (!flp.canAddHome()) {
-                sender.sendMessage(ComponentColor.red("You cannot add this home as you have no more available homes."));
-                return true;
+                return error(sender, "You cannot add this home as you have no more available homes.");
             }
 
             String homeName = shareHome.home().getName();
             if (args.length == 3) {
                 // Make sure the home name is valid
                 if (args[2].isEmpty() || args[2].matches("\\s+") || MessageFilter.INSTANCE.isProfane(args[2])) {
-                    sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
-                    return true;
+                    return error(sender, "You cannot set a home with that name.");
                 }
 
                 if (args[2].length() > 32) {
-                    sender.sendMessage(ComponentColor.red("Home names are limited to 32 characters. Please choose a different name."));
-                    return true;
+                    return error(sender, "Home names are limited to 32 characters. Please choose a different name.");
                 }
 
                 homeName = args[2];
             }
             if (flp.hasHome(homeName)) {
-                sender.sendMessage(ComponentColor.red("You already have a home by this name."));
-                return true;
+                return error(sender, "You already have a home by this name.");
             }
             flp.addHome(homeName, shareHome.home().asLocation());
             sender.sendMessage(
@@ -148,7 +142,7 @@ public class CommandSharehome extends Command {
                     .append(ComponentColor.green(" added!"))
             );
         } else {
-            sender.sendMessage(ComponentColor.green("Declined home sent by %s.", shareHome.sender()));
+            success(sender, "Declined home sent by %s.", shareHome.sender());
         }
         flp.removeShareHome(shareHome.sender());
         return true;

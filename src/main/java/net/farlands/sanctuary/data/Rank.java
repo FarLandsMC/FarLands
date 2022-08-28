@@ -3,6 +3,7 @@ package net.farlands.sanctuary.data;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -16,13 +17,14 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
 /**
  * FarLands ranks.
  */
-public enum Rank {
+public enum Rank implements ComponentLike {
 
     // Player Ranks:
     // symbol color playTimeRequired homes tpDelay shops wildCooldown [advancement]
@@ -248,15 +250,16 @@ public enum Rank {
         return Bukkit.getScoreboardManager().getMainScoreboard().getTeam(getTeamName());
     }
 
-    public Component getLabel() {
-        return this.label;
-    }
-
     /**
      * Colorise the name given with the correct colours for the rank ({@link Rank#nameColor})
      */
     public Component colorName(String name) {
         return Component.text(name).color(nameColor());
+    }
+
+    @Override
+    public @NotNull Component asComponent() {
+        return this.label;
     }
 
     /**

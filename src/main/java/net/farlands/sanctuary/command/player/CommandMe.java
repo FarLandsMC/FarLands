@@ -5,14 +5,11 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandMe extends PlayerCommand {
     public CommandMe() {
@@ -33,8 +30,7 @@ public class CommandMe extends PlayerCommand {
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
                 !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            sendFormatted(sender, "&(red)You cannot use this command while muted.");
-            return false;
+            return error(sender, "You cannot use this command while muted.");
         }
 
         return super.canUse(sender);

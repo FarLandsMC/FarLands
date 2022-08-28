@@ -197,7 +197,7 @@ public class ChatHandler {
     public static Component getPrefix(OfflineFLPlayer sender) {
         // Does the player have permission to have a nickname? - Based on `/nick` permission
 
-        Component rankPrefix = sender.getDisplayRank().getLabel(); // Ex: "Dev", "Knight" (with color and bold?)
+        // Ex: "Dev", "Knight" (with color and bold?)
         Component nameDisplay = sender.getDisplayName() // Colored Username or Nickname
             .hoverEvent(
                 HoverEvent.showText(
@@ -211,7 +211,7 @@ public class ChatHandler {
             ); // Click Command Suggestion
 
         return Component.text() // Prefix to all messages
-            .append(rankPrefix) // "<rank>"
+            .append(sender.getDisplayRank()) // "<rank>"
             .append(Component.text(' ')) // "<rank> "
             .append(nameDisplay) // "<rank> <name>"
             .append(Component.text(": ").color(sender.rank.color())) // "<rank> <name>: "
@@ -325,7 +325,8 @@ public class ChatHandler {
 
     public static void sendToConsole(Component message, OfflineFLPlayer sender) {
         Bukkit.getConsoleSender().sendMessage(
-            sender.rank.getLabel()
+            Component.empty()
+                .append(sender.rank)
                 .append(Component.text(" "))
                 .append(Component.text(sender.username + ": "))
                 .append(message)

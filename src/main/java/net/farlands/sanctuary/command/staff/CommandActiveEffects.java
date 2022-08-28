@@ -4,7 +4,10 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,9 +16,6 @@ import org.bukkit.potion.PotionEffect;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandActiveEffects extends Command {
     public CommandActiveEffects() {
@@ -28,32 +28,33 @@ public class CommandActiveEffects extends Command {
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
         Player player = flp.getOnlinePlayer();
         if (player == null) {
-            sendFormatted(sender, "&(red)Player is not online.");
-            return true;
+            return error(sender, "Player is not online.");
         }
 
         List<PotionEffect> effects = new ArrayList<>(player.getActivePotionEffects());
         if (effects.size() == 0) {
-            sendFormatted(sender, "&(gold)%0 has no active potion effects.", flp.username);
-            return true;
+            return info(sender, "%s has no active potion effects.", flp.username);
         }
 
-        sendFormatted(
-                sender,
-                "&(gold)%0 currently has the following potion effects: {&(green)%1}.",
-                flp.username,
-                effects
+        sender.sendMessage(
+            ComponentColor.gold("%s currently has the following potion effects: ")
+                .append(Component.join(
+                    JoinConfiguration.commas(true),
+                    effects
                         .stream()
-                        .map(potionEffect -> potionEffect.getType().getName().toLowerCase().replaceAll("_", "-") +
-                                "(" + TimeInterval.formatTime(potionEffect.getDuration() * 50L, true) + ")"
+                        .map(pe ->
+                                 Component.translatable(pe.getType().translationKey())
+                                     .append(ComponentColor.green("(%s)", TimeInterval.formatTime(pe.getDuration() * 50L, true))
+                                     )
                         )
-                        .collect(Collectors.joining(", "))
+                        .toList()
+                ))
         );
+
         return true;
     }
 

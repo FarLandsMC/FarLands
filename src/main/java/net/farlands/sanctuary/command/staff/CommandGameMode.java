@@ -1,12 +1,9 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -23,8 +20,7 @@ public class CommandGameMode extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         if ("gmc".equals(args[0]) && Rank.BUILDER.specialCompareTo(Rank.getRank(sender)) > 0) {
-            sendFormatted(sender, "&(red)You do not have permission to use this command.");
-            return true;
+            return error(sender, "You do not have permission to use this command.");
         }
         boolean isFlying = sender.isFlying();
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
@@ -44,8 +40,7 @@ public class CommandGameMode extends PlayerCommand {
                 if (args.length > 1) {
                     Player targetPlayer = getPlayer(args[1], sender);
                     if (targetPlayer == null) {
-                        sendFormatted(sender, "&(red)Player not found.");
-                        return true;
+                        return error(sender, "Player not found");
                     }
                     sender.setGameMode(GameMode.SPECTATOR);
                     session.update(false);

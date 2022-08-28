@@ -1,18 +1,15 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 import com.kicas.rp.command.TabCompleterBase;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.struct.Home;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
+import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.Location;
@@ -37,8 +34,7 @@ public class CommandHome extends PlayerCommand {
         OfflineFLPlayer flp = gotoUnownedHome ? FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1])
                 : FarLands.getDataHandler().getOfflineFLPlayer(sender);
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
 
         // Get the home name
@@ -47,8 +43,13 @@ public class CommandHome extends PlayerCommand {
             name = "home";
         else {
             if (!gotoUnownedHome && args[0].equals("home")) {
-                sendFormatted(sender, "&(aqua)You can simplify {&(dark_aqua)/home home} by typing " +
-                        "$(hovercmd,/home,{&(gray)Click to Run},&(dark_aqua)/home)!");
+                sender.sendMessage(
+                    ComponentColor.aqua("You can simplify ")
+                        .append(ComponentColor.darkAqua("/home home"))
+                        .append(ComponentColor.aqua(" by typing "))
+                        .append(ComponentColor.darkAqua("/home"))
+                        .append(ComponentColor.aqua("."))
+                );
             }
             name = args[0];
         }
@@ -60,19 +61,26 @@ public class CommandHome extends PlayerCommand {
             if (matching.size() == 1) {
                 FLUtils.tpPlayer(sender, matching.get(0).getLocation());
             } else if (matching.size() > 1) {
-                sender.sendMessage(ComponentColor.gold("Multiple matches found. Did you mean ")
+                sender.sendMessage(
+                    ComponentColor.gold("Multiple matches found. Did you mean ")
                         .append(Component.join(
-                            JoinConfiguration.separators(ComponentColor.gold(", "), ComponentColor.gold(" or ")),
+                            JoinConfiguration.separators(ComponentColor.gold(", "), ComponentColor.gold(", or ")),
                             matching.stream().map(home ->
-                                ComponentUtils.suggestCommand("/home " + home.getName(),
-                                    ComponentColor.aqua(home.getName()),
-                                    ComponentColor.gray("Click to go to this home."))
+                                                      ComponentUtils.suggestCommand(
+                                                          "/home " + home.getName(),
+                                                          ComponentColor.aqua(home.getName()),
+                                                          ComponentColor.gray("Click to go to this home."))
                             ).toList())
-                        ).append(ComponentColor.gold("?"))
+                        )
+                        .append(ComponentColor.gold("?"))
                 );
             } else {
-                sender.sendMessage(ComponentColor.red("%s not have a home named \"%s\"",
-                    gotoUnownedHome ? flp.username + " does" : "You do", name));
+                error(
+                    sender,
+                    "%s not have a home named \"%s\"",
+                    gotoUnownedHome ? flp.username + " does" : "You do",
+                    name
+                );
             }
             return true;
         }

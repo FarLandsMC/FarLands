@@ -1,16 +1,16 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
-
+import net.farlands.sanctuary.util.ComponentColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerKickEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,12 +26,15 @@ public class CommandKick extends Command {
             return false;
         Player player = getPlayer(args[0], sender);
         if(player == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found.");
         }
         String reason = args.length > 1 ? joinArgsBeyond(0, " ", args) : "Kicked by an operator.";
-        player.kickPlayer(reason);
-        sendFormatted(sender, "&(gold)Kicked {&(aqua)%0} for reason: \"%1\"", player.getName(), reason);
+        player.kick(Component.text(reason), PlayerKickEvent.Cause.KICK_COMMAND);
+        sender.sendMessage(
+            ComponentColor.gold("Kicked ")
+                               .append(ComponentColor.aqua(player.getName()))
+                .append(ComponentColor.gold(" for reason: \"%s\"", reason))
+        );
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, MarkdownProcessor.escapeMarkdown(sender.getName()) + " kicked " +
                 MarkdownProcessor.escapeMarkdown(player.getName()) + " for reason: `" + reason + "`");
         return true;

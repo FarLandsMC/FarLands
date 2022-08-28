@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandSeen extends Command {
     public CommandSeen() {
         super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Check when a player was last online.", "/seen [player]", "seen");
@@ -43,12 +41,10 @@ public class CommandSeen extends Command {
 
         Rank rank = Rank.getRank(sender);
 
-        StringBuilder sb = new StringBuilder();
         TextComponent.Builder cb = Component.text()
             .color(NamedTextColor.GOLD)
             .content("Last Seen: ")
             .append(ComponentColor.aqua(TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false)));
-        sb.append("&(gold)Last Seen: &(aqua)").append(TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false));
 
         // Test to see if this command isn't in #in-game essentially; make sure punishment info is private
         if (
@@ -73,7 +69,7 @@ public class CommandSeen extends Command {
                 .append(ComponentColor.aqua(flp.lastIP));
         }
 
-        sendFormatted(sender, sb.toString());
+        sender.sendMessage(cb.build());
         return true;
     }
 

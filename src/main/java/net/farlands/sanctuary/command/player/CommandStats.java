@@ -13,6 +13,7 @@ import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -101,7 +102,7 @@ public class CommandStats extends Command {
         if (flp.pronouns != null && flp.pronouns.toString() != null) {
             statsMap.put(PlayerStat.PRONOUNS, flp.pronouns.toString(false));
         }
-        statsMap.put(PlayerStat.RANK, flp.rank.getLabel());
+        statsMap.put(PlayerStat.RANK, flp.rank);
         statsMap.put(PlayerStat.TIME_PLAYED, TimeInterval.formatTime(flp.secondsPlayed * 1000L, false));
         if (showDonated && flp.amountDonated > 0) {
             statsMap.put(PlayerStat.AMOUNT_DONATED, "$" + flp.amountDonated);
@@ -137,7 +138,7 @@ public class CommandStats extends Command {
                 builder.append(Component.newline())
                     .append(ComponentColor.gold(stat.humanName))
                     .append(ComponentColor.gold(": "))
-                    .append((value instanceof Component c) ? c : ComponentColor.aqua(value.toString()));
+                    .append((value instanceof ComponentLike c) ? c : ComponentColor.aqua(value.toString()));
             }
         }
         return builder.build();

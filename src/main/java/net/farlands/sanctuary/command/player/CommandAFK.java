@@ -5,6 +5,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.mechanic.TabListMechanics;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
@@ -37,6 +38,7 @@ public class CommandAFK extends PlayerCommand {
 
         // Set them to be AFK
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> session.afk = true, 50L);
+        TabListMechanics.update();
         session.setCommandCooldown(this, 3L * 60L * 20L);
 
         // Reset their AFK check cooldown

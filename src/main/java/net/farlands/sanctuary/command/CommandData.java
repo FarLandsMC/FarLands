@@ -195,7 +195,7 @@ public class CommandData {
     public @NotNull Component getRequirements() {
         if (this.rankOnly()) {
             return ComponentColor.red("You must be at least rank ")
-                .append(this.minimumRank.getLabel())
+                .append(this.minimumRank)
                 .append(ComponentColor.red(" to use this command."));
         }
 
@@ -206,7 +206,7 @@ public class CommandData {
         if (this.minimumRank != Rank.INITIATE) {
             requirements.add(
                 Component.text("- At least rank ")
-                    .append(this.minimumRank.getLabel())
+                    .append(this.minimumRank)
                     .append(ComponentColor.red("\n%s", this.rankCompare.name()))
             );
         }

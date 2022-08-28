@@ -1,13 +1,11 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
-
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,7 +25,7 @@ public class CommandDebug extends PlayerCommand {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             boolean debugging = !flp.debugging;
             flp.debugging = debugging;
-            sendFormatted(sender, "&(aqua)Debugging: %0", debugging);
+            sender.sendMessage(ComponentColor.aqua("Debugging: %s", debugging));
             if (debugging)
                 FarLands.getMechanicHandler().getMechanic(AntiCheat.class).put(sender);
             else
@@ -38,10 +36,9 @@ public class CommandDebug extends PlayerCommand {
                 System.arraycopy(args, 1, newArgs, 0, newArgs.length);
             String post = FarLands.getDebugger().getPost(args[0], newArgs);
             if (post == null) {
-                sendFormatted(sender, "&(red)%0 has not been posted.", args[0]);
-                return true;
+                return error(sender, "%s has not been posted.", args[0]);
             }
-            sendFormatted(sender, "&(aqua)%0: &(green)%1", args[0], post);
+            sender.sendMessage(ComponentColor.aqua("%s: ", args[0]).append(ComponentColor.green(post)));
         }
         return true;
     }

@@ -1,13 +1,12 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.command.PlayerCommand;
-
 import net.farlands.sanctuary.mechanic.anticheat.XRayStore;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -42,7 +41,11 @@ public class CommandMined extends PlayerCommand {
                 + " t:14d #preview"
             );
             session.resetCoRollback();
-            sendFormatted(sender, "&(green)Type $(hovercmd,/co cancel,{&(gray)Cancel Preview},&(aqua)/co cancel) when done.");
+            sender.sendMessage(
+                ComponentColor.green("Type ")
+                    .append(ComponentUtils.command("/co cancel"))
+                    .append(ComponentColor.green(" when done."))
+            );
         } else if ("rollback".equals(args[1])) {
             if (Rank.getRank(sender).specialCompareTo(Rank.BUILDER) >= 0) {
                 sender.sendMessage(ChatColor.RED + "You do not have permission to rollback areas yet.");

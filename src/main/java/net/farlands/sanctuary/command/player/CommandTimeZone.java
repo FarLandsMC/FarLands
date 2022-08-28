@@ -48,7 +48,7 @@ public class CommandTimeZone extends Command {
                     sender.sendMessage(ChatColor.RED + "Invalid Time Zone!");
                     return true;
                 }
-                flp.setTimeZone(tz.getID());
+                flp.setTimezone(tz.getID());
 
                 sender.sendMessage(ComponentColor.gold("Time Zone set to %s! Current time: %s", tz.getID(), flp.currentTime()));
                 break;
