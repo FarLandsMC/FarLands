@@ -29,7 +29,7 @@ public class CommandFly extends PlayerCommand {
             else if ("off".equalsIgnoreCase(args[0]))
                 flp.flightPreference = false;
             flp.updateSessionIfOnline(false);
-            info(sender, "Flying %0.", flp.flightPreference ? "enabled" : "disabled");
+            info(sender, "Flying %s.", flp.flightPreference ? "enabled" : "disabled");
         } else {
             if (flp.flightPreference) {
                 info(sender, "Flying enabled, disable it with /fly off");
