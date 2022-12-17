@@ -4,7 +4,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftVillager;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;

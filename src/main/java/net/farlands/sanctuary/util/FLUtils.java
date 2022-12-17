@@ -16,7 +16,6 @@ import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Pair;
-import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.Worlds;
@@ -25,22 +24,18 @@ import net.farlands.sanctuary.mechanic.Restrictions;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.entity.EntityInsentient;
-import net.minecraft.world.item.trading.MerchantRecipe;
-import net.minecraft.world.item.trading.MerchantRecipeList;
+import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -65,18 +60,18 @@ import java.util.stream.Stream;
  */
 public final class FLUtils {
 
-    public static final  Random          RNG                     = new Random();
-    public static final  Runnable        NO_ACTION               = () -> {
+    public static final  Random                 RNG                     = new Random();
+    public static final  Runnable               NO_ACTION               = () -> {
     };
-    public static final  List<ChatColor> ILLEGAL_COLORS          = Arrays.asList(ChatColor.MAGIC, ChatColor.BLACK);
-    private static final ChatColor[]     COLORING                = { ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW,
-                                                                     ChatColor.RED, ChatColor.DARK_RED };
-    public static final  double          DEGREES_TO_RADIANS      = Math.PI / 180;
+    public static final  List<ChatColor>        ILLEGAL_COLORS          = Arrays.asList(ChatColor.MAGIC, ChatColor.BLACK);
+    private static final ChatColor[]            COLORING                = { ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW,
+                                                                            ChatColor.RED, ChatColor.DARK_RED };
+    public static final  double                 DEGREES_TO_RADIANS      = Math.PI / 180;
     // Pattern matching "nicer" legacy hex chat color codes - &#rrggbb
-    private static final Pattern         HEX_COLOR_PATTERN_SIX   = Pattern.compile("&#([0-9a-fA-F]{6})");
+    private static final Pattern                HEX_COLOR_PATTERN_SIX   = Pattern.compile("&#([0-9a-fA-F]{6})");
     // Pattern matching funny's need for 3 char hex
-    private static final Pattern         HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
-    public static Map<Worlds, TextColor> WORLD_COLORS            = new ImmutableMap.Builder<Worlds, TextColor>()
+    private static final Pattern                HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
+    public static        Map<Worlds, TextColor> WORLD_COLORS            = new ImmutableMap.Builder<Worlds, TextColor>()
         .put(Worlds.OVERWORLD, NamedTextColor.GREEN)
         .put(Worlds.NETHER, NamedTextColor.RED)
         .put(Worlds.END, NamedTextColor.YELLOW) // not possible, but here for completion :P
@@ -158,38 +153,44 @@ public final class FLUtils {
      * Check if an entity will persist (not despawn)
      */
     public static boolean isPersistent(Entity entity) {
-        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
-        if (handle instanceof EntityInsentient e) {
-            return e.persist;
-        }
-        return false;
+        return entity.isPersistent();
+        // TODO: Remove if ^ works
+//        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
+//        if (handle instanceof Entity e) {
+//            return e.isPersistent();
+//        }
+//        return false;
     }
 
     /**
      * Toggle an entity's persistence (ability to not despawn)
      */
     public static void setPersistent(Entity entity, boolean persistent) {
-        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
-        if (handle instanceof EntityInsentient) {
-            ((EntityInsentient) handle).setPersistenceRequired(persistent);
-        }
+        entity.setPersistent(persistent);
+        // TODO: Remove if ^ works
+//        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
+//        if (handle instanceof EntityInsentient) {
+//            ((EntityInsentient) handle).setPersistenceRequired(persistent);
+//        }
     }
 
-    public static MerchantRecipeList copyRecipeList(MerchantRecipeList list) {
-        MerchantRecipeList copy = new MerchantRecipeList();
+    public static List<MerchantRecipe> copyRecipeList(List<MerchantRecipe> list) {
+        List<MerchantRecipe> copy = new ArrayList<>();
         list.forEach(recipe -> {
             MerchantRecipe r = new MerchantRecipe(
-                recipe.a, // buyItem1
-                recipe.b, // buyItem2
-                recipe.c, // sellItem
-                recipe.d, // uses
-                recipe.e, // maxUses
-                recipe.j, // xp
-                recipe.i, // priceMultiplier
-                (int) ReflectionHelper.getFieldValue("h", MerchantRecipe.class, recipe) // demand
+                recipe.getResult(),
+                recipe.getUses(),
+                recipe.getMaxUses(),
+                recipe.hasExperienceReward(),
+                recipe.getVillagerExperience(),
+                recipe.getPriceMultiplier(),
+                recipe.getDemand(),
+                recipe.getSpecialPrice(),
+                recipe.shouldIgnoreDiscounts()
             );
 
-            ReflectionHelper.setNonFinalFieldValue("f", MerchantRecipe.class, r, ReflectionHelper.getFieldValue("f", Recipe.class, recipe));
+            recipe.getIngredients().forEach(r::addIngredient);
+
             copy.add(r);
         });
         return copy;
@@ -414,18 +415,18 @@ public final class FLUtils {
     }
 
     /**
-     * Get the {@link NBTTagCompound} of the given {@link ItemStack}
+     * Get the {@link CompoundTag} of the given {@link ItemStack}
      */
-    public static NBTTagCompound getTag(ItemStack stack) {
-        return stack == null ? null : CraftItemStack.asNMSCopy(stack).v();
+    public static CompoundTag getTag(ItemStack stack) {
+        return stack == null ? null : CraftItemStack.asNMSCopy(stack).getTag();
     }
 
     /**
      * Create a duplicate itemstack with the given tags
      */
-    public static ItemStack applyTag(NBTTagCompound nbt, ItemStack stack) {
+    public static ItemStack applyTag(CompoundTag nbt, ItemStack stack) {
         net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
-        nmsStack.b(nbt);
+        nmsStack.setTag(nbt);
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
 

@@ -10,9 +10,6 @@ import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.minecraft.commands.CommandListenerWrapper;
-import net.minecraft.commands.ICommandListener;
-import net.minecraft.network.chat.IChatBaseComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
@@ -30,7 +27,7 @@ import java.util.stream.Stream;
 /**
  * Bukkit command sender implementation fit to the discord API.
  */
-public class DiscordSender implements CommandSender, ICommandListener {
+public class DiscordSender implements CommandSender {
     private final DiscordSpigot spigot;
     private final Member member;
     private final MessageChannel channel;
@@ -181,46 +178,8 @@ public class DiscordSender implements CommandSender, ICommandListener {
     @Override
     public void setOp(boolean b) { }
 
-    public void sendMessage(IChatBaseComponent component, UUID unused) {
+    public void sendMessage(net.minecraft.network.chat.Component component, UUID unused) {
         sendMessage(component.getString());
-    }
-
-    public boolean shouldSendSuccess() {
-        return true;
-    }
-
-    public boolean shouldSendFailure() {
-        return true;
-    }
-
-    public boolean shouldBroadcastCommands() {
-        return false;
-    }
-
-    @Override
-    public void a(IChatBaseComponent iChatBaseComponent) {
-        sendMessage(iChatBaseComponent.getString());
-    }
-
-    // Pretty sure this is the correct order
-    @Override
-    public boolean i_() {
-        return shouldSendSuccess();
-    }
-
-    @Override
-    public boolean j_() {
-        return shouldSendFailure();
-    }
-
-    @Override
-    public boolean G_() {
-        return shouldBroadcastCommands();
-    }
-
-    @Override
-    public CommandSender getBukkitSender(CommandListenerWrapper commandListenerWrapper) {
-        return this;
     }
 
     private class DiscordSpigot extends CommandSender.Spigot {

@@ -48,7 +48,7 @@ public class Spawn extends Mechanic {
     private void checkSpawnPortal(Location from, Location to, PlayerMoveEvent event) {
         if (!END_PORTAL.contains(from) && END_PORTAL.contains(to)) {
             Player player = event.getPlayer();
-            if (!AutumnEvent.isActive()) {
+            if (true/* TODO: Fix Autumn Event: !AutumnEvent.isActive()*/) {
                 player.sendMessage(ChatColor.RED + "There are no events running.");
                 event.setCancelled(true);
                 // yeet them in the other direction to reduce chat spam
@@ -56,7 +56,8 @@ public class Spawn extends Mechanic {
                 player.teleport(from);
                 return;
             }
-            player.teleport(AutumnEvent.getSpawn());
+            // TODO: Fix Autumn Event
+//            player.teleport(AutumnEvent.getSpawn());
         }
     }
 }

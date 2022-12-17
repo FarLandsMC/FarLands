@@ -1,18 +1,15 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.staff.CommandEntityCount;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -20,6 +17,8 @@ import org.bukkit.entity.Player;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandWhyLag extends Command {
     private static final double[] TPS_COLORING = {0.0, 10.0, 25.0, 50.0};
@@ -44,7 +43,7 @@ public class CommandWhyLag extends Command {
                 sendFormatted(sender, "&(red)Could not find player {&(gray)%0} in game", args[1]);
                 return true;
             }
-            int ping = (craftPlayer).getHandle().e; // EntityPlayer#e = EntityPlayer#ping
+            int ping = ((Player) sender).getPing();
             sender.sendMessage(ChatColor.GOLD + (args.length > 1 ? craftPlayer.getName() + "'s " : "Your ") + "ping: " +
                     FLUtils.color(ping, PING_COLORING) + ping + "ms");
             return true;
@@ -55,8 +54,8 @@ public class CommandWhyLag extends Command {
                 " (" + (int) (100.0 - percentLag) + "%), " + FLUtils.toStringTruncated(mspt) + "mspt");
         if ("tps".equals(args[0]))
             return true;
-        if (sender instanceof Player) {
-            int ping = ((CraftPlayer) sender).getHandle().e;
+        if (sender instanceof Player player) {
+            int ping = player.getPing();
             sender.sendMessage(ChatColor.GOLD + "Your ping: " + FLUtils.color(ping, PING_COLORING) + ping + "ms");
         }
         int flying = (int) Bukkit.getOnlinePlayers().stream().filter(Player::isGliding).count();

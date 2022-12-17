@@ -2,21 +2,23 @@ package net.farlands.sanctuary.mechanic;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedServerPing;
-import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo;
-import net.minecraft.world.level.EnumGamemode;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.world.level.GameType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -31,7 +33,9 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -57,23 +61,27 @@ public class Toggles extends Mechanic {
             @Override
             @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
-                PacketPlayOutPlayerInfo packet = (PacketPlayOutPlayerInfo) event.getPacket().getHandle();
-                PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper
-                    .getFieldValue("a", packet.getClass(), packet);
-                if ((PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b.equals(action) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
-                     PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a.equals(action)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
+                ClientboundPlayerInfoUpdatePacket packet = (ClientboundPlayerInfoUpdatePacket) event.getPacket().getHandle();
+                EnumSet<ClientboundPlayerInfoUpdatePacket.Action> action = packet.actions();
+//                ClientboundPlayerInfoUpdatePacket.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper
+//                    .getFieldValue("a", packet.getClass(), packet);
+                if ((action.contains(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
+                     action.contains(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
                     !Rank.getRank(event.getPlayer()).isStaff()) {
-                    List<PacketPlayOutPlayerInfo.PlayerInfoData> infoList = (List<PacketPlayOutPlayerInfo.PlayerInfoData>) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
+//                    List<ClientboundPlayerInfoUpdatePacket.PlayerUpdate> infoList = (List<ClientboundPlayerInfoUpdatePacket.PlayerUpdate>) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
+                    List<ClientboundPlayerInfoUpdatePacket.Entry> infoList = packet.entries();
                     for (int i = 0; i < infoList.size(); ++i) {
-                        PacketPlayOutPlayerInfo.PlayerInfoData currentInfoData = infoList.get(i);
-                        if (EnumGamemode.d == currentInfoData.c()) {
+                        ClientboundPlayerInfoUpdatePacket.Entry currentInfoData = infoList.get(i);
+                        if (GameType.SPECTATOR == currentInfoData.gameMode()) {
                             // EnumGamemode.d = spectator and EnumGamemode.a = survival
-                            PacketPlayOutPlayerInfo.PlayerInfoData newInfoData = new PacketPlayOutPlayerInfo.PlayerInfoData(
-                                currentInfoData.a(),
-                                currentInfoData.b(),
-                                EnumGamemode.a,
-                                currentInfoData.d(),
-                                currentInfoData.e()
+                            ClientboundPlayerInfoUpdatePacket.Entry newInfoData = new ClientboundPlayerInfoUpdatePacket.Entry(
+                                event.getPlayer().getUniqueId(),
+                                currentInfoData.profile(),
+                                currentInfoData.listed(),
+                                currentInfoData.latency(),
+                                GameType.SURVIVAL,
+                                currentInfoData.displayName(),
+                                currentInfoData.chatSession()
                             );
                             infoList.set(i, newInfoData);
                         }
@@ -89,6 +97,16 @@ public class Toggles extends Mechanic {
                 WrappedServerPing ping = event.getPacket().getServerPings().read(0);
                 ping.setPlayersOnline((int) Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getOfflineFLPlayer)
                     .filter(flp -> !flp.vanished).count());
+                ping.setPlayers(
+                    Bukkit
+                        .getOnlinePlayers()
+                        .stream()
+                        .map(FarLands.getDataHandler()::getOfflineFLPlayer)
+                        .filter(flp -> !flp.vanished)
+                        .map(OfflineFLPlayer::getOnlinePlayer)
+                        .map(WrappedGameProfile::fromPlayer)
+                        .toList()
+                );
             }
         });
     }
@@ -194,11 +212,20 @@ public class Toggles extends Mechanic {
                 Bukkit.getOnlinePlayers()
                     .stream()
                     .filter(p -> Rank.getRank(p).isStaff())
-                    .forEach(p -> ((CraftPlayer) p).getHandle().b.a(
-                        new PacketPlayOutPlayerInfo(
-                            PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b, ((CraftPlayer) player).getHandle()
-                        ))
-                    );
+                    .forEach(p -> {
+//                        ((CraftPlayer) p).getHandle().server. (
+                        try {
+                            ClientboundPlayerInfoUpdatePacket packet = new ClientboundPlayerInfoUpdatePacket(
+                                ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, ((CraftPlayer) player).getHandle()
+                            );
+//                        PacketContainer newPacket = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
+//                        newPacket.setMeta();
+                            ProtocolManager pm = ProtocolLibrary.getProtocolManager();
+                            pm.sendServerPacket(p, PacketContainer.fromPacket(packet));
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
             }
         });
     }
