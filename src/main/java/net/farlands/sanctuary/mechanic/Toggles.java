@@ -56,24 +56,20 @@ public class Toggles extends Mechanic {
             }
         }), 0L, 40L);
 
-        // 🤷
+        // Update tab list to show all players in survival
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Play.Server.PLAYER_INFO) {
             @Override
             @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
                 ClientboundPlayerInfoUpdatePacket packet = (ClientboundPlayerInfoUpdatePacket) event.getPacket().getHandle();
                 EnumSet<ClientboundPlayerInfoUpdatePacket.Action> action = packet.actions();
-//                ClientboundPlayerInfoUpdatePacket.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper
-//                    .getFieldValue("a", packet.getClass(), packet);
                 if ((action.contains(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
                      action.contains(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
                     !Rank.getRank(event.getPlayer()).isStaff()) {
-//                    List<ClientboundPlayerInfoUpdatePacket.PlayerUpdate> infoList = (List<ClientboundPlayerInfoUpdatePacket.PlayerUpdate>) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
                     List<ClientboundPlayerInfoUpdatePacket.Entry> infoList = packet.entries();
                     for (int i = 0; i < infoList.size(); ++i) {
                         ClientboundPlayerInfoUpdatePacket.Entry currentInfoData = infoList.get(i);
                         if (GameType.SPECTATOR == currentInfoData.gameMode()) {
-                            // EnumGamemode.d = spectator and EnumGamemode.a = survival
                             ClientboundPlayerInfoUpdatePacket.Entry newInfoData = new ClientboundPlayerInfoUpdatePacket.Entry(
                                 event.getPlayer().getUniqueId(),
                                 currentInfoData.profile(),
@@ -207,23 +203,20 @@ public class Toggles extends Mechanic {
     }
 
     private static void showSpectators(Player player) {
+        ProtocolManager pm = ProtocolLibrary.getProtocolManager();
+        ClientboundPlayerInfoUpdatePacket packet = new ClientboundPlayerInfoUpdatePacket(
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, ((CraftPlayer) player).getHandle()
+        );
+
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             if (GameMode.SPECTATOR == player.getGameMode()) {
                 Bukkit.getOnlinePlayers()
                     .stream()
                     .filter(p -> Rank.getRank(p).isStaff())
                     .forEach(p -> {
-//                        ((CraftPlayer) p).getHandle().server. (
                         try {
-                            ClientboundPlayerInfoUpdatePacket packet = new ClientboundPlayerInfoUpdatePacket(
-                                ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, ((CraftPlayer) player).getHandle()
-                            );
-//                        PacketContainer newPacket = new PacketContainer(PacketType.Play.Server.PLAYER_INFO);
-//                        newPacket.setMeta();
-                            ProtocolManager pm = ProtocolLibrary.getProtocolManager();
                             pm.sendServerPacket(p, PacketContainer.fromPacket(packet));
-                        } catch (InvocationTargetException e) {
-                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException ignored) {
                         }
                     });
             }

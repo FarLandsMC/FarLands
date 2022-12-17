@@ -32,9 +32,6 @@
                 <version>3.8.1</version>
                 <configuration>
                     <release>16</release>
-                    <excludes>
-                        <exclude>**/*.nocompile.java</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
