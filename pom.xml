@@ -240,14 +240,14 @@
             <groupId>org.openjdk.nashorn</groupId>
             <artifactId>nashorn-core</artifactId>
             <version>15.4</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- Moshi -->
         <dependency>
             <groupId>com.squareup.moshi</groupId>
             <artifactId>moshi</artifactId>
             <version>1.14.0</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <!-- NMS -->
         <dependency>
@@ -261,8 +261,8 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>23.0.0</version>
-            <scope>compile</scope>
+            <version>23.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <!-- JUnit -->
         <dependency>
