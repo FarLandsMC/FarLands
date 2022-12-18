@@ -151,27 +151,20 @@ public final class FLUtils {
 
     /**
      * Check if an entity will persist (not despawn)
+     * @deprecated Switch to {@link Entity#isPersistent()}
      */
+    @Deprecated
     public static boolean isPersistent(Entity entity) {
         return entity.isPersistent();
-        // TODO: Remove if ^ works
-//        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
-//        if (handle instanceof Entity e) {
-//            return e.isPersistent();
-//        }
-//        return false;
     }
 
     /**
      * Toggle an entity's persistence (ability to not despawn)
+     * @deprecated Switch to {@link Entity#setPersistent(boolean)}
      */
+    @Deprecated
     public static void setPersistent(Entity entity, boolean persistent) {
         entity.setPersistent(persistent);
-        // TODO: Remove if ^ works
-//        net.minecraft.world.entity.Entity handle = ((CraftEntity) entity).getHandle();
-//        if (handle instanceof EntityInsentient) {
-//            ((EntityInsentient) handle).setPersistenceRequired(persistent);
-//        }
     }
 
     public static List<MerchantRecipe> copyRecipeList(List<MerchantRecipe> list) {
