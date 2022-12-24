@@ -46,11 +46,11 @@ public class CommandStats extends Command {
             if (sender instanceof DiscordSender) {
                 Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, false, true);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setTitle("`" + flp.username + "`'s stats")
+                    .setTitle("Stats for `" + flp.username + "`")
                     .setColor(flp.getDisplayRank().color().value());
                 for (PlayerStat stat : PlayerStat.values()) {
                     Object value = playerInfoMap.getOrDefault(stat, "");
-                    String str = (value instanceof Component c) ? ComponentUtils.toText(c) : value.toString();
+                    String str = (value instanceof ComponentLike c) ? ComponentUtils.toText(c.asComponent()) : value.toString();
                     str = MarkdownProcessor.removeChatColor(str);
                     if (!str.isEmpty()) {
                         embedBuilder.addField(stat.humanName, str, false);

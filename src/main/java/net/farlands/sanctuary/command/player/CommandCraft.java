@@ -4,7 +4,7 @@ import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -39,12 +39,26 @@ public class CommandCraft extends PlayerCommand {
     }
 
     public CommandCraft() {
-        super(Rank.PATRON, Category.UTILITY, "Open a crafting window or craft a specific item. Note: you will need " +
-                "the required item ingredients to craft it.", "/craft [item] [amount]", "craft");
+        super(CommandData
+                  .withRank(
+                      "craft",
+                      "Open a crafting window, stonecutter, or craft a specific item. Note: you will need the required item ingredients to craft it.",
+                      "/craft|stonecutter [item] [amount]",
+                      Rank.PATRON
+                  )
+                  .aliases(true, "stonecutter")
+        );
     }
 
     @Override
     public boolean execute(Player sender, String[] args) {
+        if(args[0].equalsIgnoreCase("stonecutter")) {
+            sender.openStonecutter(null, true);
+            return true;
+        }
+        String[] newArgs = new String[args.length - 1];
+        System.arraycopy(args, 1, newArgs, 0, newArgs.length);
+        args = newArgs;
         // No args, open the table
         if (args.length == 0) {
             sender.openWorkbench(null, true);
@@ -108,14 +122,12 @@ public class CommandCraft extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        switch (args.length) {
-            case 1:
-                return TabCompleterBase.filterStartingWith(args[0], CRAFTABLE_MATERIALS);
-            case 2:
-                return "64".startsWith(args[1]) ? Collections.singletonList("64") : Collections.emptyList();
-            default:
-                return Collections.emptyList();
-        }
+        if ("stonecutter".equalsIgnoreCase(alias)) return Collections.emptyList();
+        return switch (args.length) {
+            case 1 -> TabCompleterBase.filterStartingWith(args[0], CRAFTABLE_MATERIALS);
+            case 2 -> "64".startsWith(args[1]) ? Collections.singletonList("64") : Collections.emptyList();
+            default -> Collections.emptyList();
+        };
     }
 
     private int takeRequirements(Cache cache, Material material, boolean sendMessages) {
