@@ -17,7 +17,7 @@ import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -206,7 +206,7 @@ public class DataHandler extends Mechanic {
                     EmbedBuilder eb = new EmbedBuilder();
                     eb.setTitle("Patch Notes")
                         .setDescription("Patch **#" + dh.getCurrentPatch() + "** has been released!")
-                        .setColor(ChatColor.GOLD.getColor());
+                        .setColor(NamedTextColor.GOLD.value());
 
                     sectionsList.forEach(s -> {
                         String v = String.join("\n", sections.get(s));

@@ -820,12 +820,7 @@ public final class FLUtils {
      * Remove color codes from a provided string
      */
     public static String removeColorCodes(String message) {
-        // RegEx ftw
-        return message.replaceAll(
-            "(?i)([&" + ChatColor.COLOR_CHAR + "][0-9a-fk-orx])|" + // Match &0 ... &f, &k ... &o, &r, and &x, Ignore Case
-            "(&#[0-9a-f]{3,6})", // Match &#rrggbb and &#rgb, Ignore Case
-            ""
-        );
+        return ComponentUtils.toText(ComponentUtils.parse(message));
     }
 
     /**
