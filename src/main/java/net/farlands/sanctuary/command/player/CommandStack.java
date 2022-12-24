@@ -40,7 +40,7 @@ public class CommandStack extends PlayerCommand {
      * Items that do not unstack correctly when used in stacked format
      */
     private final static List<Material> UNSTACKABLES = Arrays.asList(
-            MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP, LAVA_BUCKET, WATER_BUCKET,
+            MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP, LAVA_BUCKET, WATER_BUCKET, POWDER_SNOW_BUCKET,
             PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET,
             ENCHANTED_BOOK, POTION
     );

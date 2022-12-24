@@ -35,6 +35,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.PrepareGrindstoneEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
@@ -420,6 +421,13 @@ public class Restrictions extends Mechanic {
 
             event.setCancelled(CommandKittyCannon.CANNON.isSimilar(event.getCursor()) || // Prevent kitty cannon being used as horse armor
                                CommandKittyCannon.CANNON.isSimilar(event.getCurrentItem()));
+        }
+    }
+
+    @EventHandler
+    public void onGrindstone(PrepareGrindstoneEvent event) {
+        if (event.getInventory().contains(CommandKittyCannon.CANNON)) {
+            event.setResult(null);
         }
     }
 
