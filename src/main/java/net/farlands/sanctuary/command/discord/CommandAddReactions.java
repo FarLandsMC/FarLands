@@ -1,9 +1,9 @@
 package net.farlands.sanctuary.command.discord;
 
 import com.google.common.collect.ImmutableMap;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
@@ -111,7 +111,7 @@ public class CommandAddReactions extends DiscordCommand {
 
             if (args.isEmpty()) return false; // Not enough args
 
-            List<Emote> emotes = new ArrayList<>();
+            List<Emoji> emotes = new ArrayList<>();
             List<String> unicodeEmojis = new ArrayList<>();
             Set<String> badEmotes = new HashSet<>();
 
@@ -120,7 +120,7 @@ public class CommandAddReactions extends DiscordCommand {
                 if (arg.matches("^<:.+:(\\d+)>$")) { // Custom Emote
                     int start = arg.indexOf(":", 2) + 1;
                     String emoteID = arg.substring(start, arg.length() - 1);
-                    Emote emote = FarLands.getDiscordHandler().getEmote(Long.parseLong(emoteID));
+                    Emoji emote = FarLands.getDiscordHandler().getEmote(Long.parseLong(emoteID));
 
                     if (emote == null) {
                         badEmotes.add(arg);
@@ -141,14 +141,14 @@ public class CommandAddReactions extends DiscordCommand {
             }
 
             if (emotes.size() + unicodeEmojis.size() > 0) {
-                for (Emote emote : emotes) {
+                for (Emoji emote : emotes) {
                     message.addReaction(emote).queue();
                 }
                 for (String unicodeEmoji : unicodeEmojis) {
-                    message.addReaction(unicodeEmoji).queue();
+                    message.addReaction(Emoji.fromUnicode(unicodeEmoji)).queue();
                 }
 
-                List<String> print = emotes.stream().map(Emote::getAsMention).collect(Collectors.toList());
+                List<String> print = emotes.stream().map(Emoji::getAsReactionCode).collect(Collectors.toList());
                 print.addAll(unicodeEmojis);
                 String msg = "Added reactions: %s".formatted(String.join(", ", print));
                 commandMessage.reply(msg).queue();

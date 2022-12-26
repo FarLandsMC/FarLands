@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.command.discord;
 
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
@@ -97,7 +98,7 @@ public class CommandGetLog extends DiscordCommand {
 
                 out.close();
 
-                sender.getChannel().sendFile(file).complete();
+                sender.getChannel().sendFiles(FileUpload.fromData(file)).complete();
                 file.delete();
             } catch (Throwable ex) {
                 sender.sendMessage("Failed to retrieve log.");

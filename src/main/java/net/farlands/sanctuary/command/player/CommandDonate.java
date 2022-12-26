@@ -1,20 +1,24 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandDonate extends Command {
 
@@ -96,7 +100,8 @@ public class CommandDonate extends Command {
                 eb.addField(rank.getName(), ChatColor.stripColor(String.join("\n - ", RANKS_INFO.get(rank))), false);
             }
 
-            ((DiscordSender) sender).getChannel().sendMessage(eb.build()).queue();
+            ((DiscordSender) sender).sendMessageEmbeds(eb.build());
+
         } else {
             sender.sendMessage(FULL_DESCRIPTION);
             sender.sendMessage(String.join("\n", outlist));
@@ -104,5 +109,10 @@ public class CommandDonate extends Command {
         }
 
         return true;
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false);
     }
 }

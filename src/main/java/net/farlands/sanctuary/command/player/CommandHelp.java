@@ -1,12 +1,16 @@
 package net.farlands.sanctuary.command.player;
 
+import com.google.common.collect.ImmutableMap;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicasmads.cs.Utils;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.CommandData;
+import net.farlands.sanctuary.command.DiscordCompleter;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
@@ -18,11 +22,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class CommandHelp extends net.farlands.sanctuary.command.Command {
 
@@ -148,5 +150,35 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
         return args.length <= 1
             ? TabCompleterBase.filterStartingWith(args[0], Category.player().stream().map(Category::name).map(String::toLowerCase))
             : Collections.emptyList();
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false)
+            .addOption(
+                OptionType.STRING,
+                "category-or-command",
+                "Category or Command",
+                false,
+                true
+            )
+            .addOption(
+                OptionType.INTEGER,
+                "page",
+                "Page",
+                false,
+                false
+            );
+    }
+
+    @Override
+    public @Nullable Map<String, DiscordCompleter> discordAutocompletion() {
+        return ImmutableMap.of(
+            "help", (option, partial) -> TabCompleterBase
+                .filterStartingWith(
+                    partial,
+                    Category.player().stream().map(Category::name).map(String::toLowerCase)
+                ).toArray(String[]::new)
+        );
     }
 }

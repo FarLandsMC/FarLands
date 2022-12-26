@@ -1,6 +1,6 @@
 package net.farlands.sanctuary.discord;
 
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.FLUtils;
 
@@ -14,8 +14,8 @@ import java.util.Map;
  */
 public class MessageChannelHandler {
 
-    private final Map<DiscordChannel, MessageChannel> channels;
-    private final Map<DiscordChannel, List<String>>   buffers;
+    private final Map<DiscordChannel, TextChannel>  channels;
+    private final Map<DiscordChannel, List<String>> buffers;
 
     public MessageChannelHandler() {
         this.channels = new HashMap<>();
@@ -55,19 +55,19 @@ public class MessageChannelHandler {
         });
     }
 
-    public void setChannel(DiscordChannel channel, MessageChannel messageChannel) {
+    public void setChannel(DiscordChannel channel, TextChannel messageChannel) {
         channels.put(channel, messageChannel);
         buffers.put(channel, new ArrayList<>());
     }
 
-    public MessageChannel getChannel(DiscordChannel channel) {
+    public TextChannel getChannel(DiscordChannel channel) {
         return channels.get(channel);
     }
 
     /**
      * Queue a message to be sent to the provided channel
      */
-    public synchronized void sendMessage(MessageChannel channel, String message) {
+    public synchronized void sendMessage(TextChannel channel, String message) {
         DiscordChannel key = FLUtils.getKey(channels, channel);
         if (key == null) {
             channel.sendMessage(message).queue();

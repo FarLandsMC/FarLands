@@ -3,8 +3,9 @@ package net.farlands.sanctuary.command.discord;
 import com.kicas.rp.util.Utils;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.data.Rank;
@@ -121,7 +122,7 @@ public class CommandArchive extends DiscordCommand {
             }
 
             // Tell the user if the process finished successfully or not
-            if (FarLands.getDiscordHandler().getChannel(DiscordChannel.ARCHIVES).sendFile(archiveFile).complete() != null) {
+            if (FarLands.getDiscordHandler().getChannel(DiscordChannel.ARCHIVES).sendFiles(FileUpload.fromData(archiveFile)).complete() != null) {
                 if (action == Action.CLEAR)
                     messages.stream().map(Message::delete).forEach(AuditableRestAction::queue);
                 else if (action == Action.DELETE)

@@ -1,6 +1,10 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
@@ -13,6 +17,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -171,5 +176,21 @@ public class CommandBirthday extends Command {
             default:
                 return Collections.emptyList();
         }
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false)
+            .addSubcommands(
+                new SubcommandData("register", "Register your birthday")
+                    .addOption(OptionType.STRING, "date", "month/day", true, true)
+            )
+            .addSubcommandGroups(
+                new SubcommandGroupData("upcoming", "View upcoming birthdays")
+                    .addSubcommands(
+                        new SubcommandData("week", "View upcoming birthdays for the week"),
+                        new SubcommandData("month", "View upcoming birthdays for the month")
+                    )
+            );
     }
 }

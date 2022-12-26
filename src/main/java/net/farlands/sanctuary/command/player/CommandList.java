@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.player;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
@@ -17,6 +18,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,7 +83,7 @@ public class CommandList extends Command {
             return info(sender, "There are no players online currently.");
         }
 
-        if (sender instanceof DiscordSender) {
+        if (sender instanceof DiscordSender ds) {
             List<String> embedDesc = new ArrayList<>();
 
             if (worlds.containsKey(Worlds.OVERWORLD))
@@ -124,7 +126,7 @@ public class CommandList extends Command {
                 );
             }
 
-            ((DiscordSender) sender).getChannel().sendMessage(eb.build()).queue();
+            ds.sendMessageEmbeds(eb.build());
 
         } else {
 
@@ -173,5 +175,10 @@ public class CommandList extends Command {
         }
 
         return true;
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false);
     }
 }

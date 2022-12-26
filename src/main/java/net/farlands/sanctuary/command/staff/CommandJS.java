@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.staff;
 
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
@@ -17,7 +18,6 @@ import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -105,13 +105,15 @@ public class CommandJS extends Command {
     }
 
     private boolean sendFile(CommandSender sender, String s) {
-        MessageChannel channel = DiscordChannel.NOTEBOOK.getChannel();
+        TextChannel channel = DiscordChannel.NOTEBOOK.getChannel();
         if (sender instanceof DiscordSender ds) {
             channel = ds.getChannel();
         }
-        channel.sendFile(
-            new ByteArrayInputStream(s.getBytes()),
+        channel.sendFiles(
+            FileUpload.fromData(
+                s.getBytes(),
             "js-output_" + sender.getName() + "_" + FLUtils.dateToString(System.currentTimeMillis(), "yyyy-MM-dd-ss") + "_.txt"
+            )
         ).queue();
         return !(sender instanceof DiscordSender);
     }

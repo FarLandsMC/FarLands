@@ -10,6 +10,7 @@ import net.farlands.sanctuary.scheduling.Scheduler;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.command.CommandException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -66,8 +67,16 @@ public class FarLands extends JavaPlugin {
         Bukkit.getScheduler().runTaskLater(this, () -> Logging.log("Successfully loaded FarLands v" +
                                                                    instance.getDescription().getVersion() + "."), 50L);
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "headdatabase:hdb r");
-            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "petblocks:petblockreload");
+            try {
+                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "headdatabase:hdb r");
+            } catch (CommandException ex) {
+                Logging.error("Unable to run /headdatabase:hdb r.");
+            }
+            try {
+                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "petblocks:petblockreload");
+            } catch (CommandException ex) {
+                Logging.error("Unable to run /petblock:petblockreload.");
+            }
         }, 60L);
     }
 

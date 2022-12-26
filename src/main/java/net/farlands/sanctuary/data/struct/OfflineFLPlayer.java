@@ -3,6 +3,7 @@ package net.farlands.sanctuary.data.struct;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.player.CommandHomes;
@@ -574,13 +575,17 @@ public class OfflineFLPlayer {
         ChatHandler.chat(this, Component.text(prefix), ChatHandler.handleReplacements(message, this));
     }
 
+    public UserSnowflake discordUser() {
+        return UserSnowflake.fromId(this.discordID);
+    }
+
     public void unverifyDiscord() {
         if (this.isDiscordVerified()) {
             DiscordHandler dh = FarLands.getDiscordHandler();
-            dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(DiscordHandler.VERIFIED_ROLE)).queue();
-            dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(DiscordHandler.STAFF_ROLE)).queue();
+            dh.getGuild().removeRoleFromMember(this.discordUser(), dh.getRole(DiscordHandler.VERIFIED_ROLE)).queue();
+            dh.getGuild().removeRoleFromMember(this.discordUser(), dh.getRole(DiscordHandler.STAFF_ROLE)).queue();
             if (this.rank.specialCompareTo(Rank.DONOR) > 0) {
-                dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(this.rank.getName())).queue();
+                dh.getGuild().removeRoleFromMember(this.discordUser(), dh.getRole(this.rank.getName())).queue();
             }
         }
     }

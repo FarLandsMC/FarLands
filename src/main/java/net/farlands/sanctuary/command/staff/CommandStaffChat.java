@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.staff;
 
 import com.kicas.rp.command.TabCompleterBase;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -14,6 +15,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -154,5 +157,15 @@ public class CommandStaffChat extends Command {
         }
 
         return newValue;
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return null;
+    }
+
+    @Override
+    public @NotNull List<SlashCommandData> discordCommands() {
+        return Collections.emptyList();
     }
 }

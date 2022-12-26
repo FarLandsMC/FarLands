@@ -1,8 +1,11 @@
 package net.farlands.sanctuary.command;
 
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -28,16 +31,27 @@ import java.util.stream.Stream;
  * Bukkit command sender implementation fit to the discord API.
  */
 public class DiscordSender implements CommandSender {
-    private final DiscordSpigot spigot;
-    private final Member member;
-    private final MessageChannel channel;
-    private final OfflineFLPlayer flp;
 
-    public DiscordSender(Member member, MessageChannel channel) {
+    private final DiscordSpigot           spigot;
+    private final Member                  member;
+    private final TextChannel             channel;
+    private       SlashCommandInteraction interaction;
+    private ReplyCallbackAction lastReply;
+    private final OfflineFLPlayer         flp;
+    private       boolean                 ephemeral;
+
+    public DiscordSender(Member member, TextChannel channel) {
         this.spigot = new DiscordSpigot();
         this.member = member;
         this.channel = channel;
         this.flp = FarLands.getDataHandler().getOfflineFLPlayer(getUserID());
+        this.ephemeral = false;
+        this.interaction = null;
+    }
+
+    public DiscordSender(Member member, TextChannel channel, SlashCommandInteraction interaction) {
+        this(member, channel);
+        this.interaction = interaction;
     }
 
     public User getUser() {
@@ -64,7 +78,7 @@ public class DiscordSender implements CommandSender {
         FarLands.getDiscordHandler().sendMessageRaw(channel, s);
     }
 
-    public MessageChannel getChannel() {
+    public TextChannel getChannel() {
         return channel;
     }
 
@@ -73,7 +87,14 @@ public class DiscordSender implements CommandSender {
     }
 
     public void sendMessage(String s, boolean applyFilters) {
-        FarLands.getDiscordHandler().sendMessageRaw(channel, applyFilters ? MarkdownProcessor.escapeMarkdown(s) : s);
+        if (this.interaction == null || this.interaction.isAcknowledged()) {
+            FarLands.getDiscordHandler().sendMessageRaw(channel, applyFilters ? MarkdownProcessor.escapeMarkdown(s) : s);
+        } else {
+            this.interaction
+                .reply(applyFilters ? MarkdownProcessor.escapeMarkdown(s) : s)
+                .setEphemeral(this.ephemeral)
+                .queue();
+        }
     }
 
     @Override
@@ -87,6 +108,17 @@ public class DiscordSender implements CommandSender {
     @Override
     public void sendMessage(String[] strings) {
         sendMessage(String.join("\n", strings));
+    }
+
+    public void sendMessageEmbeds(MessageEmbed embed0, MessageEmbed... embeds) {
+        if (this.interaction == null || this.interaction.isAcknowledged()) {
+            this.getChannel().sendMessageEmbeds(embed0, embeds).queue();
+        } else {
+            this.interaction
+                .replyEmbeds(embed0, embeds)
+                .setEphemeral(this.ephemeral)
+                .queue();
+        }
     }
 
     @Override
@@ -160,10 +192,12 @@ public class DiscordSender implements CommandSender {
     }
 
     @Override
-    public void removeAttachment(PermissionAttachment permissionAttachment) { }
+    public void removeAttachment(PermissionAttachment permissionAttachment) {
+    }
 
     @Override
-    public void recalculatePermissions() { }
+    public void recalculatePermissions() {
+    }
 
     @Override
     public Set<PermissionAttachmentInfo> getEffectivePermissions() {
@@ -176,13 +210,23 @@ public class DiscordSender implements CommandSender {
     }
 
     @Override
-    public void setOp(boolean b) { }
+    public void setOp(boolean b) {
+    }
 
     public void sendMessage(net.minecraft.network.chat.Component component, UUID unused) {
         sendMessage(component.getString());
     }
 
+    public void ephemeral(boolean newValue) {
+        this.ephemeral = newValue;
+    }
+
+    public boolean ephemeral() {
+        return this.ephemeral;
+    }
+
     private class DiscordSpigot extends CommandSender.Spigot {
+
         @Override
         public void sendMessage(BaseComponent component) {
             DiscordSender.this.sendMessage(component.toPlainText());

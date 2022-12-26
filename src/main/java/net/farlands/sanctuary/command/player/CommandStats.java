@@ -43,7 +43,7 @@ public class CommandStats extends Command {
         }
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.updateAll(false); // Make sure our stats are fresh
-            if (sender instanceof DiscordSender) {
+            if (sender instanceof DiscordSender ds) {
                 Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, false, true);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("Stats for `" + flp.username + "`")
@@ -64,7 +64,7 @@ public class CommandStats extends Command {
                 }
 
 
-                ((DiscordSender) sender).getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                ds.sendMessageEmbeds(embedBuilder.build());
             } else {
                 sender.sendMessage(getFormattedStats(flp, isPersonal && sender instanceof Player));
             }

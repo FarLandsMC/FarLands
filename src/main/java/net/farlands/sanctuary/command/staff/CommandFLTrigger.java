@@ -4,7 +4,6 @@ import com.kicas.rp.command.TabCompleterBase;
 import com.kicasmads.cs.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Voting;

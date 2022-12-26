@@ -31,6 +31,7 @@ public enum Worlds {
     }
 
     public static Worlds getByWorld(World world) {
+        if (world == null) return null;
         String name = world.getName();
         return Arrays.stream(values()).filter(n -> n.name.equals(name)).findAny().orElse(null);
     }

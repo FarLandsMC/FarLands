@@ -2,23 +2,25 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
-
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
-
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class CommandReport extends Command {
     public CommandReport() {
@@ -31,17 +33,21 @@ public class CommandReport extends Command {
         if (args.length < 2)
             return false;
 
+        if(sender instanceof DiscordSender ds) {
+            ds.ephemeral(true);
+        }
+
         // Get and check the report type
         ReportType reportType = Utils.valueOfFormattedName(args[0], ReportType.class);
         if (reportType == null) {
-            sender.sendMessage(ComponentColor.red("&(red)Invalid report type: %s", args[0]));
+            sender.sendMessage(ComponentColor.red("Invalid report type: %s", args[0]));
             return true;
         }
 
         // Command for teleporting to the location
         String tpCmd;
         if (sender instanceof DiscordSender)
-            tpCmd = "`sent from discord.`";
+            tpCmd = "`Sent from Discord`";
         else {
             Location l = ((Player) sender).getLocation();
             tpCmd = "/tl "+
@@ -65,16 +71,26 @@ public class CommandReport extends Command {
                 sender.sendMessage(ComponentColor.red("Usage: /report player <playerName> <description>"));
                 return true;
             }
+            OfflineFLPlayer potentialMatch = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
 
-            embedBuilder.addField("Subject", "`" + args[1] + "`", false);
+            embedBuilder.addField(
+                "Subject",
+                "`" + args[1] + "` (" + (potentialMatch == null ? "No match found" : "Potentially `" + potentialMatch + "`") + ")",
+                false
+            );
         }
 
         // Send embed to Discord
-        FarLands.getDiscordHandler().sendMessageEmbed(DiscordChannel.REPORTS, embedBuilder);
-
-        // If player report, do @here
-        if (reportType == ReportType.PLAYER) {
-           FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.REPORTS, "@here");
+        if(reportType == ReportType.PLAYER) {
+            // If player report, do @here
+            FarLands.getDiscordHandler().getChannel(DiscordChannel.REPORTS)
+                .sendMessage("@here")
+                .addEmbeds(embedBuilder.build())
+                .queue();
+        } else {
+            FarLands.getDiscordHandler().getChannel(DiscordChannel.REPORTS)
+                .sendMessageEmbeds(embedBuilder.build())
+                .queue();
         }
 
         if ("glitch".equals(args[0])) {
@@ -97,18 +113,38 @@ public class CommandReport extends Command {
             return Collections.emptyList();
     }
 
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        Map<ReportType, SubcommandData> subcommandMap = new HashMap<>();
+        for (ReportType rt : ReportType.values()) {
+            subcommandMap.put(
+                rt,
+                new SubcommandData(rt.name().toLowerCase(), rt.discordDescription)
+            );
+        }
+
+        subcommandMap.get(ReportType.PLAYER).addOption(OptionType.STRING, "player-name", "Name of the player to report", true, true);
+
+        subcommandMap.values().forEach(v -> v.addOption(OptionType.STRING, "description", "Reason for reporting", true, true));
+
+        return Commands.slash(this.getName(), this.description)
+            .addSubcommands(subcommandMap.values());
+    }
+
     private enum ReportType {
-        PLAYER   (0xAA0000), // DARK_RED
-        LOCATION (0xFF55FF), // LIGHT_PURPLE
-        GLITCH   (0xFFAA00), // GOLD
-        OTHER    (0xAAAAAA); // GRAY
+        PLAYER   (0xAA0000, "Report a Player"), // DARK_RED
+        LOCATION (0xFF55FF, "Report a Location"), // LIGHT_PURPLE
+        GLITCH   (0xFFAA00, "Report a Bug/Glitch"), // GOLD
+        OTHER    (0xAAAAAA, "Report something that doesn't fit into the other categories"); // GRAY
 
         static final ReportType[] VALUES = values();
 
         private final int embedColor;
+        private final String discordDescription;
 
-        ReportType(int embedColor) {
+        ReportType(int embedColor, String discordDescription) {
             this.embedColor = embedColor;
+            this.discordDescription = discordDescription;
         }
 
         public EmbedBuilder toEmbed(String username, String teleportCommand, String description) {

@@ -87,7 +87,7 @@ public class CommandRanks extends Command {
                     false
                 );
             };
-            ((DiscordSender) sender).getChannel().sendMessage(eb.build()).queue();
+            ((DiscordSender) sender).getChannel().sendMessageEmbeds(eb.build()).queue();
 
         } else {
             StringBuilder sb = new StringBuilder(ChatColor.GREEN + "Ranks: \n");

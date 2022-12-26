@@ -1,5 +1,7 @@
 package net.farlands.sanctuary.command.player;
 
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.staff.CommandEntityCount;
@@ -9,10 +11,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,13 +40,13 @@ public class CommandWhyLag extends Command {
                 sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
                 return true;
             }
-            CraftPlayer craftPlayer = args.length <= 1 ? (CraftPlayer) sender : (CraftPlayer) getPlayer(args[1], sender);
-            if (craftPlayer == null) {
+            Player player = args.length <= 1 ? (Player) sender : Bukkit.getPlayer(args[1]);
+            if (player == null) {
                 sendFormatted(sender, "&(red)Could not find player {&(gray)%0} in game", args[1]);
                 return true;
             }
-            int ping = ((Player) sender).getPing();
-            sender.sendMessage(ChatColor.GOLD + (args.length > 1 ? craftPlayer.getName() + "'s " : "Your ") + "ping: " +
+            int ping = player.getPing();
+            sender.sendMessage(ChatColor.GOLD + (args.length > 1 ? player.getName() + "'s " : "Your ") + "ping: " +
                     FLUtils.color(ping, PING_COLORING) + ping + "ms");
             return true;
         }
@@ -72,4 +74,22 @@ public class CommandWhyLag extends Command {
         return args.length <= 1 && "ping".equals(alias) ?
                 getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
+
+    @Override
+    public @NotNull List<SlashCommandData> discordCommands() {
+        List<SlashCommandData> cmds = this.defaultCommands(false);
+        cmds.stream()
+            .filter(cmd -> cmd.getName().equalsIgnoreCase("ping"))
+            .findFirst()
+            .ifPresent(ping -> ping.addOption(
+                           OptionType.STRING,
+                           "player-name",
+                           "Name of the player to check ping",
+                           true,
+                           true
+                       )
+            );
+        return cmds;
+    }
+
 }

@@ -42,7 +42,7 @@ public class CommandEditArmorStand extends PlayerCommand {
                 for (String trigger : scoreboardTriggers) {
                     Bukkit.dispatchCommand(sender, "scoreboard players enable " + trigger + " as_trigger");
                 }
-                FarLands.getCommandHandler().logCommand(sender, "/editarmorstand enable " + args[1], false);
+                FarLands.getCommandHandler().logCommand(sender, "/editarmorstand enable " + args[1], null);
             }
             return true;
 

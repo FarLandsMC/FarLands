@@ -5,15 +5,26 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatFormat;
 import net.farlands.sanctuary.chat.MessageFilter;
+import net.farlands.sanctuary.command.DiscordCompleter;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.PluginData;
@@ -32,8 +43,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -41,10 +53,11 @@ import java.util.stream.Stream;
  */
 public class DiscordHandler extends ListenerAdapter {
 
-    private       Config.DiscordBotConfig config;
-    private final MessageChannelHandler   channelHandler;
-    private       JDA                     jdaBot;
-    private       boolean                 active;
+    private       Config.DiscordBotConfig                 config;
+    private final MessageChannelHandler                   channelHandler;
+    private       JDA                                     jdaBot;
+    private       boolean                       active;
+    private final Map<String, DiscordCompleter> autocompleter;
 
     public static final String       VERIFIED_ROLE    = "Verified";
     public static final String       STAFF_ROLE       = "Staff";
@@ -55,6 +68,7 @@ public class DiscordHandler extends ListenerAdapter {
         this.channelHandler = new MessageChannelHandler();
         this.jdaBot = null;
         this.active = false;
+        this.autocompleter = new HashMap<>();
     }
 
     /**
@@ -66,16 +80,17 @@ public class DiscordHandler extends ListenerAdapter {
         config = FarLands.getFLConfig().discordBotConfig;
         try {
             if (config.token.isEmpty()) {
-                Logging.log("The bot token was not set. Discord integration will not operate.");
+                Logging.error("The bot token was not set. Discord integration will not operate.");
                 return;
             }
 
             if (config.serverID == 0L) {
-                Logging.log("The serverID was not set. Discord integration will not operate.");
+                Logging.error("The serverID was not set. Discord integration will not operate.");
                 return;
             }
 
             jdaBot = (JDABuilder.createDefault(config.token))
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
                 .setAutoReconnect(true)
                 .setActivity(getStats())
                 .setStatus(OnlineStatus.ONLINE)
@@ -148,7 +163,7 @@ public class DiscordHandler extends ListenerAdapter {
             status += onlinePlayers.size() + " online players";
         }
 
-        return Activity.of(Activity.ActivityType.DEFAULT, status);
+        return Activity.of(Activity.ActivityType.PLAYING, status);
     }
 
     /**
@@ -164,7 +179,7 @@ public class DiscordHandler extends ListenerAdapter {
     /**
      * Send a message directly to the specified channel (no processing)
      */
-    public void sendMessageRaw(MessageChannel channel, String message) {
+    public void sendMessageRaw(TextChannel channel, String message) {
         channelHandler.sendMessage(channel, message);
     }
 
@@ -216,9 +231,9 @@ public class DiscordHandler extends ListenerAdapter {
     }
 
     /**
-     * Get MessageChannel from DiscordChannel
+     * Get TextChannel from DiscordChannel
      */
-    public MessageChannel getChannel(DiscordChannel channel) {
+    public TextChannel getChannel(DiscordChannel channel) {
         return channelHandler.getChannel(channel);
     }
 
@@ -262,18 +277,18 @@ public class DiscordHandler extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        updateProposal(event.getReactionEmote(), event.getMessageIdLong());
+        updateProposal(event.getEmoji(), event.getMessageIdLong());
     }
 
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        updateProposal(event.getReactionEmote(), event.getMessageIdLong());
+        updateProposal(event.getEmoji(), event.getMessageIdLong());
     }
 
     /**
      * Update a proposal when a reaction is added or removed
      */
-    private void updateProposal(MessageReaction.ReactionEmote emote, long messageId) {
+    private void updateProposal(EmojiUnion emote, long messageId) {
         if (!active) {
             return;
         }
@@ -294,6 +309,62 @@ public class DiscordHandler extends ListenerAdapter {
         }
     }
 
+    public void registerAutocompleters(Map<String, DiscordCompleter> autocompleters) {
+        if(autocompleters != null)
+            this.autocompleter.putAll(autocompleters);
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        DiscordCompleter ac = this.autocompleter.get(event.getName());
+        if (ac == null) {
+            ac = this.autocompleter.get("*");
+            if (ac == null) {
+                event.replyChoiceStrings(new String[0]).queue();
+                return;
+            }
+        }
+        AutoCompleteQuery q = event.getFocusedOption();
+        event.replyChoiceStrings(
+            Arrays.stream(ac.apply(q.getName(), q.getValue()))
+                .limit(25) // Max that Discord supports
+                .toList()
+        ).queue();
+    }
+
+    @Override
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        String name = event.getInteraction().getFullCommandName();
+        String command = "/" + name + " " + event.getOptions()
+            .stream()
+            .filter(o -> !Set.of(OptionType.ATTACHMENT, OptionType.UNKNOWN).contains(o.getType()))
+            .map(OptionMapping::getAsString)
+            .collect(Collectors.joining(" "));
+
+        command = command.trim();
+
+        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+            if (!event.isAcknowledged()) {
+                event.reply("\u200b").queue();
+            }
+        }, (long) (20 * 2.5));
+
+        DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel().asTextChannel(), event.getInteraction());
+        try {
+            FarLands.getCommandHandler().handleDiscordCommand(sender, event.getInteraction(), command);
+        } catch (IllegalArgumentException ex) {
+            if (!event.isAcknowledged()) {
+                event.reply("Unknown Command!").setEphemeral(true).queue();
+            }
+        } catch (Exception ex) {
+            if (!event.isAcknowledged()) {
+                event.reply("There was an error executing this command.").setEphemeral(true).queue();
+            } else {
+                event.getMessageChannel().sendMessage("There was an error executing this command.").queue();
+            }
+        }
+    }
+
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (!active) {
@@ -304,7 +375,7 @@ public class DiscordHandler extends ListenerAdapter {
             return;
         }
 
-        DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel());
+        DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel().asTextChannel());
         String message = event.getMessage().getContentDisplay().strip();
 
         if ((message.startsWith("/") || message.startsWith("\\/")) && FarLands.getCommandHandler().handleDiscordCommand(sender, event.getMessage())) {
@@ -470,7 +541,11 @@ public class DiscordHandler extends ListenerAdapter {
         return component;
     }
 
-    public Emote getEmote(long id) {
-        return getGuild().getEmoteById(id);
+    public Emoji getEmote(long id) {
+        return getGuild().getEmojiById(id);
+    }
+
+    public void registerSlashCommands(List<SlashCommandData> commands) {
+        this.jdaBot.updateCommands().addCommands(commands).queue();
     }
 }
