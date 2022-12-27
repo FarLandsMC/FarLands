@@ -33,7 +33,7 @@ public class CommandReport extends Command {
         if (args.length < 2)
             return false;
 
-        if(sender instanceof DiscordSender ds) {
+        if (sender instanceof DiscordSender ds) {
             ds.ephemeral(true);
         }
 

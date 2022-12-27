@@ -215,6 +215,7 @@ public class CommandHandler extends Mechanic {
         List<SlashCommandData> slashCommands = commands
             .stream()
             .flatMap(c -> c.discordCommand() == null ? c.discordCommands().stream() : Stream.of(c.discordCommand()))
+            .map(c -> c.setGuildOnly(true)) // Force it to guild only
             .limit(Commands.MAX_SLASH_COMMANDS)
             .toList();
         FarLands.getDiscordHandler().registerSlashCommands(slashCommands);

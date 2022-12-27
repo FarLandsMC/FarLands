@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -36,7 +35,6 @@ public class DiscordSender implements CommandSender {
     private final Member                  member;
     private final TextChannel             channel;
     private       SlashCommandInteraction interaction;
-    private ReplyCallbackAction lastReply;
     private final OfflineFLPlayer         flp;
     private       boolean                 ephemeral;
 
@@ -49,8 +47,8 @@ public class DiscordSender implements CommandSender {
         this.interaction = null;
     }
 
-    public DiscordSender(Member member, TextChannel channel, SlashCommandInteraction interaction) {
-        this(member, channel);
+    public DiscordSender(SlashCommandInteraction interaction) {
+        this(interaction.getMember(), interaction.getChannel().asTextChannel());
         this.interaction = interaction;
     }
 

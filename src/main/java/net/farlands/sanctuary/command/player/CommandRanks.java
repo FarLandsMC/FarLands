@@ -74,7 +74,7 @@ public class CommandRanks extends Command {
             ranksInfo.put(rank, info);
         }
 
-        if (sender instanceof DiscordSender) {
+        if (sender instanceof DiscordSender ds) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             EmbedBuilder eb = new EmbedBuilder()
                     .setTitle("Ranks")
@@ -87,7 +87,7 @@ public class CommandRanks extends Command {
                     false
                 );
             };
-            ((DiscordSender) sender).getChannel().sendMessageEmbeds(eb.build()).queue();
+            ds.sendMessageEmbeds(eb.build());
 
         } else {
             StringBuilder sb = new StringBuilder(ChatColor.GREEN + "Ranks: \n");

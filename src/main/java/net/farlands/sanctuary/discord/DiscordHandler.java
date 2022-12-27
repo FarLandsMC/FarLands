@@ -53,9 +53,9 @@ import java.util.stream.Stream;
  */
 public class DiscordHandler extends ListenerAdapter {
 
-    private       Config.DiscordBotConfig                 config;
-    private final MessageChannelHandler                   channelHandler;
-    private       JDA                                     jdaBot;
+    private       Config.DiscordBotConfig       config;
+    private final MessageChannelHandler         channelHandler;
+    private       JDA                           jdaBot;
     private       boolean                       active;
     private final Map<String, DiscordCompleter> autocompleter;
 
@@ -309,6 +309,10 @@ public class DiscordHandler extends ListenerAdapter {
         }
     }
 
+    /**
+     * Registers autocompleters for slash commands
+     * @param autocompleters Map<CommandName : CompleterFunction> -- if Command Name is "*", then it will act as a backup for all commands
+     */
     public void registerAutocompleters(Map<String, DiscordCompleter> autocompleters) {
         if(autocompleters != null)
             this.autocompleter.putAll(autocompleters);
@@ -316,16 +320,16 @@ public class DiscordHandler extends ListenerAdapter {
 
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
-        DiscordCompleter ac = this.autocompleter.get(event.getName());
-        if (ac == null) {
+        DiscordCompleter ac = this.autocompleter.get(event.getName()); // Get the autocompleter for the given command
+        if (ac == null) { // If no autocompleter exists, get the default or just return no completions
             ac = this.autocompleter.get("*");
             if (ac == null) {
                 event.replyChoiceStrings(new String[0]).queue();
                 return;
             }
         }
-        AutoCompleteQuery q = event.getFocusedOption();
-        event.replyChoiceStrings(
+        AutoCompleteQuery q = event.getFocusedOption(); // Get the query
+        event.replyChoiceStrings( // and reply with the correct data
             Arrays.stream(ac.apply(q.getName(), q.getValue()))
                 .limit(25) // Max that Discord supports
                 .toList()
@@ -334,34 +338,35 @@ public class DiscordHandler extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        String name = event.getInteraction().getFullCommandName();
-        String command = "/" + name + " " + event.getOptions()
+        String name = event.getInteraction().getFullCommandName(); // getFullCommandName gets the interaction name and the subcommand name -> /command subcommand0 subcommand1
+        String command = "/" + name + " " + event.getOptions() // Convert the event data into a command that we're used to (Options go in order of registration, no matter the order of user usage)
             .stream()
             .filter(o -> !Set.of(OptionType.ATTACHMENT, OptionType.UNKNOWN).contains(o.getType()))
             .map(OptionMapping::getAsString)
             .collect(Collectors.joining(" "));
 
-        command = command.trim();
+        command = command.trim(); // remove trailing spaces by having empty params
 
+        // If the interaction has not been acknowledged after 2.5s, give it a blank message (Must be less than 3s)
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
             if (!event.isAcknowledged()) {
                 event.reply("\u200b").queue();
             }
         }, (long) (20 * 2.5));
 
-        DiscordSender sender = new DiscordSender(event.getMember(), event.getChannel().asTextChannel(), event.getInteraction());
+        // Get a discord sender from the interaction
+        DiscordSender sender = new DiscordSender(event.getInteraction());
         try {
             FarLands.getCommandHandler().handleDiscordCommand(sender, event.getInteraction(), command);
         } catch (IllegalArgumentException ex) {
+            // Possible that the command is not actually valid, a removed command has yet to expire
             if (!event.isAcknowledged()) {
                 event.reply("Unknown Command!").setEphemeral(true).queue();
             }
         } catch (Exception ex) {
-            if (!event.isAcknowledged()) {
-                event.reply("There was an error executing this command.").setEphemeral(true).queue();
-            } else {
-                event.getMessageChannel().sendMessage("There was an error executing this command.").queue();
-            }
+            // If there was any error, let the sender know
+            sender.ephemeral(true);
+            sender.sendMessage("There was an error executing this command.");
         }
     }
 
