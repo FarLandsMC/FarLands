@@ -1,7 +1,7 @@
-package net.farlands.sanctuary.command.discord;
+package net.farlands.sanctuary.command.staff;
 
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.command.DiscordCommand;
+import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import org.bukkit.command.CommandSender;
@@ -9,9 +9,7 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
-public class CommandAlts extends DiscordCommand {
+public class CommandAlts extends Command {
     public CommandAlts() {
         super(Rank.JR_BUILDER, "View the alts of a given player.", "/alts <player>", "alts");
     }
@@ -27,7 +25,7 @@ public class CommandAlts extends DiscordCommand {
 
         List<OfflineFLPlayer> alts = FarLands.getDataHandler().getOfflineFLPlayers().stream()
                 .filter(otherFlp -> flp.lastIP.equals(otherFlp.lastIP) && !flp.uuid.equals(otherFlp.uuid))
-                .collect(Collectors.toList());
+                .toList();
 
         if (alts.isEmpty())
             info(sender, "This player has no alts.");

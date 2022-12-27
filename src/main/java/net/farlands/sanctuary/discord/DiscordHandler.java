@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.AutoCompleteQuery;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -26,6 +27,7 @@ import net.farlands.sanctuary.chat.ChatFormat;
 import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.DiscordCompleter;
 import net.farlands.sanctuary.command.DiscordSender;
+import net.farlands.sanctuary.command.SlashCommand;
 import net.farlands.sanctuary.data.Config;
 import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.Rank;
@@ -42,6 +44,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -313,24 +316,38 @@ public class DiscordHandler extends ListenerAdapter {
      * Registers autocompleters for slash commands
      * @param autocompleters Map<CommandName : CompleterFunction> -- if Command Name is "*", then it will act as a backup for all commands
      */
-    public void registerAutocompleters(Map<String, DiscordCompleter> autocompleters) {
+    public void registerAutocompleters(@Nullable Map<String, DiscordCompleter> autocompleters) {
         if(autocompleters != null)
             this.autocompleter.putAll(autocompleters);
     }
 
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
-        DiscordCompleter ac = this.autocompleter.get(event.getName()); // Get the autocompleter for the given command
-        if (ac == null) { // If no autocompleter exists, get the default or just return no completions
-            ac = this.autocompleter.get("*");
-            if (ac == null) {
-                event.replyChoiceStrings(new String[0]).queue();
-                return;
+        SlashCommand slashCommand = FarLands.getCommandHandler().getSlashCommand(event.getName());
+        if (slashCommand != null) {
+            List<Command.Choice> autocomplete = slashCommand.autoComplete(event);
+            if (autocomplete == null) {
+                autocomplete = Arrays.stream(this.autocompleter
+                                                 .get("*")
+                                                 .apply(event.getName(), event.getFocusedOption().getValue()))
+                    .map(s -> new Command.Choice(s, s))
+                    .toList();
             }
+            event.replyChoices(autocomplete.stream().limit(25).toList()).queue();
+            return;
+        }
+        List<DiscordCompleter> ac = new ArrayList<>();
+        ac.add(this.autocompleter.get("*")); // Add the default autocompleter
+        ac.add(this.autocompleter.get(event.getName())); // Get the autocompleter for the given command
+        ac.removeIf(Objects::isNull);
+        if (ac.isEmpty()) {
+            event.replyChoices().queue();
+            return;
         }
         AutoCompleteQuery q = event.getFocusedOption(); // Get the query
-        event.replyChoiceStrings( // and reply with the correct data
-            Arrays.stream(ac.apply(q.getName(), q.getValue()))
+        event.replyChoiceStrings(
+            ac.stream()// and reply with the correct data
+                .flatMap(a -> Arrays.stream(a.apply(q.getName(), q.getValue())))
                 .limit(25) // Max that Discord supports
                 .toList()
         ).queue();
@@ -338,6 +355,34 @@ public class DiscordHandler extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        SlashCommand slashCommand = FarLands.getCommandHandler().getSlashCommand(event);
+        if (slashCommand != null) {
+            try {
+                OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getMember().getIdLong());
+
+                // Log the command
+                FarLands.getCommandHandler().logCommand(flp, event.getCommandString(), event.getChannel().asTextChannel());
+                if (flp.isDiscordVerified() && flp.rank.specialCompareTo(Rank.MEDIA) >= 0) {
+                    FarLands.getDiscordHandler().sendMessageRaw(
+                        DiscordChannel.COMMAND_LOG,
+                        flp + ": ``" + event.getCommandString().replaceAll("`", "`\u200b") + "`` (Slash Command)"
+                    );
+                }
+
+                slashCommand.check(flp, event);
+                slashCommand.execute(flp, event);
+            } catch (SlashCommand.IllegalPermissionException ex) {
+                event.reply("You do not have permission to run this command.")
+                    .setEphemeral(true)
+                    .queue();
+            } catch (SlashCommand.CommandException ex) {
+                event.reply("This was an error executing this command:\n" + ex.getMessage())
+                    .setEphemeral(true)
+                    .queue();
+            }
+            return;
+        }
+
         String name = event.getInteraction().getFullCommandName(); // getFullCommandName gets the interaction name and the subcommand name -> /command subcommand0 subcommand1
         String command = "/" + name + " " + event.getOptions() // Convert the event data into a command that we're used to (Options go in order of registration, no matter the order of user usage)
             .stream()

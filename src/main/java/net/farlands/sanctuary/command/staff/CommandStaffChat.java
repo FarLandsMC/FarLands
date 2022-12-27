@@ -15,6 +15,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -163,4 +164,8 @@ public class CommandStaffChat extends Command {
         return null;
     }
 
+    @Override
+    public @NotNull List<SlashCommandData> discordCommands() {
+        return Collections.emptyList();
+    }
 }

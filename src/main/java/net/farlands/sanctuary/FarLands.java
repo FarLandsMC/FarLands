@@ -70,12 +70,12 @@ public class FarLands extends JavaPlugin {
             try {
                 Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "headdatabase:hdb r");
             } catch (CommandException ex) {
-                Logging.error("Unable to run /headdatabase:hdb r.");
+                Logging.log("Unable to run /headdatabase:hdb r.");
             }
             try {
                 Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "petblocks:petblockreload");
             } catch (CommandException ex) {
-                Logging.error("Unable to run /petblock:petblockreload.");
+                Logging.log("Unable to run /petblock:petblockreload.");
             }
         }, 60L);
     }

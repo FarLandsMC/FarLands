@@ -187,7 +187,7 @@ public class CommandEdit extends Command {
                     .addOption(OptionType.STRING, "config-field", "Field to get or edit", true, true)
                     .addOption(OptionType.STRING, "new-value", "New value to use", false, true)
             )
-            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.MANAGE_CHANNEL));
+            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.VIEW_AUDIT_LOGS));
     }
 
     @Override
