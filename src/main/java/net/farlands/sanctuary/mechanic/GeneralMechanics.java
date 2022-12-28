@@ -568,13 +568,13 @@ public class GeneralMechanics extends Mechanic {
                 if (sendBroadcast && nightSkip.isComplete()) {
                     nightSkip.reset();
                     Logging.broadcastFormatted(
-                        "<gold>%s more %s to sleep to skip the night.",
+                        "<!bold><gold>%s more %s to sleep to skip the night.",
                         false,
                         (required - sleeping) + "",
                         (required - sleeping) == 1 ? "player need" : "players needs");
                 }
             } else if (nightSkipTask == null) {
-                Logging.broadcastFormatted("<gold>Skipping the night...", false);
+                Logging.broadcastFormatted("<!bold><gold>Skipping the night...", false);
                 nightSkipTask = Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     World world = Bukkit.getWorld("world");
                     world.setTime(1000L);
