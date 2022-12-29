@@ -1,4 +1,5 @@
 <green>Added:</green>
+- FarLands is now public on GitHub, we welcome contributions -- <aqua><underlined><click:open_url:'https://github.com/FarLandsMC/'>https://github.com/FarLandsMC/</click></underlined></aqua>
 - A "pocket world", used for mining and gather resources.  Access with <aqua>/pocket</aqua>
     - Homes can be set, but will be deleted when the pocket world is reset
     - Claims can not be created

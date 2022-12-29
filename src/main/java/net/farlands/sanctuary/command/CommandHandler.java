@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
-import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.discord.*;
 import net.farlands.sanctuary.command.player.*;
 import net.farlands.sanctuary.command.staff.*;
@@ -53,7 +52,6 @@ public class CommandHandler extends Mechanic {
     private static final List<String>          COMMAND_LOG_BLACKLIST = Arrays.asList(
             "hdb", "headdb", "heads",
             "shops", "searchshops",
-            "petblock", "petblocks", "petblockreload",
             "trigger");
 
     public CommandHandler() {
@@ -119,7 +117,6 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandParticles());        // Donor
         registerCommand(new CommandParty());            // Initiate
         registerCommand(new CommandPatchnotes());       // Initiate
-        registerCommand(new CommandPetblock());         // Sponsor
         registerCommand(new CommandPocket());           // Initiate
         registerCommand(new CommandPronouns());         // Initiate
         registerCommand(new CommandProposeWarp());      // Initiate
@@ -459,12 +456,6 @@ public class CommandHandler extends Mechanic {
         Rank senderRank = Rank.getRank(event.getPlayer());
         if ((event.getMessage().startsWith("/minecraft:") && !senderRank.isStaff()) || event.getMessage().startsWith("/farlands:")) {
             event.setCancelled(true);
-            return;
-        }
-
-        if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && MessageFilter.INSTANCE.isProfane(event.getMessage())) {
-            event.setCancelled(true);
-            event.getPlayer().sendMessage(ComponentColor.red("You cannot set your pet's name to that."));
             return;
         }
 
