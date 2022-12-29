@@ -6,13 +6,11 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
-import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import static com.kicas.rp.util.TextUtils.sendFormatted;
 
@@ -39,18 +37,6 @@ public class CommandPatchnotes extends PlayerCommand {
                 )
 
             );
-
-            sender.openBook(Book.book(
-                ComponentColor.aqua("Patch Notes"),
-                ComponentColor.aqua("FarLands"),
-                List.of(
-                    ComponentUtils.parse(
-                        new String(
-                            FarLands.getDataHandler().getResource("patchnotes.txt"),
-                            StandardCharsets.UTF_8
-                        )
-                    ))
-            ));
 
             FarLands.getDataHandler().getOfflineFLPlayer(sender).viewedPatchnotes = true;
         } catch (IOException ex) {

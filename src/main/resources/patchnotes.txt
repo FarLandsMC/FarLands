@@ -2,13 +2,15 @@
 - A "pocket world", used for mining and gather resources.  Access with <aqua>/pocket</aqua>
     - Homes can be set, but will be deleted when the pocket world is reset
     - Claims can not be created
-- Entities going in the End return portal will now be teleported to the nearest player's bed (within 24 blocks)
+- Many <click:run_command:/discord><aqua><underlined>Discord</underlined></aqua></click> commands now support being used as a slash command!
+    - All commands will still work without slash commands (sometimes you may need to put <white>'\'</white> before the <white>'/'</white>)
+- Tab menu now shows players in each world, ranks, and afk status.
 - <aqua>/stack hotbar</aqua> stacks the items in the hotbar
 - <aqua>/homes</aqua> can now be sorted using <aqua>/homes sort <sort-method></aqua>
 - "While you were gone" message after returning from <aqua>/afk</aqua> for certain messages
 - <aqua>/stonecutter</aqua> for <dark_purple>Patron</dark_purple>+ opens a stonecutter gui
 - Add Powder Snow Bucket to <aqua>/stack</aqua> warnings
-- Tab menu now shows players in each world, ranks, and afk status.
+- Entities going in the End return portal will now be teleported to the nearest player's bed (within 24 blocks)
 <gold>Changed:</gold>
 - Voter color is now <#ff6213>orange</#ff6213>
 - Discord commands can now work by adding <white>'\'</white> before the <white>'/'</white> (Sometimes the discord client stops the message from sending if it starts with <white>'/'</white>)
@@ -18,6 +20,7 @@
 - <aqua>/home</aqua> uses partial name completion, asking if it finds multiple matches
 - <aqua>/colors</aqua> now shows MiniMessage and hexadecimal colors.
 - All chat and commands now work with <aqua><underlined><click:open_url:'https://docs.adventure.kyori.net/minimessage/format.html'>MiniMessage</click></underlined></aqua>
+- <aqua>/stack</aqua> warnings now use localised item names.
 <red>Removed:</red>
 - In-inventory stacking because it caused too many issues
 <light_purple>Fixed:</light_purple>

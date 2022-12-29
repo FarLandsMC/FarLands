@@ -171,7 +171,7 @@ public abstract class Command extends org.bukkit.command.Command {
      * @return A single slash command representing this Command
      */
     protected @NotNull SlashCommandData defaultCommand(boolean defaultArgs) {
-        var cmd = Commands.slash(this.getName().toLowerCase(), this.description.substring(0, Math.min(this.description.length(), 100)));
+        SlashCommandData cmd = Commands.slash(this.getName().toLowerCase(), this.description.substring(0, Math.min(this.description.length(), 100)));
         if(!defaultArgs) return cmd;
         return cmd.addOption(OptionType.STRING, "args", "Args for the command", false, false);
     }

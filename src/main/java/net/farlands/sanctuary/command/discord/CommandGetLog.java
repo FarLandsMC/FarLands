@@ -1,5 +1,9 @@
 package net.farlands.sanctuary.command.discord;
 
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.DiscordCommand;
@@ -8,6 +12,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FileSystem;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.Arrays;
@@ -60,6 +65,15 @@ public class CommandGetLog extends DiscordCommand {
         return parseDate(name) * 100 + Integer.parseInt(name.substring(name.lastIndexOf('-') + 1, name.indexOf('.')));
     }
 
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false)
+            .addOption(OptionType.STRING, "start-date", "Start Date in format yyyy-mm-dd", false, false)
+            .addOption(OptionType.STRING, "end-date", "End Date in format yyyy-mm-dd", false, false)
+            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.ADMINISTRATOR))
+            ;
+    }
+
     private static class LogBuilder extends Thread {
         final DiscordSender sender;
         final int start, end;
@@ -98,7 +112,7 @@ public class CommandGetLog extends DiscordCommand {
 
                 out.close();
 
-                sender.getChannel().sendFiles(FileUpload.fromData(file)).complete();
+                sender.sendFiles(FileUpload.fromData(file));
                 file.delete();
             } catch (Throwable ex) {
                 sender.sendMessage("Failed to retrieve log.");

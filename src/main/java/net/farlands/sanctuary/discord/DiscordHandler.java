@@ -326,13 +326,13 @@ public class DiscordHandler extends ListenerAdapter {
         SlashCommand slashCommand = FarLands.getCommandHandler().getSlashCommand(event.getName());
         if (slashCommand != null) {
             List<Command.Choice> autocomplete = slashCommand.autoComplete(event);
-            if (autocomplete == null) {
-                autocomplete = Arrays.stream(this.autocompleter
-                                                 .get("*")
-                                                 .apply(event.getName(), event.getFocusedOption().getValue()))
-                    .map(s -> new Command.Choice(s, s))
-                    .toList();
-            }
+            autocomplete = autocomplete == null ? new ArrayList<>() : new ArrayList<>(autocomplete);
+            Arrays.stream(
+                    this.autocompleter.get("*")
+                        .apply(event.getName(), event.getFocusedOption().getValue())
+                )
+            .map(s -> new Command.Choice(s, s))
+            .forEach(autocomplete::add);
             event.replyChoices(autocomplete.stream().limit(25).toList()).queue();
             return;
         }

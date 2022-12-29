@@ -2,6 +2,9 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.util.Utils;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.Category;
@@ -11,12 +14,14 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -149,7 +154,7 @@ public class CommandTop extends Command {
                     false
                 );
             }
-            discordSender.getChannel().sendMessageEmbeds(embed.build()).queue();
+            discordSender.sendMessageEmbeds(embed.build());
         } else {
             pagination.sendPage(page, sender);
             if (index != -1) {
@@ -165,6 +170,32 @@ public class CommandTop extends Command {
 
 
         return true;
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        SlashCommandData command = this.defaultCommand(false);
+
+        for (TopCategory value : TopCategory.values()) {
+            if (value.subCategories.isEmpty()) {
+                command.addSubcommands(
+                    new SubcommandData(
+                        Utils.formattedName(value),
+                        FLUtils.capitalize(value.name())
+                    )
+                );
+            } else {
+                SubcommandGroupData group = new SubcommandGroupData(
+                    Utils.formattedName(value),
+                    FLUtils.capitalize(value.name())
+                );
+                for (String s : value.subCategories) {
+                    group.addSubcommands(new SubcommandData(s, FLUtils.capitalize(s)));
+                }
+                command.addSubcommandGroups(group);
+            }
+        }
+        return command;
     }
 
     @Override

@@ -134,7 +134,7 @@ public class CommandStats extends Command {
 
         for (PlayerStat stat : PlayerStat.values()) {
             Object value = statsMap.getOrDefault(stat, "");
-            if (value != null) {
+            if (value != null && !value.toString().isEmpty()) {
                 builder.append(Component.newline())
                     .append(ComponentColor.gold(stat.humanName))
                     .append(ComponentColor.gold(": "))

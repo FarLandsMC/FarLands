@@ -51,7 +51,7 @@ public class CommandNotes extends DiscordCommand {
                             String[] parts = note.split(":");
                             eb.addField(parts[0], joinArgsBeyond(0, ":", parts), false);
                         });
-                        ((DiscordSender) sender).getChannel().sendMessageEmbeds(eb.build()).queue();
+                        ((DiscordSender) sender).sendMessageEmbeds(eb.build());
                     } else {
                         sender.sendMessage(
                             ComponentColor.gold("Showing notes for ")

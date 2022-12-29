@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -114,6 +115,17 @@ public class DiscordSender implements CommandSender {
         } else {
             this.interaction
                 .replyEmbeds(embed0, embeds)
+                .setEphemeral(this.ephemeral)
+                .queue();
+        }
+    }
+
+    public void sendFiles(FileUpload... files) {
+        if (this.interaction == null || this.interaction.isAcknowledged()) {
+            this.getChannel().sendFiles(files).queue();
+        } else {
+            this.interaction
+                .replyFiles(files)
                 .setEphemeral(this.ephemeral)
                 .queue();
         }
