@@ -80,7 +80,7 @@ public class CommandData {
         this.aliases = new ArrayList<>();
         this.requiresAlias = false;
         this.minimumRank = Rank.INITIATE;
-        this.rankCompare = BooleanOperation.OR;
+        this.rankCompare = BooleanOperation.AND;
         this.advancementsRequired = new ArrayList<>();
         this.craftedItemsRequired = new ArrayList<>();
         this.playedHoursRequired = 0;
@@ -160,6 +160,10 @@ public class CommandData {
         }
 
         boolean rankMatches = flp.rank.specialCompareTo(this.minimumRank) >= 0;
+
+        System.out.println(sender + "\nrankMatches: " + rankMatches + "\nname:" + this.name);
+
+//        if (!rankMatches) return false;
 
         // If the sender is staff and in gmc ignore all requirements except rank
         if (flp.rank.isStaff() && sender instanceof Player player && player.getGameMode() == GameMode.CREATIVE) {
