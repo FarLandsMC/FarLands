@@ -93,7 +93,7 @@ public class DiscordHandler extends ListenerAdapter {
             }
 
             jdaBot = (JDABuilder.createDefault(config.token))
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                 .setAutoReconnect(true)
                 .setActivity(getStats())
                 .setStatus(OnlineStatus.ONLINE)
