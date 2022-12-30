@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.mechanic;
 
+import com.destroystokyo.paper.event.inventory.PrepareResultEvent;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.Region;
@@ -38,6 +39,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
+import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -420,6 +422,22 @@ public class Restrictions extends Mechanic {
 
             event.setCancelled(CommandKittyCannon.CANNON.isSimilar(event.getCursor()) || // Prevent kitty cannon being used as horse armor
                                CommandKittyCannon.CANNON.isSimilar(event.getCurrentItem()));
+        }
+    }
+
+    /**
+     * Prevent the kitty cannon from being used in a grindstone
+     * <p>
+     * Paper complains about using {@link org.bukkit.event.inventory.PrepareGrindstoneEvent},
+     * so we're using {@link PrepareResultEvent} and checking the inventory
+     */
+    @EventHandler
+    public void onPrepareResult(PrepareResultEvent event) {
+        if (
+            event.getInventory() instanceof GrindstoneInventory
+            && event.getInventory().contains(CommandKittyCannon.CANNON)
+        ) {
+            event.setResult(null);
         }
     }
 

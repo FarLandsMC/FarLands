@@ -1,6 +1,8 @@
 package net.farlands.sanctuary.command.discord;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordCommand;
@@ -9,6 +11,9 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class CommandDevReport extends DiscordCommand {
     private final Cooldown globalCooldown;
@@ -62,5 +67,17 @@ public class CommandDevReport extends DiscordCommand {
 
     public boolean deleteOnUse() {
         return globalCooldown.timeRemaining() <= 0;
+    }
+
+    @Override
+    public @NotNull List<SlashCommandData> discordCommands() {
+        List<SlashCommandData> cmds = super.defaultCommands(false);
+        cmds.forEach(c -> c.addOption(
+            OptionType.STRING,
+            "description",
+            "Description of " + c.getName(),
+            true, true
+        ));
+        return cmds;
     }
 }

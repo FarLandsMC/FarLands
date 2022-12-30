@@ -8,8 +8,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPig;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPig;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -57,7 +57,7 @@ public class CommandSit extends PlayerCommand {
         //        ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
 
         // Seems to work?
-        ((CraftPlayer) sender).getHandle().a(((CraftPig) seat).getHandle(), true);
+        ((CraftPlayer) sender).getHandle().startRiding(((CraftPig) seat).getHandle(), true);
         ((CraftPig) seat).setPassenger(sender);
 
         return true;

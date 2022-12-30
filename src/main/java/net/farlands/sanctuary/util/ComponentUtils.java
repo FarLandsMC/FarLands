@@ -237,6 +237,23 @@ public class ComponentUtils {
     }
 
     /**
+     * Parse a string using MiniMessage or Legacy into components using all features
+     *
+     * @param message The message to parse
+     */
+    public static Component parse(String message) {
+        return MiniMessageWrapper.builder()
+            .gradients(true)
+            .hexColors(true)
+            .standardColors(true)
+            .legacyColors(true)
+            .advancedTransformations(true)
+            .preventLuminanceBelow(0)
+            .build()
+            .mmParse(message);
+    }
+
+    /**
      * Remove hover and click events from the supplied ComponentLike
      *
      * @param componentLike Source

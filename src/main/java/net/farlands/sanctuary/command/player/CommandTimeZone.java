@@ -1,15 +1,21 @@
 package net.farlands.sanctuary.command.player;
 
+import com.google.common.collect.ImmutableMap;
 import com.kicas.rp.command.TabCompleterBase;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.DiscordCompleter;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -82,6 +88,31 @@ public class CommandTimeZone extends Command {
             default:
                 return Collections.emptyList();
         }
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false)
+            .addSubcommands(
+                new SubcommandData("set", "Set your timezone")
+                    .addOption(OptionType.STRING, "timezone", "The timezone to get", true, true),
+                new SubcommandData("get", "Get current time in a timezone")
+                    .addOption(OptionType.STRING, "timezone", "The timezone to get", true, true)
+            );
+    }
+
+    @Override
+    public @Nullable Map<String, DiscordCompleter> discordAutocompletion() {
+        return ImmutableMap.of(
+            "timezone", (option, partial) -> {
+                if (option.equals("timezone")) {
+                    return Arrays.stream(TimeZone.getAvailableIDs())
+                        .filter(s -> s.toLowerCase().contains(partial.toLowerCase()))
+                        .toArray(String[]::new);
+                }
+                return null;
+            }
+        );
     }
 
     private TimeZone getTimeZoneById(final String id) {

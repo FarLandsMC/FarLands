@@ -1,18 +1,23 @@
 package net.farlands.sanctuary.command;
 
+import com.google.common.collect.ImmutableMap;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
-import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.discord.*;
 import net.farlands.sanctuary.command.player.*;
 import net.farlands.sanctuary.command.staff.*;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -20,35 +25,39 @@ import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_19_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_19_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_19_R2.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Handles command registration, querying, and Discord command execution.
  */
 public class CommandHandler extends Mechanic {
-    private final List<Command> commands;
-    private static final List<String> COMMAND_LOG_BLACKLIST = Arrays.asList(
+
+    private final        List<Command>         commands;
+    private final        List<SlashCommand>    slashCommands;
+    private final        Set<SlashCommandData> discordSlashCommands;
+    private static final List<String>          COMMAND_LOG_BLACKLIST = Arrays.asList(
             "hdb", "headdb", "heads",
             "shops", "searchshops",
-            "petblock", "petblocks", "petblockreload",
             "trigger");
 
     public CommandHandler() {
         this.commands = new ArrayList<>();
+        this.slashCommands = new ArrayList<>();
+        this.discordSlashCommands = new HashSet<>();
     }
 
     @Override
@@ -60,7 +69,6 @@ public class CommandHandler extends Mechanic {
 
         // Discord Commands
         registerCommand(new CommandAddReactions());     // Jr Builder
-        registerCommand(new CommandAlts());             // Jr Builder
         registerCommand(new CommandArchive());          // Admin
         registerCommand(new CommandArtifact());         // Admin (Requires JS Permission)
         registerCommand(new CommandDevReport());        // Initiate
@@ -109,7 +117,6 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandParticles());        // Donor
         registerCommand(new CommandParty());            // Initiate
         registerCommand(new CommandPatchnotes());       // Initiate
-        registerCommand(new CommandPetblock());         // Sponsor
         registerCommand(new CommandPocket());           // Initiate
         registerCommand(new CommandPronouns());         // Initiate
         registerCommand(new CommandProposeWarp());      // Initiate
@@ -153,6 +160,7 @@ public class CommandHandler extends Mechanic {
 
         // Staff Commands
         registerCommand(new CommandActiveEffects());    // Jr_Builder
+        registerCommand(new CommandAlts());             // Jr Builder
         registerCommand(new CommandBack());             // Jr_Builder
         registerCommand(new CommandBotSpam());          // Builder
         registerCommand(new CommandBright());           // Jr_Builder
@@ -192,11 +200,60 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandToPlayer());         // Jr_Builder
         registerCommand(new CommandVanish());           // Media
         registerCommand(new CommandViewNodes());        // Jr_Builder
+
+        registerDiscordCommands();
+    }
+
+    private void registerDiscordCommands() {
+
+        // Register Slash Commands
+        List<SlashCommandData> slashCommands = discordSlashCommands
+            .stream()
+            .map(c -> c.setGuildOnly(true)) // Force it to guild only (disables global cache and commands in dm)
+            .limit(Commands.MAX_SLASH_COMMANDS)
+            .toList();
+        FarLands.getDiscordHandler().registerSlashCommands(slashCommands);
+
+        FarLands.getDiscordHandler().registerAutocompleters(ImmutableMap.of( // Register some default auto-completers
+            "*", (option, partial) -> {
+                switch (option.toLowerCase()) {
+                    case "playername", "player-name", "username", "user-name" -> {
+                        return Bukkit.getOnlinePlayers()
+                            .stream()
+                            .filter(player -> !FarLands.getDataHandler().getOfflineFLPlayer(player).vanished)
+                            .map(Player::getName)
+                            .filter(name -> name.toLowerCase().startsWith(partial.toLowerCase()))
+                            .toArray(String[]::new);
+
+                    }
+                }
+                return new String[0];
+            }
+        ));
+
+        FarLands.getDiscordHandler().getNativeBot().retrieveCommands().queue(cmds -> Logging.log("Registered " + cmds.size() + " slash commands."));
     }
 
     private void registerCommand(Command command) {
+        if(!(command instanceof PlayerCommand)) {
+            discordSlashCommands
+                .addAll( // Add slash commands to set
+                         command.discordCommand() == null
+                             ? command.discordCommands()
+                             : List.of(command.discordCommand())
+                );
+
+            // Register Autocompletion
+            Map<String, DiscordCompleter> ac = command.discordAutocompletion();
+            FarLands.getDiscordHandler().registerAutocompleters(ac);
+        }
         commands.add(command);
         ((CraftServer) Bukkit.getServer()).getCommandMap().register("farlands", command);
+    }
+
+    private void registerCommand(SlashCommand command) {
+        discordSlashCommands.add(command.commandData());
+        slashCommands.add(command);
     }
 
     @SuppressWarnings("unchecked")
@@ -204,8 +261,25 @@ public class CommandHandler extends Mechanic {
         return (T) commands.stream().filter(c -> clazz.equals(c.getClass())).findAny().orElse(null);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T extends SlashCommand> T getSlashCommand(Class<T> clazz) {
+        return (T) slashCommands.stream().filter(c -> clazz.equals(c.getClass())).findAny().orElse(null);
+    }
+
     public Command getCommand(String alias) {
         return commands.stream().filter(cmd -> cmd.matches(alias)).findAny().orElse(null);
+    }
+
+    public SlashCommand getSlashCommand(String name) {
+        return slashCommands
+            .stream()
+            .filter(cmd -> cmd.commandData().getName().equalsIgnoreCase(name))
+            .findAny()
+            .orElse(null);
+    }
+
+    public SlashCommand getSlashCommand(SlashCommandInteraction interaction) {
+        return getSlashCommand(interaction.getName());
     }
 
     public List<Command> getCommands() {
@@ -218,7 +292,7 @@ public class CommandHandler extends Mechanic {
         String rawStringCommand = message.getContentDisplay();
 
         // Notify staff
-        logCommand(sender, rawStringCommand, true);
+        logCommand(sender, rawStringCommand, sender.getChannel());
 
         // Parse out the command name
         String commandName = rawStringCommand.substring(
@@ -307,17 +381,81 @@ public class CommandHandler extends Mechanic {
         return true;
     }
 
+    // Returns true if the command was handled
+    @SuppressWarnings("unchecked")
+    public void handleDiscordCommand(DiscordSender sender, SlashCommandInteraction interaction, String commandStr) {
+
+        // Notify staff
+        logCommand(sender, commandStr, sender.getChannel());
+
+        // Parse out the command name
+        String commandName = commandStr.substring(commandStr.startsWith("/")
+                        ? 1
+                        : 0,
+                FLUtils.indexOfDefault(commandStr.indexOf(' '), commandStr.length())
+        ).trim();
+
+        // Get the args
+        final String[] args = commandStr.contains(" ")
+                ? commandStr.substring(commandStr.indexOf(' ') + 1).split(" ")
+                : new String[0];
+
+        Command command = getCommand(commandName);
+        if (command == null) throw new IllegalArgumentException("Command not found.");
+        // Ensure the command was sent in a channel where we accept commands
+        if (
+                !(command instanceof DiscordCommand)
+                && DiscordChannel.IN_GAME.id() != interaction.getChannel().getIdLong()
+                && DiscordChannel.STAFF_COMMANDS.id() != interaction.getChannel().getIdLong()
+        ) {
+            interaction.reply("Please use " + DiscordChannel.IN_GAME + " for sending commands.")
+                .setEphemeral(true)
+                .queue();
+            return;
+        }
+
+        // Add command to the command log
+        if (sender.isVerified() && Rank.getRank(sender).specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(command)) {
+            FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.COMMAND_LOG, sender.getName() + ": " + commandStr);
+        }
+
+        Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
+            // Handle event cancellations and regions
+            if (shouldNotExecute(command, sender))
+                return;
+
+            // Check verification
+            if (command.requiresVerifiedDiscordSenders() && !sender.isVerified())
+                return;
+
+            // Check permission
+            if (sender.isVerified() && !command.canUse(sender))
+                return;
+
+            String[] argsCopy = args;
+
+            // Add the message info to the args if needed
+            if (command instanceof DiscordCommand && ((DiscordCommand) command).requiresMessageID()) {
+                String[] newArgs = new String[args.length + 1];
+                newArgs[0] = interaction.getChannel().getId() + ":" + interaction.getId();
+                System.arraycopy(args, 0, newArgs, 1, args.length);
+                argsCopy = newArgs;
+            }
+
+            command.execute(sender, commandName, argsCopy);
+
+            // Delete the discord message if necessary (No way to delete, so make ephemeral)
+            if (command instanceof DiscordCommand && ((DiscordCommand) command).deleteOnUse())
+                sender.ephemeral(true);
+        });
+
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         Rank senderRank = Rank.getRank(event.getPlayer());
         if ((event.getMessage().startsWith("/minecraft:") && !senderRank.isStaff()) || event.getMessage().startsWith("/farlands:")) {
             event.setCancelled(true);
-            return;
-        }
-
-        if (event.getMessage().startsWith("/petblock") && event.getMessage().contains("rename") && MessageFilter.INSTANCE.isProfane(event.getMessage())) {
-            event.setCancelled(true);
-            event.getPlayer().sendMessage(ComponentColor.red("You cannot set your pet's name to that."));
             return;
         }
 
@@ -350,19 +488,16 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!(c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))))
-            logCommand(player, fullCommand, false);
+            logCommand(player, fullCommand, null);
         if (senderRank.specialCompareTo(Rank.MEDIA) >= 0 && shouldLog(c) &&
                 !COMMAND_LOG_BLACKLIST.contains(command.toLowerCase()))
             FarLands.getDiscordHandler().sendMessage(
                     DiscordChannel.COMMAND_LOG, event.getPlayer().getName() + ": " + fullCommand
             );
-        if (c == null)
-            return;
+        if (c == null) return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
-            if (shouldNotExecute(c, player))
-                return;
-            if (!c.canUse(player))
-                return;
+            if (shouldNotExecute(c, player)) return;
+            if (!c.canUse(player)) return;
             c.execute(player, command, args);
         });
 
@@ -385,7 +520,7 @@ public class CommandHandler extends Mechanic {
         // Notify staff of usage
         if (!((c != null && (CommandStaffChat.class.equals(c.getClass()) || CommandMessage.class.equals(c.getClass()) ||
                 CommandEditArmorStand.class.equals(c.getClass()))) || sender instanceof BlockCommandSender))
-            logCommand(sender, fullCommand, false);
+            logCommand(sender, fullCommand, null);
         if (c == null)
             return;
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
@@ -421,16 +556,42 @@ public class CommandHandler extends Mechanic {
 
     /**
      * Alert ingame staff when a command is run
-     * @param sender Sender of the command
+     * @param name Name of the sender
      * @param command Command to log
-     * @param fromDiscord Whether the command was sent from discord
+     * @param discordChannel Discord channel in which the message was sent -- null for in-game
      */
-    public void logCommand(CommandSender sender, String command, boolean fromDiscord) {
+    public void logCommand(String name, String command, @Nullable TextChannel discordChannel) {
+        TextColor col = NamedTextColor.GREEN;
+        if (discordChannel == null) {
+            col = NamedTextColor.RED;
+        } else if (discordChannel.getIdLong() == DiscordChannel.STAFF_COMMANDS.id()) {
+            col = NamedTextColor.DARK_AQUA;
+        }
         Logging.broadcastStaff(
-            Component.text(sender.getName() + ": ")
-                .color(fromDiscord ? NamedTextColor.GREEN : NamedTextColor.RED)
+            Component.text(name + ": ")
+                .color(col)
                 .append(ComponentColor.gray(command))
         );
+    }
+
+    /**
+     * Alert ingame staff when a command is run
+     * @param sender Sender of the command
+     * @param command Command to log
+     * @param discordChannel Discord channel in which the message was sent -- null for in-game
+     */
+    public void logCommand(CommandSender sender, String command, @Nullable TextChannel discordChannel) {
+        logCommand(sender.getName(), command, discordChannel);
+    }
+
+    /**
+     * Alert ingame staff when a command is run
+     * @param sender Sender of the command
+     * @param command Command to log
+     * @param discordChannel Discord channel in which the message was sent -- null for in-game
+     */
+    public void logCommand(OfflineFLPlayer sender, String command, @Nullable TextChannel discordChannel) {
+        logCommand(sender.username, command, discordChannel);
     }
 
     private final List<Class<? extends Command>> commandExcludes = List.of(
@@ -446,5 +607,9 @@ public class CommandHandler extends Mechanic {
     private boolean shouldLog(Command command) {
         return command == null || command.getMinRankRequirement().specialCompareTo(Rank.MEDIA) >= 0 &&
                 !commandExcludes.contains(command.getClass());
+    }
+
+    public List<SlashCommand> slashCommands() {
+        return slashCommands;
     }
 }

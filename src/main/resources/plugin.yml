@@ -6,3 +6,8 @@ authors: [xCassyx, Kishiko73, SuperAnimeBoi, funnyboy_roks, Majekdor]
 version: 4
 depend: [ChestShops, ProtocolLib, RegionProtection, Votifier, CoreProtect]
 loadbefore: [RegionProtection]
+libraries:
+  - net.dv8tion:JDA:5.0.0-beta.2
+  - org.openjdk.nashorn:nashorn-core:15.4
+  - com.squareup.moshi:moshi:1.14.0
+  - org.jetbrains:annotations:23.1.0

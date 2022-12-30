@@ -3,9 +3,11 @@ package net.farlands.sanctuary.data.struct;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.UserSnowflake;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.player.CommandHomes;
+import net.farlands.sanctuary.command.player.CommandStats;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
@@ -17,11 +19,14 @@ import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * All data related to a FarLands player.
  */
-public class OfflineFLPlayer {
+public class OfflineFLPlayer implements ComponentLike {
     public UUID uuid;
 
     public String lastIP;
@@ -574,14 +579,25 @@ public class OfflineFLPlayer {
         ChatHandler.chat(this, Component.text(prefix), ChatHandler.handleReplacements(message, this));
     }
 
+    public UserSnowflake discordUser() {
+        return UserSnowflake.fromId(this.discordID);
+    }
+
     public void unverifyDiscord() {
         if (this.isDiscordVerified()) {
             DiscordHandler dh = FarLands.getDiscordHandler();
-            dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(DiscordHandler.VERIFIED_ROLE)).queue();
-            dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(DiscordHandler.STAFF_ROLE)).queue();
+            dh.getGuild().removeRoleFromMember(this.discordUser(), dh.getRole(DiscordHandler.VERIFIED_ROLE)).queue();
+            dh.getGuild().removeRoleFromMember(this.discordUser(), dh.getRole(DiscordHandler.STAFF_ROLE)).queue();
             if (this.rank.specialCompareTo(Rank.DONOR) > 0) {
-                dh.getGuild().removeRoleFromMember(this.discordID, dh.getRole(this.rank.getName())).queue();
+                dh.getGuild().removeRoleFromMember(this.discordUser(), dh.getRole(this.rank.getName())).queue();
             }
         }
+    }
+
+    @Override
+    public @NotNull Component asComponent() {
+        return Component.text(this.username)
+            .color(this.rank.nameColor())
+            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(this, false)));
     }
 }

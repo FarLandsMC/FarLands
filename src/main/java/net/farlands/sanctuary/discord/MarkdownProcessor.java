@@ -2,9 +2,9 @@ package net.farlands.sanctuary.discord;
 
 import com.google.common.collect.ImmutableMap;
 import io.papermc.paper.text.PaperComponents;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatFormat;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;

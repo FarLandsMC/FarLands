@@ -43,14 +43,14 @@ public class CommandStats extends Command {
         }
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.updateAll(false); // Make sure our stats are fresh
-            if (sender instanceof DiscordSender) {
+            if (sender instanceof DiscordSender ds) {
                 Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, false, true);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setTitle("`" + flp.username + "`'s stats")
+                    .setTitle("Stats for `" + flp.username + "`")
                     .setColor(flp.getDisplayRank().color().value());
                 for (PlayerStat stat : PlayerStat.values()) {
                     Object value = playerInfoMap.getOrDefault(stat, "");
-                    String str = (value instanceof Component c) ? ComponentUtils.toText(c) : value.toString();
+                    String str = (value instanceof ComponentLike c) ? ComponentUtils.toText(c.asComponent()) : value.toString();
                     str = MarkdownProcessor.removeChatColor(str);
                     if (!str.isEmpty()) {
                         embedBuilder.addField(stat.humanName, str, false);
@@ -64,7 +64,7 @@ public class CommandStats extends Command {
                 }
 
 
-                ((DiscordSender) sender).getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                ds.sendMessageEmbeds(embedBuilder.build());
             } else {
                 sender.sendMessage(getFormattedStats(flp, isPersonal && sender instanceof Player));
             }
@@ -134,7 +134,7 @@ public class CommandStats extends Command {
 
         for (PlayerStat stat : PlayerStat.values()) {
             Object value = statsMap.getOrDefault(stat, "");
-            if (value != null) {
+            if (value != null && !value.toString().isEmpty()) {
                 builder.append(Component.newline())
                     .append(ComponentColor.gold(stat.humanName))
                     .append(ComponentColor.gold(": "))

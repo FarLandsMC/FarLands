@@ -80,7 +80,7 @@ public class CommandData {
         this.aliases = new ArrayList<>();
         this.requiresAlias = false;
         this.minimumRank = Rank.INITIATE;
-        this.rankCompare = BooleanOperation.OR;
+        this.rankCompare = BooleanOperation.AND;
         this.advancementsRequired = new ArrayList<>();
         this.craftedItemsRequired = new ArrayList<>();
         this.playedHoursRequired = 0;

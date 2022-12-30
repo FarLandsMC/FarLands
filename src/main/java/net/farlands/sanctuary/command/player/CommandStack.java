@@ -11,25 +11,25 @@ import com.kicas.rp.util.Pair;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.minecraft.world.level.block.entity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.bukkit.Material.*;
@@ -40,7 +40,7 @@ public class CommandStack extends PlayerCommand {
      * Items that do not unstack correctly when used in stacked format
      */
     private final static List<Material> UNSTACKABLES = Arrays.asList(
-            MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP, LAVA_BUCKET, WATER_BUCKET,
+            MUSHROOM_STEW, RABBIT_STEW, BEETROOT_SOUP, LAVA_BUCKET, WATER_BUCKET, POWDER_SNOW_BUCKET,
             PUFFERFISH_BUCKET, COD_BUCKET, SALMON_BUCKET, TROPICAL_FISH_BUCKET,
             ENCHANTED_BOOK, POTION
     );
@@ -104,10 +104,10 @@ public class CommandStack extends PlayerCommand {
         switch (args[0].toLowerCase()) {
             case "container": {
                 Block block = player.getTargetBlockExact(5);
-                TileEntity tileEntity;
+                BlockEntity tileEntity;
                 if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
-                        .getBlockEntity(new LocationWrapper(block.getLocation()).asBlockPosition(), true)) == null ||
-                        !ACCEPTED_CONTAINERS.contains(block.getType())) {
+                        .getBlockEntity(new LocationWrapper(block.getLocation()).asBlockPos(), true)) == null ||
+                    !ACCEPTED_CONTAINERS.contains(block.getType())) {
                     player.sendMessage(ComponentColor.red("Target block must be a chest or barrel"));
                     return true;
                 }
@@ -284,32 +284,25 @@ public class CommandStack extends PlayerCommand {
             player.sendMessage(
                 ComponentColor.red("The following ")
                     .append(
-                        Component.text("items")
-                            .style(Style.style(NamedTextColor.RED, TextDecoration.BOLD))
-                            .hoverEvent(
-                                HoverEvent.showText(
-                                    ComponentColor.gray(
-                                        warningsUnstack.stream()
-                                            .map(Enum::name)
-                                            .collect(Collectors.joining(" ")))
+                        ComponentUtils.hover(
+                            Component.text("items").style(Style.style(NamedTextColor.RED, TextDecoration.BOLD)),
+                            Component.join(
+                                    JoinConfiguration.separator(Component.space()),
+                                    warningsUnstack.stream()
+                                        .map(e -> Component.translatable(e.translationKey()))
+                                        .toList()
                                 )
-                            )
+                                .color(NamedTextColor.GRAY)
+                        )
                     )
+                    .append(ComponentColor.red(" should be "))
                     .append(
-                        ComponentColor.red(" should be ")
+                        ComponentUtils.hover(
+                            Component.text("unstacked before use").style(Style.style(NamedTextColor.RED, TextDecoration.BOLD)),
+                            ComponentColor.gray("These items are prone to deletion on use when stacked")
+                        )
                     )
-                    .append(
-                        Component.text("unstacked before use")
-                            .style(Style.style(NamedTextColor.RED, TextDecoration.BOLD))
-                            .hoverEvent(
-                                HoverEvent.showText(
-                                    ComponentColor.gray("These items are prone to deletion on use when stacked")
-                                )
-                            )
-                    )
-                    .append(
-                        ComponentColor.red(".")
-                    )
+                    .append(ComponentColor.red("."))
             );
             return false;
         }

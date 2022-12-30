@@ -2,6 +2,8 @@ package net.farlands.sanctuary.command.discord;
 
 import com.kicas.rp.util.Pair;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.DiscordCommand;
@@ -15,6 +17,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,13 +58,13 @@ public class CommandVerify extends DiscordCommand {
             Player player = flp.vanished ? null : flp.getOnlinePlayer();
             if (player == null) {
                 // Player not online
-                ds.getChannel().sendMessageEmbeds(
+                ds.sendMessageEmbeds(
                     new EmbedBuilder()
                         .setTitle("Please log onto our server and run the command again.")
                         .setDescription("**Server IP:** `farlandsmc.net`")
                         .setColor(NamedTextColor.GOLD.value())
                         .build()
-                ).queue();
+                );
                 return true;
             }
 
@@ -71,13 +74,13 @@ public class CommandVerify extends DiscordCommand {
                 && System.currentTimeMillis() - verificationMap.get(player.getUniqueId()).getSecond() < VERIFICATION_EXPIRATION_TIME
             ) {
                 // Verification is already pending
-                ds.getChannel().sendMessageEmbeds(
+                ds.sendMessageEmbeds(
                     new EmbedBuilder()
                         .setTitle("This player already has a verification pending.")
                         .setDescription("Make sure to run `/verify` in-game to complete your verification.")
                         .setColor(NamedTextColor.RED.value())
                         .build()
-                ).queue();
+                );
                 return true;
             }
 
@@ -88,13 +91,13 @@ public class CommandVerify extends DiscordCommand {
             );
 
             // Message the player on Discord
-            ds.getChannel().sendMessageEmbeds(
+            ds.sendMessageEmbeds(
                 new EmbedBuilder()
                     .setTitle("Verification pending.")
                     .setDescription("Please run `/verify` in-game to complete the verification.")
                     .setColor(NamedTextColor.GREEN.value())
                     .build()
-            ).queue();
+            );
 
             // Message the player in-game
             player.sendMessage(
@@ -127,13 +130,13 @@ public class CommandVerify extends DiscordCommand {
             // Tell them that they're verified
             success(player, "Account verified!");
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 5.0F, 1.0F);
-            data.getFirst().getChannel().sendMessageEmbeds(
+            data.getFirst().sendMessageEmbeds(
                 new EmbedBuilder()
                     .setTitle("Account verified!")
                     .setThumbnail(FLUtils.getHeadUrl(flp))
                     .setColor(NamedTextColor.GREEN.value())
                     .build()
-            ).queue();
+            );
         } else {
 
             error(sender, "You must use this command from in-game or discord.");
@@ -145,5 +148,11 @@ public class CommandVerify extends DiscordCommand {
     @Override
     public boolean requiresVerifiedDiscordSenders() {
         return false;
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false)
+            .addOption(OptionType.STRING, "username", "Your Minecraft Username", true, true);
     }
 }

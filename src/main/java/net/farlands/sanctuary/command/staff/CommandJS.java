@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.staff;
 
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordSender;
@@ -13,21 +14,22 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CommandJS extends Command {
 
-    private ScriptEngine engine;
+    private       ScriptEngine      engine;
+    private final Map<UUID, Object> lastResult;
 
-    private static final List<String> SELF_ALIAS = Arrays.asList("self", "sender");
+    private static final List<String> SELF_ALIAS  = Arrays.asList("self", "sender");
+    private static final String       FILE_PREFIX = "$$file$$";
 
     private void initJS() {
         // Setup class loading
@@ -36,10 +38,10 @@ public class CommandJS extends Command {
         currentThread.setContextClassLoader(FarLands.getInstance().getClass().getClassLoader());
 
         NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
-        engine = factory.getScriptEngine("--language=es6");
+        this.engine = factory.getScriptEngine("--language=es6");
 
         try {
-            engine.eval(new String(FarLands.getDataHandler().getResource("boot.js"), StandardCharsets.UTF_8)); // Load bootstrap script
+            this.engine.eval(new String(FarLands.getDataHandler().getResource("boot.js"), StandardCharsets.UTF_8)); // Load bootstrap script
         } catch (ScriptException | IOException e) {
             e.printStackTrace();
         } finally {
@@ -51,6 +53,7 @@ public class CommandJS extends Command {
     public CommandJS() {
         super(Rank.ADMIN, "Evaluate a JavaScript expression", "/js <expression>", "js");
         initJS();
+        this.lastResult = new HashMap<>();
     }
 
     @Override
@@ -59,20 +62,23 @@ public class CommandJS extends Command {
             return true;
         }
 
-        SELF_ALIAS.forEach(alias -> engine.put(alias, sender));
+        SELF_ALIAS.forEach(alias -> this.engine.put(alias, sender));
 
         try {
-            Object result = engine.eval(String.join(" ", args));
+            this.engine.put("_", this.lastResult.get(sender instanceof Player p ? p.getUniqueId() : null));
+            Object result = this.engine.eval(String.join(" ", args));
             String str = result + "";
-            if (str.startsWith("$$file$$")) {
+            if (str.startsWith(FILE_PREFIX)) {
                 str = str
-                    .replaceAll("^\\$\\$file\\$\\$", "")
+                    .substring(FILE_PREFIX.length())
                     .replaceAll("\\n", "\n");
                 boolean notebook = sendFile(sender, str);
                 if (notebook) {
                     success(sender, "Sent out as file to #scribes-notebook");
                 }
                 return true;
+            } else {
+                this.lastResult.put(sender instanceof Player p ? p.getUniqueId() : null, result);
             }
             Component component = Component.text(str);
             if (str.length() > 400) { // Limit to 400 characters
@@ -105,13 +111,15 @@ public class CommandJS extends Command {
     }
 
     private boolean sendFile(CommandSender sender, String s) {
-        MessageChannel channel = DiscordChannel.NOTEBOOK.getChannel();
+        TextChannel channel = DiscordChannel.NOTEBOOK.getChannel();
         if (sender instanceof DiscordSender ds) {
             channel = ds.getChannel();
         }
-        channel.sendFile(
-            new ByteArrayInputStream(s.getBytes()),
-            "js-output_" + sender.getName() + "_" + FLUtils.dateToString(System.currentTimeMillis(), "yyyy-MM-dd-ss") + "_.txt"
+        channel.sendFiles(
+            FileUpload.fromData(
+                s.getBytes(),
+                "js-output_" + sender.getName() + "_" + FLUtils.dateToString(System.currentTimeMillis(), "yyyy-MM-dd-ss") + "_.txt"
+            )
         ).queue();
         return !(sender instanceof DiscordSender);
     }

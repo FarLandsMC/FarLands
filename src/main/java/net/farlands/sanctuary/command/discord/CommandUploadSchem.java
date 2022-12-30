@@ -1,14 +1,19 @@
 package net.farlands.sanctuary.command.discord;
 
 import com.kicas.rp.util.Utils;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.command.DiscordCommand;
-import net.farlands.sanctuary.command.DiscordSender;
+import net.farlands.sanctuary.command.SlashCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.FileSystem;
 import net.farlands.sanctuary.util.Logging;
-import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,47 +21,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-public class CommandUploadSchem extends DiscordCommand {
+public class CommandUploadSchem extends SlashCommand {
+
     public CommandUploadSchem() {
-        super(Rank.BUILDER, "Upload a schematic file to the server.", "/uploadschem {add schematic as attachment}",
-                "uploadschem");
+        super(Commands
+                  .slash(
+                      "uploadschem",
+                      "Upload a schematic to WorldEdit"
+                  )
+                  .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.VIEW_AUDIT_LOGS))
+                  .addOption(OptionType.ATTACHMENT, "schematic", "Schematic to upload", true, false)
+        );
+        this.minRank = Rank.BUILDER;
     }
 
     @Override
-    public boolean execute(CommandSender sender, String[] args) {
-        if (!(sender instanceof DiscordSender)) {
-            return error(sender, "This command must be used from Discord");
-        }
+    public void execute(OfflineFLPlayer sender, @NotNull SlashCommandInteraction interaction) {
+        Message.Attachment attachment = interaction.getOption("schematic").getAsAttachment();
+        String fileName = attachment.getFileName();
 
-        // Locate the attachment
-        String channelId = args[0].substring(0, args[0].indexOf(':')), messageId = args[0].substring(args[0].indexOf(':') + 1);
-        Message message = FarLands.getDiscordHandler().getNativeBot().getTextChannelById(channelId).retrieveMessageById(messageId).complete();
-        List<Message.Attachment> attachments = message.getAttachments();
-        if (attachments.isEmpty()) {
-            return error(sender, "You must attach the schematic to the command message.");
-        }
-
-        String fileName = attachments.get(0).getFileName();
-
-        // They uploaded a zip file with multiple schematics, so unpack each one
-        if (fileName.endsWith("zip")) {
+        if (fileName.endsWith("zip")) { // Zip file was uploaded
             File attachmentDest = FarLands.getDataHandler().getTempFile(fileName);
 
-            if (attachmentDest.exists())
-                attachmentDest.delete();
+            if (attachmentDest.exists()) attachmentDest.delete();
 
             try {
-                attachmentDest = attachments.get(0).downloadToFile(attachmentDest).get();
+                attachmentDest = attachment.getProxy().downloadToFile(attachmentDest).get();
             } catch (InterruptedException | ExecutionException ex) {
                 Logging.error(ex);
                 ex.printStackTrace();
-                return error(sender, "Failed to upload schematics.");
+                throw new CommandException("Failed to upload schematics.");
             }
 
             // Unpack the zip
@@ -80,30 +79,21 @@ public class CommandUploadSchem extends DiscordCommand {
             } catch (IOException ex) {
                 Logging.error(ex);
                 ex.printStackTrace();
-                sender.sendMessage("Failed to upload schematics.");
-                return true;
+                throw new CommandException("Failed to upload schematics.");
             }
 
             attachmentDest.delete();
-            sender.sendMessage("Schematics uploaded.");
-        }
-        // Just one schematic was uploaded
-        else {
+            interaction.reply("Schematics uploaded.").queue();
+        } else {
             File dest = FileSystem.getFile(new File(System.getProperty("user.dir")), "plugins", "WorldEdit",
-                    "schematics", fileName);
+                                           "schematics", fileName);
 
-            if (dest.exists())
+            if (dest.exists()) {
                 dest.delete();
+            }
 
-            attachments.get(0).downloadToFile(dest);
-            sender.sendMessage("Schematic uploaded.");
+            attachment.downloadToFile(dest);
+            interaction.reply("Schematic uploaded.").queue();
         }
-
-        return true;
-    }
-
-    @Override
-    public boolean requiresMessageID() {
-        return true;
     }
 }

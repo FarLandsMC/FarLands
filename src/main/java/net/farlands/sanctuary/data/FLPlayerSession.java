@@ -306,17 +306,6 @@ public class FLPlayerSession {
         // Core Protect
         permissionAttachment.setPermission("coreprotect.inspect", handle.rank.isStaff());
         permissionAttachment.setPermission("coreprotect.lookup", handle.rank.isStaff());
-
-        // PetBlock stuff
-        permissionAttachment.setPermission("petblocks.admin.command.pets", handle.rank.specialCompareTo(Rank.MOD) >= 0);
-        permissionAttachment.setPermission("petblocks.admin.command.reload", handle.rank.specialCompareTo(Rank.ADMIN) >= 0);
-
-        boolean isSponsor = handle.rank.specialCompareTo(Rank.SPONSOR) >= 0;
-        permissionAttachment.setPermission("petblocks.command.use", isSponsor);
-        permissionAttachment.setPermission("petblocks.command.rename", isSponsor);
-        permissionAttachment.setPermission("petblocks.command.toggle", isSponsor);
-        permissionAttachment.setPermission("petblocks.command.call", isSponsor);
-        permissionAttachment.setPermission("petblocks.gui", isSponsor);
     }
 
     public void updatePlaytime() {

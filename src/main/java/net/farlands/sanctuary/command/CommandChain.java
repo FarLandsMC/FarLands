@@ -1,11 +1,13 @@
 package net.farlands.sanctuary.command;
 
 import com.kicas.rp.util.Pair;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -53,5 +55,10 @@ public class CommandChain extends Command {
             );
         }
         return true;
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return null;
     }
 }

@@ -1,25 +1,26 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.staff.CommandEntityCount;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandWhyLag extends Command {
     private static final double[] TPS_COLORING = {0.0, 10.0, 25.0, 50.0};
@@ -39,13 +40,13 @@ public class CommandWhyLag extends Command {
                 sender.sendMessage(ChatColor.RED + "You must be in-game to use this command.");
                 return true;
             }
-            CraftPlayer craftPlayer = args.length <= 1 ? (CraftPlayer) sender : (CraftPlayer) getPlayer(args[1], sender);
-            if (craftPlayer == null) {
+            Player player = args.length <= 1 ? (Player) sender : Bukkit.getPlayer(args[1]);
+            if (player == null) {
                 sendFormatted(sender, "&(red)Could not find player {&(gray)%0} in game", args[1]);
                 return true;
             }
-            int ping = (craftPlayer).getHandle().e; // EntityPlayer#e = EntityPlayer#ping
-            sender.sendMessage(ChatColor.GOLD + (args.length > 1 ? craftPlayer.getName() + "'s " : "Your ") + "ping: " +
+            int ping = player.getPing();
+            sender.sendMessage(ChatColor.GOLD + (args.length > 1 ? player.getName() + "'s " : "Your ") + "ping: " +
                     FLUtils.color(ping, PING_COLORING) + ping + "ms");
             return true;
         }
@@ -55,8 +56,8 @@ public class CommandWhyLag extends Command {
                 " (" + (int) (100.0 - percentLag) + "%), " + FLUtils.toStringTruncated(mspt) + "mspt");
         if ("tps".equals(args[0]))
             return true;
-        if (sender instanceof Player) {
-            int ping = ((CraftPlayer) sender).getHandle().e;
+        if (sender instanceof Player player) {
+            int ping = player.getPing();
             sender.sendMessage(ChatColor.GOLD + "Your ping: " + FLUtils.color(ping, PING_COLORING) + ping + "ms");
         }
         int flying = (int) Bukkit.getOnlinePlayers().stream().filter(Player::isGliding).count();
@@ -73,4 +74,22 @@ public class CommandWhyLag extends Command {
         return args.length <= 1 && "ping".equals(alias) ?
                 getOnlinePlayers(args.length == 0 ? "" : args[0], sender) : Collections.emptyList();
     }
+
+    @Override
+    public @NotNull List<SlashCommandData> discordCommands() {
+        List<SlashCommandData> cmds = this.defaultCommands(false);
+        cmds.stream()
+            .filter(cmd -> cmd.getName().equalsIgnoreCase("ping"))
+            .findFirst()
+            .ifPresent(ping -> ping.addOption(
+                           OptionType.STRING,
+                           "player-name",
+                           "Name of the player to check ping",
+                           true,
+                           true
+                       )
+            );
+        return cmds;
+    }
+
 }

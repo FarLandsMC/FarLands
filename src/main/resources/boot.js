@@ -161,4 +161,4 @@ const runTaskTimer = (callback, intervalMS) => {
     return Bukkit.getScheduler().runTaskTimer(plugin, callback, delayMS, delayMS);
 };
 
-const toFile = (string) => '$$file$$' + string
+const toFile = (string) => getField('FILE_PREFIX', fl.command.staff.CommandJS) + string

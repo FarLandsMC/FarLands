@@ -1,6 +1,6 @@
 package net.farlands.sanctuary.util;
 
-import net.minecraft.core.BlockPosition;
+import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -35,12 +35,12 @@ public class LocationWrapper {
         return new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
     }
 
-    public BlockPosition asBlockPosition() {
-        return new BlockPosition(x, y, z);
+    public BlockPos asBlockPos() {
+        return new BlockPos(x, y, z);
     }
 
-    public static BlockPosition asBlockPosition(Location location) {
-        return new BlockPosition(location.getX(), location.getY(), location.getZ());
+    public static BlockPos asBlockPos(Location location) {
+        return new BlockPos(location.getX(), location.getY(), location.getZ());
     }
 
     @Override

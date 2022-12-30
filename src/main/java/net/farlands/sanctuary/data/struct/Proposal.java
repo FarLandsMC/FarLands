@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.md_5.bungee.api.ChatColor;
@@ -18,17 +19,19 @@ public class Proposal {
     private String issuer;
     private transient boolean resolved;
 
-    public static final String VOTE_YES = "\u2705";
-    public static final String VOTE_NO = "\u274C";
+    public static final String VOTE_YES = "\u2705"; // ✅
+    public static final String VOTE_NO  = "\u274C"; // ❌
 
     private void init(String issuer) {
 
-        Message messageObj = FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK).sendMessage(
-                messageEmbed(message, issuer, ((staffCount() + 1) / 2))
-        ).complete();
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, "@everyone");
-        messageID = messageObj.getIdLong();
-        messageObj.addReaction(VOTE_YES).queue(unused -> messageObj.addReaction(VOTE_NO).queue());
+        FarLands.getDiscordHandler().getChannel(DiscordChannel.NOTEBOOK)
+            .sendMessage("@everyone")
+            .addEmbeds(messageEmbed(message, issuer, ((staffCount() + 1) / 2)))
+            .queue(m -> {
+                m.addReaction(Emoji.fromUnicode(VOTE_YES)).queue();
+                m.addReaction(Emoji.fromUnicode(VOTE_NO)).queue();
+                this.messageID = m.getIdLong();
+            });
     }
 
     public Proposal(String issuer, String message) {
@@ -50,13 +53,13 @@ public class Proposal {
             return;
         }
         int votesRequired = (staffCount() + 1) / 2;
-        MessageReaction yes = messageObj.getReactions().stream().filter(r -> VOTE_YES.equalsIgnoreCase(r.getReactionEmote().getName()))
+        MessageReaction yes = messageObj.getReactions().stream().filter(r -> VOTE_YES.equalsIgnoreCase(r.getEmoji().getName()))
                 .findAny().orElse(null);
-        MessageReaction no = messageObj.getReactions().stream().filter(r -> VOTE_NO.equalsIgnoreCase(r.getReactionEmote().getName()))
+        MessageReaction no = messageObj.getReactions().stream().filter(r -> VOTE_NO.equalsIgnoreCase(r.getEmoji().getName()))
                 .findAny().orElse(null);
         int yesVotes, noVotes;
         if (yes == null || yes.getCount() == 0) {
-            messageObj.addReaction(VOTE_YES).queue();
+            messageObj.addReaction(Emoji.fromUnicode(VOTE_YES)).queue();
             yesVotes = 0;
         } else {
             yesVotes = yes.getCount();
@@ -67,7 +70,7 @@ public class Proposal {
             }
         }
         if (no == null || no.getCount() == 0) {
-            messageObj.addReaction(VOTE_NO).queue();
+            messageObj.addReaction(Emoji.fromUnicode(VOTE_NO)).queue();
             noVotes = 0;
         } else {
             noVotes = no.getCount();
@@ -78,7 +81,7 @@ public class Proposal {
             }
         }
 
-        messageObj.editMessage(messageEmbed(message, issuer, (votesRequired - yesVotes))).queue();
+        messageObj.editMessageEmbeds(messageEmbed(message, issuer, (votesRequired - yesVotes))).queue();
 
         if (yesVotes >= votesRequired)
             resolve(0);

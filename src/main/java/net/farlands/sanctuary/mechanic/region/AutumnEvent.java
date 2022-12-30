@@ -13,14 +13,14 @@ import net.farlands.sanctuary.mechanic.RotatingMessages;
 import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.world.item.Items;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -3033,30 +3033,30 @@ public class AutumnEvent extends Mechanic {
     }
 
     static ItemStack skullItem(String owner, SkullData data) {
-        NBTTagCompound tag = new NBTTagCompound();
+        CompoundTag tag = new CompoundTag();
         if (data.name != null) {
-            NBTTagCompound display = new NBTTagCompound();
+            CompoundTag display = new CompoundTag();
             // TODO: unhack this
-            display.a("Name", "{\"text\":\"" + data.name + "\"}"); // NBTTagCompound#setString
-            NBTTagList lore = new NBTTagList();
+            display.putString("Name", "{\"text\":\"" + data.name + "\"}"); // CompoundTag#setString
+            ListTag lore = new ListTag();
             for (String line : data.lore)
-                lore.add(NBTTagString.a("{\"text\":\"" + line + "\"}"));
-            display.a("Lore", lore); // NBTTagCompound#set
-            tag.a("display", display); // NBTTagCompound#set
+                lore.add(StringTag.valueOf("{\"text\":\"" + line + "\"}"));
+            display.put("Lore", lore); // CompoundTag#set
+            tag.put("display", display); // CompoundTag#set
         }
-        NBTTagCompound skullOwner = new NBTTagCompound();
-        skullOwner.a("Id", owner); // NBTTagCompound#setString
-        NBTTagCompound properties = new NBTTagCompound();
-        NBTTagList textures = new NBTTagList();
-        NBTTagCompound textures_0 = new NBTTagCompound();
-        textures_0.a("Value", data.textures); // NBTTagCompound#setString
+        CompoundTag skullOwner = new CompoundTag();
+        skullOwner.putString("Id", owner); // CompoundTag#setString
+        CompoundTag properties = new CompoundTag();
+        ListTag textures = new ListTag();
+        CompoundTag textures_0 = new CompoundTag();
+        textures_0.putString("Value", data.textures); // NBTTagCompound#setString
         textures.add(textures_0);
-        properties.a("textures", textures); // NBTTagCompound#set
-        skullOwner.a("Properties", properties); // NBTTagCompound#set
-        tag.a("SkullOwner", skullOwner); // NBTTagCompound#set
+        properties.put("textures", textures); // NBTTagCompound#set
+        skullOwner.put("Properties", properties); // NBTTagCompound#set
+        tag.put("SkullOwner", skullOwner); // NBTTagCompound#set
         // TODO: 7/3/21 This player head item needs to be tested. It may not be the right item
-        net.minecraft.world.item.ItemStack dropCB = new net.minecraft.world.item.ItemStack(Items.pg, 1);
-        dropCB.b(tag); // ItemStack#setTag
+        net.minecraft.world.item.ItemStack dropCB = new net.minecraft.world.item.ItemStack(Items.PLAYER_HEAD, 1);
+        dropCB.setTag(tag); // ItemStack#setTag
         return CraftItemStack.asBukkitCopy(dropCB);
     }
 }

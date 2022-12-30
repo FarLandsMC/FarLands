@@ -4,8 +4,9 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.FLUtils;
-import org.bukkit.ChatColor;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -22,15 +23,18 @@ public class CommandPatchnotes extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         try {
             sender.sendMessage(
-                ChatColor.GOLD + "Showing notes for patch " + ChatColor.AQUA + "#" +
-                    FarLands.getDataHandler().getCurrentPatch() +
-                    ":\n" + ChatColor.GRAY +
-                    FLUtils.colorize(
+                ComponentColor.gray("").append(
+                    ComponentColor.gold("Showing notes for patch ")
+                        .append(ComponentColor.aqua("#%s", FarLands.getDataHandler().getCurrentPatch()))
+                        .append(Component.text(":\n"))
+                ).append(
+                    ComponentUtils.parse(
                         new String(
                             FarLands.getDataHandler().getResource("patchnotes.txt"),
                             StandardCharsets.UTF_8
                         )
                     )
+                )
 
             );
 

@@ -2,14 +2,21 @@ package net.farlands.sanctuary.command.staff;
 
 import com.google.common.collect.ImmutableMap;
 import com.kicas.rp.util.ReflectionHelper;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.DiscordCompleter;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -165,6 +172,52 @@ public class CommandEdit extends Command {
             default:
                 return Collections.emptyList();
         }
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return this.defaultCommand(false)
+            .addSubcommands(
+                new SubcommandData("player", "Edit playerdata")
+                    .addOption(OptionType.STRING, "username", "Name of the player", true, true)
+                    .addOption(OptionType.STRING, "player-field", "Field to get or edit", true, true)
+                    .addOption(OptionType.STRING, "new-value", "New value to use", false, false),
+                new SubcommandData("config", "Edit config options")
+                    .addOption(OptionType.STRING, "config-name", "Name of the config", true, true)
+                    .addOption(OptionType.STRING, "config-field", "Field to get or edit", true, true)
+                    .addOption(OptionType.STRING, "new-value", "New value to use", false, true)
+            )
+            .setDefaultPermissions(DefaultMemberPermissions.enabledFor(Permission.VIEW_AUDIT_LOGS));
+    }
+
+    @Override
+    public @Nullable Map<String, DiscordCompleter> discordAutocompletion() {
+        return ImmutableMap.of(
+            "edit",
+            (option, partial) -> {
+                try {
+                    return switch (option) {
+                        case "player-field" -> Arrays.stream(OfflineFLPlayer.class.getFields())
+                            .filter(field -> !Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
+                            .map(Field::getName).filter(name -> name.startsWith(partial))
+                            .filter(f -> RESTRICTED_FIELDS.getOrDefault(f, 0) < 2)
+                            .toArray(String[]::new);
+                        case "config-field" -> CONFIGS.values().stream()
+                            .map(Supplier::get)
+                            .flatMap(c -> Arrays.stream(c.getClass().getFields()))
+                            .filter(field -> !Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
+                            .map(Field::getName)
+                            .filter(name -> name.startsWith(partial))
+                            .filter(f -> RESTRICTED_FIELDS.getOrDefault(f, 0) < 2)
+                            .toArray(String[]::new);
+                        case "config-name" -> CONFIGS.keySet().stream().filter(config -> config.startsWith(partial)).toArray(String[]::new);
+                        default -> new String[0];
+                    };
+                } catch (InvalidFieldException ex) {
+                    return new String[0];
+                }
+            }
+        );
     }
 
     private static Object getTarget(String type, String name) { // Gets the target, returns null if it couldn't be found

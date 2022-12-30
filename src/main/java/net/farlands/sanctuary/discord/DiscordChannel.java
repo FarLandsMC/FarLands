@@ -1,6 +1,6 @@
 package net.farlands.sanctuary.discord;
 
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.farlands.sanctuary.FarLands;
 
 /**
@@ -28,9 +28,13 @@ public enum DiscordChannel {
     }
 
     /**
-     * Get the appropriate {@link MessageChannel} for the channel
+     * Get the appropriate {@link TextChannel} for the channel
      */
-    public MessageChannel getChannel() {
+    public TextChannel getChannel() {
         return FarLands.getDiscordHandler().getChannel(this);
+    }
+
+    public String toString() {
+        return "<#%s>".formatted(id());
     }
 }

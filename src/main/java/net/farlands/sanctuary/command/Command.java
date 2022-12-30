@@ -1,6 +1,9 @@
 package net.farlands.sanctuary.command;
 
 import com.kicas.rp.util.TextUtils;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -10,10 +13,12 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -143,6 +148,56 @@ public abstract class Command extends org.bukkit.command.Command {
 
     public Category getCategory() {
         return this.data.category();
+    }
+
+    /**
+     * @return The SlashCommand to be registered with Discord -- null for no command registration
+     */
+    public @Nullable SlashCommandData discordCommand() {
+        if (this.data.minimumRank().isStaff() || this.data.requiresAlias()) return null;
+        return defaultCommand(true);
+    }
+
+    /**
+     * @return A list of slash commands to be registered -- intended use is for aliases
+     */
+    public @NotNull List<SlashCommandData> discordCommands() {
+        if (this.discordCommand() != null || this.data.minimumRank().isStaff() || !this.data.requiresAlias()) return Collections.emptyList();
+        return defaultCommands(true);
+    }
+
+    /**
+     * @param defaultArgs If the command should have one option - "args"
+     * @return A single slash command representing this Command
+     */
+    protected @NotNull SlashCommandData defaultCommand(boolean defaultArgs) {
+        SlashCommandData cmd = Commands.slash(this.getName().toLowerCase(), this.description.substring(0, Math.min(this.description.length(), 100)));
+        if(!defaultArgs) return cmd;
+        return cmd.addOption(OptionType.STRING, "args", "Args for the command", false, false);
+    }
+
+
+
+    /**
+     * @return A list of slash commands to be registered -- optionally including args
+     */
+    protected @NotNull List<SlashCommandData> defaultCommands(boolean defaultArgs) {
+        return Stream.concat(
+                Stream.of(this.getName()),
+                this.data
+                    .aliases()
+                    .stream()
+            )
+            .map(a -> Commands.slash(a, this.description.substring(0, Math.min(this.description.length(), 100))))
+            .map(c -> defaultArgs ? c.addOption(OptionType.STRING, "args", "Args for the command", false, false) : c)
+            .toList();
+    }
+
+    /**
+     * @return Map<CommandName : (OptionName) -> String[]>
+     */
+    public @Nullable Map<String, DiscordCompleter> discordAutocompletion() {
+        return null;
     }
 
     protected void showUsage(CommandSender sender) {

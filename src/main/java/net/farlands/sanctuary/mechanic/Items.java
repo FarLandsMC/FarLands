@@ -5,7 +5,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FireworkBuilder;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -74,8 +74,8 @@ public class Items extends Mechanic {
             }
         }
 
-        NBTTagCompound nbt = FLUtils.getTag(arrow);
-        if (nbt != null && nbt.e("tntArrow")) { // hasKey
+        CompoundTag nbt = FLUtils.getTag(arrow);
+        if (nbt != null && nbt.contains("tntArrow")) { // hasKey
             // Infinity doesn't apply to these arrows
             if ((inv.getItemInMainHand().getType() == Material.BOW
                     ? inv.getItemInMainHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0
@@ -87,7 +87,7 @@ public class Items extends Mechanic {
                     arrow.setAmount(arrow.getAmount() - 1);
             }
 
-            tntArrows.put(event.getProjectile().getUniqueId(), new TNTArrow(nbt.p("tntArrow"))); // getCompound
+            tntArrows.put(event.getProjectile().getUniqueId(), new TNTArrow(nbt.getCompound("tntArrow"))); // getCompound
         }
     }
 
@@ -251,10 +251,10 @@ public class Items extends Mechanic {
         int duration;
         int type;
 
-        TNTArrow(NBTTagCompound nbt) {
-            this.strength = nbt.j("strength"); // getFloat
-            this.duration = nbt.e("duration") ? nbt.h("duration") : 15; // hasKey, getInt
-            this.type = nbt.e("type") ? nbt.h("type") : 0; // hasKey, getInt
+        TNTArrow(CompoundTag nbt) {
+            this.strength = nbt.getFloat("strength"); // getFloat
+            this.duration = nbt.contains("duration") ? nbt.getInt("duration") : 15; // hasKey, getInt
+            this.type = nbt.contains("type") ? nbt.getInt("type") : 0; // hasKey, getInt
         }
     }
 }

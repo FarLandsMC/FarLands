@@ -82,7 +82,7 @@ public class CommandCustomItem extends PlayerCommand {
                 return true;
             }
             case VP_REWARDS -> {
-                var gui = new VPRewardsGui();
+                VPRewardsGui gui = new VPRewardsGui();
                 gui.openGui(player);
                 player.sendMessage(ComponentColor.gold(
                     """

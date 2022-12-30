@@ -26,7 +26,7 @@ import org.bukkit.*;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -568,13 +568,13 @@ public class GeneralMechanics extends Mechanic {
                 if (sendBroadcast && nightSkip.isComplete()) {
                     nightSkip.reset();
                     Logging.broadcastFormatted(
-                        "<gold>%s more %s to sleep to skip the night.",
+                        "<!bold><gold>%s more %s to sleep to skip the night.",
                         false,
                         (required - sleeping) + "",
                         (required - sleeping) == 1 ? "player need" : "players needs");
                 }
             } else if (nightSkipTask == null) {
-                Logging.broadcastFormatted("<gold>Skipping the night...", false);
+                Logging.broadcastFormatted("<!bold><gold>Skipping the night...", false);
                 nightSkipTask = Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     World world = Bukkit.getWorld("world");
                     world.setTime(1000L);

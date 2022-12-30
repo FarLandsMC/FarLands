@@ -2,21 +2,23 @@ package net.farlands.sanctuary.mechanic;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedServerPing;
-import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo;
-import net.minecraft.world.level.EnumGamemode;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.world.level.GameType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -31,7 +33,9 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -52,28 +56,28 @@ public class Toggles extends Mechanic {
             }
         }), 0L, 40L);
 
-        // 🤷
+        // Update tab list to show all players in survival
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Play.Server.PLAYER_INFO) {
             @Override
             @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
-                PacketPlayOutPlayerInfo packet = (PacketPlayOutPlayerInfo) event.getPacket().getHandle();
-                PacketPlayOutPlayerInfo.EnumPlayerInfoAction action = (PacketPlayOutPlayerInfo.EnumPlayerInfoAction) ReflectionHelper
-                    .getFieldValue("a", packet.getClass(), packet);
-                if ((PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b.equals(action) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
-                     PacketPlayOutPlayerInfo.EnumPlayerInfoAction.a.equals(action)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
+                ClientboundPlayerInfoUpdatePacket packet = (ClientboundPlayerInfoUpdatePacket) event.getPacket().getHandle();
+                EnumSet<ClientboundPlayerInfoUpdatePacket.Action> action = packet.actions();
+                if ((action.contains(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
+                     action.contains(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
                     !Rank.getRank(event.getPlayer()).isStaff()) {
-                    List<PacketPlayOutPlayerInfo.PlayerInfoData> infoList = (List<PacketPlayOutPlayerInfo.PlayerInfoData>) ReflectionHelper.getFieldValue("b", packet.getClass(), packet);
+                    List<ClientboundPlayerInfoUpdatePacket.Entry> infoList = packet.entries();
                     for (int i = 0; i < infoList.size(); ++i) {
-                        PacketPlayOutPlayerInfo.PlayerInfoData currentInfoData = infoList.get(i);
-                        if (EnumGamemode.d == currentInfoData.c()) {
-                            // EnumGamemode.d = spectator and EnumGamemode.a = survival
-                            PacketPlayOutPlayerInfo.PlayerInfoData newInfoData = new PacketPlayOutPlayerInfo.PlayerInfoData(
-                                currentInfoData.a(),
-                                currentInfoData.b(),
-                                EnumGamemode.a,
-                                currentInfoData.d(),
-                                currentInfoData.e()
+                        ClientboundPlayerInfoUpdatePacket.Entry currentInfoData = infoList.get(i);
+                        if (GameType.SPECTATOR == currentInfoData.gameMode()) {
+                            ClientboundPlayerInfoUpdatePacket.Entry newInfoData = new ClientboundPlayerInfoUpdatePacket.Entry(
+                                event.getPlayer().getUniqueId(),
+                                currentInfoData.profile(),
+                                currentInfoData.listed(),
+                                currentInfoData.latency(),
+                                GameType.SURVIVAL,
+                                currentInfoData.displayName(),
+                                currentInfoData.chatSession()
                             );
                             infoList.set(i, newInfoData);
                         }
@@ -89,6 +93,16 @@ public class Toggles extends Mechanic {
                 WrappedServerPing ping = event.getPacket().getServerPings().read(0);
                 ping.setPlayersOnline((int) Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getOfflineFLPlayer)
                     .filter(flp -> !flp.vanished).count());
+                ping.setPlayers(
+                    Bukkit
+                        .getOnlinePlayers()
+                        .stream()
+                        .map(FarLands.getDataHandler()::getOfflineFLPlayer)
+                        .filter(flp -> !flp.vanished)
+                        .map(OfflineFLPlayer::getOnlinePlayer)
+                        .map(WrappedGameProfile::fromPlayer)
+                        .toList()
+                );
             }
         });
     }
@@ -189,16 +203,22 @@ public class Toggles extends Mechanic {
     }
 
     private static void showSpectators(Player player) {
+        ProtocolManager pm = ProtocolLibrary.getProtocolManager();
+        ClientboundPlayerInfoUpdatePacket packet = new ClientboundPlayerInfoUpdatePacket(
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, ((CraftPlayer) player).getHandle()
+        );
+
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             if (GameMode.SPECTATOR == player.getGameMode()) {
                 Bukkit.getOnlinePlayers()
                     .stream()
                     .filter(p -> Rank.getRank(p).isStaff())
-                    .forEach(p -> ((CraftPlayer) p).getHandle().b.a(
-                        new PacketPlayOutPlayerInfo(
-                            PacketPlayOutPlayerInfo.EnumPlayerInfoAction.b, ((CraftPlayer) player).getHandle()
-                        ))
-                    );
+                    .forEach(p -> {
+                        try {
+                            pm.sendServerPacket(p, PacketContainer.fromPacket(packet));
+                        } catch (InvocationTargetException ignored) {
+                        }
+                    });
             }
         });
     }

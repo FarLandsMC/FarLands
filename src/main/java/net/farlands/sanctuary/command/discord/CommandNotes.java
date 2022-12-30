@@ -18,8 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandNotes extends DiscordCommand {
     public CommandNotes() {
         super(Rank.JR_BUILDER, "View, clear, or add notes to a player.", "/notes <view|add|clear> <player> [note]", "notes");
@@ -53,7 +51,7 @@ public class CommandNotes extends DiscordCommand {
                             String[] parts = note.split(":");
                             eb.addField(parts[0], joinArgsBeyond(0, ":", parts), false);
                         });
-                        ((DiscordSender) sender).getChannel().sendMessage(eb.build()).queue();
+                        ((DiscordSender) sender).sendMessageEmbeds(eb.build());
                     } else {
                         sender.sendMessage(
                             ComponentColor.gold("Showing notes for ")

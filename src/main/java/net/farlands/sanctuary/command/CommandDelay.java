@@ -1,10 +1,12 @@
 package net.farlands.sanctuary.command;
 
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 public class CommandDelay extends Command {
     public CommandDelay() {
@@ -18,5 +20,10 @@ public class CommandDelay extends Command {
         long delay = TimeInterval.parseSeconds(args[0]) * 20L;
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> Bukkit.dispatchCommand(sender, joinArgsBeyond(0, " ", args)), delay);
         return true;
+    }
+
+    @Override
+    public @Nullable SlashCommandData discordCommand() {
+        return null;
     }
 }
