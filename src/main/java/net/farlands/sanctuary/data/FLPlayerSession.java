@@ -4,7 +4,6 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.*;
@@ -334,12 +333,12 @@ public class FLPlayerSession {
                     addAFKMessage(message);
                 }
                 // Give the packages and send the messages
-                final String message = packages.get(i).message();
-                if (message != null && !message.isEmpty()) {
+                final Component message = packages.get(i).message();
+                if (message != null) {
                     Component messageC = ComponentColor.gold("Item ")
                         .append(ComponentUtils.item(packages.get(i).item()))
-                        .append(ComponentColor.gold(" was sent with the following message "))
-                        .append(ChatHandler.handleReplacements(message, handle));
+                        .append(ComponentColor.gold(" was sent with the following message: "))
+                        .append(message);
                     player.sendMessage(messageC);
                     addAFKMessage(messageC);
                 }

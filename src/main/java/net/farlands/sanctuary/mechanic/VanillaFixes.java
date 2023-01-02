@@ -8,10 +8,8 @@ import com.kicas.rp.data.flagdata.EnumFilter;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import net.farlands.sanctuary.util.ComponentColor;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import net.farlands.sanctuary.util.FLUtils;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.LivingEntity;
@@ -19,15 +17,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Sittable;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -104,7 +106,9 @@ public class VanillaFixes extends Mechanic {
         final Location destination = event.getTo();
         final Region claim = RegionProtection.getDataManager().getHighestPriorityRegionAt(from);
 
-        if (from.getWorld().equals(destination.getWorld()) && from.distanceSquared(destination) < 100) return; // Less than 10 block distance doesn't need to warn
+        if (from.getWorld().equals(destination.getWorld()) && from.distanceSquared(destination) < 100) {
+            return; // Less than 10 block distance doesn't need to warn
+        }
 
         // Get all nearby pets from the teleport location
         final Collection<Tameable> nearbyPets = from.getNearbyLivingEntities(20.0)
@@ -177,5 +181,40 @@ public class VanillaFixes extends Mechanic {
             entity.teleport(destination);
             return true;
         }
+    }
+
+    /**
+     * Make it such that one can till Mycelium and Podzol blocks
+     * <p>
+     * https://bugs.mojang.com/browse/MC-8231
+     */
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        Action action = event.getAction();
+        if (
+            event.hasBlock()
+            && event.hasItem()
+            && action.isRightClick()
+            && event.getItem().getType().name().endsWith("_HOE")
+            && Set.of(Material.MYCELIUM, Material.PODZOL).contains(event.getClickedBlock().getType())
+        ) {
+            FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
+            if (!(flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags))) {
+                event.getPlayer().sendMessage(ComponentColor.red("You cannot use that here."));
+                return;
+            }
+
+            event.getClickedBlock().setType(Material.FARMLAND);
+            event.getPlayer().swingHand(event.getHand() == null ? EquipmentSlot.HAND : event.getHand());
+            event.getPlayer().playSound(
+                event.getClickedBlock().getLocation(),
+                Sound.ITEM_HOE_TILL,
+                SoundCategory.BLOCKS,
+                1,
+                1
+            );
+            FLUtils.damageItem(event.getItem(), 1);
+        }
+
     }
 }

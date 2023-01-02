@@ -96,7 +96,7 @@ public class CommandMail extends Command {
                 int index;
                 try {
                     // Multiply by five since we show five messages per page
-                    index = args.length == 1 ? 0 : (Integer.parseInt(args[1]) - 1) * 5;
+                    index = args.length == 1 ? 1 : Integer.parseInt(args[1]);
                 } catch (NumberFormatException ex) {
                     index = -1;
                 }
@@ -105,20 +105,13 @@ public class CommandMail extends Command {
                 pagination.addLines(ComponentLike.asComponents(senderFlp.mail));
 
                 int pages = pagination.numPages();
+                sender.sendMessage("Pages: " + pages);
 
-                if (index < 0) {
-                    return error(sender, "Invalid page number: %s", args[1]);
-                } else if (index > pagination.numPages()) {
-                    return error(sender, "Page number too big!");
+                if (index < 1 || index > pages) {
+                    return error(sender, "Invalid page number: %s", args.length == 1 ? 1 : args[1]);
                 }
 
                 pagination.sendPage(index, sender);
-
-//                MailMessage message;
-//                for (int i = index; i < Math.min(index + 5, senderFlp.mail.size()); ++i) {
-//                    message = senderFlp.mail.get(i);
-//                    sendMailMessage(sender, "From", ChatColor.GOLD, message.sender(), message.message());
-//                }
 
                 info(sender, "Clear your mail with /mail clear");
             }

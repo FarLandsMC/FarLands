@@ -1,7 +1,6 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
@@ -11,7 +10,7 @@ import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
-
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -80,13 +79,13 @@ public class CommandPackageAccept extends PlayerCommand {
                 .append(ComponentColor.aqua(lPackage.senderName()))
                 .append(ComponentColor.gold("."))
         );
-        final String message = lPackage.message();
-        if (message != null && !message.isEmpty()) {
+        Component message = lPackage.message();
+        if (message != null) {
             sender.sendMessage(
                 ComponentColor.gold("Item ")
                     .append(ComponentUtils.item(lPackage.item()))
-                    .append(ComponentColor.gold(" was sent with the following message "))
-                    .append(ComponentColor.aqua(message))
+                    .append(ComponentColor.gold(" was sent with the following message: "))
+                    .append(ComponentColor.aqua("").append(message))
             );
         }
         FLUtils.giveItem(sender, lPackage.item(), true);
@@ -98,8 +97,13 @@ public class CommandPackageAccept extends PlayerCommand {
         );
         OfflineFLPlayer packageSenderFlp = FarLands.getDataHandler().getOfflineFLPlayer(lPackage.senderUuid());
         FarLands.getDataHandler().addPackage(packageSenderFlp.uuid,
-                new Package(null, "FarLands Packaging Service",
-                        lPackage.item(), "Return To Sender", true)
+                new Package(
+                    null,
+                    "FarLands Packaging Service",
+                    lPackage.item(),
+                    Component.text("Return To Sender"),
+                    true
+                )
         );
         if (packageSenderFlp.isOnline()) {
             packageSenderFlp.getSession().givePackages();

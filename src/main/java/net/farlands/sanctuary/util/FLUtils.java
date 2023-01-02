@@ -30,12 +30,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -51,6 +53,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -962,5 +965,23 @@ public final class FLUtils {
         List<T> list = new ArrayList<>(initial);
         list.addAll(Arrays.asList(others));
         return Collections.unmodifiableList(list);
+    }
+
+    public static void damageItem(ItemStack item, int amount) {
+        if (!(item.getItemMeta() instanceof Damageable dmg)) return;
+        for (int i = 0; i < amount; ++i) {
+            double chance = 1 / (double) (item.getEnchantmentLevel(Enchantment.DURABILITY) + 1);
+            if (RNG.nextDouble() <= chance) dmg.setDamage(dmg.getDamage() + 1);
+        }
+        item.setItemMeta(dmg);
+        if (dmg.getDamage() >= item.getType().getMaxDurability()) item.setAmount(0);
+    }
+
+    public static <T> T tryOr(Supplier<T> supplier, T alternate) {
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            return alternate;
+        }
     }
 }

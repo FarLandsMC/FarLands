@@ -128,14 +128,14 @@ public class CommandPackageView extends Command {
             if (args.length >= 1 && !args[0].equalsIgnoreCase("all") && viewFlp.username.equalsIgnoreCase(username)) {
                 line.append(itemDisplay)
                     .append(ComponentColor.gold(" - "))
-                    .append(ComponentColor.green(lPackage.message()));
+                    .append(ComponentColor.green("").append(lPackage.message()));
 
             }
             if (args.length == 0 || args[0].equalsIgnoreCase("all")) {
                 line.append(
                         ComponentUtils.hover(
                             ComponentColor.aqua(packageSender.username),
-                            ComponentColor.aqua(lPackage.message())
+                            ComponentColor.aqua("").append(lPackage.message())
                         )
                     )
                     .append(ComponentColor.gold(": "))

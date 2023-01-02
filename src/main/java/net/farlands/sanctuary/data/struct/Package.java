@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.data.struct;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
@@ -10,17 +11,18 @@ import java.util.UUID;
  */
 public final class Package {
 
-    public static final int expirationTime = 1000 * 60 * 60 * 24 * 7;
-    private final UUID senderUuid;
-    private final String senderName;
-    private final ItemStack item;
-    private final String message;
-    private final long sentTime;
-    private final boolean forceSend;
+    public static final int       expirationTime = 1000 * 60 * 60 * 24 * 7;
+    private final       UUID      senderUuid;
+    private final       String    senderName;
+    private final       ItemStack item;
+    private final       Component message;
+    private final       long      sentTime;
+    private final       boolean   forceSend;
 
     /**
+     *
      */
-    public Package(UUID senderUuid, String senderName, ItemStack item, String message, long sentTime, boolean forceSend) {
+    public Package(UUID senderUuid, String senderName, ItemStack item, Component message, long sentTime, boolean forceSend) {
         this.senderUuid = senderUuid;
         this.senderName = senderName;
         this.item = item;
@@ -29,7 +31,7 @@ public final class Package {
         this.forceSend = forceSend;
     }
 
-    public Package(UUID senderUuid, String senderName, ItemStack item, String message, boolean forceSend) {
+    public Package(UUID senderUuid, String senderName, ItemStack item, Component message, boolean forceSend) {
         this(senderUuid, senderName, item, message, System.currentTimeMillis(), forceSend);
     }
 
@@ -50,7 +52,7 @@ public final class Package {
         return item;
     }
 
-    public String message() {
+    public Component message() {
         return message;
     }
 

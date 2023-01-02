@@ -1,9 +1,8 @@
 package net.farlands.sanctuary.command.player;
 
-import static com.kicas.rp.util.TextUtils.escapeExpression;
 import com.kicas.rp.util.Materials;
-
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -12,9 +11,8 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.PackageToggle;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
-
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -67,10 +65,12 @@ public class CommandPackage extends PlayerCommand {
             return true;
         }
 
-        // If the package has a message then grab it and apply color codes if the sender has chat colors
-        final String message = FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(0, " ", args)),
-              escapedMessage = escapeExpression(message);
-        final boolean useEscaped = !senderSession.handle.rank.isStaff();
+        String rawMessage = joinArgsBeyond(0, " ", args);
+        Component message = rawMessage.length() > 0
+            ? MiniMessageWrapper
+            .farlands(senderSession.handle)
+            .mmParse(joinArgsBeyond(0, " ", args))
+            : null;
 
         if (recipientFlp.packageToggle == PackageToggle.DECLINE || recipientFlp.getIgnoreStatus(sender).includesPackages()) {
             sender.sendMessage(ComponentColor.red("This player is not accepting packages."));
@@ -79,8 +79,14 @@ public class CommandPackage extends PlayerCommand {
 
         // Players can only queue one item at a time, so make sure this operation actually succeeds
         if (FarLands.getDataHandler().addPackage(recipientFlp.uuid,
-                new Package(sender.getUniqueId(), senderSession.handle.username,
-                item, useEscaped ? escapedMessage : message, false))
+                new Package(
+                    sender.getUniqueId(),
+                    senderSession.handle.username,
+                    item,
+                    message,
+                    false
+                )
+        )
         ) {
             sender.getInventory().setItemInMainHand(null);
             senderSession.setCommandCooldown(this, senderSession.handle.rank.getPackageCooldown() * 60L * 20L);

@@ -17,7 +17,9 @@ import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -615,7 +617,10 @@ public class DataHandler extends Mechanic {
                     uuid,
                     uuid == null ? "" : FarLands.getDataHandler().getOfflineFLPlayer(uuid).username,
                     FLUtils.itemStackFromNBT(packageNBT.getByteArray("item")),
-                    packageNBT.getString("message"),
+                    FLUtils.tryOr(
+                        () -> GsonComponentSerializer.gson().deserialize(packageNBT.getString("message")),
+                        Component.text(packageNBT.getString("message"))
+                    ),
                     packageNBT.getLong("sentTime"),
                     packageNBT.getBoolean("forceSend")
                 );
@@ -628,9 +633,15 @@ public class DataHandler extends Mechanic {
             });
             packages.put(UUID.fromString(entry.getKey()), pkgs);
         });
-        returnToSender.forEach(pkg -> addPackage(pkg.senderUuid(),
-                                                 new Package(null, "FarLands Packaging Service",
-                                                             pkg.item(), "Return To Sender", true)
+        returnToSender.forEach(pkg -> addPackage(
+            pkg.senderUuid(),
+            new Package(
+                null,
+                "FarLands Packaging Service",
+                pkg.item(),
+                Component.text("Return To Sender"),
+                true
+            )
         ));
     }
 
@@ -643,7 +654,7 @@ public class DataHandler extends Mechanic {
                     CompoundBinaryTag packageNBT = CompoundBinaryTag.builder()
                         .putString("sender", pkg.senderUuid() == null ? "" : pkg.senderUuid().toString())
                         .putByteArray("item", FLUtils.itemStackToNBT(pkg.item()))
-                        .putString("message", pkg.message())
+                        .putString("message", GsonComponentSerializer.gson().serialize(pkg.message()))
                         .putLong("sentTime", pkg.sentTime())
                         .putBoolean("forceSend", pkg.forceSend())
                         .build();

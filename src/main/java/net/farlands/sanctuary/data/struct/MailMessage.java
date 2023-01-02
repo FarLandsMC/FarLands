@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.data.struct;
 
+import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
@@ -60,6 +61,9 @@ public final class MailMessage implements ComponentLike {
 
     @Override
     public @NotNull Component asComponent() {
-        return this.message;
+        return Component.empty()
+            .append(FarLands.getDataHandler().getOfflineFLPlayer(this.sender))
+            .append(Component.text(": "))
+            .append(this.message);
     }
 }

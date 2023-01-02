@@ -100,11 +100,13 @@ public class CustomAdapters {
             try {
                 return GsonComponentSerializer.gson().deserialize(nickname);
             } catch (Exception ignored) {
-                return MiniMessageWrapper.legacy().toBuilder()
+                return MiniMessageWrapper.legacy()
+                    .toBuilder()
                     .preventLuminanceBelow(16)
                     .removeColors(true, NamedTextColor.BLACK)
                     .removeTextDecorations(TextDecoration.OBFUSCATED)
-                    .build().mmParse(nickname.replace("§", "&"));
+                    .build()
+                    .mmParse(nickname.replace("§", "&"));
             }
         }
 

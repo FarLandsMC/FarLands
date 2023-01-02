@@ -229,7 +229,7 @@ public abstract class Command extends org.bukkit.command.Command {
                 .collect(Collectors.toList());
     }
 
-    public static String joinArgsBeyond(int index, String delim, String[] args) {
+    public static @NotNull String joinArgsBeyond(int index, String delim, String[] args) {
         ++index;
         String[] data = new String[args.length - index];
         System.arraycopy(args, index, data, 0, data.length);

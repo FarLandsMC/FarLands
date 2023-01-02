@@ -95,7 +95,7 @@ public class CommandPurchase extends Command {
                             null,
                             "FarLands Staff",
                             FarLands.getDataHandler().getItem("patronCollectable"),
-                            "",
+                            null,
                             true
                         ));
                 }
