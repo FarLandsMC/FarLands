@@ -512,7 +512,7 @@ public class OfflineFLPlayer implements ComponentLike {
         return pendingSharehomes.remove(sender) != null;
     }
 
-    public void addMail(String sender, Component message) {
+    public void addMail(UUID sender, Component message) {
         mail.add(new MailMessage(sender, message));
 
         Player player = getOnlinePlayer();

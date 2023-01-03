@@ -83,7 +83,7 @@ public class CommandMail extends Command {
 
                 // Check for ignoring
                 if (!recipientFlp.getIgnoreStatus(senderFlp).includesChat()) {
-                    recipientFlp.addMail(sender.getName(), message);
+                    recipientFlp.addMail(senderFlp.uuid, message);
                 }
             }
             case READ -> {
@@ -92,7 +92,7 @@ public class CommandMail extends Command {
                     return info(sender, "You have no mail.");
                 }
 
-                // Try to parse the page number if it exists
+                  // Try to parse the page number if it exists
                 int index;
                 try {
                     // Multiply by five since we show five messages per page
@@ -130,6 +130,7 @@ public class CommandMail extends Command {
             Component.empty()
                 .append( // <To|From> <flp name>:
                     ComponentColor.darkGray(prefix)
+                        .append(Component.space())
                         .append(flp.getFullDisplayName(true))
                         .append(Component.text(": "))
                 )

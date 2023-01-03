@@ -8,21 +8,26 @@ import net.kyori.adventure.text.ComponentLike;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * A message being mailed.
  */
 public final class MailMessage implements ComponentLike {
 
-    public static final Component UNREAD_MAIL = ComponentColor.gold("You have mail. Read it with ").append(ComponentUtils.command("/mail read"));
-    private final       String    sender;
-    private final       Component message;
+    public static final       Component UNREAD_MAIL = ComponentColor.gold("You have mail. Read it with ").append(ComponentUtils.command("/mail read"));
+    private final @Deprecated String    sender;
+    private final             UUID      senderUUID;
+    private final             Component message;
 
     /**
      *
      */
-    public MailMessage(String sender, Component message) {
-        this.sender = sender;
+    public MailMessage(UUID sender, Component message) {
+        this.senderUUID = sender;
+        this.sender = FarLands.getDataHandler().getOfflineFLPlayer(sender) == null // Mainly just for backwards compatability with before `senderUUID` was added
+            ? "Unknown"
+            : FarLands.getDataHandler().getOfflineFLPlayer(sender).username;
         this.message = message;
     }
 
@@ -39,31 +44,46 @@ public final class MailMessage implements ComponentLike {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (MailMessage) obj;
-        return Objects.equals(this.sender, that.sender) &&
-               Objects.equals(this.message, that.message);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MailMessage that = (MailMessage) o;
+
+        if (!Objects.equals(sender, that.sender)) return false;
+        if (!Objects.equals(senderUUID, that.senderUUID)) return false;
+        return Objects.equals(message, that.message);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sender, message);
+        int result = this.sender != null ? this.sender.hashCode() : 0;
+        result = 31 * result + (this.senderUUID != null ? this.senderUUID.hashCode() : 0);
+        result = 31 * result + (this.message != null ? this.message.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
-        return "MailMessage[" +
-               "sender=" + sender + ", " +
-               "message=" + message + ']';
+        return "MailMessage{" +
+               "sender='" + sender + '\'' +
+               ", senderUUID=" + senderUUID +
+               ", message=" + message +
+               '}';
     }
 
     @Override
     public @NotNull Component asComponent() {
+        OfflineFLPlayer flp = senderUUID == null
+            ? FarLands.getDataHandler().getOfflineFLPlayer(this.sender)
+            : FarLands.getDataHandler().getOfflineFLPlayer(this.senderUUID);
         return Component.empty()
-            .append(FarLands.getDataHandler().getOfflineFLPlayer(this.sender))
+            .append(flp == null ? Component.text(this.sender == null ? "Unknown" : this.sender) : flp)
             .append(Component.text(": "))
             .append(this.message);
+    }
+
+    public UUID senderUUID() {
+        return this.senderUUID;
     }
 }

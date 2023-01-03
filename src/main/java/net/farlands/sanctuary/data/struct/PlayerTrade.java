@@ -102,7 +102,7 @@ public class PlayerTrade {
             if (mailSenders.add(clicker.getUniqueId())) {
                 clicker.sendMessage(ChatColor.GOLD + "The person offering this trade is offline, they will see that you " +
                         "would like to trade when they log back in.");
-                flp.addMail("Tradepost", ComponentColor.gold("%s would like to trade with you.", clicker.getName()));
+                flp.addMail(clicker.getUniqueId(), ComponentColor.green("[Tradepost] ").append(ComponentColor.gold("I would like to trade with you.")));
             }
             return;
         }
