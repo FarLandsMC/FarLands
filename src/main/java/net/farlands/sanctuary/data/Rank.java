@@ -38,10 +38,10 @@ public enum Rank implements ComponentLike {
 
     VOTER    ("Voter",    TextColor.color(0xff6213),   -1,  16, 3, 30, 7 ), // Same as Scholar
     BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1,  16, 3, 30, 7 ),
-    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1,  24, 2, 40, 6 ),
-    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1,  32, 0, 50, 3 ),
+    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE,       -1,  24, 2, 40, 6 ),
+    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,        -1,  32, 0, 50, 3 ),
     SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1,  40, 0, 50, 1 ),
-    MEDIA    ("Media",    NamedTextColor.YELLOW,       -1,  40, 0, 50, 1 ), // Same as Sponsor
+    MEDIA    ("Media",    NamedTextColor.YELLOW,             -1,  40, 0, 50, 1 ), // Same as Sponsor
 
     // Staff Ranks:
     // permissionLevel symbol color
@@ -50,9 +50,9 @@ public enum Rank implements ComponentLike {
     JR_DEV     (1, "Jr. Dev",     TextColor.color(0x0bbd9e) ),
     BUILDER    (2, "Builder",     TextColor.color(0x9000ff) ),
     MOD        (2, "Mod",         TextColor.color(0xdb1100) ),
-    ADMIN      (3, "Admin",       NamedTextColor.DARK_GREEN ),
+    ADMIN      (3, "Admin",       NamedTextColor.DARK_GREEN       ),
     DEV        (3, "Dev",         TextColor.color(0x09816b) ),
-    OWNER      (4, "Owner",       NamedTextColor.GOLD       );
+    OWNER      (4, "Owner",       NamedTextColor.GOLD             );
 
     private final NamedTextColor teamColor; // Determined from color
     private final TextColor      color;

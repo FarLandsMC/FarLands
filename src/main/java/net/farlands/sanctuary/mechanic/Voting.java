@@ -22,6 +22,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Comparator;
 
 /**
@@ -44,10 +46,25 @@ public class Voting extends Mechanic {
     @EventHandler
     public void onVote(VotifierEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(event.getVote().getUsername());
-        if (flp == null) // They need to have logged in before
-        {
+        if (flp == null) { // Player has not logged in before (current season or any other)
             return;
         }
+        if (flp.debugging) { // Show the vote if the player who voted is in debug mode
+            FarLands.getDebugger().echo(event.getVote().toString());
+        }
+        if (this.voteConfig.voteLinks.get(event.getVote().getServiceName()) == null) { // Vote service not in the configuration
+            FarLands.getDebugger().echo("Vote service not recognised: " + event.getVote());
+            return;
+        }
+        String url = this.voteConfig.voteLinks.get(event.getVote().getServiceName());
+        String host;
+
+        try {
+            host = new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            host = event.getVote().getServiceName();
+        }
+
         int currentMonth = FLUtils.getMonthInYear();
         if (currentMonth != this.pluginData.currentMonth) {
             this.pluginData.currentMonth = currentMonth;
@@ -59,8 +76,8 @@ public class Voting extends Mechanic {
         TextComponent.Builder builder = Component.text()
             .color(NamedTextColor.GOLD)
             .append(ComponentColor.aqua(flp.username))
-            .append(Component.text(" just voted "))
-            .append(ComponentUtils.link("here", this.voteConfig.voteLink, NamedTextColor.AQUA))
+            .append(Component.text(" just voted at "))
+            .append(ComponentUtils.link(host, url, NamedTextColor.AQUA))
             .append(Component.text(" and received a reward!"));
         if (this.pluginData.votesUntilParty > 0) {
             builder.append(ComponentColor.aqua(" " + this.pluginData.votesUntilParty))
@@ -69,8 +86,8 @@ public class Voting extends Mechanic {
         Logging.broadcastIngame(builder.build(), false);
 
         EmbedBuilder eb = new EmbedBuilder()
-            .setTitle(flp.username + " just voted here and received a reward!", this.voteConfig.voteLink)
-            .setColor(ChatColor.YELLOW.asBungee().getColor());
+            .setTitle(flp.username + " just voted at " + host + " and received a reward!", url)
+            .setColor(NamedTextColor.YELLOW.value());
 
         if (this.pluginData.votesUntilParty > 0) {
             eb.setDescription(this.pluginData.votesUntilParty + " more vote" + (this.pluginData.votesUntilParty == 1 ? "" : "s") + " until a vote party!");

@@ -81,13 +81,13 @@ public class Config {
         public int    votePartyRequirement; // Number of votes required for vote party
         public int    voteXPBoost; // XP Levels given on vote party
         public double votePartyDistribWeight; // "This is a factor into a complicated equation that manages how vote party items are selected."
-        public String voteLink; // Link to voting website
+        public Map<String, String> voteLinks; // Link to voting website
 
         public VoteConfig() {
             this.votePartyRequirement = 10;
             this.voteXPBoost = 5;
             this.votePartyDistribWeight = 0.75;
-            this.voteLink = "https://www.google.com/";
+            this.voteLinks = new HashMap<>();
         }
 
         public List<ItemStack> voteRewards() {

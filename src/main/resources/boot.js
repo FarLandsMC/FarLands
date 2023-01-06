@@ -99,6 +99,9 @@ const inventory = {
     },
 }
 
+const flConfig = DH.getConfig();
+const voteConfig = flConfig.voteConfig;
+
 // Helper Methods
 const uuid = java.util.UUID.fromString;
 
