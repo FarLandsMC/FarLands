@@ -42,7 +42,7 @@ public class ComponentUtils {
      */
     public static Component command(String command, TextColor color) {
         Component c = Component.text(command).color(color);
-        return command(command, c, ComponentColor.gray("Click to run"));
+        return command(command, c);
     }
 
     /**
@@ -52,7 +52,7 @@ public class ComponentUtils {
      * @param base    The base component
      */
     public static Component command(String command, Component base) {
-        return command(command, base, ComponentColor.gray("Click to run"));
+        return command(command, base, ComponentColor.gray("Run Command"));
     }
 
     /**
@@ -88,7 +88,7 @@ public class ComponentUtils {
      */
     public static Component suggestCommand(String command, String fillCommand, TextColor color) {
         Component c = Component.text(command).color(color);
-        return suggestCommand(fillCommand, c, ComponentColor.gray("Click to fill"));
+        return suggestCommand(fillCommand, c, ComponentColor.gray("Fill Command"));
     }
 
 
@@ -125,7 +125,7 @@ public class ComponentUtils {
     public static Component link(String baseText, String url, TextColor color) {
         Component c = Component.text(baseText).style(Style.style(color, TextDecoration.UNDERLINED));
         return c.clickEvent(ClickEvent.openUrl(url))
-            .hoverEvent(HoverEvent.showText(ComponentColor.gray("Click to open")));
+            .hoverEvent(HoverEvent.showText(ComponentColor.gray("Open Link")));
     }
 
     /**

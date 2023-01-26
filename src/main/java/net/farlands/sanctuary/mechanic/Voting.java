@@ -24,6 +24,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 
 /**
@@ -37,6 +41,28 @@ public class Voting extends Mechanic {
     public Voting() {
         this.pluginData = FarLands.getDataHandler().getPluginData();
         this.voteConfig = FarLands.getFLConfig().voteConfig;
+    }
+
+    @Override
+    public void onStartup() {
+
+        // Schedule a task to reset `votesToday` for every player every 24 hours starting at UTC midnight
+        LocalDateTime from = LocalDateTime.now(ZoneId.of("UTC"));
+        LocalDateTime to = LocalDate.now(ZoneId.of("UTC")).atTime(0, 0);
+
+        long seconds = ChronoUnit.SECONDS.between(from, to);
+        if (seconds < 0) to = to.plusDays(1); // If we are already past the time specified, go to the next day
+        seconds = ChronoUnit.SECONDS.between(from, to);
+
+        Bukkit.getScheduler().runTaskTimer( // Timer rather than delay for servers like the dev server, which don't restart daily
+            FarLands.getInstance(),
+            () -> {
+                FarLands.getDataHandler().getOfflineFLPlayers().forEach(flp -> flp.votesToday = 0);
+            },
+            seconds * 20, // Ticks before running for the first time
+            24 * 60 * 60 * 20 // 24 hours * 60 minutes * 60 seconds * 20 ticks (ticks in one day)
+        );
+
     }
 
     public int getVotesUntilParty() {
@@ -107,7 +133,7 @@ public class Voting extends Mechanic {
         OfflineFLPlayer actualTop = FarLands.getDataHandler().getOfflineFLPlayers().stream()
             .filter(flp -> !flp.rank.isStaff())
             .max(Comparator.<OfflineFLPlayer>
-                comparingInt(f -> f.monthVotes)
+                    comparingInt(f -> f.monthVotes)
                      .thenComparingInt(f1 -> f1.totalVotes)
                      .thenComparingInt(f2 -> f2.totalSeasonVotes))
             .orElse(null);

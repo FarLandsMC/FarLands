@@ -23,7 +23,7 @@ public class RotatingMessages extends Mechanic {
      * All messages that should be broadcast
      */
     private static final List<Message> DEFAULT_MESSAGES = new ArrayList<>(List.of(
-        /* Vote    */ new Message("<gold>Want to help support the server? Vote for us with <click:run_command:/vote><aqua>/vote</aqua></click>!"),
+        /* Vote    */ new Message(flp -> flp.votesToday < FarLands.getFLConfig().voteConfig.voteLinks.size(),"<gold>Want to help support the server? Vote for us with <click:run_command:/vote><aqua>/vote</aqua></click>!"),
         /* Donate  */ new Message("<gold>Want to help support the server? Donate to us with <click:run_command:/donate><aqua>/donate</aqua></click>!"),
         /* Discord */ new Message(flp -> !flp.isDiscordVerified(), "<gold>Type <click:open_url:" + FarLands.getFLConfig().discordInvite + "><aqua>/discord</aqua></click> to join our Discord!")
     ));

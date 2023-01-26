@@ -53,6 +53,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public int totalVotes;
     public int totalSeasonVotes;
     public int monthVotes;
+    public int votesToday;
     public int voteRewards;
     public int secondsPlayed;
     public int deaths;
@@ -106,6 +107,7 @@ public class OfflineFLPlayer implements ComponentLike {
         this.totalVotes = 0;
         this.totalSeasonVotes = 0;
         this.monthVotes = 0;
+        this.votesToday = 0;
         this.voteRewards = 0;
         this.secondsPlayed = 0;
         this.shops = -1;
@@ -245,6 +247,8 @@ public class OfflineFLPlayer implements ComponentLike {
         ++totalSeasonVotes;
         ++monthVotes;
 
+        ++this.votesToday;
+
         if (!acceptVoteRewards) {
             voteRewards = 0;
             return;
@@ -256,10 +260,6 @@ public class OfflineFLPlayer implements ComponentLike {
             session.player.sendMessage(ComponentColor.gold("Receiving 1 vote reward!"));
         } else
             ++voteRewards;
-    }
-
-    public void clearMonthVotes() {
-        monthVotes = 0;
     }
 
     public void addShop() {

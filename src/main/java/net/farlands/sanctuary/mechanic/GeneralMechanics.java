@@ -11,6 +11,7 @@ import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -21,7 +22,8 @@ import net.farlands.sanctuary.data.struct.SkullCreator;
 import net.farlands.sanctuary.gui.GuiVillagerEditor;
 import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.text.Component;
-import net.md_5.bungee.api.chat.BaseComponent;
+import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.Beehive;
 import org.bukkit.block.Block;
@@ -36,10 +38,7 @@ import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.event.player.PlayerBedEnterEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -52,16 +51,14 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.format;
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
- * General mechics that don't fit into other categories
+ * General mechanics that don't fit into other categories
  */
 public class GeneralMechanics extends Mechanic {
 
     private final Map<UUID, Player> fireworkLaunches;
-    private       BaseComponent[]   joinMessage;
+    private       Component   joinMessage;
 
     private static final List<EntityType> LEASHABLE_ENTITIES = List.of(
         EntityType.SKELETON_HORSE,
@@ -80,7 +77,7 @@ public class GeneralMechanics extends Mechanic {
 
     public GeneralMechanics() {
         this.fireworkLaunches = new HashMap<>();
-        this.joinMessage = new BaseComponent[0];
+        this.joinMessage = Component.empty();
         this.nightSkip = new Cooldown(200L);
         this.leashedEntities = new ArrayList<>();
         this.nightSkipTask = null;
@@ -89,8 +86,19 @@ public class GeneralMechanics extends Mechanic {
     @Override
     public void onStartup() {
         try {
-            joinMessage = format(FarLands.getDataHandler().getDataTextFile("join-message.txt"), FarLands.getFLConfig().discordInvite);
-        } catch (IOException ex) {
+            joinMessage = ComponentUtils.parse(FarLands.getDataHandler().getDataTextFile("join-message.txt"))
+                .replaceText(
+                    TextReplacementConfig
+                        .builder()
+                        .matchLiteral("$$DISCORD$$")
+                        .replacement(ComponentUtils.link(
+                            FarLands.getFLConfig().discordInvite,
+                            FarLands.getFLConfig().discordInvite,
+                            NamedTextColor.GRAY
+                        ))
+                        .build()
+                );
+        } catch (IOException | IllegalFormatException ex) {
             Logging.error("Failed to load join message!");
         }
 
@@ -112,9 +120,18 @@ public class GeneralMechanics extends Mechanic {
                 }), 0L, 100L);
     }
 
+    @EventHandler
+    public void onFLShutdown(FLShutdownEvent event) {
+        Bukkit.getOnlinePlayers()
+            .forEach(pl -> {
+
+                pl.kick(ComponentColor.gold("The server is restarting..."), PlayerKickEvent.Cause.RESTART_COMMAND);
+            });
+    }
+
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
-        player.spigot().sendMessage(joinMessage);
+        player.sendMessage(joinMessage);
 
         Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () ->
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.6929134F), 45L);
@@ -124,11 +141,15 @@ public class GeneralMechanics extends Mechanic {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.5F);
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
             if (!flp.viewedPatchnotes) {
-                sendFormatted(player, "&(gold)Patch {&(aqua)#%0} has been released! View changes with " +
-                                      "$(hovercmd,/patchnotes,{&(gray)Click to Run},&(aqua)/patchnotes)", FarLands.getDataHandler().getCurrentPatch());
+                player.sendMessage(
+                    ComponentColor.gold("Patch ")
+                        .append(ComponentColor.aqua("#%s", FarLands.getDataHandler().getCurrentPatch()))
+                        .append(ComponentColor.gold(" has been released! View changes with "))
+                        .append(ComponentUtils.command("/patchnotes"))
+                );
             }
             if (flp.birthday != null && flp.birthday.isToday()) {
-                sendFormatted(player, "&(gold)Happy Birthday!");
+                player.sendMessage(ComponentColor.gold("Happy Birthday"));
             }
             flp.updateDeaths(); // Just to be sure that deaths count is accurate
         }, 125L);
@@ -146,11 +167,14 @@ public class GeneralMechanics extends Mechanic {
                 }
             }, "<gold><bold> > </bold> Welcome <green>%s</green> to FarLands!", player.getName());
             player.chat("/chain {guidebook} {shovel}");
-            sendFormatted(player, "&(gold)Welcome to FarLands! Please read $(hovercmd,/rules,&(aqua)Click " +
-                                  "to view the server rules.,&(aqua)our rules) before playing. To get started, you can use " +
-                                  "$(hovercmd,/wild,&(aqua)Click to go to a random location.,&(aqua)/wild) to teleport to a " +
-                                  "random location on the map. Also, feel free to join our community on discord by clicking " +
-                                  "$(link,%0,&(aqua)here.)", FarLands.getFLConfig().discordInvite);
+            player.sendMessage(
+                ComponentColor.gold("Welcome to FarLands! Please read ")
+                    .append(ComponentUtils.command("/rules"))
+                    .append(ComponentColor.gold(" before playing. To get started, you can use "))
+                    .append(ComponentUtils.command("/wild"))
+                    .append(ComponentColor.gold(" to teleport to a random location on the map.  Also, feel free to join our community on Discord by clicking "))
+                    .append(ComponentUtils.link("here", FarLands.getFLConfig().discordInvite))
+            );
 
             Rank rank = Rank.getRank(player);
             if (rank == Rank.PATRON || rank == Rank.SPONSOR) {
@@ -288,11 +312,15 @@ public class GeneralMechanics extends Mechanic {
         if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_BLOCK &&
             event.getClickedBlock().getType() == Material.NETHER_PORTAL) {
             Location location = event.getClickedBlock().getLocation();
-            sendFormatted(player, "&(dark_purple)This portal best links to %0 in the %1.",
-                          location.getWorld().getName().equals("world") ?
-                              (location.getBlockX() >> 3) + " " + location.getBlockY() + " " + (location.getBlockZ() >> 3) :          // x / 8
-                              (location.getBlockX() << 3) + "(+7) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+7)",  // x * 8
-                          location.getWorld().getName().equals("world") ? "Nether" : "Overworld");
+            player.sendMessage(
+                ComponentColor.darkPurple(
+                    "This portal best links to %s in the %s.",
+                    location.getWorld().getName().equals("world") ?
+                        (location.getBlockX() >> 3) + " " + location.getBlockY() + " " + (location.getBlockZ() >> 3) :          // x / 8
+                        (location.getBlockX() << 3) + "(+7) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+7)",  // x * 8
+                    location.getWorld().getName().equals("world") ? "Nether" : "Overworld"
+                )
+            );
             return;
         }
 
