@@ -1,7 +1,6 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.util.Pair;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
@@ -13,7 +12,6 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
@@ -92,11 +90,14 @@ public class CommandRules extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
             if (sender instanceof DiscordSender ds) {
-                ds.sendMessageEmbeds(
-                    new EmbedBuilder()
-                        .setColor(NamedTextColor.YELLOW.value())
-                        .setTitle("View the rules in <#%s>".formatted(FarLands.getDiscordHandler().getNativeBot().getTextChannelsByName("rules", true).get(0).getId()))
-                        .build()
+                ds.sendMessage(
+                    "View the rules in <#%s>".formatted(
+                        FarLands.getDiscordHandler().getNativeBot()
+                            .getTextChannelsByName("rules", true)
+                            .get(0)
+                            .getId()
+                    ),
+                    false
                 );
                 return true;
             }
