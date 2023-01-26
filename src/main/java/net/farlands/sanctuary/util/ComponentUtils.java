@@ -4,6 +4,7 @@ import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -14,6 +15,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
+import java.util.Collection;
 
 /**
  * Utility class for creating/manipulating components
@@ -202,6 +204,44 @@ public class ComponentUtils {
      */
     public static Component hover(Component base, String hoverText) {
         return hover(base, Component.text(hoverText));
+    }
+
+    /**
+     * Create a single component from a list of {@link ComponentLike}s
+     * @param list The list to use
+     * @param separator The separator between each item of the list, save for the last one
+     * @param finalSeparator The separator between the final two items of the list, commonly used for ", and "
+     * @return The single joined component
+     */
+    public static Component join(Collection<? extends ComponentLike> list, String separator, String finalSeparator) {
+        return Component.join(
+            JoinConfiguration.separators(
+                Component.text(separator),
+                Component.text(finalSeparator)
+            ),
+            list
+        );
+    }
+
+    /**
+     * Create a single component from a list of {@link ComponentLike}s
+     * @param list The list to use
+     * @param separator The separator between each item of the list
+     * @return The single joined component
+     */
+    public static Component join(Collection<? extends ComponentLike> list, String separator) {
+        return join(list, separator, separator);
+    }
+
+    /**
+     * Create a single component from a list of {@link ComponentLike}s<br>
+     * Separator: ", "<br>
+     * Final Separator: " and " if the list is only two long, or ", and " if it's longer.
+     * @param list The list to use
+     * @return The single joined component
+     */
+    public static Component join(Collection<? extends ComponentLike> list) {
+        return join(list, ", ", list.size() == 2 ? " and " : ", and ");
     }
 
     /**

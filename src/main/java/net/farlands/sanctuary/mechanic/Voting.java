@@ -176,7 +176,10 @@ public class Voting extends Mechanic {
             .filter(player -> FarLands.getDataHandler().getOfflineFLPlayer(player).acceptVoteRewards)
             .forEach(player -> {
                 ItemStack stack = ItemReward.randomReward(this.voteConfig.votePartyRewards(), this.voteConfig.votePartyDistribWeight).getFirst();
-                player.sendMessage(ChatColor.GOLD + "Vote party! Receiving " + ChatColor.AQUA + FLUtils.itemName(stack));
+                player.sendMessage(
+                    ComponentColor.gold("Vote Party! Receiving ")
+                        .append(ComponentUtils.item(stack))
+                );
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.6929134F);
                 FLUtils.giveItem(player, stack, true);
             });

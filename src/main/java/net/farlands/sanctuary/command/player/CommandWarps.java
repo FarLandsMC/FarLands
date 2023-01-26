@@ -4,11 +4,12 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 public class CommandWarps extends PlayerCommand {
 
@@ -18,16 +19,20 @@ public class CommandWarps extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        TextComponent.Builder builder = Component.text()
-            .content("Warps: ")
-            .color(NamedTextColor.GOLD);
 
-        FarLands.getDataHandler().getPluginData().getWarpNames().stream()
+        List<Component> warps = FarLands.getDataHandler().getPluginData().getWarpNames().stream()
             .filter(name -> name.startsWith(args.length == 0 ? "" : args[0]))
-            .forEach(warp -> builder.append(
-                ComponentUtils.command("/warp " + warp)
-            ));
-        sender.sendMessage(builder.build());
+            .map(warp -> ComponentUtils.command(
+                "/warp " + warp,
+                ComponentColor.aqua(warp),
+                ComponentColor.gray("Teleport to warp"))
+            )
+            .toList();
+
+        sender.sendMessage(
+            ComponentColor.gold("Warps: ")
+                .append(ComponentUtils.join(warps))
+        );
 
         return true;
     }

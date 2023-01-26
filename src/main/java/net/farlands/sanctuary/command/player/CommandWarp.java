@@ -21,8 +21,11 @@ public class CommandWarp extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        if (args.length == 0)
-            return false;
+        if (args.length == 0) {
+            // Do this so that staff don't get the double command log of `/warp` and `/warps`
+            FarLands.getCommandHandler().getCommand(CommandWarps.class).execute(sender, new String[0]);
+            return true;
+        }
         Location warp = FarLands.getDataHandler().getPluginData().getWarp(args[0]);
         if (warp == null) {
             sender.sendMessage(ComponentColor.red("Warp not found. Did you spell it correctly?"));

@@ -124,7 +124,6 @@ public class GeneralMechanics extends Mechanic {
     public void onFLShutdown(FLShutdownEvent event) {
         Bukkit.getOnlinePlayers()
             .forEach(pl -> {
-
                 pl.kick(ComponentColor.gold("The server is restarting..."), PlayerKickEvent.Cause.RESTART_COMMAND);
             });
     }

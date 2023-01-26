@@ -440,15 +440,10 @@ public class DiscordHandler extends ListenerAdapter {
         ) {
             message = message.substring(0, 232).strip();
 
-            message += String.format(
-                "<gray>... View more on " +
-                "<click:open_url:%s>" +
-                "<hover:show_text:<gray>Click to open.>" +
-                "<aqua>Discord</aqua>" +
-                "</hover>" +
-                "</click>." +
-                "</gray>",
-                FarLands.getFLConfig().discordInvite
+            message += MiniMessage.miniMessage().serialize(
+                ComponentColor.gray("... View more on ")
+                    .append(ComponentUtils.link("Discord", FarLands.getFLConfig().discordInvite))
+                    .append(Component.text("."))
             );
 
             // Notify sender their message was too long
