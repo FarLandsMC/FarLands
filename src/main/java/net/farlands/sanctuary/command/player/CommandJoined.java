@@ -5,25 +5,16 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 public class CommandJoined extends Command {
-
-    private static final SimpleDateFormat SDF = new SimpleDateFormat("EEEE, MMMM d, yyyy \'at\' H:mm z");
-
-    static {
-        SDF.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
 
     public CommandJoined() {
         super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "See when a player first joined the server.", "/joined [player]", "joined");
@@ -31,14 +22,22 @@ public class CommandJoined extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        OfflineFLPlayer flp = args.length <= 0 ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
+        OfflineFLPlayer flp = args.length == 0 ? FarLands.getDataHandler().getOfflineFLPlayer(sender)
             : FarLands.getDataHandler().getOfflineFLPlayerMatching(args[0]);
+
         if (flp == null) {
-            sender.sendMessage(ComponentColor.gold("This player has never joined the server before."));
+            info(sender, "This player has never joined the server before.");
             return true;
         }
 
-        sender.sendMessage(ComponentColor.gold(flp.username + " joined on " + SDF.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed()))));
+        DateFormat sdf = SimpleDateFormat.getDateTimeInstance( // Some localisation can't hurt
+            DateFormat.FULL,
+            DateFormat.LONG,
+            sender instanceof Player player ? player.locale() : Locale.getDefault()
+        );
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        info(sender, "%s joined on %s", flp.username, sdf.format(new Date(Bukkit.getOfflinePlayer(flp.uuid).getFirstPlayed())));
         return true;
     }
 

@@ -13,6 +13,7 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +50,10 @@ public class CommandSharehome extends Command {
                     error(sender, "Usage: /sharehome decline <player>");
                 }
                 return true;
+            case "teleport":
+                if(!teleportHome(sender, args)) {
+                    error(sender, "Usage: /sharehome teleport <player>");
+                }
             default:
                 return false;
         }
@@ -148,13 +153,31 @@ public class CommandSharehome extends Command {
         return true;
     }
 
+    private boolean teleportHome(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            return false;
+        }
+
+        if(!(sender instanceof Player)) return error(sender, "You must be in-game to run this command.");
+
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        ShareHome shareHome = flp.pendingSharehomes.get(args[1]);
+
+        if (shareHome == null) {
+            return error(sender, "This player hasn't sent you a home.");
+        }
+
+        FLUtils.tpPlayer((Player) sender, shareHome.home().getLocation());
+        return true;
+    }
+
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         List<String> complete;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         switch(args.length) {
             case 1:
-                complete = Arrays.asList("send", "accept", "decline");
+                complete = Arrays.asList("send", "accept", "decline", "teleport");
                 break;
 
             case 2:

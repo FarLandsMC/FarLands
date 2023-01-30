@@ -8,8 +8,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPig;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -49,16 +47,10 @@ public class CommandSit extends PlayerCommand {
         seat.setSilent(true);
         seat.setInvulnerable(true);
         seat.setAI(false);
-        seat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1));
-        seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,         Integer.MAX_VALUE, 1));
+        seat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, true));
+        seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,         Integer.MAX_VALUE, 1, true));
 
-        // Throws error
-        //ReflectionHelper.setFieldValue("au", net.minecraft.world.entity.Entity.class,  // vehicle field is now au
-        //        ((CraftPlayer) sender).getHandle(), ((CraftPig) seat).getHandle());
-
-        // Seems to work?
-        ((CraftPlayer) sender).getHandle().startRiding(((CraftPig) seat).getHandle(), true);
-        ((CraftPig) seat).setPassenger(sender);
+        seat.addPassenger(sender);
 
         return true;
     }

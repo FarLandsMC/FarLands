@@ -13,10 +13,14 @@ import com.kicas.rp.util.Pair;
 import com.kicasmads.cs.event.ShopCreateEvent;
 import com.kicasmads.cs.event.ShopRemoveEvent;
 import com.kicasmads.cs.event.ShopTransactionEvent;
+import com.squareup.moshi.Types;
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import net.coreprotect.CoreProtect;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.pdc.JSONDataType;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
 import net.farlands.sanctuary.discord.DiscordChannel;
@@ -28,12 +32,15 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
@@ -42,12 +49,13 @@ import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.GrindstoneInventory;
 import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.projectiles.ProjectileSource;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.lang.reflect.ParameterizedType;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -255,10 +263,9 @@ public class Restrictions extends Mechanic {
         // Prevent portals forming in spawn
         if (event.getReason() == PortalCreateEvent.CreateReason.NETHER_PAIR
             && event.getBlocks()
-            .stream()
-            .map(block -> block.getBlock().getLocation())
-            .anyMatch(FLUtils::isInSpawn))
-        {
+                .stream()
+                .map(block -> block.getBlock().getLocation())
+                .anyMatch(FLUtils::isInSpawn)) {
             event.setCancelled(true);
         }
     }
@@ -449,4 +456,127 @@ public class Restrictions extends Mechanic {
             event.setCancelled(true);
         }
     }
+
+    @EventHandler
+    public void onEntityDamageEntity(EntityDamageByEntityEvent event) {
+        Entity damager = event.getDamager();
+        Entity target = event.getEntity();
+
+        if (
+            target instanceof ItemFrame frame // Target is an item frame
+            && frame.getItem().getType() == Material.ELYTRA // and the frame has elytra
+            && FLUtils.inEndCity(frame.getLocation()) // and in an end city
+            && (damager instanceof Projectile || damager instanceof Player) // and it was hit by a projectile or a player
+        ) {
+
+            Player player = damager instanceof Player p ? p : null; // Set player to the player or null if there was no player
+
+            if (damager instanceof Projectile proj) { // The item frame was hit by a projectile
+                ProjectileSource shooter = proj.getShooter();
+
+                if (shooter instanceof Player p) { // If the shooter was a player, use the player
+                    player = p;
+                } else { // Otherwise, find the closest player within 32 blocks of the projectile
+                    Location projloc = proj.getLocation();
+                    player = (Player) proj
+                        .getNearbyEntities(32, 32, 32)
+                        .stream()
+                        .filter(e -> e instanceof Player)
+                        .min(Comparator.comparingDouble(e -> e.getLocation().distanceSquared(projloc)))
+                        .orElse(null);
+                }
+            }
+
+
+            PersistentDataContainer pdc = frame.getPersistentDataContainer();
+            ParameterizedType setUuidType = Types.newParameterizedType(Set.class, UUID.class);
+            JSONDataType<Set> dataType = new JSONDataType<>(Set.class, setUuidType);
+
+            if (player != null) { // This should always be true, but who knows ¯\_(ツ)_/¯
+                if (player.getGameMode() == GameMode.CREATIVE) {
+                    return; // If the player is in creative, let them do as they wish
+                }
+                if (pdc.has(FLUtils.nsKey("placedbyplayer"))) {
+                    return; // Frame placed by player, so ignore it
+                }
+                OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+
+                // Get the "chessboard distance" from (0, 0)
+                // This is better than traditional distance as it makes it into a "square" shape, where both (25000, 25000) and (25000, 0) are 25000 blocks from the centre
+                double dist = FLUtils.chessboardDistance(player.getLocation(), player.getLocation().set(0, player.getLocation().y(), 0));
+                int max = (int) ((dist / 25000) * 100);
+
+                if (flp.elytrasObtained >= max) { // They cannot take the elytra
+                    Command.error(
+                        player,
+                        "You cannot collect more than %d elytras at this distance from main end island, you must go farther out." +
+                        "\nThis helps to make it fair to new players.",
+                        max
+                    );
+                    NamespacedKey takeAttempts = FLUtils.nsKey("takeattempts");
+                    event.setCancelled(true);
+                    Set<UUID> attempts = pdc.get(takeAttempts, dataType);
+                    FLUtils.smokeItemFrame(player, frame);
+                    if (
+                        attempts == null
+                        || !attempts.contains(flp.uuid)
+                    ) {
+                        Set<UUID> updated = new HashSet<>();
+                        if (attempts != null) updated.addAll(attempts);
+                        updated.add(flp.uuid);
+                        pdc.set(takeAttempts, dataType, updated);
+                        ItemStack stack = FarLands.getDataHandler().getItem("elytraLimitRocket", true);
+                        if (stack.getType() != Material.AIR) {
+                            Command.success(player, "Have a rocket to help!");
+                            FLUtils.giveItem(player, stack, true);
+                        }
+                    }
+                } else { // They can take the elytra
+                    flp.elytrasObtained += 1;
+                    NamespacedKey takenBy = FLUtils.nsKey("takenby");
+                    pdc.set(takenBy, PersistentDataType.STRING, flp.uuid.toString());
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Cancel Item Frames popping off in the end cities - for the elytra restriction
+     */
+    @EventHandler
+    public void onEntityDeath(HangingBreakEvent event) {
+        Entity entity = event.getEntity();
+        if (
+            event.getCause() != HangingBreakEvent.RemoveCause.ENTITY
+            && entity instanceof ItemFrame frame
+        ) {
+            Location frameLoc = frame.getLocation();
+            if (!FLUtils.inEndCity(frameLoc)) return;
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerChangeItemFrame(PlayerItemFrameChangeEvent event) {
+        ItemFrame frame = event.getItemFrame();
+        if (
+            event.getAction() == PlayerItemFrameChangeEvent.ItemFrameChangeAction.PLACE
+            && FLUtils.inEndCity(frame.getLocation())
+            && event.getPlayer().getGameMode() == GameMode.SURVIVAL
+        ) {
+            event.setCancelled(true);
+            FLUtils.smokeItemFrame(event.getPlayer(), frame);
+        }
+    }
+
+    @EventHandler
+    public void onItemFrame(HangingPlaceEvent event) {
+        Hanging entity = event.getEntity();
+        if (event.getPlayer() != null && event.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+            entity.getPersistentDataContainer()
+                .set(FLUtils.nsKey("spawnedByPlayer"), PersistentDataType.BYTE, (byte) 1);
+        }
+    }
+
 }

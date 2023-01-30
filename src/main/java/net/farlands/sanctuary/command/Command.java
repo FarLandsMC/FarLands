@@ -115,7 +115,7 @@ public abstract class Command extends org.bukkit.command.Command {
         return Collections.emptyList();
     }
 
-    public boolean matches(String command) { // Does this command math the given token?
+    public boolean matches(String command) { // Does this command match the given token?
         command = command.toLowerCase();
         return command.equalsIgnoreCase(getName()) || this.data.aliases().contains(command);
     }

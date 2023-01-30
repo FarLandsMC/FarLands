@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -32,7 +33,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.structure.Structure;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -41,6 +44,8 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
@@ -642,6 +647,20 @@ public final class FLUtils {
     }
 
     /**
+     * Provide a smoke effect (to show a failed interaction) coming out of an item frame
+     * @param player The player to receive the effect
+     * @param frame The origin for the smoke
+     */
+    public static void smokeItemFrame(Player player, ItemFrame frame) {
+        Block block = frame.getLocation().getBlock().getRelative(frame.getAttachedFace());
+        player.playEffect(
+            block.getLocation(),
+            Effect.SMOKE,
+            frame.getAttachedFace().getOppositeFace()
+        );
+    }
+
+    /**
      * Teleport a player to a location (gives temporary resistance)
      */
     public static void tpPlayer(final Player player, final Location location) {
@@ -967,6 +986,11 @@ public final class FLUtils {
         return Collections.unmodifiableList(list);
     }
 
+    /**
+     * Attempt to apply damage to the item, taking Unbreaking level into account
+     * @param item The item to apply the damage (this is mutated)
+     * @param amount The amount of damage to attempt to apply
+     */
     public static void damageItem(ItemStack item, int amount) {
         if (!(item.getItemMeta() instanceof Damageable dmg)) return;
         for (int i = 0; i < amount; ++i) {
@@ -977,11 +1001,43 @@ public final class FLUtils {
         if (dmg.getDamage() >= item.getType().getMaxDurability()) item.setAmount(0);
     }
 
+    /**
+     * Attempt a function or ignore the error by returning the provided alternate
+     */
     public static <T> T tryOr(Supplier<T> supplier, T alternate) {
         try {
             return supplier.get();
         } catch (Exception e) {
             return alternate;
         }
+    }
+
+    /**
+     * Create a new NamespacedKey with the FarLands namespace
+     * @param key The String to use.  <i>Note: Case insensitive</i>
+     * @return the key
+     */
+    @Contract("_ -> new")
+    public static NamespacedKey nsKey(@NotNull String key) {
+        return new NamespacedKey(FarLands.getInstance(), key);
+    }
+
+    /**
+     * Get the <a href="https://en.wikipedia.org/wiki/Chessboard_distance">chessboard distance</a> between two locations
+     */
+    public static double chessboardDistance(@NotNull Location a, @NotNull Location b) {
+        Preconditions.checkArgument(a.getWorld().equals(b.getWorld()), "Cannot find distance between locations in different worlds.");
+
+        return Math.max(Math.abs(a.x() - b.x()), Math.abs(a.y() - b.y()));
+    }
+
+    /**
+     * Check if the provided location is within an end city (Only sort-of accurate, as it checks within a radius of 1 chunk from the location)
+     * @param loc The location from which the search should happen
+     * @return If the location is in an end city
+     */
+    public static boolean inEndCity(Location loc) {
+        return Worlds.END.matches(loc.getWorld())
+               && loc.getWorld().locateNearestStructure(loc, Structure.END_CITY, 1, false) != null;
     }
 }

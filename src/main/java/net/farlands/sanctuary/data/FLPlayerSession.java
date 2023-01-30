@@ -178,6 +178,7 @@ public class FLPlayerSession {
         }
 
         if (!handle.username.equals(player.getName())) {
+            handle.formerUsernames.add(handle.username);
             handle.username = player.getName();
         }
 

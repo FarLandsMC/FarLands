@@ -155,10 +155,6 @@ public class CommandData {
         }
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
-        if (this.minimumRank.isStaff()) {
-            return flp.rank.isStaff();
-        }
-
         boolean rankMatches = flp.rank.specialCompareTo(this.minimumRank) >= 0;
 
         // If the sender is staff and in gmc ignore all requirements except rank

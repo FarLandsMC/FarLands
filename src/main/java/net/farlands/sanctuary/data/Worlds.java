@@ -2,6 +2,7 @@ package net.farlands.sanctuary.data;
 
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 
@@ -103,6 +104,17 @@ public enum Worlds {
             return worldCreator.createWorld();
         }
         return null;
+    }
+
+    /**
+     * Create a new location in the given world
+     * @param x The x component
+     * @param y The y component
+     * @param z The z component
+     * @return The new location
+     */
+    public Location getLocation(double x, double y, double z) {
+        return new Location(this.getWorld(), x, y, z);
     }
 
     @Override

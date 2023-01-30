@@ -42,6 +42,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public Component nickname;
     public String username;
     public String timezone;
+    public List<String> formerUsernames;
 
     public long discordID;
     public long lastLogin;
@@ -57,6 +58,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public int voteRewards;
     public int secondsPlayed;
     public int deaths;
+    public int elytrasObtained;
 
     public double amountDonated;
 
@@ -95,6 +97,8 @@ public class OfflineFLPlayer implements ComponentLike {
         this.lastIP = "";
         this.nickname = null;
         this.username = username;
+        this.formerUsernames = new ArrayList<>();
+
         this.timezone = "";
 
         this.discordID = 0;

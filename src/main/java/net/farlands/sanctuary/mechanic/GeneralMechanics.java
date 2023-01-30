@@ -25,17 +25,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
-import org.bukkit.block.Beehive;
-import org.bukkit.block.Block;
-import org.bukkit.block.ShulkerBox;
+import org.bukkit.block.*;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDropItemEvent;
-import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
@@ -66,6 +61,11 @@ public class GeneralMechanics extends Mechanic {
         EntityType.TURTLE,
         EntityType.PANDA,
         EntityType.FOX
+    );
+
+    private static final Set<Material> DRAGON_EGG_BREAKABLE = Set.of(
+        Material.BEDROCK,
+        Material.END_PORTAL_FRAME
     );
 
     private final Cooldown   nightSkip;
@@ -495,6 +495,14 @@ public class GeneralMechanics extends Mechanic {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerBedEnter(PlayerBedEnterEvent event) {
         updateNightSkip(true);
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
+        if (flp.homes.isEmpty()) {
+            flp.addHome("home", event.getPlayer().getBedSpawnLocation());
+            event.getPlayer().sendMessage(
+                ComponentColor.gold("Your home has been set at this location, you can return to it with ")
+                    .append(ComponentUtils.command("/home"))
+            );
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -685,6 +693,34 @@ public class GeneralMechanics extends Mechanic {
                         .append(rg.isRecentlyStolen());
                 });
                 FarLands.getDebugger().echo(sb.toString());
+        }
+    }
+
+    /**
+     * Handle Dragon Egg breaking bedrock and stuff
+     */
+    @EventHandler
+    public void onPistonRetract(BlockPistonRetractEvent event) {
+        if (event.getBlocks().isEmpty() || event.getBlocks().stream().noneMatch(b -> b.getPistonMoveReaction() == PistonMoveReaction.MOVE)) {
+            Block blockAbove = event.getBlock().getRelative(event.getDirection()).getRelative(BlockFace.UP);
+            if (blockAbove.getType() != Material.DRAGON_EGG) return;
+            Block toBreak = blockAbove.getRelative(BlockFace.DOWN, 2);
+            while (toBreak.getType().isAir() && toBreak.getY() >= toBreak.getWorld().getMinHeight()) {
+                toBreak = toBreak.getRelative(BlockFace.DOWN);
+            }
+            if (
+                DRAGON_EGG_BREAKABLE.contains(toBreak.getType())
+                && !( // Exit end portal
+                    Worlds.END.matches(toBreak.getWorld())
+                    && Math.abs(toBreak.getY()) <= 5
+                    && Math.abs(toBreak.getX()) <= 5
+                )
+                &&
+                toBreak.getY() > toBreak.getWorld().getMinHeight()
+            ) {
+                toBreak.breakNaturally(true);
+                blockAbove.setType(Material.AIR);
+            }
         }
     }
 }
