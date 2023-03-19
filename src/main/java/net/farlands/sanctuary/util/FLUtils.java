@@ -30,7 +30,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;

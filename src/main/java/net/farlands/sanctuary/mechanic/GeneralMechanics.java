@@ -26,7 +26,7 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.*;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
