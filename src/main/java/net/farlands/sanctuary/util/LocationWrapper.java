@@ -36,11 +36,11 @@ public class LocationWrapper {
     }
 
     public BlockPos asBlockPos() {
-        return new BlockPos(x, y, z);
+        return new BlockPos((int) x, (int) y, (int) z);
     }
 
     public static BlockPos asBlockPos(Location location) {
-        return new BlockPos(location.getX(), location.getY(), location.getZ());
+        return new BlockPos((int) location.getX(), (int) location.getY(), (int) location.getZ());
     }
 
     @Override

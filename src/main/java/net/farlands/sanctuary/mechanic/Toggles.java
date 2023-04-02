@@ -18,7 +18,7 @@ import net.minecraft.world.level.GameType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -63,8 +63,8 @@ public class Toggles extends Mechanic {
             public void onPacketSending(PacketEvent event) {
                 ClientboundPlayerInfoUpdatePacket packet = (ClientboundPlayerInfoUpdatePacket) event.getPacket().getHandle();
                 EnumSet<ClientboundPlayerInfoUpdatePacket.Action> action = packet.actions();
-                if ((action.contains(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE) || // EnumPlayerInfoAction.b = EnumPlayerInfoAction.UPDATE_GAME_MODE
-                     action.contains(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER)) && // EnumPlayerInfoAction.a = EnumPlayerInfoAction.ADD_PLAYER
+                if ((action.contains(ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE) ||
+                     action.contains(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER)) &&
                     !Rank.getRank(event.getPlayer()).isStaff()) {
                     List<ClientboundPlayerInfoUpdatePacket.Entry> infoList = packet.entries();
                     for (int i = 0; i < infoList.size(); ++i) {
@@ -214,10 +214,7 @@ public class Toggles extends Mechanic {
                     .stream()
                     .filter(p -> Rank.getRank(p).isStaff())
                     .forEach(p -> {
-                        try {
-                            pm.sendServerPacket(p, PacketContainer.fromPacket(packet));
-                        } catch (InvocationTargetException ignored) {
-                        }
+                        pm.sendServerPacket(p, PacketContainer.fromPacket(packet));
                     });
             }
         });

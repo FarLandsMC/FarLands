@@ -12,6 +12,12 @@
 .idea/
 **/.idea/
 
+# Eclipse Files
+.classpath
+.factorypath
+.project
+.settings/
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -43,3 +49,4 @@ srcold/
 
 # Maven Javadocs
 docs/
+

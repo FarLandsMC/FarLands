@@ -30,7 +30,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_19_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
@@ -376,11 +376,7 @@ public final class FLUtils {
 
                     pc.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunks[j].getX(), chunks[j].getZ()));
                     pc.getMultiBlockChangeInfoArrays().write(0, blockData);
-                    try {
-                        ProtocolLibrary.getProtocolManager().sendServerPacket(player, pc);
-                    } catch (InvocationTargetException ex) {
-                        ex.printStackTrace();
-                    }
+                    ProtocolLibrary.getProtocolManager().sendServerPacket(player, pc);
                 }
             }, delay);
             delay += 4;
@@ -396,22 +392,18 @@ public final class FLUtils {
             byChunk.computeIfAbsent(block.getChunk(), k -> new HashMap<>()).put(block, changes.get(block));
         }
 
-        try {
-            for (Chunk chunk : byChunk.keySet()) { // Send packets for the blocks modified in each chunk.
-                Map<Block, WrappedBlockData> send = byChunk.get(chunk);
-                PacketContainer pc = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
-                MultiBlockChangeInfo[] blockData = new MultiBlockChangeInfo[send.size()];
-                for (int i = 0; i < blockData.length; i++) {
-                    Block key = new ArrayList<>(send.keySet()).get(i);
-                    blockData[i] = new MultiBlockChangeInfo(key.getLocation(), send.get(key));
-                }
-
-                pc.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
-                pc.getMultiBlockChangeInfoArrays().write(0, blockData);
-                ProtocolLibrary.getProtocolManager().sendServerPacket(player, pc);
+        for (Chunk chunk : byChunk.keySet()) { // Send packets for the blocks modified in each chunk.
+            Map<Block, WrappedBlockData> send = byChunk.get(chunk);
+            PacketContainer pc = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
+            MultiBlockChangeInfo[] blockData = new MultiBlockChangeInfo[send.size()];
+            for (int i = 0; i < blockData.length; i++) {
+                Block key = new ArrayList<>(send.keySet()).get(i);
+                blockData[i] = new MultiBlockChangeInfo(key.getLocation(), send.get(key));
             }
-        } catch (InvocationTargetException ex) {
-            ex.printStackTrace();
+
+            pc.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
+            pc.getMultiBlockChangeInfoArrays().write(0, blockData);
+            ProtocolLibrary.getProtocolManager().sendServerPacket(player, pc);
         }
     }
 
