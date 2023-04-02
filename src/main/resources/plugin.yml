@@ -9,4 +9,4 @@ libraries:
   - net.dv8tion:JDA:5.0.0-beta.2
   - org.openjdk.nashorn:nashorn-core:15.4
   - com.squareup.moshi:moshi:1.14.0
-  - org.jetbrains:annotations:23.1.0
+  - org.jetbrains:annotations:24.0.1
