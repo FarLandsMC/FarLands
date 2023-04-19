@@ -295,6 +295,20 @@ public class Restrictions extends Mechanic {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
+        // Prevent players from placing collectable items in survival
+        if (
+            event.getItemInHand().isSimilar(FarLands.getDataHandler().getItem("patronCollectable"))
+            && event.getPlayer().getGameMode() != GameMode.CREATIVE
+        ) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage(
+                ComponentColor.red(
+                    "Collectables can not be placed%s.",
+                    Rank.getRank(event.getPlayer()).isStaff() ? " in survival mode" : ""
+                )
+            );
+        }
+
         if (
             "world_the_end".equals(event.getBlock().getWorld().getName()) && (
                 event.getBlockPlaced().getType() == Material.SLIME_BLOCK ||
