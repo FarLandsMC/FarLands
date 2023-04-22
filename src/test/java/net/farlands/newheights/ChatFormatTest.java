@@ -46,7 +46,7 @@ public class ChatFormatTest {
                         .color(NamedTextColor.AQUA)
                         .decorate(TextDecoration.UNDERLINED)
                         .clickEvent(ClickEvent.openUrl("https://google.com"))
-                        .hoverEvent(HoverEvent.showText(ComponentColor.gray("Click to open")))
+                        .hoverEvent(HoverEvent.showText(ComponentColor.gray("Open Link")))
                 )
                 .append(Component.text(" pog")),
             translateLinks(Component.text(string))
@@ -74,7 +74,7 @@ public class ChatFormatTest {
                         .color(NamedTextColor.AQUA)
                         .clickEvent(ClickEvent.suggestCommand("/afk"))
                         .hoverEvent(HoverEvent.showText(
-                            Component.text("Click to fill")
+                            Component.text("Fill Command")
                                 .color(NamedTextColor.GRAY)
                         ))
                 )
