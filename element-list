@@ -5,6 +5,7 @@ net.farlands.sanctuary.command.discord
 net.farlands.sanctuary.command.player
 net.farlands.sanctuary.command.staff
 net.farlands.sanctuary.data
+net.farlands.sanctuary.data.pdc
 net.farlands.sanctuary.data.struct
 net.farlands.sanctuary.discord
 net.farlands.sanctuary.gui
