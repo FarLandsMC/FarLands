@@ -31,7 +31,6 @@ Some are required for the plugin to work, these are marked with `*`
 - [NuVotifier](https://www.spigotmc.org/resources/nuvotifier.13449/)*
 - [HeadDatabase](https://www.spigotmc.org/resources/head-database.14280/)
 - [OpenInv](https://dev.bukkit.org/projects/openinv)
-- [PetBlocks](https://github.com/Shynixn/PetBlocks)
 - [WorldEdit](https://dev.bukkit.org/projects/worldedit)
 - [BuycraftX](https://www.spigotmc.org/resources/buycraftx-bungeecord.25191/)
 

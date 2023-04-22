@@ -11,6 +11,7 @@ import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FileSystem;
 import net.farlands.sanctuary.util.Logging;
@@ -21,6 +22,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -831,11 +833,19 @@ public class DataHandler extends Mechanic {
             e.printStackTrace();
         }
         players.forEach(flp -> {
-            flPlayerMap.put(flp.uuid, flp);
-            if (flp.deaths <= 0 && flp.secondsPlayed > 30 * 60) // Check players with less than 1 death and more than 30 minutes of playtime
-            {
+
+            // Reset the nickname if it contains any legacy codes since they break MiniMessage now
+            if (flp.nickname != null && ComponentUtils.toText(flp.nickname).contains(ChatColor.COLOR_CHAR + "")) {
+                flp.nickname = null;
+            }
+
+            // Check players with less than 1 death and more than 30 minutes of playtime
+            if (flp.deaths <= 0 && flp.secondsPlayed > 30 * 60) {
                 flp.updateDeaths();
             }
+
+            flPlayerMap.put(flp.uuid, flp);
+
             if (flp.isDiscordVerified()) {
                 discordMap.put(flp.discordID, flp);
             }
