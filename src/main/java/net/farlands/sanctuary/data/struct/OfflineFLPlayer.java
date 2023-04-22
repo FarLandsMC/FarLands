@@ -8,6 +8,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatHandler;
 import net.farlands.sanctuary.command.player.CommandHomes;
 import net.farlands.sanctuary.command.player.CommandStats;
+import net.farlands.sanctuary.command.player.CommandTimeZone;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
@@ -28,7 +29,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -536,14 +536,20 @@ public class OfflineFLPlayer implements ComponentLike {
      * @return the formatted time, null if no timezone set
      */
     public String currentTime() {
+        return this.currentTime(null);
+    }
+
+    /**
+     * Gets the formatted version of the player's current time
+     *
+     * @param sender The sender to format for (localisation) -- if not specified, will use system default
+     * @return the formatted time, null if no timezone set
+     */
+    public String currentTime(CommandSender sender) {
         if (this.timezone == null || this.timezone.isEmpty()) return null;
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a");
+        TimeZone tz = TimeZone.getTimeZone(this.timezone);
 
-        cal.setTimeZone(TimeZone.getTimeZone(this.timezone));
-        sdf.setTimeZone(cal.getTimeZone());
-
-        return sdf.format(cal.getTime());
+        return CommandTimeZone.getTime(tz, sender);
     }
 
     public void moveToSpawn() {

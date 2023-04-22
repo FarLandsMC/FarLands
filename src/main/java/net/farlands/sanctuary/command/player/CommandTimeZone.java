@@ -15,24 +15,28 @@ import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CommandTimeZone extends Command {
 
     public CommandTimeZone() {
         super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO,
-            "Register your time zone for others to see or view the current time in a timezone.",
-            "/timezone <register|get> <timezone>",
-            "timezone"
+              "Register your time zone for others to see or view the current time in a timezone.",
+              "/timezone <register|get> <timezone>",
+              "timezone"
         );
     }
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        if (args.length <= 1)
+        if (args.length <= 1) {
             return false;
+        }
 
         switch (args[0].toLowerCase()) {
 
@@ -67,7 +71,7 @@ public class CommandTimeZone extends Command {
                     return true;
                 }
 
-                sender.sendMessage(ComponentColor.gold("Current time in %s is %s", tz.getID(), getTime(tz)));
+                sender.sendMessage(ComponentColor.gold("Current time in %s is %s", tz.getID(), getTime(tz, sender)));
 
                 break;
             }
@@ -121,21 +125,16 @@ public class CommandTimeZone extends Command {
         return tz == null ? null : TimeZone.getTimeZone(tz);
     }
 
-    public static String getTime(TimeZone tz) {
+    public static String getTime(TimeZone tz, CommandSender sender) {
+        DateFormat sdf = SimpleDateFormat.getTimeInstance(
+            DateFormat.LONG,
+            sender instanceof Player player ? player.locale() : Locale.getDefault()
+        );
 
         Calendar cal = Calendar.getInstance();
 
         cal.setTimeZone(tz);
 
-        int hour = cal.get(Calendar.HOUR);
-        int min = cal.get(Calendar.MINUTE);
-
-        if (hour == 0) {
-            hour = 12;
-        }
-
-        String ampm = cal.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM";
-
-        return String.format("%d:%02d %s", hour, min, ampm);
+        return sdf.format(cal.getTime());
     }
 }
