@@ -10,6 +10,8 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent.ItemFrameChangeAction;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
@@ -40,6 +42,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
@@ -201,6 +204,39 @@ public class GeneralMechanics extends Mechanic {
 
         session.removeVanishPlaytime();
         updateNightSkip(true);
+    }
+
+    /**
+     * Make an item frame invis if it gets hit with a splash potion of invis and it has an item in it.
+     */
+    @EventHandler
+    public void onPotionSplash(PotionSplashEvent event) {
+        // Check if the potion is invis
+        boolean isInvis = event.getPotion()
+            .getEffects()
+            .stream()
+            .anyMatch(pe -> pe.getType().equals(PotionEffectType.INVISIBILITY));
+
+        if (isInvis) {
+            event.getEntity()
+                // Numbers for range from https://minecraft.fandom.com/wiki/Splash_Potion#Using
+                .getNearbyEntities(8.25 / 2, 4.25 / 2, 8.25 / 2)
+                .stream()
+                .filter(e -> e instanceof ItemFrame) // if it's an item frame
+                .map(e -> (ItemFrame) e)
+                .filter(f -> f.getItem().getType() != Material.AIR) // and if it has an item in them
+                .forEach(f -> f.setVisible(false)); // Then set it invisible
+        }
+    }
+
+    /**
+     * Make item frames visible when an item is removed from them
+     */
+    @EventHandler
+    public void onItemFrameChange(PlayerItemFrameChangeEvent event) {
+        if (event.getAction() == ItemFrameChangeAction.REMOVE) {
+            event.getItemFrame().setVisible(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
