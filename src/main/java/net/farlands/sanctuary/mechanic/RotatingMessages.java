@@ -25,7 +25,8 @@ public class RotatingMessages extends Mechanic {
     private static final List<Message> DEFAULT_MESSAGES = new ArrayList<>(List.of(
         /* Vote    */ new Message(flp -> flp.votesToday < FarLands.getFLConfig().voteConfig.voteLinks.size(),"<gold>Want to help support the server? Vote for us with <click:run_command:/vote><aqua>/vote</aqua></click>!"),
         /* Donate  */ new Message("<gold>Want to help support the server? Donate to us with <click:run_command:/donate><aqua>/donate</aqua></click>!"),
-        /* Discord */ new Message(flp -> !flp.isDiscordVerified(), "<gold>Type <click:open_url:" + FarLands.getFLConfig().discordInvite + "><aqua>/discord</aqua></click> to join our Discord!")
+        /* Discord */ new Message(flp -> !flp.isDiscordVerified(), "<gold>Type <click:open_url:" + FarLands.getFLConfig().discordInvite + "><aqua>/discord</aqua></click> to join our Discord!"),
+        /* 1.20    */ new Message("<gold><bold>The server will be resetting for <green>1.20</green>!</bold>\nSee the announcement on <click:run_command:/discord><aqua>/discord</aqua></click>!")
     ));
 
     private final Queue<Message> queue = new LinkedList<>(DEFAULT_MESSAGES); // Queue for cycling through messages
