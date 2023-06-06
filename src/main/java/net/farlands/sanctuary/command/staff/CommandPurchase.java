@@ -85,21 +85,37 @@ public class CommandPurchase extends Command {
         }
 
         if (rank != null && rank.specialCompareTo(flp.rank) > 0) {
-            if (rank == Rank.PATRON || (flp.rank != Rank.PATRON && rank == Rank.SPONSOR)) {
-                if (flp.isOnline()) {
-                    FLUtils.giveItem(flp.getOnlinePlayer(), FarLands.getDataHandler().getItem("patronCollectable"), false);
+            String[] collectables = { "donorCollectable", "patronCollectable", "sponsorCollectable" };
+            int rankI = switch(rank) {
+                case DONOR -> 0;
+                case PATRON -> 1;
+                case SPONSOR -> 2;
+                default -> -1;
+            };
+            int flpRankI = switch(flp.rank) {
+                case DONOR -> 0;
+                case PATRON -> 1;
+                case SPONSOR -> 2;
+                default -> -1;
+            };
+
+            final OfflineFLPlayer finalFlp = flp;
+            Arrays.stream(collectables).toList().subList(flpRankI + 1, rankI + 1).forEach(item -> {
+                if (finalFlp.isOnline()) {
+                    FLUtils.giveItem(finalFlp.getOnlinePlayer(), FarLands.getDataHandler().getItem(item), false);
                 } else {
                     FarLands.getDataHandler().addPackage(
-                        flp.uuid,
+                        finalFlp.uuid,
                         new Package(
                             null,
                             "FarLands Staff",
-                            FarLands.getDataHandler().getItem("patronCollectable"),
+                            FarLands.getDataHandler().getItem(item),
                             null,
                             true
                         ));
                 }
-            }
+
+            });
 
             flp.setRank(rank);
 
