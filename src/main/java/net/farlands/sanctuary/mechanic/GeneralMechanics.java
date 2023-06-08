@@ -28,7 +28,7 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.*;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftVillager;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 public class GeneralMechanics extends Mechanic {
 
     private final Map<UUID, Player> fireworkLaunches;
-    private       Component   joinMessage;
+    private       Component         joinMessage;
 
     private static final List<EntityType> LEASHABLE_ENTITIES = List.of(
         EntityType.SKELETON_HORSE,
@@ -522,7 +522,7 @@ public class GeneralMechanics extends Mechanic {
     public void onFireworkExplode(FireworkExplodeEvent event) {
         if (fireworkLaunches.containsKey(event.getEntity().getUniqueId())) {
             Player player = fireworkLaunches.get(event.getEntity().getUniqueId());
-            if (player.isValid()  && !Worlds.FARLANDS.matches(player.getWorld())) {
+            if (player.isValid() && !Worlds.FARLANDS.matches(player.getWorld())) {
                 player.setGliding(true);
             }
         }
@@ -564,7 +564,8 @@ public class GeneralMechanics extends Mechanic {
                         .forEach(e -> e.sendMessage(ComponentColor.gray("As the dragon dies, an egg forms below.")));
                 }, 15L * 20L);
             }
-            case VILLAGER -> FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
+            case VILLAGER ->
+                FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
         }
     }
 
