@@ -29,6 +29,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftVillager;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -261,15 +262,22 @@ public class GeneralMechanics extends Mechanic {
             event.setDropItems(false);
             ItemStack stack = new ItemStack(event.getBlock().getType());
             BlockStateMeta blockStateMeta = (BlockStateMeta) stack.getItemMeta();
-            String customName = ((ShulkerBox) event.getBlock().getState()).getCustomName();
-            if (customName != null && !customName.isEmpty()) {
-                blockStateMeta.setDisplayName(customName);
+            Component name = ((ShulkerBox) event.getBlock().getState()).customName();
+            if (name != null) {
+                blockStateMeta.displayName(name);
             }
             ShulkerBox blockState = (ShulkerBox) blockStateMeta.getBlockState();
             blockState.getInventory().setContents(((ShulkerBox) event.getBlock().getState()).getInventory().getContents());
             blockStateMeta.setBlockState(blockState);
             stack.setItemMeta(blockStateMeta);
             event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), stack);
+        }
+
+        if (
+            event.getPlayer().getActiveItem().containsEnchantment(Enchantment.SILK_TOUCH)
+            && event.getBlock().getType().name().startsWith("SUSPICIOUS_")
+        ) {
+            event.setDropItems(true);
         }
 
         // Exit a sitting player if the block below them is broken
