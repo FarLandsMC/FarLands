@@ -83,6 +83,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandBirthday());         // Initiate
         registerCommand(new CommandCensor());           // Initiate
         registerCommand(new CommandColors());           // Adept
+        registerCommand(new CommandConfig());           // Initiate
         registerCommand(new CommandCraft());            // Patron
         registerCommand(new CommandDelHome());          // Initiate
         registerCommand(new CommandDiscord());          // Initiate
