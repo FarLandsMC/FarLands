@@ -13,15 +13,12 @@ import java.util.*;
 /**
  * A collection of items.
  */
-public final class ItemCollection {
+public record ItemCollection(
+    Map<String, ItemStack> namedItems,
+    GameRewardSet gameRewardSet,
+    List<ItemReward> simpleRewards
+) {
 
-    private final Map<String, ItemStack> namedItems;
-    private final GameRewardSet gameRewardSet;
-    private final List<ItemReward> simpleRewards;
-
-    /**
-     *
-     */
     public ItemCollection(Map<String, ItemStack> namedItems, GameRewardSet gameRewardSet, List<ItemReward> simpleRewards) {
         this.namedItems = namedItems;
         this.gameRewardSet = gameRewardSet;
@@ -40,17 +37,6 @@ public final class ItemCollection {
         if (gameRewardSet != null) {
             gameRewardSet.giveReward(player);
         }
-    }
-
-    public Map<String, ItemStack> namedItems() {
-        return namedItems;
-    }
-
-    public GameRewardSet gameRewardSet() {
-        return gameRewardSet;
-    }
-    public List<ItemReward> simpleRewards() {
-        return simpleRewards;
     }
 
     public CompoundBinaryTag toNbt() {
@@ -78,7 +64,7 @@ public final class ItemCollection {
 
     public static ItemCollection fromNbt(CompoundBinaryTag nbt) {
         Map<String, ItemStack> namedItems = nbt.get("namedItems") != null ? new HashMap<>() : null;
-        if(namedItems != null) {
+        if (namedItems != null) {
             CompoundBinaryTag namedItemsNbt = (CompoundBinaryTag) nbt.get("namedItems");
             namedItemsNbt.keySet().forEach(k -> namedItems.put(k, FLUtils.itemStackFromNBT(namedItemsNbt.getByteArray(k))));
         }

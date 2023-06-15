@@ -5,21 +5,22 @@ import java.util.Arrays;
 /**
  * Handles player pronouns.
  */
-public class Pronouns {
-
-    public final SubjectPronoun subject;
-    public final ObjectPronoun object;
-
-    public boolean showOnDiscord;
-
-    public Pronouns(SubjectPronoun subject, ObjectPronoun object, boolean showOnDiscord) {
-        this.subject = subject;
-        this.object = object;
-        this.showOnDiscord = showOnDiscord;
-    }
+public record Pronouns(
+    SubjectPronoun subject,
+    ObjectPronoun object,
+    boolean showOnDiscord
+) {
 
     public Pronouns(SubjectPronoun subject, ObjectPronoun object) {
         this(subject, object, false);
+    }
+
+    public Pronouns withShowOnDiscord(boolean showOnDiscord) {
+        return new Pronouns(
+            this.subject,
+            this.object,
+            showOnDiscord
+        );
     }
 
     @Override
@@ -32,13 +33,13 @@ public class Pronouns {
             return null;
         }
         return parenthesis ? (
-                subject.hasNoObject() || object == null ?
-                        "(" + subject.getHumanName() + ")" :
-                        "(" + subject.getHumanName() + "/" + object.getHumanName() + ")"
+            subject.hasNoObject() || object == null ?
+                "(" + subject.getHumanName() + ")" :
+                "(" + subject.getHumanName() + "/" + object.getHumanName() + ")"
         ) : (
-                subject.hasNoObject() || object == null ?
-                        subject.getHumanName() :
-                        subject.getHumanName() + "/" + object.getHumanName()
+            subject.hasNoObject() || object == null ?
+                subject.getHumanName() :
+                subject.getHumanName() + "/" + object.getHumanName()
         );
     }
 
@@ -56,7 +57,7 @@ public class Pronouns {
 
         public static final SubjectPronoun[] VALUES = values();
 
-        private final String humanName;
+        private final String  humanName;
         private final boolean noObject; // If there is no object that goes with this subject, like "Other"
 
         SubjectPronoun(String humanName, boolean noObject) {
@@ -78,11 +79,11 @@ public class Pronouns {
 
         public static SubjectPronoun findByHumanName(String humanName) throws IllegalArgumentException {
             return Arrays.stream(VALUES)
-                    .filter(sp -> sp.getHumanName().equalsIgnoreCase(humanName))
-                    .findFirst()
-                    .orElseThrow(
-                            () -> new IllegalArgumentException("SubjectPronouns has no human name \"" + humanName + "\"")
-                    );
+                .filter(sp -> sp.getHumanName().equalsIgnoreCase(humanName))
+                .findFirst()
+                .orElseThrow(
+                    () -> new IllegalArgumentException("SubjectPronouns has no human name \"" + humanName + "\"")
+                );
 
         }
     }
@@ -111,11 +112,11 @@ public class Pronouns {
 
         public static ObjectPronoun findByHumanName(String humanName) throws IllegalArgumentException {
             return Arrays.stream(VALUES)
-                    .filter(op -> op.getHumanName().equalsIgnoreCase(humanName))
-                    .findFirst()
-                    .orElseThrow(
-                            () -> new IllegalArgumentException("ObjectPronouns has no human name \"" + humanName + "\"")
-                    );
+                .filter(op -> op.getHumanName().equalsIgnoreCase(humanName))
+                .findFirst()
+                .orElseThrow(
+                    () -> new IllegalArgumentException("ObjectPronouns has no human name \"" + humanName + "\"")
+                );
 
         }
     }

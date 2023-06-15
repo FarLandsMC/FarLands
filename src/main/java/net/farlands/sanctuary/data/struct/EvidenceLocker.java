@@ -9,15 +9,7 @@ import java.util.*;
 /**
  * A player evidence locker for storing items when a player has been punished.
  */
-public final class EvidenceLocker {
-
-    private final Map<String, List<ItemStack>> lockers;
-
-    /**
-     */
-    public EvidenceLocker(Map<String, List<ItemStack>> lockers) {
-        this.lockers = lockers;
-    }
+public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
 
     public EvidenceLocker(OfflineFLPlayer flp) {
         this(new HashMap<>());
@@ -54,10 +46,6 @@ public final class EvidenceLocker {
             nbt.put(key, serLocker);
         });
         return nbt.build();
-    }
-
-    public Map<String, List<ItemStack>> lockers() {
-        return lockers;
     }
 
     @Override

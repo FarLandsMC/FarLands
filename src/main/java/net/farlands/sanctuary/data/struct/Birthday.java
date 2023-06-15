@@ -6,9 +6,7 @@ import java.util.Calendar;
 /**
  * Represents a player birthday!
  */
-public class Birthday {
-    private final int month;
-    private final int day;
+public record Birthday(int month, int day) {
 
     public Birthday(int month, int day) {
         this.month = month - 1;
@@ -35,7 +33,7 @@ public class Birthday {
     public String toString() {
         return (month + 1) + "/" + day;
     }
-    
+
     /**
      * Formats the Birthday as month + Day
      *

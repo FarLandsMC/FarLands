@@ -175,7 +175,7 @@ public class OfflineFLPlayer implements ComponentLike {
                 return;
 
             boolean nickIsUser = username.equals(member.getNickname());
-            boolean pronounsEnabled = pronouns != null && pronouns.showOnDiscord;
+            boolean pronounsEnabled = pronouns != null && pronouns.showOnDiscord();
             boolean nickIsUserPronouns = pronounsEnabled && (username + " " + pronouns).equals(member.getNickname());
 
             if ((!nickIsUser && !pronounsEnabled) || (pronounsEnabled && !nickIsUserPronouns))
