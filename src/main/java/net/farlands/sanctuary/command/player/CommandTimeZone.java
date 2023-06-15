@@ -127,14 +127,12 @@ public class CommandTimeZone extends Command {
 
     public static String getTime(TimeZone tz, CommandSender sender) {
         DateFormat sdf = SimpleDateFormat.getTimeInstance(
-            DateFormat.LONG,
+            DateFormat.SHORT,
             sender instanceof Player player ? player.locale() : Locale.getDefault()
         );
 
-        Calendar cal = Calendar.getInstance();
+        sdf.setTimeZone(tz);
 
-        cal.setTimeZone(tz);
-
-        return sdf.format(cal.getTime());
+        return sdf.format(new Date());
     }
 }

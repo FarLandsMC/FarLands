@@ -608,6 +608,6 @@ public class OfflineFLPlayer implements ComponentLike {
     public @NotNull Component asComponent() {
         return Component.text(this.username)
             .color(this.rank.nameColor())
-            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(this, false)));
+            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(this, null, false)));
     }
 }

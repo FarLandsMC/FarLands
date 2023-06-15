@@ -201,7 +201,7 @@ public class ChatHandler {
         Component nameDisplay = sender.getDisplayName() // Colored Username or Nickname
             .hoverEvent(
                 HoverEvent.showText(
-                    CommandStats.getFormattedStats(sender, false)
+                    CommandStats.getFormattedStats(sender, null, false)
                 )
             ) // Hover Stats
             .clickEvent(
