@@ -132,6 +132,6 @@ public class ChatFormat {
     public static Component playerMention(OfflineFLPlayer flp) {
         return Component.text("@" + flp.username)
             .color(flp.rank.nameColor())
-            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(flp, false)));
+            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(flp, null, false)));
     }
 }

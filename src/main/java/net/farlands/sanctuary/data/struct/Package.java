@@ -9,27 +9,17 @@ import java.util.UUID;
 /**
  * Represents a package being sent to another player.
  */
-public final class Package {
+public record Package(
+    UUID senderUuid,
+    String senderName,
+    ItemStack item,
+    Component message,
+    long sentTime,
+    boolean forceSend
+) {
 
-    public static final int       expirationTime = 1000 * 60 * 60 * 24 * 7;
-    private final       UUID      senderUuid;
-    private final       String    senderName;
-    private final       ItemStack item;
-    private final       Component message;
-    private final       long      sentTime;
-    private final       boolean   forceSend;
+    public static final int expirationTime = 1000 * 60 * 60 * 24 * 7;
 
-    /**
-     *
-     */
-    public Package(UUID senderUuid, String senderName, ItemStack item, Component message, long sentTime, boolean forceSend) {
-        this.senderUuid = senderUuid;
-        this.senderName = senderName;
-        this.item = item;
-        this.message = message;
-        this.sentTime = sentTime;
-        this.forceSend = forceSend;
-    }
 
     public Package(UUID senderUuid, String senderName, ItemStack item, Component message, boolean forceSend) {
         this(senderUuid, senderName, item, message, System.currentTimeMillis(), forceSend);
@@ -38,30 +28,6 @@ public final class Package {
     // Forced packages do not expire or return to sender
     public boolean hasExpired() {
         return !forceSend && sentTime + expirationTime < System.currentTimeMillis();
-    }
-
-    public UUID senderUuid() {
-        return senderUuid;
-    }
-
-    public String senderName() {
-        return senderName;
-    }
-
-    public ItemStack item() {
-        return item;
-    }
-
-    public Component message() {
-        return message;
-    }
-
-    public long sentTime() {
-        return sentTime;
-    }
-
-    public boolean forceSend() {
-        return forceSend;
     }
 
     @Override
@@ -75,11 +41,6 @@ public final class Package {
                Objects.equals(this.message, that.message) &&
                this.sentTime == that.sentTime &&
                this.forceSend == that.forceSend;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(senderUuid, senderName, item, message, sentTime, forceSend);
     }
 
     @Override

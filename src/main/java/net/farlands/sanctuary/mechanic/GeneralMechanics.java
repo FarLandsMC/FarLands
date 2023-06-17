@@ -28,7 +28,8 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.*;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftVillager;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftVillager;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -56,7 +57,7 @@ import java.util.stream.Collectors;
 public class GeneralMechanics extends Mechanic {
 
     private final Map<UUID, Player> fireworkLaunches;
-    private       Component   joinMessage;
+    private       Component         joinMessage;
 
     private static final List<EntityType> LEASHABLE_ENTITIES = List.of(
         EntityType.SKELETON_HORSE,
@@ -261,15 +262,22 @@ public class GeneralMechanics extends Mechanic {
             event.setDropItems(false);
             ItemStack stack = new ItemStack(event.getBlock().getType());
             BlockStateMeta blockStateMeta = (BlockStateMeta) stack.getItemMeta();
-            String customName = ((ShulkerBox) event.getBlock().getState()).getCustomName();
-            if (customName != null && !customName.isEmpty()) {
-                blockStateMeta.setDisplayName(customName);
+            Component name = ((ShulkerBox) event.getBlock().getState()).customName();
+            if (name != null) {
+                blockStateMeta.displayName(name);
             }
             ShulkerBox blockState = (ShulkerBox) blockStateMeta.getBlockState();
             blockState.getInventory().setContents(((ShulkerBox) event.getBlock().getState()).getInventory().getContents());
             blockStateMeta.setBlockState(blockState);
             stack.setItemMeta(blockStateMeta);
             event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), stack);
+        }
+
+        if (
+            event.getPlayer().getActiveItem().containsEnchantment(Enchantment.SILK_TOUCH)
+            && event.getBlock().getType().name().startsWith("SUSPICIOUS_")
+        ) {
+            event.setDropItems(true);
         }
 
         // Exit a sitting player if the block below them is broken
@@ -522,7 +530,7 @@ public class GeneralMechanics extends Mechanic {
     public void onFireworkExplode(FireworkExplodeEvent event) {
         if (fireworkLaunches.containsKey(event.getEntity().getUniqueId())) {
             Player player = fireworkLaunches.get(event.getEntity().getUniqueId());
-            if (player.isValid()  && !Worlds.FARLANDS.matches(player.getWorld())) {
+            if (player.isValid() && !Worlds.FARLANDS.matches(player.getWorld())) {
                 player.setGliding(true);
             }
         }
@@ -564,7 +572,8 @@ public class GeneralMechanics extends Mechanic {
                         .forEach(e -> e.sendMessage(ComponentColor.gray("As the dragon dies, an egg forms below.")));
                 }, 15L * 20L);
             }
-            case VILLAGER -> FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
+            case VILLAGER ->
+                FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());
         }
     }
 

@@ -175,7 +175,7 @@ public class OfflineFLPlayer implements ComponentLike {
                 return;
 
             boolean nickIsUser = username.equals(member.getNickname());
-            boolean pronounsEnabled = pronouns != null && pronouns.showOnDiscord;
+            boolean pronounsEnabled = pronouns != null && pronouns.showOnDiscord();
             boolean nickIsUserPronouns = pronounsEnabled && (username + " " + pronouns).equals(member.getNickname());
 
             if ((!nickIsUser && !pronounsEnabled) || (pronounsEnabled && !nickIsUserPronouns))
@@ -608,6 +608,6 @@ public class OfflineFLPlayer implements ComponentLike {
     public @NotNull Component asComponent() {
         return Component.text(this.username)
             .color(this.rank.nameColor())
-            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(this, false)));
+            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(this, null, false)));
     }
 }

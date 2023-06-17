@@ -36,7 +36,6 @@ build/
 lib/
 out/
 run/
-test/
 target/
 
 # Mac specific metafile

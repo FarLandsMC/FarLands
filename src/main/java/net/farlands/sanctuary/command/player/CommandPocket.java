@@ -5,6 +5,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.Worlds;
+import net.farlands.sanctuary.mechanic.PocketMechanics;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import org.bukkit.Location;
@@ -22,14 +23,16 @@ public class CommandPocket extends PlayerCommand {
     @Override
     public boolean execute(Player sender, String[] args) {
         if(!Worlds.POCKET.enabled) {
-            error(sender, "The pocket world is not currently open");
-            return true;
+            return error(sender, "The pocket world is not currently open.");
+        }
+
+        if(PocketMechanics.locked) {
+            return error(sender, "The pocket world is currently locked, try again later.");
         }
 
         LocationWrapper spawn = FarLands.getDataHandler().getPluginData().pocketSpawn;
         if (spawn == null) {
-            error(sender, "Pocket world spawn not set! Please contact an owner, administrator, or developer and notify them of this problem.");
-            return true;
+            return error(sender, "Pocket world spawn not set! Please contact an owner, administrator, or developer and notify them of this problem.");
         }
 
         success(sender, "Teleported to the pocket world");

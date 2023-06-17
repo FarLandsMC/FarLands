@@ -751,6 +751,11 @@ public class DataHandler extends Mechanic {
         return FLUtils.getAndPutIfAbsent(deathDatabase, uuid, new ArrayList<>());
     }
 
+    private static final List<String> COLLECTABLES = List.of("donorCollectable", "patronCollectable", "sponsorCollectable");
+    public boolean isCollectable(ItemStack stack) {
+        return COLLECTABLES.stream().anyMatch(item -> this.getItem(item).isSimilar(stack));
+    }
+
     public ItemStack getItem(String key, boolean logMissing) {
         if (items.containsKey(key)) {
             return items.get(key);

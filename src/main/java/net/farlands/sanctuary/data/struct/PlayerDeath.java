@@ -16,23 +16,13 @@ import java.util.Objects;
 /**
  * Stores a player death.
  */
-public final class PlayerDeath {
-
-    private final long time;
-    private final Location location;
-    private final int xpLevels;
-    private final float xpPoints;
-    private final List<ItemStack> inventory;
-
-    /**
-     */
-    public PlayerDeath(long time, Location location, int xpLevels, float xpPoints, List<ItemStack> inventory) {
-        this.time = time;
-        this.location = location;
-        this.xpLevels = xpLevels;
-        this.xpPoints = xpPoints;
-        this.inventory = inventory;
-    }
+public record PlayerDeath(
+    long time,
+    Location location,
+    int xpLevels,
+    float xpPoints,
+    List<ItemStack> inventory
+) {
 
     public PlayerDeath(Player player) {
         this(
@@ -66,26 +56,6 @@ public final class PlayerDeath {
         return nbt.build();
     }
 
-    public long time() {
-        return time;
-    }
-
-    public Location location() {
-        return location;
-    }
-
-    public int xpLevels() {
-        return xpLevels;
-    }
-
-    public float xpPoints() {
-        return xpPoints;
-    }
-
-    public List<ItemStack> inventory() {
-        return inventory;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -96,11 +66,6 @@ public final class PlayerDeath {
                this.xpLevels == that.xpLevels &&
                Float.floatToIntBits(this.xpPoints) == Float.floatToIntBits(that.xpPoints) &&
                Objects.equals(this.inventory, that.inventory);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(time, location, xpLevels, xpPoints, inventory);
     }
 
     @Override

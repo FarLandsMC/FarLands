@@ -47,7 +47,7 @@ public class CommandStats extends Command {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             flp.updateAll(false); // Make sure our stats are fresh
             if (sender instanceof DiscordSender ds) {
-                Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, false, true);
+                Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, sender, false, true);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("Stats for `" + flp.username + "`")
                     .setColor(flp.getDisplayRank().color().value());
@@ -69,7 +69,7 @@ public class CommandStats extends Command {
 
                 ds.sendMessageEmbeds(embedBuilder.build());
             } else {
-                sender.sendMessage(getFormattedStats(flp, isPersonal && sender instanceof Player));
+                sender.sendMessage(getFormattedStats(flp, sender, isPersonal && sender instanceof Player));
             }
         });
         return true;
@@ -93,10 +93,11 @@ public class CommandStats extends Command {
      * </pre>
      *
      * @param flp         player to get data from
+     * @param requester   the command sender to use for locale purposes
      * @param showDonated Whether to show amount of money donated
      * @return the properly formatted text
      */
-    public static Map<PlayerStat, Object> playerInfoMap(OfflineFLPlayer flp, boolean showDonated, boolean showTimezone) {
+    public static Map<PlayerStat, Object> playerInfoMap(OfflineFLPlayer flp, @Nullable CommandSender requester, boolean showDonated, boolean showTimezone) {
         Map<PlayerStat, Object> statsMap = new HashMap<>();
 
         if (flp.nickname != null) {
@@ -116,7 +117,7 @@ public class CommandStats extends Command {
         }
         if (showTimezone && flp.timezone != null && !flp.timezone.isEmpty()) {
             statsMap.put(PlayerStat.TIMEZONE, ComponentColor.aqua(flp.timezone + "(")
-                .append(ComponentColor.green(flp.currentTime()))
+                .append(ComponentColor.green(flp.currentTime(requester)))
                 .append(ComponentColor.aqua(")"))
             );
         }
@@ -147,8 +148,8 @@ public class CommandStats extends Command {
         return builder.build();
     }
 
-    public static Component getFormattedStats(OfflineFLPlayer flp, boolean showDonated) {
-        return formatStats(playerInfoMap(flp, showDonated, true), flp);
+    public static Component getFormattedStats(OfflineFLPlayer flp, @Nullable CommandSender requester,  boolean showDonated) {
+        return formatStats(playerInfoMap(flp, requester, showDonated, true), flp);
     }
 
     @Override

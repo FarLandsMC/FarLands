@@ -17,7 +17,6 @@ import java.util.UUID;
  */
 public final class Home extends LocationWrapper {
 
-
     private String name;
 
     public Home(String name, UUID world, double x, double y, double z, float yaw, float pitch) {

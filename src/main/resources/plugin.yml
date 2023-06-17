@@ -1,12 +1,12 @@
 api-version: 1.19
 main: net.farlands.sanctuary.FarLands
 name: FarLands
-description: FarLands version 4 - Sanctuary
+description: FarLands v5 - Expedition
 authors: [xCassyx, Kishiko73, SuperAnimeBoi, funnyboy_roks, Majekdor]
-version: 4
+version: 5
 depend: [ChestShops, ProtocolLib, RegionProtection, Votifier, CoreProtect]
 libraries:
-  - net.dv8tion:JDA:5.0.0-beta.2
+#  - net.dv8tion:JDA:5.0.0-beta.9 # This does not seem to be working in the latest version
   - org.openjdk.nashorn:nashorn-core:15.4
-  - com.squareup.moshi:moshi:1.14.0
+  - com.squareup.moshi:moshi:1.15.0
   - org.jetbrains:annotations:24.0.1

@@ -16,31 +16,14 @@ import java.util.stream.Collectors;
 /**
  * Used for giving game rewards.
  */
-public final class GameRewardSet {
-
-    private final List<ItemReward> rewards;
-    private final double rewardBias;
-    private final boolean trackCompletionInfo;
-    private final Map<UUID, Long> playerCompletionInfo;
-    private final ItemStack finalReward;
-    private final String finalRewardMessage;
-
-
-    public GameRewardSet(
-        List<ItemReward> rewards,
-        double rewardBias, boolean
-            trackCompletionInfo,
-        Map<UUID, Long> playerCompletionInfo,
-        ItemStack finalReward,
-        String finalRewardMessage) {
-
-        this.rewards = rewards;
-        this.rewardBias = rewardBias;
-        this.trackCompletionInfo = trackCompletionInfo;
-        this.playerCompletionInfo = playerCompletionInfo;
-        this.finalReward = finalReward;
-        this.finalRewardMessage = finalRewardMessage;
-    }
+public record GameRewardSet(
+    List<ItemReward> rewards,
+    double rewardBias,
+    boolean trackCompletionInfo,
+    Map<UUID, Long> playerCompletionInfo,
+    ItemStack finalReward,
+    String finalRewardMessage
+) {
 
     public GameRewardSet() {
         this(
@@ -116,30 +99,6 @@ public final class GameRewardSet {
         return playerCompletionInfo.getOrDefault(player.getUniqueId(), 0L) >= 0;
     }
 
-    public List<ItemReward> rewards() {
-        return rewards;
-    }
-
-    public double rewardBias() {
-        return rewardBias;
-    }
-
-    public boolean trackCompletionInfo() {
-        return trackCompletionInfo;
-    }
-
-    public Map<UUID, Long> playerCompletionInfo() {
-        return playerCompletionInfo;
-    }
-
-    public ItemStack finalReward() {
-        return finalReward;
-    }
-
-    public String finalRewardMessage() {
-        return finalRewardMessage;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -151,11 +110,6 @@ public final class GameRewardSet {
                Objects.equals(this.playerCompletionInfo, that.playerCompletionInfo) &&
                Objects.equals(this.finalReward, that.finalReward) &&
                Objects.equals(this.finalRewardMessage, that.finalRewardMessage);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(rewards, rewardBias, trackCompletionInfo, playerCompletionInfo, finalReward, finalRewardMessage);
     }
 
     @Override

@@ -32,7 +32,7 @@ public class CommandPronouns extends Command {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         if (args.length == 0) {
-            if (flp.pronouns == null || flp.pronouns.subject == null) {
+            if (flp.pronouns == null || flp.pronouns.subject() == null) {
                 sender.sendMessage(
                     ComponentColor.red("Your pronouns are not set. You can set them with ")
                         .append(ComponentUtils.suggestCommand("/pronouns set <subject/object>", "/pronouns set "))
@@ -112,7 +112,7 @@ public class CommandPronouns extends Command {
                 return true;
             }
             if (sp.hasNoObject()) {
-                flp.pronouns = new Pronouns(sp, null, flp.pronouns != null && flp.pronouns.showOnDiscord);
+                flp.pronouns = new Pronouns(sp, null, flp.pronouns != null && flp.pronouns.showOnDiscord());
             }
         } else {
 
@@ -127,7 +127,7 @@ public class CommandPronouns extends Command {
                 return true;
             }
 
-            flp.pronouns = new Pronouns(sp, op, flp.pronouns != null && flp.pronouns.showOnDiscord);
+            flp.pronouns = new Pronouns(sp, op, flp.pronouns != null && flp.pronouns.showOnDiscord());
         }
 
         flp.updateDiscord();
@@ -141,13 +141,13 @@ public class CommandPronouns extends Command {
             component.append(
                     Component.text(
                         "You have show-on-discord set to " +
-                            flp.pronouns.showOnDiscord +
+                            flp.pronouns.showOnDiscord() +
                             ", if you want it " +
-                            (flp.pronouns.showOnDiscord ? "disabled" : "enabled") +
+                            (flp.pronouns.showOnDiscord() ? "disabled" : "enabled") +
                             ", run "
                     )
                 )
-                .append(ComponentUtils.command("/pronouns show-on-discord " + (flp.pronouns.showOnDiscord ? "false" : "true")));
+                .append(ComponentUtils.command("/pronouns show-on-discord " + (flp.pronouns.showOnDiscord() ? "false" : "true")));
         }
 
         sender.sendMessage(component.build());
@@ -183,12 +183,12 @@ public class CommandPronouns extends Command {
         if (flp.pronouns == null) {
             flp.pronouns = new Pronouns(null, null, value);
         } else {
-            flp.pronouns.showOnDiscord = value;
+            flp.pronouns = flp.pronouns.withShowOnDiscord(value);
         }
 
         flp.updateDiscord();
 
-        sender.sendMessage(ComponentColor.green("Set show-on-discord to %s!", flp.pronouns.showOnDiscord ? "enabled" : "disabled"));
+        sender.sendMessage(ComponentColor.green("Set show-on-discord to %s!", flp.pronouns.showOnDiscord() ? "enabled" : "disabled"));
 
         return true;
     }

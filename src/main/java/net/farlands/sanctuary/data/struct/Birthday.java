@@ -6,14 +6,7 @@ import java.util.Calendar;
 /**
  * Represents a player birthday!
  */
-public class Birthday {
-    private final int month;
-    private final int day;
-
-    public Birthday(int month, int day) {
-        this.month = month - 1;
-        this.day = day;
-    }
+public record Birthday(int month, int day) {
 
     public long timeFromToday() {
         Calendar cal = Calendar.getInstance();
@@ -35,7 +28,7 @@ public class Birthday {
     public String toString() {
         return (month + 1) + "/" + day;
     }
-    
+
     /**
      * Formats the Birthday as month + Day
      *
@@ -44,7 +37,7 @@ public class Birthday {
      */
     public String toFormattedString(boolean shortMonth) {
         String[] months = !shortMonth ? new DateFormatSymbols().getMonths() : new DateFormatSymbols().getShortMonths();
-        return months[month] + " " + day;
+        return months[this.month()] + " " + day;
     }
 
     /**
