@@ -9,6 +9,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
+import net.royawesome.jlibnoise.module.combiner.Max;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -82,9 +83,7 @@ public class CommandWild extends PlayerCommand {
                     MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD, (int) (time / 180000L)) // 3 * 60 * 1000, 3 minutes per block of rtp
                 );
             } catch (ExecutionException | InterruptedException e) {
-                sender.playSound(sender.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
-                sender.sendMessage(ComponentColor.red("Your random teleport randomly failed :("));
-                FarLands.getDebugger().echo(sender.getName() + " /rtp → fail");
+                rtpFail(sender);
                 e.printStackTrace();
             }
         });
@@ -95,25 +94,28 @@ public class CommandWild extends PlayerCommand {
         return !(block.isLiquid() || block.isPassable() || block.getType() == Material.SEA_PICKLE);
     }
 
-    private static int getRandom(int min, int max) {
-        return RNG.nextBoolean() ?
-                min + RNG.nextInt(max - min) :
-               -min - RNG.nextInt(max - min);
+    private static void rtpFail(Player player) {
+        player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
+        player.sendMessage(ComponentColor.red("Your random teleport randomly failed :("));
+        FarLands.getDebugger().echo(player.getName() + " /rtp → fail");
     }
 
-    // in case we decide to make a portal so we can copy into utils
-    public static void rtpPlayer(Player player, int minRange, int maxRange) throws ExecutionException, InterruptedException {
+    private static void rtpPlayer(Player player, int minRange, int maxRange) throws ExecutionException, InterruptedException {
         boolean overworld = player.getWorld().getName().equals("world");
-        int dx = getRandom(minRange, maxRange),
-            dz = getRandom(
-                    dx >= minRange ? 0 : (int)Math.sqrt(minRange * minRange - dx * dx),
-                    (int)Math.sqrt(maxRange * maxRange - dx * dx)
-            );
+        final int doubleMax = maxRange << 1,
+                  minSQ = minRange * minRange,
+                  maxSQ = maxRange * maxRange;
+        int x, z, xz;
+        do {
+            x = RNG.nextInt(doubleMax) - maxRange;
+            z = RNG.nextInt(doubleMax) - maxRange;
+            xz = x*x + z*z;
+        } while (minSQ > xz || xz > maxSQ);
         Location rtp = new Location(
                 player.getWorld(),
-                dx,
+                x,
                 overworld ? 62 : 31,
-                dz,
+                z,
                 player.getLocation().getYaw(),
                 player.getLocation().getPitch()
         );
@@ -121,31 +123,24 @@ public class CommandWild extends PlayerCommand {
         Location safe = null;
         int ttl = 64;
         while (--ttl >= 0) {
-            if (quickCheck(rtp.getBlock())) {
-                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 126);
-                if (safe != null)
-                    break;
-            }
-            rtp.setX(dx = getRandom(
-                    dz >= minRange ? 0 : (int) Math.sqrt(minRange * minRange - dz * dz),
-                    (int) Math.sqrt(maxRange * maxRange - dz * dz)
-            ));
-
-            if (quickCheck(rtp.getBlock())) {
-                safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 126);
-                if (safe != null)
-                    break;
-            }
-            rtp.setZ(dz = getRandom(
-                    dx >= minRange ? 0 : (int) Math.sqrt(minRange * minRange - dx * dx),
-                    (int) Math.sqrt(maxRange * maxRange - dx * dx)
-            ));
+            if (quickCheck(rtp.getBlock()) &&
+                    (safe = overworld
+                            ? rtpFindSafe(rtp)
+                            : findSafe(rtp, 0, 126)
+                    ) != null
+            )
+                break;
+            do {
+                x = RNG.nextInt(doubleMax) - maxRange;
+                z = RNG.nextInt(doubleMax) - maxRange;
+                xz = x*x + z*z;
+            } while (minSQ > xz || xz > maxSQ);
+            rtp.setX(x);
+            rtp.setZ(z);
         }
         if (safe == null) {
             // Pretty much never happens in practice
-            player.playSound(player.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1, 1);
-            player.sendMessage(ComponentColor.red("Your random teleport randomly failed :("));
-            FarLands.getDebugger().echo(player.getName() + " /rtp → fail");
+            rtpFail(player);
             return;
         }
         FarLands.getDebugger().echo(player.getName() + " /rtp → " +
@@ -171,7 +166,10 @@ public class CommandWild extends PlayerCommand {
         safe.setX(safe.getBlockX() + .5);
         safe.setZ(safe.getBlockZ() + .5);
         return safe.getWorld().getChunkAtAsync(safe, true).thenApplyAsync((chunk) -> {
-            int bottom = 62, top = 1 + safe.getChunk().getChunkSnapshot().getHighestBlockYAt(safe.getBlockX() & 15, safe.getBlockZ() & 15);
+            int bottom = 62,
+                top = 1 + safe.getChunk().getChunkSnapshot().getHighestBlockYAt(
+                        safe.getBlockX() & 15, safe.getBlockZ() & 15
+                );
 
             if (canStand(safe.getBlock()) && isSafe(safe.clone()))
                 return safe.add(0, .5, 0);
