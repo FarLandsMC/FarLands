@@ -9,7 +9,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
-import net.royawesome.jlibnoise.module.combiner.Max;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
