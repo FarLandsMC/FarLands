@@ -107,7 +107,7 @@ public class CommandBirthday extends Command {
                 return true;
             }
 
-            flp.birthday = new Birthday(month, day);
+            flp.birthday = new Birthday(month - 1, day);
             sender.sendMessage(ComponentColor.green("Your birthday has been registered!"));
         } else if ("upcoming".equalsIgnoreCase(args[0])) {
             boolean nextMonth = args.length > 1 && "month".equalsIgnoreCase(args[1]);

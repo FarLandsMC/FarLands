@@ -8,11 +8,6 @@ import java.util.Calendar;
  */
 public record Birthday(int month, int day) {
 
-    public Birthday(int month, int day) {
-        this.month = month - 1;
-        this.day = day;
-    }
-
     public long timeFromToday() {
         Calendar cal = Calendar.getInstance();
         try {
@@ -42,7 +37,7 @@ public record Birthday(int month, int day) {
      */
     public String toFormattedString(boolean shortMonth) {
         String[] months = !shortMonth ? new DateFormatSymbols().getMonths() : new DateFormatSymbols().getShortMonths();
-        return months[month] + " " + day;
+        return months[this.month()] + " " + day;
     }
 
     /**

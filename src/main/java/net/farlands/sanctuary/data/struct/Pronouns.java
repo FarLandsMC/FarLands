@@ -11,10 +11,6 @@ public record Pronouns(
     boolean showOnDiscord
 ) {
 
-    public Pronouns(SubjectPronoun subject, ObjectPronoun object) {
-        this(subject, object, false);
-    }
-
     public Pronouns withShowOnDiscord(boolean showOnDiscord) {
         return new Pronouns(
             this.subject,
