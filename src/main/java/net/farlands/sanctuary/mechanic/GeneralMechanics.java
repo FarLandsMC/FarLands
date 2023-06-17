@@ -179,10 +179,8 @@ public class GeneralMechanics extends Mechanic {
                     .append(ComponentUtils.link("here", FarLands.getFLConfig().discordInvite))
             );
 
-            Rank rank = Rank.getRank(player);
-            if (rank == Rank.PATRON || rank == Rank.SPONSOR) {
-                FLUtils.giveItem(player, FarLands.getDataHandler().getItem("patronCollectable"), false);
-            }
+            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+            flp.giveCollectables(Rank.INITIATE, flp.rank);
         }
 
         if ("world".equals(player.getWorld().getName())) {

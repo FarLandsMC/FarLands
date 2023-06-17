@@ -15,10 +15,7 @@ import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.DiscordHandler;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.GeneralMechanics;
-import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.ComponentUtils;
-import net.farlands.sanctuary.util.LocationWrapper;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -560,6 +557,51 @@ public class OfflineFLPlayer implements ComponentLike {
             player.teleport(spawn.asLocation());
         else // Otherwise, move their last location
             lastLocation = spawn;
+    }
+
+    public void giveCollectables(Rank fromRank, Rank toRank) {
+        String[] collectables = { "donorCollectable", "patronCollectable", "sponsorCollectable" };
+
+        int toRankI;
+        if (toRank.specialCompareTo(Rank.SPONSOR) >= 0) {
+            toRankI = 2;
+        } else {
+            toRankI = switch (toRank) {
+                case DONOR -> 0;
+                case PATRON -> 1;
+                case SPONSOR -> 2;
+                default -> -1;
+            };
+        }
+
+        int fromRankI;
+        if (fromRank.specialCompareTo(Rank.SPONSOR) >= 0) {
+            fromRankI = 2;
+        } else {
+            fromRankI = switch (fromRank) {
+                case DONOR -> 0;
+                case PATRON -> 1;
+                case SPONSOR -> 2;
+                default -> -1;
+            };
+        }
+
+        Arrays.stream(collectables).toList().subList(fromRankI + 1, toRankI + 1).forEach(item -> {
+            if (this.isOnline()) {
+                FLUtils.giveItem(this.getOnlinePlayer(), FarLands.getDataHandler().getItem(item), false);
+            } else {
+                FarLands.getDataHandler().addPackage(
+                    this.uuid,
+                    new Package(
+                        null,
+                        "FarLands Staff",
+                        FarLands.getDataHandler().getItem(item),
+                        null,
+                        true
+                    ));
+            }
+
+        });
     }
 
     public void updateDeaths() {

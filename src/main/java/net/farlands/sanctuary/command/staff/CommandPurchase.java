@@ -5,7 +5,6 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
@@ -85,37 +84,7 @@ public class CommandPurchase extends Command {
         }
 
         if (rank != null && rank.specialCompareTo(flp.rank) > 0) {
-            String[] collectables = { "donorCollectable", "patronCollectable", "sponsorCollectable" };
-            int rankI = switch(rank) {
-                case DONOR -> 0;
-                case PATRON -> 1;
-                case SPONSOR -> 2;
-                default -> -1;
-            };
-            int flpRankI = switch(flp.rank) {
-                case DONOR -> 0;
-                case PATRON -> 1;
-                case SPONSOR -> 2;
-                default -> -1;
-            };
-
-            final OfflineFLPlayer finalFlp = flp;
-            Arrays.stream(collectables).toList().subList(flpRankI + 1, rankI + 1).forEach(item -> {
-                if (finalFlp.isOnline()) {
-                    FLUtils.giveItem(finalFlp.getOnlinePlayer(), FarLands.getDataHandler().getItem(item), false);
-                } else {
-                    FarLands.getDataHandler().addPackage(
-                        finalFlp.uuid,
-                        new Package(
-                            null,
-                            "FarLands Staff",
-                            FarLands.getDataHandler().getItem(item),
-                            null,
-                            true
-                        ));
-                }
-
-            });
+            flp.giveCollectables(flp.rank, rank);
 
             flp.setRank(rank);
 

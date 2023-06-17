@@ -25,6 +25,7 @@ const Bukkit = org.bukkit.Bukkit;
 const server = Bukkit.getServer();
 const ChatColor = org.bukkit.ChatColor;
 const FLUtils = fl.util.FLUtils;
+const Rank = fl.data.Rank;
 const DH = FL.getDataHandler();
 
 const List = java.util.List;
