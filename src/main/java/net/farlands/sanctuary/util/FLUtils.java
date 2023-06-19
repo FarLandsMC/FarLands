@@ -51,7 +51,6 @@ import org.jetbrains.annotations.Range;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -1020,7 +1019,7 @@ public final class FLUtils {
     public static double chessboardDistance(@NotNull Location a, @NotNull Location b) {
         Preconditions.checkArgument(a.getWorld().equals(b.getWorld()), "Cannot find distance between locations in different worlds.");
 
-        return Math.max(Math.abs(a.x() - b.x()), Math.abs(a.y() - b.y()));
+        return Math.max(Math.abs(a.x() - b.x()), Math.abs(a.z() - b.z()));
     }
 
     /**

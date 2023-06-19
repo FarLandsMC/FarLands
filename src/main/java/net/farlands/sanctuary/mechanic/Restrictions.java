@@ -20,6 +20,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.pdc.JSONDataType;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
@@ -517,7 +518,7 @@ public class Restrictions extends Mechanic {
 
                 // Get the "chessboard distance" from (0, 0)
                 // This is better than traditional distance as it makes it into a "square" shape, where both (25000, 25000) and (25000, 0) are 25000 blocks from the centre
-                double dist = FLUtils.chessboardDistance(player.getLocation(), player.getLocation().set(0, player.getLocation().y(), 0));
+                double dist = FLUtils.chessboardDistance(player.getLocation(), Worlds.END.getLocation(0, 0, 0));
                 int max = (int) ((dist / 25000) * 100);
 
                 if (flp.elytrasObtained >= max) { // They cannot take the elytra
