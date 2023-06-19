@@ -73,6 +73,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandArtifact());         // Admin (Requires JS Permission)
         registerCommand(new CommandDevReport());        // Initiate
         registerCommand(new CommandGetLog());           // Admin
+        registerCommand(new CommandKickme());           // Initiate
         registerCommand(new CommandNotes());            // Jr Builder
         registerCommand(new CommandPropose());          // Builder
         registerCommand(new CommandUploadSchem());      // Builder
