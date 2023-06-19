@@ -50,22 +50,23 @@ public class CommandStack extends PlayerCommand {
      * 0 index containing the most stacked material type of the given item
      */
     private static final List<Material[]> SIMILAR = Arrays.asList(
-            new Material[] {DRIED_KELP_BLOCK, DRIED_KELP},
-            new Material[] {BONE_BLOCK, BONE_MEAL},
-            new Material[] {DIAMOND_BLOCK, DIAMOND},
-            new Material[] {IRON_BLOCK, IRON_INGOT, IRON_NUGGET},
-            new Material[] {REDSTONE_BLOCK, REDSTONE},
-            new Material[] {NETHERITE_BLOCK, NETHERITE_INGOT},
-            new Material[] {HAY_BLOCK, WHEAT},
-            new Material[] {SLIME_BLOCK, SLIME_BALL},
-            new Material[] {COAL_BLOCK, COAL},
-            new Material[] {EMERALD_BLOCK, EMERALD},
-            new Material[] {GOLD_BLOCK, GOLD_INGOT, GOLD_NUGGET},
-            new Material[] {LAPIS_BLOCK, LAPIS_LAZULI},
-            new Material[] {COPPER_BLOCK, COPPER_INGOT},
-            new Material[] {RAW_COPPER_BLOCK, RAW_COPPER},
-            new Material[] {RAW_IRON_BLOCK, RAW_IRON},
-            new Material[] {RAW_GOLD_BLOCK, RAW_GOLD}
+            new Material[] { BAMBOO_BLOCK,     BAMBOO                       },
+            new Material[] { DRIED_KELP_BLOCK, DRIED_KELP                   },
+            new Material[] { BONE_BLOCK,       BONE_MEAL                    },
+            new Material[] { DIAMOND_BLOCK,    DIAMOND                      },
+            new Material[] { IRON_BLOCK,       IRON_INGOT,      IRON_NUGGET },
+            new Material[] { REDSTONE_BLOCK,   REDSTONE                     },
+            new Material[] { NETHERITE_BLOCK,  NETHERITE_INGOT,             },
+            new Material[] { HAY_BLOCK,        WHEAT                        },
+            new Material[] { SLIME_BLOCK,      SLIME_BALL                   },
+            new Material[] { COAL_BLOCK,       COAL                         },
+            new Material[] { EMERALD_BLOCK,    EMERALD                      },
+            new Material[] { GOLD_BLOCK,       GOLD_INGOT,      GOLD_NUGGET },
+            new Material[] { LAPIS_BLOCK,      LAPIS_LAZULI                 },
+            new Material[] { COPPER_BLOCK,     COPPER_INGOT                 },
+            new Material[] { RAW_COPPER_BLOCK, RAW_COPPER                   },
+            new Material[] { RAW_IRON_BLOCK,   RAW_IRON                     },
+            new Material[] { RAW_GOLD_BLOCK,   RAW_GOLD                     }
     );
 
     private static final List<Material> ACCEPTED_CONTAINERS = new ArrayList<>();
