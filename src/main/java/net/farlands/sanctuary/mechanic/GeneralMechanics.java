@@ -10,6 +10,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.event.ClaimAbandonEvent;
 import com.kicas.rp.event.ClaimStealEvent;
+import com.kicasmads.cs.ChestShops;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent.ItemFrameChangeAction;
 import net.farlands.sanctuary.FarLands;
@@ -28,6 +29,7 @@ import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.*;
+import org.bukkit.block.data.Rail;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftVillager;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -115,9 +117,16 @@ public class GeneralMechanics extends Mechanic {
             }), 0L, 60L);
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
-            Bukkit.getWorld("world").getEntities().stream().filter(e -> EntityType.DROPPED_ITEM == e.getType())
-                .map(e -> (Item) e).filter(e -> Material.SLIME_BALL == e.getItemStack().getType() &&
-                                                e.isValid() && e.getLocation().getChunk().isSlimeChunk())
+            Bukkit.getWorld("world").getEntities()
+                .stream()
+                .filter(e -> EntityType.DROPPED_ITEM == e.getType())
+                .map(e -> (Item) e)
+                .filter(e ->
+                            Material.SLIME_BALL == e.getItemStack().getType()
+                            && e.isValid()
+                            && !e.getScoreboardTags().contains("chestShopDisplay")
+                            && e.getLocation().getChunk().isSlimeChunk()
+                )
                 .forEach(e -> {
                     e.getWorld().playSound(e.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.0F);
                     e.setVelocity(new org.bukkit.util.Vector(0.0, 0.4, 0.0));
@@ -321,16 +330,72 @@ public class GeneralMechanics extends Mechanic {
             return; // Ignore offhand packet
         }
 
-        if (Rank.getRank(event.getPlayer()).specialCompareTo(Rank.SPONSOR) >= 0 && (event.getAction() == Action.RIGHT_CLICK_BLOCK ||
-                                                                                    event.getAction() == Action.RIGHT_CLICK_AIR)) {
+        if ( // Change the shape of a rail by shift + right click
+            event.getPlayer().isSneaking()
+            && event.getItem() == null
+            && event.getClickedBlock() != null
+            && event.getClickedBlock().getBlockData() instanceof Rail block
+        ) {
+            Rail.Shape shape = block.getShape();
+            Rail.Shape nextShape = switch (shape) {
+                case ASCENDING_NORTH, ASCENDING_SOUTH -> Rail.Shape.NORTH_SOUTH;
+                case ASCENDING_EAST, ASCENDING_WEST -> Rail.Shape.EAST_WEST;
+                default -> {
+                    List<Rail.Shape> valid =  block.getShapes() // ImmutableCollections should be deterministic in iteration, so we don't need to sort here.
+                        .stream()
+                        .filter(s -> !s.name().startsWith("ASCENDING_")) // We don't want them to toggle ascending because then it'd be an endless loop
+                        .toList();
+
+                    yield valid.get((valid.indexOf(shape) + 1) % valid.size());
+                }
+            };
+            block.setShape(nextShape); // Change the shape
+            event.getClickedBlock().setBlockData(block);
+        }
+
+        if (
+            Rank.getRank(event.getPlayer()).specialCompareTo(Rank.SPONSOR) >= 0
+            && event.getAction().isRightClick()
+        ) {
             ItemStack stack = event.getPlayer().getInventory().getItemInMainHand();
             if (CommandKittyCannon.CANNON.isSimilar(stack)) {
                 CommandKittyCannon.fireCannon(event.getPlayer());
             }
         }
 
-        if (event.getClickedBlock() == null || event.isCancelled()) {
-            return;
+        if (event.getClickedBlock() == null || event.isCancelled()) return;
+
+        if ( // Unwax a sign by shift + right click with an axe
+            event.getPlayer().isSneaking()
+            && event.getItem() != null
+            && event.getItem().getType().name().endsWith("_AXE")
+            && event.getClickedBlock().getState() instanceof Sign sign
+            && sign.isWaxed()
+            && ChestShops.getDataHandler().getShop(sign.getLocation()) == null
+        ) {
+            sign.setWaxed(false);
+            sign.update(true);
+
+            FLUtils.damageItem(event.getItem(), 1); // Apply some damage to the axe
+            event.getPlayer().playSound( // Play a nice sound
+                                         event.getClickedBlock().getLocation(),
+                                         Sound.ITEM_AXE_STRIP,
+                                         SoundCategory.BLOCKS,
+                                         .25f,
+                                         2.0f
+            );
+            event.getClickedBlock() // Play a particle similar to that of the copper blocks
+                .getWorld()
+                .spawnParticle(
+                    Particle.WAX_OFF,
+                    event.getInteractionPoint() == null
+                        ? event.getClickedBlock().getLocation()
+                        : event.getInteractionPoint(),
+                    20,
+                    .4, .4, .4,
+                    2
+                );
+            event.getPlayer().swingMainHand(); // Swing the hand to make it look natural
         }
 
         // Pick up dragon egg
@@ -569,6 +634,22 @@ public class GeneralMechanics extends Mechanic {
                     block.getWorld().getNearbyPlayers(block.getLocation(), 50, 50, 50)
                         .forEach(e -> e.sendMessage(ComponentColor.gray("As the dragon dies, an egg forms below.")));
                 }, 15L * 20L);
+            }
+            case ENDERMAN -> {
+                // Make enderpearls dropped by endermen in the end despawn after 1 minute in order to reduce lag
+                if (!Worlds.END.matches(event.getEntity().getWorld())) return;
+
+                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                    event.getEntity()
+                        .getNearbyEntities(1, 1, 1)
+                        .stream()
+                        .filter(
+                            e -> e instanceof Item i
+                                 && i.getItemStack().getType() == Material.ENDER_PEARL
+                                 && i.getTicksLived() < 2 // it's a new pearl
+                        )
+                        .forEach(i -> i.setTicksLived(4 * 60 * 20)); // Item despawns once ticks lived gets to 5 * 60 * 20
+                }, 1L);
             }
             case VILLAGER ->
                 FarLands.getDataHandler().getPluginData().removeSpawnTrader(event.getEntity().getUniqueId());

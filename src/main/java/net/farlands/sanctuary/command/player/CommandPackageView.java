@@ -133,7 +133,9 @@ public class CommandPackageView extends Command {
             }
             if (args.length == 0 || args[0].equalsIgnoreCase("all")) {
                 line.append(
-                        ComponentUtils.hover(
+                        lPackage.message() == null
+                        ? ComponentColor.aqua(packageSender.username)
+                        : ComponentUtils.hover(
                             ComponentColor.aqua(packageSender.username),
                             ComponentColor.aqua("").append(lPackage.message())
                         )

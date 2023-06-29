@@ -33,8 +33,10 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -66,6 +68,8 @@ public class Restrictions extends Mechanic {
 
     private final Set<UUID> endWarnings        = new HashSet<>(); // Warnings for flying machines in the end
     public final  Set<UUID> mediaFlyProtection = new HashSet<>(); // Players who have temporary flight from exiting a claim
+    // TODO: Make this a map that can be used to determine if the edited sign was changed from its previous text
+    public final  Set<UUID> currentSignEditors = new HashSet<>(); // Players who are currently editing a sign
 
     @Override
     public void onStartup() {
@@ -210,6 +214,7 @@ public class Restrictions extends Mechanic {
     public void onPlayerQuit(Player player) {
         player.getActivePotionEffects().stream().filter(pe -> pe.getDuration() >= 100 * 60 * 20) // 100m for bad omen
             .map(PotionEffect::getType).forEach(player::removePotionEffect);
+        this.currentSignEditors.remove(player.getUniqueId());
     }
 
     @EventHandler
@@ -271,6 +276,15 @@ public class Restrictions extends Mechanic {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.useInteractedBlock() == Event.Result.ALLOW) {
+            if (event.getClickedBlock() != null && event.getClickedBlock().getState() instanceof Sign) {
+                this.currentSignEditors.add(event.getPlayer().getUniqueId());
+            }
+        }
+    }
+
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         List<Component> lines = event.lines()
@@ -280,16 +294,28 @@ public class Restrictions extends Mechanic {
             .map(ComponentColor::gray)
             .toList();
 
-        if (!lines.isEmpty()) { // Log the sign content to staff
+        boolean removedEditor = this.currentSignEditors.remove(event.getPlayer().getUniqueId());
+        if (!lines.isEmpty() || removedEditor) { // Log the sign content to staff
             Location loc = event.getBlock().getLocation();
             Logging.broadcastStaff(
                 ComponentColor.gray(
-                    "%s placed a sign at %s %s %s:\n",
+                    "%s %s a sign at %s %s %s",
                     event.getPlayer().getName(),
+                    removedEditor
+                    ? lines.isEmpty()
+                        ? "cleared"
+                        : "edited"
+                    : "placed",
                     loc.getBlockX(),
                     loc.getBlockY(),
                     loc.getBlockZ()
-                ).append(Component.join(JoinConfiguration.newlines(), lines))
+                ).append(
+                    lines.isEmpty()
+                    ? Component.empty()
+                    : Component.text(":")
+                        .append(Component.newline())
+                        .append(Component.join(JoinConfiguration.newlines(), lines))
+                )
             );
         }
     }

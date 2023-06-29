@@ -92,7 +92,11 @@ public class CommandHomes extends Command {
         Pagination pagination = new Pagination(header, pageCommand);
         pagination.addLines(homes);
 
-        pagination.sendPage(page, sender);
+        try {
+            pagination.sendPage(page, sender);
+        } catch (Pagination.InvalidPageException ex) {
+            return error(sender, "Invalid page number");
+        }
 
         return true;
     }

@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 public class CommandEvidenceLocker extends PlayerCommand {
     public CommandEvidenceLocker() {
         super(Rank.JR_BUILDER, "Open a player's evidence locker.", "/evidencelocker <player>", "evidencelocker", "el");

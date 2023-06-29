@@ -228,5 +228,10 @@ public class CommandTop extends Command {
         TopCategory(String... subCategories) {
             this.subCategories = List.of(subCategories);
         }
+
+        @Override
+        public String toString() {
+            return this.name().toLowerCase();
+        }
     }
 }

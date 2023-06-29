@@ -984,6 +984,7 @@ public final class FLUtils {
      */
     public static void damageItem(ItemStack item, int amount) {
         if (!(item.getItemMeta() instanceof Damageable dmg)) return;
+
         for (int i = 0; i < amount; ++i) {
             double chance = 1 / (double) (item.getEnchantmentLevel(Enchantment.DURABILITY) + 1);
             if (RNG.nextDouble() <= chance) dmg.setDamage(dmg.getDamage() + 1);

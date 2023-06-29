@@ -61,6 +61,23 @@ public class IgnoreStatus {
         return (flags & type.flag()) != 0;
     }
 
+    @Override
+    public String toString() {
+        if (this.includesAll()) {
+            return IgnoreType.ALL.toFormattedString();
+        }
+        StringBuilder out = new StringBuilder();
+        for (IgnoreType type : IgnoreType.values()) {
+            if (this.isSet(type)) {
+                out.append(type.toFormattedString()).append(',');
+            }
+        }
+        if (out.charAt(out.length()) == ',') {
+            return out.substring(0, out.length() - 1);
+        }
+        return out.toString();
+    }
+
     public enum IgnoreType {
         CHAT,
         TELEPORTS,

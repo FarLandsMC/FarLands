@@ -6,13 +6,12 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandPatchnotes extends PlayerCommand {
     public CommandPatchnotes() {
@@ -40,7 +39,8 @@ public class CommandPatchnotes extends PlayerCommand {
 
             FarLands.getDataHandler().getOfflineFLPlayer(sender).viewedPatchnotes = true;
         } catch (IOException ex) {
-            sendFormatted(sender, "&(red)Failed to retrieve patch notes. Please report this error to a staff member.");
+            Logging.error("Failed to retrieve patch notes by ", sender.getName());
+            error(sender, "Failed to retrieve patch notes. Please report this error to a staff member.");
         }
 
         return true;
