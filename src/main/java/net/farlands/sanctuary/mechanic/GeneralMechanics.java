@@ -564,16 +564,17 @@ public class GeneralMechanics extends Mechanic {
     }
 
     // Send items from the end to the correct location
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onEntityTeleport(EntityPortalEvent event) {
         if (
             event.getEntityType() != EntityType.PLAYER &&
             "world_the_end".equals(event.getFrom().getWorld().getName()) &&
             "world".equals(event.getTo().getWorld().getName())
         ) {
+            if (event.getEntity().getPortalCooldown() > 0) return; // this is mostly just to prevent the event from being spammed
             Location end = new Location(event.getFrom().getWorld(), 0, 58, 0);
-            double minDist = 576, // (24 * 24) only players close to 0 0
-                dist;
+            double minDist = 576; // (24 * 24) only players close to 0 0
+            double dist;
             Player player = null;
             for (Player player1 : event.getFrom().getWorld().getPlayers()) {
                 if ((dist = end.distanceSquared(player1.getLocation())) < minDist) {
@@ -583,9 +584,15 @@ public class GeneralMechanics extends Mechanic {
             }
             if (player != null && player.getBedSpawnLocation() != null) {
                 event.setTo(player.getBedSpawnLocation());
+                player.sendMessage(
+                    ComponentColor.gold("")
+                        .append(Component.translatable(event.getEntityType().translationKey()).hoverEvent(event.getEntity().asHoverEvent()))
+                        .append(Component.text(" has been sent to your bed location."))
+                );
             } else {
                 event.setTo(FarLands.getDataHandler().getPluginData().spawn.asLocation());
             }
+            event.getEntity().setPortalCooldown(300); // this is mostly just to prevent the event from being spammed
         }
     }
 
@@ -628,12 +635,14 @@ public class GeneralMechanics extends Mechanic {
         switch (event.getEntityType()) {
             case ENDER_DRAGON -> {
                 event.setDroppedExp(4000);
-                Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                    Block block = event.getEntity().getWorld().getBlockAt(0, 75, 0);
-                    block.setType(Material.DRAGON_EGG);
-                    block.getWorld().getNearbyPlayers(block.getLocation(), 50, 50, 50)
-                        .forEach(e -> e.sendMessage(ComponentColor.gray("As the dragon dies, an egg forms below.")));
-                }, 15L * 20L);
+                if (event.getEntity().getWorld().getEnderDragonBattle().hasBeenPreviouslyKilled()) {
+                    Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
+                        Block block = event.getEntity().getWorld().getBlockAt(0, 75, 0);
+                        block.setType(Material.DRAGON_EGG);
+                        block.getWorld().getNearbyPlayers(block.getLocation(), 50, 50, 50)
+                            .forEach(e -> e.sendMessage(ComponentColor.gray("As the dragon dies, an egg forms below.")));
+                    }, 15L * 20L);
+                }
             }
             case ENDERMAN -> {
                 // Make enderpearls dropped by endermen in the end despawn after 1 minute in order to reduce lag
@@ -727,10 +736,10 @@ public class GeneralMechanics extends Mechanic {
                 if (sendBroadcast && nightSkip.isComplete()) {
                     nightSkip.reset();
                     Logging.broadcastFormatted(
-                        "<!bold><gold>%s more %s to sleep to skip the night.",
+                        "<!bold><gold>%d more %s to sleep to skip the night.",
                         false,
-                        (required - sleeping) + "",
-                        (required - sleeping) == 1 ? "player need" : "players needs");
+                        (required - sleeping),
+                        (required - sleeping) == 1 ? "player needs" : "players need");
                 }
             } else if (nightSkipTask == null) {
                 Logging.broadcastFormatted("<!bold><gold>Skipping the night...", false);

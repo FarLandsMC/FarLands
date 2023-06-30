@@ -3,8 +3,7 @@ package net.farlands.sanctuary.command.player;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.data.Rank;
-
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -17,8 +16,17 @@ import java.util.stream.Collectors;
 
 
 public class CommandNightSkip extends Command {
+
     public CommandNightSkip() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "View the number of players required to sleep.", "/nightskip", "nightskip");
+        super(
+            CommandData.simple(
+                    "nightskip",
+                    "View the number of players required to sleep.",
+                    "/nightskip"
+                )
+                .category(Category.INFORMATIONAL)
+                .aliases(false, "sleeping", "sleepcount")
+        );
     }
 
     @Override
@@ -32,18 +40,10 @@ public class CommandNightSkip extends Command {
 
         Component c = Component.text()
             .color(NamedTextColor.GOLD)
-            .append(
-                ComponentColor.aqua(sleeping + "")
-            )
-            .append(
-                Component.text(" player" + (sleeping == 1 ? " is" : "s are") + " currently sleeping.\n")
-            )
-            .append(
-                ComponentColor.aqua(required + "")
-            )
-            .append(
-                Component.text(" player" + (required == 1 ? " is" : "s are") + " required to sleep in order to skip the night.")
-            )
+            .append(ComponentColor.aqua(sleeping))
+            .append(Component.text(" player" + (sleeping == 1 ? " is" : "s are") + " currently sleeping.\n"))
+            .append(ComponentColor.aqua(required))
+            .append(Component.text(" player" + (required == 1 ? " is" : "s are") + " required to sleep in order to skip the night."))
             .build();
         sender.sendMessage(c);
         return true;

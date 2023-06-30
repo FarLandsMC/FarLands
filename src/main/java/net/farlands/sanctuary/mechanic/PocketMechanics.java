@@ -125,6 +125,7 @@ public class PocketMechanics extends Mechanic {
             wb.setSize(5000 * 2 + 1); // Diameter + 1 for centre block
 
             world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 1);
+            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 
         } catch (Exception e) {
             Command.error(sender, "Unable to load the new pocket world");
