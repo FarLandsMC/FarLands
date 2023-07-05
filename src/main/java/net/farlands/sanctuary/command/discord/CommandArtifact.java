@@ -19,6 +19,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +70,23 @@ public class CommandArtifact extends DiscordCommand {
             return true;
         }
 
-        if (args.updatePaper) updatePaper = true;
+        if (args.updatePaper) {
+            File dest = FarLands.getDataHandler().getTempFile("paper.jar");
+            if (dest.exists()) dest.delete();
+            String paperDownload = FLUtils.getLatestReleaseUrl();
+            if (paperDownload == null) {
+                return error(sender, "Failed to get latest paper download url.");
+            }
+
+            try {
+                try (InputStream in = new URL(paperDownload).openStream()) {
+                    Files.copy(in, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return error(sender, "Failed to download latest paper version.");
+            }
+        }
 
         // Get the attachments
         List<Attachment> attachments = message.getAttachments().stream().filter(attachment -> "jar".equalsIgnoreCase(attachment.getFileExtension())).toList();
@@ -120,22 +141,11 @@ public class CommandArtifact extends DiscordCommand {
 
     public void restart(CommandSender sender) {
         Config cfg = FarLands.getFLConfig();
-        String paperDownload = updatePaper ? FLUtils.getLatestReleaseUrl() : "unused";
-        if (paperDownload == null) {
-            error(sender, "Failed to get latest paper download url.");
-            paperDownload = "unused"; // Give it a non-null value
-        } else {
-            if (updatePaper) {
-                String fileName = paperDownload.substring(paperDownload.lastIndexOf('/') + 1).replace(".jar", "");
-                success(sender, "Downloading latest paper version: %s", fileName);
-            }
-        }
         FarLands.executeScript(
-            "artifact.sh",
+            "restart.sh",
             cfg.screenSession,
-            paperDownload,
-            cfg.dedicatedMemory,
-            updatePaper + "");
+            cfg.dedicatedMemory
+        );
         FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
     }
 
