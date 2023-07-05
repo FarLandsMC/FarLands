@@ -10,7 +10,6 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,19 +27,19 @@ public class CommandEditArmorStand extends PlayerCommand {
 
     public CommandEditArmorStand() {
         super(Rank.SPONSOR, Category.UTILITY, "Open the vanilla tweaks armor stand editor book.",
-                "/editarmorstand [marker|set] <on|off|value>", "editarmorstand", "editarmourstand");
+              "/editarmorstand [marker|set] <on|off|values>", "editarmorstand", "editarmourstand");
     }
 
     @Override
     public boolean execute(Player sender, String[] args) {
         // /editarmourstand enable <player> - Enables a player's `as_trigger`, `as_help`, and `if_invisible` scoreboard tags
-        if(args.length > 0 && args[0].equalsIgnoreCase("enable") &&
-                FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff()){
-            if(args.length > 1 && !args[1].isEmpty()){
+        if (args.length > 0 && args[0].equalsIgnoreCase("enable") &&
+            FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff()) {
+            if (args.length > 1 && !args[1].isEmpty()) {
                 // enable the scoreboard triggers
-                String[] scoreboardTriggers = {"as_trigger", "as_help", "if_invisible"};
+                String[] scoreboardTriggers = { "as_trigger", "as_help", "if_invisible" };
                 for (String trigger : scoreboardTriggers) {
-                    Bukkit.dispatchCommand(sender, "scoreboard players enable " + trigger + " as_trigger");
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard players enable " + trigger + " as_trigger");
                 }
                 FarLands.getCommandHandler().logCommand(sender, "/editarmorstand enable " + args[1], null);
             }
@@ -49,15 +48,15 @@ public class CommandEditArmorStand extends PlayerCommand {
         }
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(sender.getLocation());
         if (flags != null && !flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.BUILD, flags)) {
-            sender.sendMessage(ComponentColor.red("You do not have permission to edit armor stands here."));
+            error(sender, "You do not have permission to edit armor stands here.");
             return true;
         }
 
-        if (args.length > 0){
-            switch(args[0].toLowerCase()) {
+        if (args.length > 0) {
+            switch (args[0].toLowerCase()) {
                 case "marker":
                     if (args.length == 1) {
-                        sender.sendMessage(ComponentColor.red("Please specify either \"on\" or \"off\""));
+                        error(sender, "Please specify either \"on\" or \"off\".");
                         return true;
                     }
                     boolean marker = "on".equalsIgnoreCase(args[1]);
@@ -72,9 +71,9 @@ public class CommandEditArmorStand extends PlayerCommand {
 
                     double maxDot = -Double.MAX_VALUE;
                     Collection<Entity> entities = sender.getWorld().getNearbyEntities(
-                            sender.getLocation(),
-                            2.5, 2.5, 2.5,
-                            entity -> entity.getType() == EntityType.ARMOR_STAND
+                        sender.getLocation(),
+                        2.5, 2.5, 2.5,
+                        entity -> entity.getType() == EntityType.ARMOR_STAND
                     );
                     Entity selected = null;
                     for (Entity entity : entities) {
@@ -93,30 +92,35 @@ public class CommandEditArmorStand extends PlayerCommand {
                     if (selected != null) {
                         ArmorStand stand = (ArmorStand) selected;
                         stand.setMarker(marker);
-                        sender.sendMessage(ComponentColor.gold("Toggled marker tag " + (marker ? "on." : "off.")));
+                        info(sender, "Toggled marker tag %s.", marker ? "on" : "off");
                         stand.setInvisible(!stand.isInvisible());
                         FarLands.getScheduler().scheduleSyncDelayedTask(
                             () -> stand.setInvisible(!stand.isInvisible()),
                             20
                         );
                     } else {
-                        sender.sendMessage(ComponentColor.red("Please stand near and look at the armor stand you on which you " +
-                                "wish to toggle the marker tag."));
+                        error(sender, "Please stand near and look at the armor stand you on which you wish to toggle the marker tag.");
                     }
                     return true;
                 // /editarmourstand set <value> -> /trigger as_trigger set <value>
                 case "set":
                     if (args.length == 1) {
-                        sender.sendMessage(ComponentColor.red("Please specify a value."));
+                        error(sender, "Please specify a value.");
                         return true;
                     }
-                    try {
-                        Integer.parseInt(args[1]);
-                    } catch (Exception e) {
-                        sender.sendMessage(ComponentColor.red("Invalid Value."));
-                        return true;
+
+                    for (int i = 1; i < args.length; ++i) { // Parse the numbers before doing anything so we can error without changing stuff
+                        try {
+                            Integer.parseInt(args[i]);
+                        } catch (Exception e) {
+                            error(sender, "Invalid value: \"%s\"", args[i]);
+                            return true;
+                        }
                     }
-                    sender.performCommand("trigger as_trigger set " + args[1]);
+
+                    for (int i = 1; i < args.length; ++i) { // then apply the codes
+                        sender.performCommand("trigger as_trigger set " + args[i]);
+                    }
                     return true;
             }
 
@@ -124,7 +128,7 @@ public class CommandEditArmorStand extends PlayerCommand {
 
         ItemStack editorBook = FarLands.getDataHandler().getItem("armorStandBook");
         if (editorBook == null) {
-            sender.sendMessage(ComponentColor.red("Armor Stand Book not set! Please contact a staff member and notify them of this problem."));
+            error(sender, "Armor Stand Book not set! Please contact a staff member and notify them of this problem.");
             return true;
         }
         sender.openBook(editorBook);
@@ -133,31 +137,21 @@ public class CommandEditArmorStand extends PlayerCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        switch (args.length) {
-            case 1:
+        return switch (args.length) {
+            case 1 -> {
                 List<String> subCommands = new ArrayList<>(Arrays.asList("marker", "set"));
-                if(FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff())
+                if (FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff()) {
                     subCommands.add("enable");
-                return TabCompleterBase.filterStartingWith(args[0], subCommands);
-            case 2:
-                List<String> values;
-                switch(args[0].toLowerCase()){
-                    case "marker":
-                        values = Arrays.asList("on", "off");
-                        break;
-                    case "set":
-                        values = Collections.singletonList("<value>");
-                        break;
-                    case "enable":
-                        values = TabCompleterBase.getOnlinePlayers(args[1]);
-                        break;
-                    default:
-                        values = Collections.emptyList();
-                        break;
                 }
-                return values;
-            default:
-                return Collections.emptyList();
-        }
+                yield TabCompleterBase.filterStartingWith(args[0], subCommands);
+            }
+            case 2 -> switch (args[0].toLowerCase()) {
+                case "marker" -> Arrays.asList("on", "off");
+                case "set" -> Collections.singletonList("<value>");
+                case "enable" -> TabCompleterBase.getOnlinePlayers(args[1]);
+                default -> Collections.emptyList();
+            };
+            default -> Collections.emptyList();
+        };
     }
 }

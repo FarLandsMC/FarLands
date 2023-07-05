@@ -2,9 +2,9 @@ package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
@@ -16,8 +16,15 @@ import java.util.List;
 
 public class CommandTPA extends PlayerCommand {
     public CommandTPA() {
-        super(Rank.INITIATE, Category.TELEPORTING, "Request to teleport to another player or for another player to " +
-                "teleport to you.", "/tpa|/tpahere <player>", true, "tpa", "tpahere");
+        super(
+            CommandData.simple(
+                    "tpa",
+                    "Request to teleport to another player or for another player to teleport to you",
+                    "/tpa|tpahere <player>"
+                )
+                .aliases(true, "tpahere")
+                .category(Category.TELEPORTING)
+        );
     }
 
     @Override
@@ -42,11 +49,14 @@ public class CommandTPA extends PlayerCommand {
         }
 
         FLPlayerSession recipientSession = FarLands.getDataHandler().getSession(recipient);
+
+        if (recipientSession.handle.getIgnoreStatus(sender).includesTeleports()) {
+            sender.sendMessage("You cannot teleport to this player.");
+            return true;
+        }
+
         if (recipientSession.afk)
             sender.sendMessage(ComponentColor.red("This player is AFK, so they may not receive your request."));
-
-        if (recipientSession.handle.getIgnoreStatus(sender).includesTeleports())
-            return true;
 
         // Everything else is handled here
         TeleportRequest.open(

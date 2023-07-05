@@ -353,8 +353,9 @@ public class GeneralMechanics extends Mechanic {
             event.getClickedBlock().setBlockData(block);
         }
 
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         if (
-            Rank.getRank(event.getPlayer()).specialCompareTo(Rank.SPONSOR) >= 0
+            flp.rank.specialCompareTo(Rank.SPONSOR) >= 0
             && event.getAction().isRightClick()
         ) {
             ItemStack stack = event.getPlayer().getInventory().getItemInMainHand();
@@ -384,16 +385,12 @@ public class GeneralMechanics extends Mechanic {
                                          .25f,
                                          2.0f
             );
-            event.getClickedBlock() // Play a particle similar to that of the copper blocks
+            event.getClickedBlock()
                 .getWorld()
-                .spawnParticle(
-                    Particle.WAX_OFF,
-                    event.getInteractionPoint() == null
-                        ? event.getClickedBlock().getLocation()
-                        : event.getInteractionPoint(),
-                    20,
-                    .4, .4, .4,
-                    2
+                .playEffect(
+                    event.getClickedBlock().getLocation(),
+                    Effect.COPPER_WAX_OFF,
+                    0
                 );
             event.getPlayer().swingMainHand(); // Swing the hand to make it look natural
         }
@@ -433,9 +430,13 @@ public class GeneralMechanics extends Mechanic {
         // If a player right-clicks the ground with a rocket and is wearing an elytra, use the rocket to launch them
         // into the air
         ItemStack chestplate = player.getInventory().getChestplate();
-        if (GameMode.SPECTATOR != player.getGameMode() &&
-            Material.FIREWORK_ROCKET == event.getMaterial() && Action.RIGHT_CLICK_BLOCK == event.getAction() &&
-            Material.ELYTRA == (chestplate == null ? null : chestplate.getType()) && !player.isGliding()) {
+        if (
+            flp.fireworkLaunch
+            && GameMode.SPECTATOR != player.getGameMode()
+            && Material.FIREWORK_ROCKET == event.getMaterial() && Action.RIGHT_CLICK_BLOCK == event.getAction()
+            && Material.ELYTRA == (chestplate == null ? null : chestplate.getType())
+            && !player.isGliding()
+        ) {
             event.setCancelled(true);
             if (GameMode.CREATIVE != player.getGameMode()) {
                 PlayerInventory inv = player.getInventory();

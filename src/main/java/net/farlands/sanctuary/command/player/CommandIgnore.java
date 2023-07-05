@@ -3,24 +3,34 @@ package net.farlands.sanctuary.command.player;
 import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.data.struct.IgnoreStatus;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.kicasmads.cs.Utils.filterStartingWith;
+
 public class CommandIgnore extends Command {
+
     public CommandIgnore() {
-        super(Rank.INITIATE, Category.CHAT, "Ignores a player so that you do not see any of their messages.",
-                "/ignore <player> [type]", true, "ignore", "unignore");
+        super(
+            CommandData.simple(
+                    "ignore",
+                    "Ignores a player so that you do not see any of their messages.",
+                    "/ignore <player> [type]"
+                )
+                .category(Category.CHAT)
+                .aliases(true, "unignore")
+        );
     }
 
     @Override
@@ -107,6 +117,24 @@ public class CommandIgnore extends Command {
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
-        return args.length <= 1 ? getOnlinePlayers(args[0], sender) : Collections.emptyList();
+        switch (args.length) {
+            case 1 -> {
+                if (alias.equalsIgnoreCase("unignore")){
+                    return filterStartingWith(args[0], FarLands.getDataHandler().getOfflineFLPlayer(sender).getIgnoreList());
+                }
+                return getOnlinePlayers(args[0], sender);
+            }
+            case 2 -> {
+                return filterStartingWith(
+                    args[1],
+                    Arrays.stream(IgnoreStatus.IgnoreType.values())
+                        .map(Utils::formattedName)
+                        .toList()
+                );
+            }
+            default -> {
+                return Collections.emptyList();
+            }
+        }
     }
 }

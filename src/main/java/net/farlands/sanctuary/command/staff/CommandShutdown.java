@@ -69,17 +69,22 @@ public class CommandShutdown extends Command {
     }
 
     private static void execute0(final int seconds, final String mode) {
-        NOTIFICATION_TIMES.entrySet().stream().filter(e -> e.getKey() <= seconds).forEach(e -> {
-            int delay = seconds - e.getKey();
-            if(delay > 0)
-                FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
-                    Logging.broadcastIngame(e.getValue(), false);
-                    if (DISCORD_NOTIFICATION_TIMES.contains(e.getKey()))
-                        Logging.broadcastDiscord(e.getValue());
-                }, 20L * delay);
-            else
-                Logging.broadcastFormatted(e.getValue(), true);
-        });
+        NOTIFICATION_TIMES.entrySet()
+            .stream()
+            .filter(e -> e.getKey() <= seconds)
+            .forEach(e -> {
+                int delay = seconds - e.getKey();
+                if (delay > 0) {
+                    FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
+                        Logging.broadcastFormatted(e.getValue(), false);
+                        if (DISCORD_NOTIFICATION_TIMES.contains(e.getKey())) {
+                            Logging.broadcastDiscord(e.getValue());
+                        }
+                    }, 20L * delay);
+                } else {
+                    Logging.broadcastFormatted(e.getValue(), true);
+                }
+            });
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
             Config cfg = FarLands.getFLConfig();
             if("backup".equals(mode)) {

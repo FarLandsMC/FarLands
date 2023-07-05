@@ -2,8 +2,8 @@ package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.command.BlockCommandSender;
@@ -17,13 +17,13 @@ public class CommandShrug extends PlayerCommand {
 
     public CommandShrug() {
         super(
-            Rank.INITIATE,
-            Category.CHAT,
-            "Append text emojis to the end of your message.",
-            "/" + String.join("|", TextEmote.commands()) + " [action]",
-            true,
-            "shrug",
-            TextEmote.commands() // Aliases
+            CommandData.simple(
+                    "shrug",
+                    "Append text emotes to the end of your message.",
+                    "/" + String.join("|", TextEmote.commands()) + " [action]"
+                )
+                .category(Category.CHAT)
+                .aliases(true, TextEmote.commands())
         );
     }
 
@@ -56,7 +56,7 @@ public class CommandShrug extends PlayerCommand {
         DAB("ㄥ(⸝ ، ⸍ )‾‾‾‾‾"),
         SHRUG("¯\\_(ツ)_/¯"), // ¯\_(ツ)_/¯
         TM("™", false), // :tm: -> ™
-
+        SKULL("☠", false),
         ;
 
         public static TextEmote[] values = values();

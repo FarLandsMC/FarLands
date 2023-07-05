@@ -1,11 +1,15 @@
 package net.farlands.sanctuary.chat;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -34,7 +38,7 @@ public class ChatMechanic extends Mechanic {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getEntity());
-        if(flp != null && flp.getSession().deathMute) {
+        if (flp != null && flp.getSession().deathMute) {
             event.deathMessage(null);
         } else {
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.deathMessage());
@@ -49,7 +53,7 @@ public class ChatMechanic extends Mechanic {
     @EventHandler(ignoreCancelled = true)
     public void onAdvancement(PlayerAdvancementDoneEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
-        if(event.message() == null) return;
+        if (event.message() == null) return;
         if (
             flp.vanished // Player is vanished
             || !event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("minecraft") // or not a vanilla advancement
@@ -63,8 +67,23 @@ public class ChatMechanic extends Mechanic {
             .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
             .forEach(p -> p.sendMessage(event.message()));
 
-        // Send advancement message to Discord
-        FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, event.message());
+        Advancement adv = event.getAdvancement();
 
+        // Send advancement message to Discord
+        FarLands.getDiscordHandler().sendMessageEmbed(
+            DiscordChannel.IN_GAME,
+            new EmbedBuilder()
+                .setTitle(MarkdownProcessor.fromMinecraft(event.message()))
+                .setDescription(
+                    adv.getDisplay() == null
+                        ? ""
+                        : MarkdownProcessor.fromMinecraft(adv.getDisplay().description())
+                )
+                .setColor(
+                    adv.getDisplay() == null
+                        ? NamedTextColor.GREEN.value()
+                        : adv.getDisplay().frame().color().value()
+                )
+        );
     }
 }

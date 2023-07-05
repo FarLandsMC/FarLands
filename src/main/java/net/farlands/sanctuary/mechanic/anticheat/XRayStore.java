@@ -195,8 +195,9 @@ public class XRayStore {
             if (hidden) {
                 debugMessage.append("\nHidden Node");
                 alertMessage.setLength(0);
-                alertMessage.append(this.playerName).append(" has found a hidden ")
-                    .append(detecting.color).append(detecting.toString());
+                alertMessage.append(this.playerName)
+                    .append(" has found a hidden ")
+                    .append(detecting);
             }
 
             FarLands.getDebugger().echo(debugMessage.toString());

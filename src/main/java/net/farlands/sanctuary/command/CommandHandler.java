@@ -95,6 +95,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandEditSign());         // Sage
         registerCommand(new CommandEnd());              // Initiate
         registerCommand(new CommandExtinguish());       // Patron
+        registerCommand(new CommandGithub());           // Initiate
         registerCommand(new CommandGivePet());          // Initiate
         registerCommand(new CommandGuideBook());        // Initiate
         registerCommand(new CommandHat());              // Donor

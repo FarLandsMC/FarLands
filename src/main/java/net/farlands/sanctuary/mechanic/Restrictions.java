@@ -473,6 +473,16 @@ public class Restrictions extends Mechanic {
         }
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if ( // Prevent kitty cannon from being used as horse armour
+            CommandKittyCannon.CANNON.isSimilar(event.getPlayer().getInventory().getItem(event.getHand()))
+            && event.getRightClicked().getType().name().endsWith("HORSE")
+        ) {
+            event.setCancelled(true);
+        }
+    }
+
     /**
      * Prevent the kitty cannon from being used in a grindstone
      * <p>

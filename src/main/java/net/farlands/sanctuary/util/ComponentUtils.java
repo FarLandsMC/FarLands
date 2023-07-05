@@ -83,6 +83,17 @@ public class ComponentUtils {
     /**
      * Create a component with the styling and actions to suggest a command
      *
+     * @param fillCommand The command to fill with
+     * @param base        Base Component
+     * @return The full component
+     */
+    public static Component suggestCommand(String fillCommand, Component base) {
+        return suggestCommand(fillCommand, base, ComponentColor.gray("Fill Command"));
+    }
+
+    /**
+     * Create a component with the styling and actions to suggest a command
+     *
      * @param command     The command to show
      * @param fillCommand The command to fill with
      * @param color       The color of the base text
@@ -90,7 +101,7 @@ public class ComponentUtils {
      */
     public static Component suggestCommand(String command, String fillCommand, TextColor color) {
         Component c = Component.text(command).color(color);
-        return suggestCommand(fillCommand, c, ComponentColor.gray("Fill Command"));
+        return suggestCommand(fillCommand, c);
     }
 
 

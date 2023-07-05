@@ -4,6 +4,8 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
 public class CommandEchest extends PlayerCommand {
@@ -19,6 +21,13 @@ public class CommandEchest extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
+        sender.getWorld().playSound(
+            sender.getLocation(),
+            Sound.BLOCK_ENDER_CHEST_OPEN,
+            SoundCategory.BLOCKS,
+            .5f,
+            1f
+        );
         sender.openInventory(sender.getEnderChest());
         return true;
     }

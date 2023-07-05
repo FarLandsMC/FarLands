@@ -63,6 +63,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public boolean censoring;
     public boolean debugging;
     public boolean flightPreference;
+    public boolean fireworkLaunch;
     public boolean god;
     public boolean pvp;
     public boolean topVoter;
@@ -119,6 +120,7 @@ public class OfflineFLPlayer implements ComponentLike {
         this.censoring = false;
         this.debugging = false;
         this.flightPreference = false;
+        this.fireworkLaunch = false;
         this.god = false;
         this.pvp = false;
         this.topVoter = false;

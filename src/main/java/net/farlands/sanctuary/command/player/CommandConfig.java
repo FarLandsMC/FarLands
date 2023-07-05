@@ -114,21 +114,9 @@ public class CommandConfig extends Command {
                 .setter((n, cs) -> {
                     ((Player) cs).setFlySpeed(n * 0.1f);
                 })
-                .getter((cs) -> ((int) ((Player) cs).getFlySpeed() * 10) + "")
+                .getter((cs) -> ((int) ((Player) cs).getFlySpeed()) * 10 + "")
                 .build()
         ),
-        // Disabled because I don't think it's necessary
-        //WALK_SPEED(
-        //    ConfigField
-        //        .builder(Rank.JR_BUILDER, Integer.class)
-        //        .validator(range("0..=10"), "Value must be within 0..=10") // Technically could be -10..=10, but that's just weird
-        //        .senderPredicate(cs -> cs instanceof Player, "You must be in-game to change this field.")
-        //        .setter((n, cs) -> {
-        //            ((Player) cs).setWalkSpeed(n * 0.1f);
-        //        })
-        //        .getter((cs) -> (((Player) cs).getWalkSpeed() * 10) + "")
-        //        .build()
-        //),
         GOD(
             ConfigField
                 .builder(Rank.JR_BUILDER, Boolean.class)
@@ -136,6 +124,15 @@ public class CommandConfig extends Command {
                     FarLands.getDataHandler().getOfflineFLPlayer(cs).god = v;
                 })
                 .getter((cs) -> FarLands.getDataHandler().getOfflineFLPlayer(cs).god ? "on" : "off")
+                .build()
+        ),
+        FIREWORK_LAUNCH(
+            ConfigField
+                .builder(Rank.INITIATE, Boolean.class)
+                .setter((v, cs) -> {
+                    FarLands.getDataHandler().getOfflineFLPlayer(cs).fireworkLaunch = v;
+                })
+                .getter((cs) -> FarLands.getDataHandler().getOfflineFLPlayer(cs).fireworkLaunch ? "on" : "off")
                 .build()
         ),
         ;
