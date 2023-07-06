@@ -6,8 +6,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.DiscordCommand;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.command.FLShutdownEvent;
-import net.farlands.sanctuary.data.Config;
+import net.farlands.sanctuary.command.staff.CommandShutdown;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.FLUtils;
@@ -72,17 +71,18 @@ public class CommandArtifact extends DiscordCommand {
 
         if (args.updatePaper) {
             File dest = FarLands.getDataHandler().getTempFile("paper.jar");
-            if (dest.exists()) dest.delete();
+            dest.delete();
+
             String paperDownload = FLUtils.getLatestReleaseUrl();
             if (paperDownload == null) {
                 return error(sender, "Failed to get latest paper download url.");
             }
 
-            try {
-                try (InputStream in = new URL(paperDownload).openStream()) {
-                    Files.copy(in, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                }
+            try (InputStream in = new URL(paperDownload).openStream()) {
+                long b = Files.copy(in, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                success(sender, "Successfully downloaded %,d bytes from paper", b);
             } catch (IOException e) {
+                dest.delete();
                 e.printStackTrace();
                 return error(sender, "Failed to download latest paper version.");
             }
@@ -98,13 +98,18 @@ public class CommandArtifact extends DiscordCommand {
             File dest = FarLands.getDataHandler().getTempFile(attachment.getFileName());
             if (dest.exists()) dest.delete();
 
-            try {
-                attachment.downloadToFile(dest).get();
-            } catch (Exception ex) {
-                failures.add(attachment.getFileName());
-                Logging.error(ex.getMessage());
-                ex.printStackTrace();
-            }
+            attachment.getProxy()
+                .download()
+                .thenAccept(is -> {
+                    try {
+                        long b = Files.copy(is, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        success(sender, "Downloaded %,d bytes from %s", b, attachment.getFileName());
+                    } catch (Exception ex) {
+                        failures.add(attachment.getFileName());
+                        Logging.error(ex.getMessage());
+                        ex.printStackTrace();
+                    }
+                });
         });
 
         if (!failures.isEmpty()) {
@@ -117,7 +122,7 @@ public class CommandArtifact extends DiscordCommand {
         }
 
 
-        if (args.restartServer) restart(sender);
+        if (args.restartServer) CommandShutdown.restart();
 
         return true;
     }
@@ -137,16 +142,6 @@ public class CommandArtifact extends DiscordCommand {
         }
 
         return super.canUse(sender);
-    }
-
-    public void restart(CommandSender sender) {
-        Config cfg = FarLands.getFLConfig();
-        FarLands.executeScript(
-            "restart.sh",
-            cfg.screenSession,
-            cfg.dedicatedMemory
-        );
-        FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
     }
 
     @Override

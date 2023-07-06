@@ -134,12 +134,7 @@ public final class FLUtils {
 
             InputStreamReader reader;
             JsonArray arr;
-
-            // Get the latest version
-            URL versionsUrl = new URL("https://papermc.io/api/v2/projects/paper");
-            reader = new InputStreamReader(versionsUrl.openStream());
-            arr = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("versions").getAsJsonArray(); // get .versions as Array
-            String version = arr.get(arr.size() - 1).getAsString(); // get the last index of the versions array
+            String version = Bukkit.getMinecraftVersion();
 
             // get the latest build
             URL buildsUrl = new URL("https://papermc.io/api/v2/projects/paper/versions/" + version);

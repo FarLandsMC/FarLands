@@ -1,7 +1,9 @@
 #!/bin/sh
 
-if [ -f plugins/FarLands/cache/paper.jar ]; then
-    mv plugins/FarLands/cache/paper.jar ./
+cached_jar="plugins/FarLands/cache/paper.jar"
+if [ -f $cached_jar ]; then
+    mv paper.jar paper-old.jar
+    mv $cached_jar ./
 fi
 
 rm -f plugins/*.jar

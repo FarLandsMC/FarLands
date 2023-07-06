@@ -86,14 +86,30 @@ public class CommandShutdown extends Command {
                 }
             });
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
-            Config cfg = FarLands.getFLConfig();
-            if("backup".equals(mode)) {
-                FarLands.executeScript("backup.sh", cfg.screenSession, System.getProperty("user.home"),
-                        System.getProperty("user.dir"), System.getProperty("user.dir") + "-bu", cfg.dedicatedMemory);
-            }else if("restart".equals(mode)) { // Regular restart
-                FarLands.executeScript("restart.sh", cfg.screenSession, cfg.dedicatedMemory);
+            if ("backup".equals(mode)) {
+                backup();
+            } else if("restart".equals(mode)) { // Regular restart
+                restart();
             }
-            FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
         }, 20L * seconds);
+    }
+
+    public static void restart() {
+        Config cfg = FarLands.getFLConfig();
+        FarLands.executeScript("restart.sh", cfg.screenSession, cfg.dedicatedMemory);
+        FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
+    }
+
+    public static void backup() {
+        Config cfg = FarLands.getFLConfig();
+        FarLands.executeScript(
+            "backup.sh",
+            cfg.screenSession,
+            System.getProperty("user.home"),
+            System.getProperty("user.dir"),
+            System.getProperty("user.dir") + "-bu",
+            cfg.dedicatedMemory
+        );
+        FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
     }
 }
