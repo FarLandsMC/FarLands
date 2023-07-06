@@ -120,7 +120,7 @@ public class OfflineFLPlayer implements ComponentLike {
         this.censoring = false;
         this.debugging = false;
         this.flightPreference = false;
-        this.fireworkLaunch = false;
+        this.fireworkLaunch = true;
         this.god = false;
         this.pvp = false;
         this.topVoter = false;
