@@ -26,7 +26,7 @@ public class Logging {
     private static final MiniMessage          MM      = MiniMessage.miniMessage();
     private static final ConsoleCommandSender CONSOLE = Bukkit.getConsoleSender();
 
-    private static final Component PREFIX = ComponentColor.gold(" > ").decorate(TextDecoration.BOLD); // Prefix for global in-game announcements
+    public static final Component PREFIX = ComponentColor.gold(" > ").decorate(TextDecoration.BOLD); // Prefix for global in-game announcements
 
     /**
      * Send info level log to the logger

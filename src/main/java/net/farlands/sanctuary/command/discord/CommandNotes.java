@@ -35,13 +35,13 @@ public class CommandNotes extends DiscordCommand {
 
         Action action = Utils.valueOfFormattedName(args[0], Action.class);
         if (action == null) {
-            return error(sender, "Invalid action: %s", args[0]);
+            return error(sender, "Invalid action: {}", args[0]);
         }
 
         switch (action) {
             case VIEW:
                 if (flp.notes.isEmpty())
-                    info(sender, "%s does not have any notes.", flp.username);
+                    info(sender, "{} does not have any notes.", flp.username);
                 else {
                     if (sender instanceof DiscordSender) {
                         EmbedBuilder eb = new EmbedBuilder()
@@ -71,7 +71,7 @@ public class CommandNotes extends DiscordCommand {
 
             case CLEAR:
                 flp.notes.clear();
-                info(sender, "Cleared notes of %s", flp.username);
+                info(sender, "Cleared notes of {}", flp.username);
                 break;
         }
 

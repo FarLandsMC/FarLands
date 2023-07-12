@@ -40,7 +40,7 @@ public class CompassMechanic extends Mechanic {
         }
         int death = (1 + this.selectedCompass.getOrDefault(player.getUniqueId(), 0)) % 3;
         this.selectedCompass.put(player.getUniqueId(), death);
-        player.sendMessage(ComponentColor.gray("Compass pointed at your %s last death.", deathStringIndex[death]));
+        player.sendMessage(ComponentColor.gray("Compass pointed at your {} last death.", deathStringIndex[death]));
         updateCompass(player, death);
     }
 
@@ -74,7 +74,7 @@ public class CompassMechanic extends Mechanic {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        event.getEntity().sendMessage(ComponentColor.gray("You died at %s", FLUtils.coords(event.getEntity().getLocation())));
+        event.getEntity().sendMessage(ComponentColor.gray("You died at {}", FLUtils.coords(event.getEntity().getLocation())));
     }
 
     @Override

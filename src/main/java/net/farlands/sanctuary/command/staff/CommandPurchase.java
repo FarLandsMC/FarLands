@@ -10,7 +10,6 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -55,11 +54,11 @@ public class CommandPurchase extends Command {
             commandCooldowns.put(flp.uuid, System.currentTimeMillis());
 
         Logging.broadcastIngame(
-            ComponentColor.gold("")
-                .append(ComponentColor.aqua(flp.username))
-                .append(Component.text(" just donated to the server! Consider donating "))
-                .append(ComponentUtils.link("here", FarLands.getFLConfig().donationLink, NamedTextColor.AQUA))
-                .append(Component.text(".")),
+            ComponentColor.gold(
+                "{} just donated to the server! Consider donating {}.",
+                flp,
+                ComponentUtils.link("here", FarLands.getFLConfig().donationLink, NamedTextColor.AQUA)
+            ),
             false
         );
 
@@ -90,7 +89,7 @@ public class CommandPurchase extends Command {
 
             Player player = flp.getOnlinePlayer();
             if (player != null) // Notify the player if they're online
-                player.sendMessage(ComponentColor.green("Your rank has been updated to ").append(rank));
+                player.sendMessage(ComponentColor.green("Your rank has been updated to {}", rank));
         }
 
         if (price > 0)

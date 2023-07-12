@@ -33,7 +33,6 @@ import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -52,7 +51,7 @@ public class Toggles extends Mechanic {
             } else if (session.handle.vanished) {
                 player.sendActionBar(ComponentColor.gray("You are vanished."));
             } else if (session.replyToggleRecipient != null) {
-                player.sendActionBar(ComponentColor.gray("You are messaging %s.", session.replyToggleRecipient.getName()));
+                player.sendActionBar(ComponentColor.gray("You are messaging {}.", session.replyToggleRecipient.getName()));
             }
         }), 0L, 40L);
 

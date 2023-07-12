@@ -4,7 +4,6 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.gui.GuiTradepost;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.entity.Player;
 
 public class CommandTradepost extends PlayerCommand {
@@ -13,8 +12,8 @@ public class CommandTradepost extends PlayerCommand {
     }
 
     public boolean execute(Player sender, String[] args) {
-        sender.sendMessage(ComponentColor.gold("Click on a player's head to notify them that you would like to trade with them."));
-        (new GuiTradepost()).openGui(sender);
+        info(sender, "Click on a player's head to notify them that you would like to trade with them.");
+        new GuiTradepost().openGui(sender);
         return true;
     }
 }

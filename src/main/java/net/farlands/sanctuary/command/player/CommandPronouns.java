@@ -33,15 +33,12 @@ public class CommandPronouns extends Command {
 
         if (args.length == 0) {
             if (flp.pronouns == null || flp.pronouns.subject() == null) {
-                sender.sendMessage(
-                    ComponentColor.red("Your pronouns are not set. You can set them with ")
-                        .append(ComponentUtils.suggestCommand("/pronouns set <subject/object>", "/pronouns set "))
-                        .append(ComponentColor.red("."))
+                return error(sender,
+                      "Your pronouns are not set.  You can set then with {}.",
+                      ComponentUtils.suggestCommand("/pronouns set <subject/object>", "/pronouns set ")
                 );
-                return true;
             }
-            sender.sendMessage(ComponentColor.green("Your pronouns are currently set to %s", flp.pronouns.toString()));
-            return true;
+            return error(sender, "Your pronouns are currently set to {}", flp.pronouns);
         }
 
         switch (args[0]) {
@@ -188,7 +185,7 @@ public class CommandPronouns extends Command {
 
         flp.updateDiscord();
 
-        sender.sendMessage(ComponentColor.green("Set show-on-discord to %s!", flp.pronouns.showOnDiscord() ? "enabled" : "disabled"));
+        sender.sendMessage(ComponentColor.green("Set show-on-discord to {}.", flp.pronouns.showOnDiscord() ? "enabled" : "disabled"));
 
         return true;
     }

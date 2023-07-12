@@ -2,25 +2,28 @@ package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.Rank;
-
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class CommandGivePet extends PlayerCommand {
 
     public CommandGivePet() {
-        super(Rank.INITIATE, Category.MISCELLANEOUS, "Transfer one of your pets to another player, or cancel a transfer.",
-              "/givepet <player|cancel>", "givepet");
+        super(
+            CommandData.simple(
+                    "givepet",
+                    "Transfer one of your pets to another player, or cancel a transfer.",
+                    "/givepet <player|cancel>"
+                )
+                .category(Category.MISCELLANEOUS)
+        );
     }
 
     @Override
@@ -34,34 +37,27 @@ public class CommandGivePet extends PlayerCommand {
         // Cancel the transfer
         if (args[0].equalsIgnoreCase("cancel")) {
             session.givePetRecipient.discard();
-            sender.sendMessage(ComponentColor.gold("Cancelled pet transfer mode."));
-            return true;
+            return info(sender, "Cancelled pet transfer mode.");
         }
 
         // Get the recipient
         Player player = getPlayer(args[0], sender);
         if (player == null) {
-            sender.sendMessage(ComponentColor.red("Player not found."));
-            return true;
+            return error(sender, "Player not found.");
         }
 
         // Make sure they're not transferring to themselves
         if (sender.getUniqueId().equals(player.getUniqueId())) {
-            sender.sendMessage(ComponentColor.red("You already own your own pets."));
-            return true;
+            return error(sender, "You already own your own pets.");
         }
 
         session.givePetRecipient.setValue(player, 1200L, () -> sender.sendMessage("Cancelled pet transfer mode"));
 
-        Component c = Component.text()
-            .content("Are you sure you want to give your pet to " + session.givePetRecipient + "? Click the pet you wish to transfer to confirm, or type ")
-            .color(NamedTextColor.GOLD)
-            .append(ComponentUtils.command("/givepet cancel"))
-            .append(ComponentColor.gold(" to cancel"))
-            .build();
-        sender.sendMessage(c);
-
-        return true;
+        return info(
+            sender,
+            "Are you sure you want to give your pet to {}? Click the pet you wish to transfer to confirm, or type {} to cancel.",
+            ComponentUtils.command("/givepet cancel")
+        );
     }
 
     @Override

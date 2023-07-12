@@ -7,7 +7,6 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.data.struct.IgnoreStatus;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -36,7 +35,7 @@ public class CommandIgnore extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) {
-            sender.sendMessage(ComponentColor.red("You must be in-game to use this command."));
+            error(sender, "You must be in-game to use this command.");
             return true;
         }
 
@@ -48,67 +47,57 @@ public class CommandIgnore extends Command {
         // Get the player they're ignoring
         OfflineFLPlayer ignored = FarLands.getDataHandler().getOfflineFLPlayer(args[1]);
         if (ignored == null) {
-            sender.sendMessage(ComponentColor.red("Player not found."));
-            return true;
+            return error(sender, "Player not found.");
         }
 
         // Make sure they're not ignoring themself
         if (flp.uuid.equals(ignored.uuid)) {
-            sender.sendMessage(ComponentColor.red("You cannot ignore or unignore yourself."));
-            return true;
+            return error(sender, "You cannot ignore or unignore yourself.");
         }
 
         IgnoreStatus.IgnoreType type = args.length >= 3
                 ? Utils.valueOfFormattedName(args[2], IgnoreStatus.IgnoreType.class)
                 : IgnoreStatus.IgnoreType.ALL;
         if (type == null) {
-            sender.sendMessage(ComponentColor.red("Invalid ignore type: " + args[2]));
-            return true;
+            return error(sender, "Invalid ignore type: " + args[2]);
         }
 
         if ("ignore".equals(args[0])) {
             // You can't ignore staff
             if (ignored.rank.isStaff()) {
-                sender.sendMessage(ComponentColor.red("You cannot ignore a staff member."));
-                return true;
+                return error(sender, "You cannot ignore a staff member.");
             }
 
             // The selected type is already set
             if (flp.getIgnoreStatus(ignored).isSet(type)) {
-                sender.sendMessage(
-                    ComponentColor.red("You are already ignoring " + type.toFormattedString() + " from ")
-                        .append(ComponentColor.aqua(ignored.username))
-                );
-                return true;
+                return error(sender, "You are already ignoring {} from {}", type.toFormattedString(), ignored);
             }
 
             flp.updateIgnoreStatus(ignored.uuid, type, true);
-            sender.sendMessage(
-                ComponentColor.red("You are now ignoring " + type.toFormattedString() + " from ")
-                    .append(ComponentColor.aqua(ignored.username))
-            );
+            success(sender, "You are now ignoring {} from {}.", type.toFormattedString(), ignored);
         } else if ("unignore".equals(args[0])) {
             IgnoreStatus status = flp.getIgnoreStatus(ignored);
             boolean redundant = type == IgnoreStatus.IgnoreType.ALL ? status.includesNone() : !status.isSet(type);
             // The selected type is not set
             if (redundant) {
-                String message = type == IgnoreStatus.IgnoreType.ALL
-                    ? "&(red)You are already not ignoring "
-                    : "&(red)You are already not ignoring %s from ";
-                sender.sendMessage(
-                    ComponentColor.red(String.format(message, type.toFormattedString()))
-                        .append(ComponentColor.aqua(ignored.username))
+                return error(
+                    sender,
+                    "You are already not ignoring {} {}",
+                    type == IgnoreStatus.IgnoreType.ALL
+                        ? ""
+                        : type.toFormattedString() + " from",
+                    ignored
                 );
-                return true;
             }
 
             flp.updateIgnoreStatus(ignored.uuid, type, false);
-            String message = type == IgnoreStatus.IgnoreType.ALL
-                ? "You are no longer ignoring "
-                : "You are no longer ignoring %s from ";
-            sender.sendMessage(
-                ComponentColor.green(String.format(message, type.toFormattedString()))
-                    .append(ComponentColor.aqua(ignored.username))
+            return error(
+                sender,
+                "You are no longer ignoring {} {}",
+                type == IgnoreStatus.IgnoreType.ALL
+                    ? ""
+                    : type.toFormattedString() + " from",
+                ignored
             );
         }
 

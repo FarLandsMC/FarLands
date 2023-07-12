@@ -4,7 +4,6 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.mechanic.region.AutumnEvent;
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -27,7 +26,7 @@ public class CommandParty extends PlayerCommand {
                 FLUtils.tpPlayer(player, TREE);
             }
         } else {
-            player.sendMessage(ComponentColor.red("There are no server events active currently."));
+            error(player, "There are no server events active currently.");
         }
         return true;
     }

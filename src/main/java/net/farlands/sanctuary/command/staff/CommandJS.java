@@ -14,7 +14,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 import javax.script.ScriptEngine;
@@ -65,8 +64,13 @@ public class CommandJS extends Command {
         SELF_ALIAS.forEach(alias -> this.engine.put(alias, sender));
 
         try {
-            this.engine.put("_", this.lastResult.get(sender instanceof Player p ? p.getUniqueId() : null));
+            var flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+            this.engine.put("_", this.lastResult.get(flp == null ? null : flp.uuid));
             Object result = this.engine.eval(String.join(" ", args));
+            if (result instanceof Component comp) {
+                sender.sendMessage(comp);
+                return true;
+            }
             String str = result + "";
             if (str.startsWith(FILE_PREFIX)) {
                 str = str
@@ -78,7 +82,7 @@ public class CommandJS extends Command {
                 }
                 return true;
             } else {
-                this.lastResult.put(sender instanceof Player p ? p.getUniqueId() : null, result);
+                this.lastResult.put(flp == null ? null : flp.uuid, result);
             }
             Component component = Component.text(str);
             if (str.length() > 400) { // Limit to 400 characters
@@ -87,7 +91,7 @@ public class CommandJS extends Command {
                 FarLands.getDebugger().echo(str.substring(0, Math.min(str.length(), 2000)));
             }
             sender.sendMessage(component);
-        } catch (ScriptException e) {
+        } catch (Exception e) {
             sender.sendMessage(ComponentColor.red(e.getMessage()));
             e.printStackTrace();
         }

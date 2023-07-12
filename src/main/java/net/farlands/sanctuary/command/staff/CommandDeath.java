@@ -42,7 +42,7 @@ public class CommandDeath extends PlayerCommand {
                 return error(sender, "Invalid death number.  If you wish to rollback a death, use /restoredeath");
             }
             if (deaths.size() - 1 < death || death < 0) {
-                return error(sender, "Death number must be between 1 and %d", deaths.size());
+                return error(sender, "Death number must be between 1 and {}", deaths.size());
             }
         }
         Location deathLocation = deaths.get(death).location();

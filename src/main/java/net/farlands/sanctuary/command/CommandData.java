@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command;
 
 import io.papermc.paper.advancement.AdvancementDisplay;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.player.CommandEmote;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -190,9 +191,7 @@ public class CommandData {
      */
     public @NotNull Component getRequirements() {
         if (this.rankOnly()) {
-            return ComponentColor.red("You must be at least rank ")
-                .append(this.minimumRank)
-                .append(ComponentColor.red(" to use this command."));
+            return ComponentColor.red("You must be at least rank {} to use this command.", this.minimumRank);
         }
 
         TextComponent.Builder cBuilder = Component.text().color(NamedTextColor.RED)
@@ -200,11 +199,7 @@ public class CommandData {
         List<Component> requirements = new ArrayList<>();
 
         if (this.minimumRank != Rank.INITIATE) {
-            requirements.add(
-                Component.text("- At least rank ")
-                    .append(this.minimumRank)
-                    .append(ComponentColor.red("\n%s", this.rankCompare.name()))
-            );
+            requirements.add(ComponentUtils.format("- At least rank {}\n{}", this.minimumRank, this.rankCompare));
         }
 
         if (!this.advancementsRequired.isEmpty()) {
@@ -214,42 +209,26 @@ public class CommandData {
                     throw new IllegalArgumentException("Advancement is hidden and cannot be displayed.");
                 }
                 return ComponentUtils.hover(
-                    ComponentColor.green("[")
-                        .append(display.title())
-                        .append(Component.text("]")),
+                    ComponentColor.green("[{}]", display.title()),
                     display.description()
                 );
             }).toList();
 
-            requirements.add(
-                Component.text("Complete the advancements: ").append(
-                    Component.join(
-                        JoinConfiguration.separators(
-                            Component.text(", "),
-                            Component.text(", and ")
-                        ),
-                        advancements
-                    ))
-            );
+            requirements.add(ComponentUtils.format("Complete the advancements: {}", advancements));
         }
 
         if (!this.craftedItemsRequired.isEmpty()) {
             List<Component> items = this.craftedItemsRequired.stream()
                 .map(ItemStack::new).map(ComponentUtils::item).toList();
-            requirements.add(
-                Component.text("Craft the following items: ").append(Component.join(
-                                                                         JoinConfiguration.separators(
-                                                                             Component.text(", "),
-                                                                             Component.text(", and ")
-                                                                         ),
-                                                                         items
-                                                                     )
-                ));
+            requirements.add(ComponentUtils.format("Craft the following items: {}", items));
         }
 
         if (this.playedHoursRequired > 0) {
-            requirements.add(Component.text("Play more than " + this.playedHoursRequired
-                                            + " hour" + (this.playedHoursRequired != 1 ? "s" : "")));
+            requirements.add(ComponentUtils.format(
+                "Play more than {} hour{}",
+                this.playedHoursRequired,
+                this.playedHoursRequired != 1 ? "s" : ""
+            ));
         }
 
         if (this.customRequirement != null) {
@@ -355,8 +334,18 @@ public class CommandData {
     }
 
     /**
+     * Set the command aliases
+     *
+     * @param aliases       the aliases
+     * @return this data
+     */
+    public @NotNull CommandData aliases(final @NotNull String... aliases) {
+        return this.aliases(this.requiresAlias, aliases);
+    }
+
+    /**
      * Whether the alias should be passed with the arguments.
-     * Needed in things like {@link net.farlands.sanctuary.command.player.CommandShrug}.
+     * Needed in things like {@link CommandEmote}.
      *
      * @return requires alias
      */

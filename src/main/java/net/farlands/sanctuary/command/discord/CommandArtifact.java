@@ -80,7 +80,7 @@ public class CommandArtifact extends DiscordCommand {
 
             try (InputStream in = new URL(paperDownload).openStream()) {
                 long b = Files.copy(in, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                success(sender, "Successfully downloaded %,d bytes from paper", b);
+                success(sender, "Successfully downloaded {::%,d} bytes from paper", b);
             } catch (IOException e) {
                 dest.delete();
                 e.printStackTrace();
@@ -103,7 +103,7 @@ public class CommandArtifact extends DiscordCommand {
                 .thenAccept(is -> {
                     try {
                         long b = Files.copy(is, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        success(sender, "Downloaded %,d bytes from %s", b, attachment.getFileName());
+                        success(sender, "Downloaded {::%,d} bytes from {}", b, attachment.getFileName());
                     } catch (Exception ex) {
                         failures.add(attachment.getFileName());
                         Logging.error(ex.getMessage());
@@ -115,8 +115,8 @@ public class CommandArtifact extends DiscordCommand {
         if (!failures.isEmpty()) {
             return error(
                 sender,
-                "Unable to download file(s): %s%s",
-                String.join(", ", failures),
+                "Unable to download file(s): {}{}",
+                failures,
                 args.restartServer ? "\nAborting Restart..." : ""
             );
         }

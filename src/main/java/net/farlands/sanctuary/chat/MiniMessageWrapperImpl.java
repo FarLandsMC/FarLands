@@ -307,41 +307,31 @@ final class MiniMessageWrapperImpl implements MiniMessageWrapper {
         return (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
     }
 
+    private static final List<NamedTextColor> ORDERED_NAMED_COLORS = List.of(
+        BLACK,
+        DARK_BLUE,
+        DARK_GREEN,
+        DARK_AQUA,
+        DARK_RED,
+        DARK_PURPLE,
+        GOLD,
+        GRAY,
+        DARK_GRAY,
+        BLUE,
+        GREEN,
+        AQUA,
+        RED,
+        LIGHT_PURPLE,
+        YELLOW,
+        WHITE
+    );
     private @Nullable Character legacyCodeFromNamed(@NotNull NamedTextColor color) {
-        if (BLACK.equals(color)) {
-            return '0';
-        } else if (DARK_BLUE.equals(color)) {
-            return '1';
-        } else if (DARK_GREEN.equals(color)) {
-            return '2';
-        } else if (DARK_AQUA.equals(color)) {
-            return '3';
-        } else if (DARK_RED.equals(color)) {
-            return '4';
-        } else if (DARK_PURPLE.equals(color)) {
-            return '5';
-        } else if (GOLD.equals(color)) {
-            return '6';
-        } else if (GRAY.equals(color)) {
-            return '7';
-        } else if (DARK_GRAY.equals(color)) {
-            return '8';
-        } else if (BLUE.equals(color)) {
-            return '9';
-        } else if (GREEN.equals(color)) {
-            return 'a';
-        } else if (AQUA.equals(color)) {
-            return 'b';
-        } else if (RED.equals(color)) {
-            return 'c';
-        } else if (LIGHT_PURPLE.equals(color)) {
-            return 'd';
-        } else if (YELLOW.equals(color)) {
-            return 'e';
-        } else if (WHITE.equals(color)) {
-            return 'f';
-        }
-        return null;
+        int index = ORDERED_NAMED_COLORS.indexOf(color);
+        return index == -1
+            ? null
+            : index < 10
+                ? (char) (index + '0')
+                : (char) (index + 'a' - 10);
     }
 
     public static final Map<Character, String> CHAR_COLORS = new ImmutableMap.Builder<Character, String>()

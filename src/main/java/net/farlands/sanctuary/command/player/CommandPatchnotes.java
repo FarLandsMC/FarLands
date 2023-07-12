@@ -7,7 +7,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -22,11 +21,9 @@ public class CommandPatchnotes extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         try {
             sender.sendMessage(
-                ComponentColor.gray("").append(
-                    ComponentColor.gold("Showing notes for patch ")
-                        .append(ComponentColor.aqua("#%s", FarLands.getDataHandler().getCurrentPatch()))
-                        .append(Component.text(":\n"))
-                ).append(
+                ComponentColor.gray(
+                    "Showing notes for patch {:aqua}:\n{}",
+                    "#" + FarLands.getDataHandler().getCurrentPatch(),
                     ComponentUtils.parse(
                         new String(
                             FarLands.getDataHandler().getResource("patchnotes.txt"),
@@ -34,7 +31,6 @@ public class CommandPatchnotes extends PlayerCommand {
                         )
                     )
                 )
-
             );
 
             FarLands.getDataHandler().getOfflineFLPlayer(sender).viewedPatchnotes = true;

@@ -40,7 +40,7 @@ public class CommandGetLog extends DiscordCommand {
                 start = parseDate(args[0]);
                 end = args.length == 1 ? start : parseDate(args[1]);
             } catch (IllegalArgumentException ex) {
-                return error(sender, "Invalid date \"%s\".  Expected format: yyyy-mm-dd", ex.getMessage());
+                return error(sender, "Invalid date \"{}\".  Expected format: yyyy-mm-dd", ex.getMessage());
             }
         }
 

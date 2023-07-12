@@ -15,7 +15,7 @@ public class CommandBotSpam extends Command {
     public boolean execute(CommandSender sender, String[] args) {
         FarLands.getDataHandler().setAllowNewPlayers(!FarLands.getDataHandler().allowNewPlayers());
         return info(
-            sender, "Bot spam mode %s.",
+            sender, "Bot spam mode {}.",
             FarLands.getDataHandler().allowNewPlayers() ? "disabled" : "enabled"
         );
     }

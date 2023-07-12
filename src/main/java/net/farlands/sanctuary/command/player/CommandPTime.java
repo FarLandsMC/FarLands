@@ -2,15 +2,13 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
+import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
-
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -19,7 +17,6 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CommandPTime extends PlayerCommand {
     public CommandPTime() {
@@ -40,14 +37,7 @@ public class CommandPTime extends PlayerCommand {
             Time t = FLUtils.safeValueOf(Time::valueOf, args[0].toUpperCase());
 
             if (t == null) {
-                sender.sendMessage(
-                    ComponentColor.red(
-                        "Invalid time, valid times: %s",
-                        Arrays.stream(Time.VALUES)
-                            .map(Utils::formattedName)
-                            .collect(Collectors.joining(", "))
-                    )
-                );
+                sender.sendMessage(ComponentColor.red("Invalid time, valid times: {}", (Object) Time.VALUES));
                 return true;
             } else if (t == Time.RESET) {
                 FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).ptime = -1;

@@ -194,8 +194,11 @@ public class CommandMessage extends PlayerCommand {
 
         // Notify staff of the message
         Logging.broadcastStaffExempt(
-            ComponentColor.red("[%s → %s]: ", senderFlp.username, recipientFlp.username)
-                .append(ComponentColor.gray(ComponentUtils.toText(message))), // Remove color/formatting
+            ComponentColor.red(
+                "[{} → {}]: {:gray}",
+                senderFlp.username, recipientFlp.username,
+                ComponentUtils.toText(message)
+            ),
             senderPlayer, recipientPlayer
         );
     }

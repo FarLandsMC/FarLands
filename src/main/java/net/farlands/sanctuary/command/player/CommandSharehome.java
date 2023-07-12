@@ -100,7 +100,7 @@ public class CommandSharehome extends Command {
             // Use the same cooldown as /package
             success(sender, "Home shared!");
         } else { // The sender already has a sharehome queued for this person so the transfer failed
-            error(sender, "You cannot share a home with %s right now.", recipientFlp.username);
+            error(sender, "You cannot share a home with {} right now.", recipientFlp);
         }
 
         return true;
@@ -147,7 +147,7 @@ public class CommandSharehome extends Command {
                     .append(ComponentColor.green(" added!"))
             );
         } else {
-            success(sender, "Declined home sent by %s.", shareHome.sender());
+            success(sender, "Declined home sent by {}.", shareHome.sender());
         }
         flp.removeShareHome(shareHome.sender());
         return true;

@@ -28,7 +28,7 @@ public class CommandGod extends PlayerCommand {
             else if ("off".equalsIgnoreCase(args[0]))
                 flp.god = false;
             flp.updateSessionIfOnline(false);
-            info(sender, "God mode %s.", flp.god ? "enabled" : "disabled");
+            info(sender, "God mode {}.", flp.god ? "enabled" : "disabled");
         } else {
             if (flp.flightPreference) {
                 info(sender, "God mode enabled, disable it with /god off");

@@ -25,7 +25,7 @@ public class CommandDebug extends PlayerCommand {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             boolean debugging = !flp.debugging;
             flp.debugging = debugging;
-            sender.sendMessage(ComponentColor.aqua("Debugging: %s", debugging));
+            sender.sendMessage(ComponentColor.aqua("Debugging: {}", debugging));
             if (debugging)
                 FarLands.getMechanicHandler().getMechanic(AntiCheat.class).put(sender);
             else
@@ -36,9 +36,9 @@ public class CommandDebug extends PlayerCommand {
                 System.arraycopy(args, 1, newArgs, 0, newArgs.length);
             String post = FarLands.getDebugger().getPost(args[0], newArgs);
             if (post == null) {
-                return error(sender, "%s has not been posted.", args[0]);
+                return error(sender, "{} has not been posted.", args[0]);
             }
-            sender.sendMessage(ComponentColor.aqua("%s: ", args[0]).append(ComponentColor.green(post)));
+            sender.sendMessage(ComponentColor.aqua("{}: {:green}", args[0], post));
         }
         return true;
     }

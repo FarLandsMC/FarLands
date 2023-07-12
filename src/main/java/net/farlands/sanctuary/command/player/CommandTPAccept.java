@@ -6,7 +6,6 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,8 +27,7 @@ public class CommandTPAccept extends PlayerCommand {
         if ("tpcancel".equalsIgnoreCase(args[0]) || "tpacancel".equalsIgnoreCase(args[0])) {
             TeleportRequest request = session.outgoingTeleportRequest;
             if (request == null) {
-                sender.sendMessage(ComponentColor.red("You have no outgoing teleport request to cancel."));
-                return true;
+                return error(sender, "You have no outgoing teleport request to cancel.");
             }
 
             request.cancel();
@@ -39,8 +37,7 @@ public class CommandTPAccept extends PlayerCommand {
         List<TeleportRequest> requests = session.incomingTeleportRequests;
 
         if(requests == null || requests.isEmpty()) {
-            sender.sendMessage(ComponentColor.red("You have no pending teleport requests."));
-            return true;
+            return error(sender, "You have no pending teleport requests.");
         }
 
         TeleportRequest request = args.length == 2 // If a certain player's request was specified
@@ -48,8 +45,7 @@ public class CommandTPAccept extends PlayerCommand {
                 : requests.remove(0); // First in, first out
 
         if(request == null) {
-            sender.sendMessage(ComponentColor.red("This player has not sent you a teleport request."));
-            return true;
+            return error(sender, "This player has not sent you a teleport request.");
         }
 
         if("tpaccept".equals(args[0]))

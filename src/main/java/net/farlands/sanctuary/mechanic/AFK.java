@@ -104,7 +104,7 @@ public class AFK extends Mechanic {
             int answer = Command.parseNumber(ComponentUtils.toText(event.message()), Integer::parseInt, Integer.MAX_VALUE); // Parse their message as a number
             int actualAnswer = this.afkCheckMap.get(event.getPlayer().getUniqueId()).getSecond(); // Get the actual answer
             if (answer != actualAnswer) { // If they're different, kick the player
-                Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> event.getPlayer().kick(ComponentColor.red("The correct answer was: %s.", actualAnswer)));
+                Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> event.getPlayer().kick(ComponentColor.red("The correct answer was: {}.", actualAnswer)));
             } else { // Otherwise, reset their cooldown
                 setAFKCooldown(event.getPlayer());
                 event.getPlayer().sendMessage(ComponentColor.green("Correct."));

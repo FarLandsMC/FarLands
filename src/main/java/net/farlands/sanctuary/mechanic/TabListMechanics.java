@@ -52,7 +52,7 @@ public class TabListMechanics extends Mechanic {
             })
             .toList();
 
-        Component header = ComponentColor.gold("- %s Player%s Online -", online, online == 1 ? "" : "s");
+        Component header = ComponentColor.gold("- {} Player{} Online -", online, online == 1 ? "" : "s");
 
         Component footer = Component.join(JoinConfiguration.separator(ComponentColor.gray(" | ")), worlds)
             .append(!showVanished || vanished.isEmpty() ? Component.empty() : ComponentColor.gray("\n*Vanished"));

@@ -5,7 +5,6 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.Voting;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.command.CommandSender;
 
 public class CommandVoteParty extends Command {
@@ -17,12 +16,7 @@ public class CommandVoteParty extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         int n = FarLands.getMechanicHandler().getMechanic(Voting.class).getVotesUntilParty();
-        sender.sendMessage(
-            ComponentColor.aqua(n + "")
-                .append(ComponentColor.gold(" more "))
-                .append(ComponentColor.gold(n == 1 ? "vote" : "votes"))
-                .append(ComponentColor.gold(" until a vote party."))
-        );
+        info(sender, "{:aqua} more vote{0::s} until a vote party.", n);
         return true;
     }
 }

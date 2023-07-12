@@ -21,11 +21,10 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
@@ -140,7 +139,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandSetHome());          // Initiate
         registerCommand(new CommandSharehome());        // Initiate
         registerCommand(new CommandShovel());           // Initiate
-        registerCommand(new CommandShrug());            // Initiate
+        registerCommand(new CommandEmote());            // Initiate
         registerCommand(new CommandSit());              // Knight
         registerCommand(new CommandSkull());            // Sage
         registerCommand(new CommandSpawn());            // Initiate
@@ -148,7 +147,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandStats());            // Initiate
         registerCommand(new CommandSwapHome());         // Initiate
         registerCommand(new CommandTimeZone());         // Initiate
-        registerCommand(new CommandTogglePackages());   // Initiate
+        registerCommand(new CommandPackages());         // Initiate
         registerCommand(new CommandTop());              // Initiate
         registerCommand(new CommandTPA());              // Initiate
         registerCommand(new CommandTPAccept());         // Initiate
@@ -565,16 +564,18 @@ public class CommandHandler extends Mechanic {
      * @param discordChannel Discord channel in which the message was sent -- null for in-game
      */
     public void logCommand(String name, String command, @Nullable TextChannel discordChannel) {
-        TextColor col = NamedTextColor.GREEN;
-        if (discordChannel == null) {
-            col = NamedTextColor.RED;
-        } else if (discordChannel.getIdLong() == DiscordChannel.STAFF_COMMANDS.id()) {
-            col = NamedTextColor.DARK_AQUA;
-        }
+        boolean sc = discordChannel != null && discordChannel.getIdLong() == DiscordChannel.STAFF_COMMANDS.id();
         Logging.broadcastStaff(
-            Component.text(name + ": ")
-                .color(col)
-                .append(ComponentColor.gray(command))
+            ComponentUtils.format(
+                "{}{}: {:gray}",
+                sc ? "[SC] " : "",
+                name,
+                command
+            ).color(
+                discordChannel == null
+                    ? NamedTextColor.RED
+                    : NamedTextColor.GREEN
+            )
         );
     }
 
@@ -585,7 +586,8 @@ public class CommandHandler extends Mechanic {
      * @param discordChannel Discord channel in which the message was sent -- null for in-game
      */
     public void logCommand(CommandSender sender, String command, @Nullable TextChannel discordChannel) {
-        logCommand(sender.getName(), command, discordChannel);
+        var flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
+        logCommand(flp != null ? flp.username : sender.getName(), command, discordChannel);
     }
 
     /**

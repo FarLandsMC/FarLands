@@ -49,9 +49,9 @@ public class CommandChain extends Command {
         if (!badCommands.isEmpty()) {
             error(
                 sender,
-                "You do not have permission to run the following command%s: %s",
+                "You do not have permission to run the following command{}: {}",
                 badCommands.size(),
-                String.join(", ", badCommands)
+                badCommands
             );
         }
         return true;

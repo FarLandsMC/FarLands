@@ -16,7 +16,7 @@ public class CommandReboot extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
-        sender.sendMessage(ComponentColor.gold("Next reboot in %s.", TimeInterval.formatTime(
+        sender.sendMessage(ComponentColor.gold("Next reboot in {}.", TimeInterval.formatTime(
             86459999L - ((System.currentTimeMillis() - FarLands.getFLConfig().restartTime) % 86400000L),
             false,
             TimeInterval.MINUTE

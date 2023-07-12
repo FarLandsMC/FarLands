@@ -44,7 +44,7 @@ public class CommandConfig extends Command {
 
         // If it's not valid, error to the user
         if (cf == null) {
-            return error(sender, "Invalid field. Valid fields are: %s", String.join(", ", ConfigFields.fields(sender)));
+            return error(sender, "Invalid field. Valid fields are: {}", ConfigFields.fields(sender));
         }
 
         // Check that the sender is valid for the field that they desire
@@ -59,16 +59,16 @@ public class CommandConfig extends Command {
         // If the arg is not present, then just read the value
         if (arg == null) {
             String current = cf.inner().get(sender);
-            return info(sender, "%s is currently set to %s", Utils.formattedName(cf), current);
+            return info(sender, "{} is currently set to {}", cf, current);
         }
 
         // Otherwise, try to set it
         try {
             cf.inner().set(arg, sender);
             String current = cf.inner().get(sender);
-            return info(sender, "Updated %s to be %s.", Utils.formattedName(cf), current);
+            return info(sender, "Updated {} to be {}.", cf, current);
         } catch (IllegalArgumentException ex) {
-            return error(sender, "Invalid value: %s", ex.getMessage());
+            return error(sender, "Invalid value: {}", ex.getMessage());
         }
 
     }
@@ -114,7 +114,7 @@ public class CommandConfig extends Command {
                 .setter((n, cs) -> {
                     ((Player) cs).setFlySpeed(n * 0.1f);
                 })
-                .getter((cs) -> ((int) ((Player) cs).getFlySpeed()) * 10 + "")
+                .getter((cs) -> String.valueOf((int) (((Player) cs).getFlySpeed() * 10)))
                 .build()
         ),
         GOD(

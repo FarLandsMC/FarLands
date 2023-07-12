@@ -129,14 +129,14 @@ public class Pagination {
             header = header.append(
                 this.prevPageButton.color(this.validButtonColor)
                     .hoverEvent(
-                        HoverEvent.showText(Component.text("Click to go to the previous page.", this.hoverTextColor))
+                        HoverEvent.showText(Component.text("Click to go to the previous page", this.hoverTextColor))
                     )
                     .clickEvent(ClickEvent.runCommand(this.movePageCommand + (page - 1)))
             );
         } else {
             header = header.append(
                 this.prevPageButton.color(this.invalidButtonColor)
-                    .hoverEvent(HoverEvent.showText(Component.text("No previous page.", this.hoverTextColor)))
+                    .hoverEvent(HoverEvent.showText(Component.text("No previous page", this.hoverTextColor)))
             );
         }
 
@@ -147,14 +147,14 @@ public class Pagination {
             header = header.append(
                 this.nextPageButton.color(this.validButtonColor)
                     .hoverEvent(
-                        HoverEvent.showText(Component.text("Click to go to the next page.", this.hoverTextColor))
+                        HoverEvent.showText(Component.text("Click to go to the next page", this.hoverTextColor))
                     )
                     .clickEvent(ClickEvent.runCommand(this.movePageCommand + (page + 1)))
             );
         } else {
             header = header.append(
                 this.nextPageButton.color(this.invalidButtonColor)
-                    .hoverEvent(HoverEvent.showText(Component.text("No next page.", this.hoverTextColor)))
+                    .hoverEvent(HoverEvent.showText(Component.text("No next page", this.hoverTextColor)))
             );
         }
 

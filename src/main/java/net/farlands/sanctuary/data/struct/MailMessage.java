@@ -19,7 +19,7 @@ public record MailMessage(
     Component message
 ) implements ComponentLike {
 
-    public static final Component UNREAD_MAIL = ComponentColor.gold("You have mail. Read it with ").append(ComponentUtils.command("/mail read"));
+    public static final Component UNREAD_MAIL = ComponentColor.gold("You have mail. Read it with {}", ComponentUtils.command("/mail read"));
 
     public MailMessage(UUID sender, Component message) {
         this(

@@ -53,7 +53,7 @@ public class CommandToLocation extends PlayerCommand {
                 yaw = args.length <= 3 || args[3].equals("~") ? sender.getLocation().getYaw() : Float.parseFloat(args[3]);
                 pitch = args.length <= 4 || args[4].equals("~") ? sender.getLocation().getPitch() : Float.parseFloat(args[4]);
             } catch (NumberFormatException ex) {
-                return error(sender, "Could not find location: %s", ex.getMessage());
+                return error(sender, "Could not find location: {}", ex.getMessage());
             }
             world = args.length >= 6 ? Bukkit.getWorld(args[5]) : sender.getWorld();
         } else {
@@ -61,13 +61,13 @@ public class CommandToLocation extends PlayerCommand {
         }
 
         if (world == null) {
-            return error(sender, "Invalid world: %s", args[5]);
+            return error(sender, "Invalid world: {}", args[5]);
         }
 
         Location newLocation = new Location(world, x, y, z, yaw, pitch);
 
         sender.teleport(newLocation);
-        return success(sender, "Teleporting to %s.", FLUtils.toSimpleString(newLocation));
+        return success(sender, "Teleporting to {}.", FLUtils.toSimpleString(newLocation));
     }
 
     @Override

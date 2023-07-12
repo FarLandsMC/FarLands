@@ -18,6 +18,7 @@ import net.farlands.sanctuary.mechanic.GeneralMechanics;
 import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -310,11 +311,7 @@ public class OfflineFLPlayer implements ComponentLike {
         boolean online = player != null;
         if (rank.specialCompareTo(this.rank) > 0) {
             Logging.broadcastIngame(
-                ComponentColor.gold(" ** ") // " ** <username> has ranked up to <rank> ** "
-                    .append(ComponentColor.green(username))
-                    .append(ComponentColor.gold(" has ranked up to "))
-                    .append(rank)
-                    .append(ComponentColor.gold(" ** ")),
+                ComponentColor.gold(" ** {:green} has ranked up to {}! **", username, rank),
                 false
             );
             FarLands.getDiscordHandler().sendMessageEmbed(
@@ -652,6 +649,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public @NotNull Component asComponent() {
         return Component.text(this.username)
             .color(this.rank.nameColor())
-            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(this, null, false)));
+            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(this, null, false)))
+            .clickEvent(ClickEvent.suggestCommand("/msg " + this.username));
     }
 }

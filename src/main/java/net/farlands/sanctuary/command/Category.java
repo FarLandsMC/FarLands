@@ -57,7 +57,7 @@ public enum Category implements ComponentLike {
     public @NotNull Component asComponent() {
         return ComponentUtils.command(
             "/help " + Utils.formattedName(this),
-            ComponentColor.gold("%s - ", getAlias()).append(ComponentColor.white(getDescription())),
+            ComponentColor.gold("{} - {:white}", getAlias(), ComponentColor.white(getDescription())),
             ComponentColor.gray("View commands in category")
         );
     }

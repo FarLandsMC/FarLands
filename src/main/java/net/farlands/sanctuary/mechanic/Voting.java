@@ -8,15 +8,14 @@ import net.farlands.sanctuary.data.PluginData;
 import net.farlands.sanctuary.data.struct.ItemReward;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -99,20 +98,23 @@ public class Voting extends Mechanic {
         flp.addVote();
         --this.pluginData.votesUntilParty;
 
-        TextComponent.Builder builder = Component.text()
-            .color(NamedTextColor.GOLD)
-            .append(ComponentColor.aqua(flp.username))
-            .append(Component.text(" just voted at "))
-            .append(ComponentUtils.link(host, url, NamedTextColor.AQUA))
-            .append(Component.text(" and received a reward!"));
+        TextComponent.Builder builder = ((TextComponent) ComponentColor.gold(
+            "{} just voted at {} and received a reward!",
+            flp,
+            ComponentUtils.link(host, url, NamedTextColor.AQUA)
+        )).toBuilder();
+
         if (this.pluginData.votesUntilParty > 0) {
-            builder.append(ComponentColor.aqua(" " + this.pluginData.votesUntilParty))
-                .append(ComponentColor.gold(" more vote%s until a vote party!", this.pluginData.votesUntilParty == 1 ? "" : "s"));
+            builder.append(ComponentColor.gold(
+                " {:aqua} more {} until a vote party!",
+                this.pluginData.votesUntilParty,
+                this.pluginData.votesUntilParty == 1 ? "" : "s")
+            );
         }
         Logging.broadcastIngame(builder.build(), false);
 
         EmbedBuilder eb = new EmbedBuilder()
-            .setTitle(flp.username + " just voted at " + host + " and received a reward!", url)
+            .setTitle(MarkdownProcessor.escapeMarkdown(flp.username + " just voted at " + host + " and received a reward!"), url)
             .setColor(NamedTextColor.YELLOW.value());
 
         if (this.pluginData.votesUntilParty > 0) {
@@ -151,7 +153,7 @@ public class Voting extends Mechanic {
         Player actualTopPlayer = actualTop.getOnlinePlayer();
         if (actualTopPlayer != null) {
             actualTop.updateSessionIfOnline(false);
-            actualTopPlayer.sendMessage(ChatColor.GREEN + "You are now the top voter of the month!");
+            actualTopPlayer.sendMessage(ComponentColor.green("You are now the top voter of the month!"));
         }
     }
 
@@ -176,10 +178,7 @@ public class Voting extends Mechanic {
             .filter(player -> FarLands.getDataHandler().getOfflineFLPlayer(player).acceptVoteRewards)
             .forEach(player -> {
                 ItemStack stack = ItemReward.randomReward(this.voteConfig.votePartyRewards(), this.voteConfig.votePartyDistribWeight).getFirst();
-                player.sendMessage(
-                    ComponentColor.gold("Vote Party! Receiving ")
-                        .append(ComponentUtils.item(stack))
-                );
+                player.sendMessage(ComponentColor.gold("Vote Party! Receiving {}.", stack));
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.6929134F);
                 FLUtils.giveItem(player, stack, true);
             });

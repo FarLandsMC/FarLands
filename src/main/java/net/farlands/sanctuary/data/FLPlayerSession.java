@@ -208,7 +208,7 @@ public class FLPlayerSession {
             if (sendMessages) {
                 player.sendMessage(
                     ComponentColor.gold(
-                        "Receiving %d vote reward%s!",
+                        "Receiving {} vote reward{}!",
                         handle.voteRewards,
                         handle.voteRewards == 1 ? "s" : "")
                 );
@@ -289,12 +289,11 @@ public class FLPlayerSession {
 
             player.sendMessage(
                 ComponentColor.gold(
-                        "You have pending homes from %d player%s",
-                        pendingHomes.size(),
-                        pendingHomes.size() == 1 ? "" : "s"
-                    )
-                    .append(Component.join(JoinConfiguration.commas(true), pendingHomes))
-                    .append(ComponentColor.gold("Hover over the name%s to view more info.", pendingHomes.size() == 1 ? "" : "s"))
+                    "You have pending homes from {} player{1}: {}.\nHover over the name{1} to view more info.",
+                    pendingHomes.size(),
+                    pendingHomes.size() == 1 ? "" : "s",
+                    pendingHomes
+                )
             );
         }
     }
@@ -350,15 +349,16 @@ public class FLPlayerSession {
         if (handle.packageToggle == PackageToggle.ASK) {
             if (!packages.isEmpty()) {
                 // Notify the player how many packages they've been sent
-                Component message = ComponentColor.gold("Receiving ")
-                    .append(ComponentColor.aqua(packages.size() + ""))
-                    .append(ComponentColor.gold(" package%s from ", packages.size() == 1 ? "" : "s"))
-                    .append(ComponentColor.aqua(
-                        packages.stream()
-                            .map(Package::senderName)
-                            .collect(Collectors.joining(", ")))
-                    )
-                    .append(ComponentColor.gold(". Use /paccept|decline [player] to accept or decline the packages."));
+                Component message = ComponentColor.gold(
+                    "Receiving {} package{} from {}.  Use {} or {} to accept or decline the packages.",
+                    packages.size(),
+                    packages.size() == 1 ? "" : "s",
+                    packages.stream()
+                        .map(Package::senderName).toList(),
+                    ComponentUtils.suggestCommand("/paccept [player]"),
+                    ComponentUtils.suggestCommand("/pdecline [player]")
+                );
+
                 player.sendMessage(message);
                 addAFKMessage(message);
             }

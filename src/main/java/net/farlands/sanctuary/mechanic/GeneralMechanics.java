@@ -27,6 +27,7 @@ import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Rail;
@@ -154,14 +155,15 @@ public class GeneralMechanics extends Mechanic {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
             if (!flp.viewedPatchnotes) {
                 player.sendMessage(
-                    ComponentColor.gold("Patch ")
-                        .append(ComponentColor.aqua("#%s", FarLands.getDataHandler().getCurrentPatch()))
-                        .append(ComponentColor.gold(" has been released! View changes with "))
-                        .append(ComponentUtils.command("/patchnotes"))
+                    ComponentColor.gold(
+                        "Patch {:aqua} has been released! View changes with {}",
+                        "#" + FarLands.getDataHandler().getCurrentPatch(),
+                        ComponentUtils.command("/patchnotes")
+                    )
                 );
             }
             if (flp.birthday != null && flp.birthday.isToday()) {
-                player.sendMessage(ComponentColor.gold("Happy Birthday"));
+                player.sendMessage(ComponentColor.gold("Happy Birthday!"));
             }
             flp.updateDeaths(); // Just to be sure that deaths count is accurate
         }, 125L);
@@ -180,12 +182,14 @@ public class GeneralMechanics extends Mechanic {
             }, "<gold><bold> > </bold> Welcome <green>%s</green> to FarLands!", player.getName());
             player.chat("/chain {guidebook} {shovel}");
             player.sendMessage(
-                ComponentColor.gold("Welcome to FarLands! Please read ")
-                    .append(ComponentUtils.command("/rules"))
-                    .append(ComponentColor.gold(" before playing. To get started, you can use "))
-                    .append(ComponentUtils.command("/wild"))
-                    .append(ComponentColor.gold(" to teleport to a random location on the map.  Also, feel free to join our community on Discord by clicking "))
-                    .append(ComponentUtils.link("here", FarLands.getFLConfig().discordInvite))
+                ComponentColor.gold(
+                    "Welcome to FarLands! Please read {} before playing.  To get started, you can " +
+                    "use {} to teleport to a random location on the map.  Also feel free to join our " +
+                    "community on Discord by clicking {}!",
+                    ComponentUtils.command("/rules"),
+                    ComponentUtils.command("/wild"),
+                    ComponentUtils.link("here", FarLands.getFLConfig().discordInvite)
+                )
             );
 
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
@@ -309,7 +313,7 @@ public class GeneralMechanics extends Mechanic {
             Item itemEntity = event.getItems().get(0);
             ItemStack hiveStack = itemEntity.getItemStack();
             ItemMeta meta = hiveStack.getItemMeta();
-            meta.lore(List.of(ComponentColor.gold("Bee Count: ").append(ComponentColor.aqua(beeCount + ""))));
+            meta.lore(List.of(ComponentColor.gold("Bee Count: {:aqua}", beeCount).decoration(TextDecoration.ITALIC, false)));
             hiveStack.setItemMeta(meta);
             itemEntity.setItemStack(hiveStack);
         }
@@ -417,7 +421,7 @@ public class GeneralMechanics extends Mechanic {
             Location location = event.getClickedBlock().getLocation();
             player.sendMessage(
                 ComponentColor.darkPurple(
-                    "This portal best links to %s in the %s.",
+                    "This portal best links to {} in the {}.",
                     location.getWorld().getName().equals("world") ?
                         (location.getBlockX() >> 3) + " " + location.getBlockY() + " " + (location.getBlockZ() >> 3) :          // x / 8
                         (location.getBlockX() << 3) + "(+7) " + location.getBlockY() + " " + (location.getBlockZ() << 3) + "(+7)",  // x * 8
@@ -457,9 +461,12 @@ public class GeneralMechanics extends Mechanic {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getState() instanceof Beehive) {
             int beeCount = ((Beehive) event.getClickedBlock().getState()).getEntityCount();
             player.sendMessage(
-                ComponentColor.gold("There %s ", beeCount == 1 ? "is" : "are")
-                    .append(ComponentColor.aqua(beeCount + ""))
-                    .append(ComponentColor.gold(" bee%s in this hive.", beeCount == 1 ? "" : "s"))
+                ComponentColor.gold(
+                    "There {} {:aqua} bee{} in this hive.",
+                    beeCount == 1 ? "is" : "are",
+                    beeCount,
+                    beeCount == 1 ? "" : "s"
+                )
             );
         }
     }
@@ -533,7 +540,7 @@ public class GeneralMechanics extends Mechanic {
             }
 
             pet.setOwner(petRecipient);
-            event.getPlayer().sendMessage("Successfully transferred pet to " + petRecipient.getName());
+            event.getPlayer().sendMessage(ComponentColor.gold("Successfully transferred pet to {}.", petRecipient.getName()));
             event.setCancelled(true);
         }
     }
@@ -586,9 +593,10 @@ public class GeneralMechanics extends Mechanic {
             if (player != null && player.getBedSpawnLocation() != null) {
                 event.setTo(player.getBedSpawnLocation());
                 player.sendMessage(
-                    ComponentColor.gold("")
-                        .append(Component.translatable(event.getEntityType().translationKey()).hoverEvent(event.getEntity().asHoverEvent()))
-                        .append(Component.text(" has been sent to your bed location."))
+                    ComponentColor.gold(
+                        "{} has been sent to your bed location.",
+                        Component.translatable(event.getEntityType().translationKey()).hoverEvent(event.getEntity().asHoverEvent())
+                    )
                 );
             } else {
                 event.setTo(FarLands.getDataHandler().getPluginData().spawn.asLocation());
@@ -614,8 +622,10 @@ public class GeneralMechanics extends Mechanic {
         if (flp.homes.isEmpty()) {
             flp.addHome("home", event.getPlayer().getBedSpawnLocation());
             event.getPlayer().sendMessage(
-                ComponentColor.gold("Your home has been set at this location, you can return to it with ")
-                    .append(ComponentUtils.command("/home"))
+                ComponentColor.gold(
+                    "Your home has been set at this location, you can return to it with {}.",
+                    ComponentUtils.command("/home")
+                )
             );
         }
     }
@@ -684,7 +694,7 @@ public class GeneralMechanics extends Mechanic {
         if (killer != null && killer != player) {
             ItemStack skull = SkullCreator.skullFromUuid(player.getUniqueId());
             ItemMeta meta = skull.getItemMeta();
-            meta.displayName(ComponentColor.red(player.getName() + "'s Head"));
+            meta.displayName(ComponentColor.red("{}'s Head", player.getName()));
             Component message = event.deathMessage();
             if (message != null) {
                 meta.lore(List.of(message));

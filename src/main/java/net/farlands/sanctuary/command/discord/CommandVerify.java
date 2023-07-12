@@ -42,7 +42,7 @@ public class CommandVerify extends DiscordCommand {
             flp.updateDiscord();
 
             if (flp.isDiscordVerified())
-                success(sender, "Successfully manually verified %s.", args[0]);
+                success(sender, "Successfully manually verified {}.", args[0]);
             else
                 error(sender, "Manual verification failed. Are you sure you copied the discord ID correctly?");
 
@@ -117,11 +117,11 @@ public class CommandVerify extends DiscordCommand {
             // Check if they have a verification pending
             if (data == null || System.currentTimeMillis() - data.getSecond() > VERIFICATION_EXPIRATION_TIME) {
                 player.sendMessage(
-                    ComponentColor.red("You have no verification pending. Have you run ")
-                        .append(ComponentColor.gold("/verify %s", sender.getName()))
-                        .append(ComponentColor.red(" in our "))
-                        .append(ComponentUtils.command("/discord", ComponentColor.aqua("Discord")))
-                        .append(ComponentColor.red(" server yet?"))
+                    ComponentColor.red(
+                        "You have no verification pending.  Have you run {:gold} in our {} server yet?",
+                        "/verify " + sender.getName(),
+                        ComponentUtils.command("/discord", ComponentColor.aqua("Discord"))
+                    )
                 );
                 return true;
             }

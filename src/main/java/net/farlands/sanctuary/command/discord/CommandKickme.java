@@ -37,7 +37,7 @@ public class CommandKickme extends DiscordCommand {
         }
 
         pl.kick(ComponentColor.gold("Kicked from Discord."));
-        success(sender, "Kicked %s from the game.", pl.getName());
+        success(sender, "Kicked {} from the game.", pl.getName());
 
         return true;
     }

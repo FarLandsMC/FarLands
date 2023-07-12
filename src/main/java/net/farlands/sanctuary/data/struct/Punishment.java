@@ -129,9 +129,12 @@ public final class Punishment {
             suffix = ComponentColor.red("[Active]");
         }
 
-        return ComponentColor.gold(punishmentType.getHumanName() + " ")
-            .append(ComponentColor.aqua("(%s)", SDF.format(new Date(dateIssued))))
-            .append(suffix);
+        return ComponentColor.gold(
+            "{} ({}) {}",
+            punishmentType.getHumanName(),
+            SDF.format(new Date(dateIssued)),
+            suffix
+        );
     }
 
     public enum PunishmentType {

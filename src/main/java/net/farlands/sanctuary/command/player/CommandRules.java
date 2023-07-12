@@ -107,8 +107,7 @@ public class CommandRules extends Command {
                 rules.append(
                     ComponentUtils.command(
                         "/rules " + (i + 1),
-                        ComponentColor.gray("\n%d. ", (i + 1))
-                            .append(ComponentColor.white(rule.getFirst())),
+                        ComponentColor.gray("\n{}. {:white}", i + 1, rule.getFirst()),
                         ComponentColor.gray("View rule " + (i + 1))
                     )
                 );

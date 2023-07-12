@@ -44,9 +44,9 @@ public class CommandMail extends Command {
         if (action == null) {
             return error(
                 sender,
-                "Invalid action \"%s\" expected one of the following: %s",
+                "Invalid action \"{}\" expected one of the following: {}",
                 args[0],
-                Arrays.stream(Action.VALUES).map(Utils::formattedName).collect(Collectors.joining(", "))
+                Action.VALUES
             );
         }
 
@@ -108,7 +108,7 @@ public class CommandMail extends Command {
                 sender.sendMessage("Pages: " + pages);
 
                 if (index < 1 || index > pages) {
-                    return error(sender, "Invalid page number: %s", args.length == 1 ? 1 : args[1]);
+                    return error(sender, "Invalid page number: {}", args.length == 1 ? 1 : args[1]);
                 }
 
                 pagination.sendPage(index, sender);
@@ -118,7 +118,7 @@ public class CommandMail extends Command {
             case CLEAR -> {
                 int size = senderFlp.mail.size();
                 senderFlp.mail.clear();
-                return success(sender, "Cleared %d message%s", size, size == 1 ? "" : "s");
+                return success(sender, "Cleared {} message{}", size, size == 1 ? "" : "s");
             }
         }
 

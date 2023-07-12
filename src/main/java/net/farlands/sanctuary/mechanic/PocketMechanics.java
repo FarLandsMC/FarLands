@@ -83,7 +83,7 @@ public class PocketMechanics extends Mechanic {
 
         Command.info(
             sender,
-            "Removed %s %s from %s %s and moved %s %s to server spawn.",
+            "Removed {} {} from {} {} and moved {} {} to server spawn.",
             removedHomes, removedHomes == 1 ? "home" : "homes",
             playersWithHomes, playersWithHomes == 1 ? "player" : "players",
             movedPlayers, movedPlayers == 1 ? "player" : "players"
@@ -100,7 +100,7 @@ public class PocketMechanics extends Mechanic {
             uidDat = Files.readAllBytes(Paths.get(worldFolder.getAbsolutePath(), "uid.dat"));
 
             FileUtils.deleteDirectory(worldFolder);
-            Command.success(sender, "Deleted pocket world files in %s.", TimeInterval.formatTime(System.currentTimeMillis() - start, true));
+            Command.success(sender, "Deleted pocket world files in {}.", TimeInterval.formatTime(System.currentTimeMillis() - start, true));
         } catch (Exception e) {
             Command.error(sender, "Unable to delete the pocket world folder");
             Logging.error("Unable to delete the pocket world folder");
@@ -144,12 +144,12 @@ public class PocketMechanics extends Mechanic {
         FarLands.getDataHandler().getPluginData().setPocketSpawn(newSpawn);
 
         // Let the sender know the new spawn location
-        Command.success(sender, "Set the pocket spawn to be %s", FLUtils.toSimpleString(newSpawn));
+        Command.success(sender, "Set the pocket spawn to be {}", FLUtils.toSimpleString(newSpawn));
 
         // Feedback
         sender.sendMessage(
             ComponentColor.green(
-                "Loaded new pocket world in %s",
+                "Loaded new pocket world in {}",
                 TimeInterval.formatTime(System.currentTimeMillis() - start, true)
             ).append(
                 sender instanceof Player

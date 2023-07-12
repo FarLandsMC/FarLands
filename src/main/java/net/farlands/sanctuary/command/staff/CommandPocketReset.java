@@ -7,10 +7,6 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.PocketMechanics;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -43,11 +39,14 @@ public class CommandPocketReset extends Command {
             });
         } else {
             sender.sendMessage(
-                ComponentColor.red("Are you sure that you want to run this command? It will delete all homes in the pocket world and teleport all players in the pocket world to spawn.  It will also ")
-                    .append(Component.text("delete", Style.style(NamedTextColor.RED, TextDecoration.BOLD)))
-                    .append(ComponentColor.red(" the pocket world and generate a new one. If you are certain that you want to do this, run "))
-                    .append(ComponentColor.darkRed("/resetpocket confirm"))
-                    .append(ComponentColor.red("."))
+                ComponentColor.red(
+                    "Are you sure that you want to run this command? " +
+                    "It will delete all homes in the pocket world and teleport all players in the pocket world to spawn.  " +
+                    "It will also {:red bold} the pocket world and generate a new one.  If you are certain that you want " +
+                    "to do this, run {}.",
+                    "delete",
+                    ComponentColor.darkRed("/resetpocket confirm")
+                )
             );
             this.needsConfirm.add(FarLands.getDataHandler().getOfflineFLPlayer(sender));
             Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {

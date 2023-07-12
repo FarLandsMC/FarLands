@@ -47,7 +47,7 @@ public final class Home extends LocationWrapper {
      */
     public Component asComponent(boolean colorDimension, boolean clickTp) {
         Component nameC = Component.text(this.name + ": ").color(colorDimension ? FLUtils.WORLD_COLORS.get(Worlds.getByWorld(asLocation().getWorld())) : NamedTextColor.GOLD);
-        Component coords = ComponentColor.aqua("%d %d %d", (int) x, (int) y, (int) z);
+        Component coords = ComponentColor.aqua("{} {} {}", (int) x, (int) y, (int) z);
         Component finalC = nameC.append(Component.space()).append(coords);
         if(clickTp) {
             finalC = ComponentUtils.command("/home " + this.name, finalC, ComponentColor.gold("Teleport to home"));

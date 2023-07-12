@@ -1,5 +1,7 @@
 package net.farlands.sanctuary.util;
 
+import com.kicas.rp.util.Utils;
+import io.papermc.paper.advancement.AdvancementDisplay;
 import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
@@ -12,10 +14,12 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.inventory.ItemStack;
 
 import java.awt.*;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Utility class for creating/manipulating components
@@ -312,5 +316,321 @@ public class ComponentUtils {
      */
     public static Component noEvent(ComponentLike componentLike) {
         return componentLike.asComponent().hoverEvent(null).clickEvent(null);
+    }
+
+    /**
+     * Create component from a given format and a list of objects.
+     * <p>
+     * _If {@code values} is empty, then it immediately returns a component of the format.  This means that no brackets are formatted._
+     * <p>
+     * This formats using a bracket notation.  See the examples.
+     * <p>
+     * Examples:
+     * _Note: these examples show it returning strings because we can't show components in a comment_
+     *
+     * The {} notation can be used to insert the next value provided
+     * format("{}", "hello") -> "hello"
+     * format("Hello {}!", "world") -> "Hello world!"
+     * format("Hello {}!", "world") -> "Hello world!"
+     *
+     * The {NUMBER} notation can be used to insert a value from the provided index
+     * format("Hello {} {0}!", "world") -> "Hello world world!"
+     *
+     * Formatting can be applied by using the name of the colour/decoration with a space in between
+     * format("Hello {:red}!", "world") -> "Hello world!" (world is red)
+     * format("Hello {} {0:red}!", "world") -> "Hello world world!" (the second "world" is red)
+     * format("Hello {:red bold}!", "world") -> "Hello world!" ("world" is red and bold)
+     *
+     * Formatting can be negated from the parent component
+     * format("Hello {:red !bold}!", "world") -> "Hello world!" ("world" is red and explicitly not bold)
+     *
+     * The function accepts _any_ arguments, default to using {@link String#valueOf} if it's not in the select items listed in {@link ComponentColor#toComponent}.
+     * format("{}", 5000) -> "5000"
+     *
+     * Java {@link String#format} syntax can be used for values
+     * format("{::%,d}", 5) -> "5,000"
+     *
+     * ## Custom formatting
+     *
+     * See {@link ComponentUtils#toComponent} for the list of custom formats.
+     *
+     * @param format The format to use
+     * @param values The values to use as replacements
+     * @return The formatted component
+     */
+    public static Component format(String format, Object... values) {
+        if (values.length == 0) {
+            return Component.text(format);
+        }
+
+        String current = "";
+        int valueIndex = 0;
+        boolean escaping = false;
+        boolean inBlock = false;
+        var builder = Component.text();
+
+        for (int i = 0; i < format.length(); i++) {
+            char c = format.charAt(i);
+
+            if (escaping) {
+                current += c;
+                escaping = false;
+                continue;
+            }
+
+            switch (c) {
+                case '{' -> {
+                    if (inBlock) {
+                        current += '{';
+                        continue;
+                    }
+                    builder.append(Component.text(current));
+                    inBlock = true;
+                    current = "";
+                }
+                case '}' -> {
+                    if (!inBlock) {
+                        current += '}';
+                        continue;
+                    }
+
+                    var index = new AtomicInteger(valueIndex);
+                    builder.append(parseInner(current, values, index));
+                    valueIndex = index.get();
+                    inBlock = false;
+                    current = "";
+                }
+                case '\\' -> {
+                    escaping = true;
+                }
+                default -> {
+                    current += c;
+                }
+            }
+        }
+        builder.append(Component.text(current));
+        return builder.build();
+    }
+
+    /**
+     * Parse the inside portion of the {@code {}} for {@link ComponentUtils#format}.
+     * <p>
+     * Syntax:
+     * {@code [index][[:][format][:stringFormat]]}
+     * <p>
+     * <p>
+     * <p>
+     * But that's confusing, so let's do some examples
+     * <p>
+     * ({@code index = auto} means that index will use the next {@code valueIndex}, {@code format = null} means it will inherit from parent, and {@code stringFormat = null} means that it will use {@link String#valueOf})
+     * <pre>
+     * {@code {}                 } -> {@code index = auto, format = null,          stringFormat = null }
+     * {@code {0}                } -> {@code index = 0,    format = null,          stringFormat = null }
+     * {@code {0:red}            } -> {@code index = 0,    format = red,           stringFormat = null }
+     * {@code {0:red bold}       } -> {@code index = 0,    format = red & bold,    stringFormat = null }
+     * {@code {0:red green bold} } -> {@code index = 0,    format = green & bold,  stringFormat = null }
+     * {@code {0:red !bold}      } -> {@code index = 0,    format = red & !bold,   stringFormat = null }
+     * {@code {0:red:%,d}        } -> {@code index = 0,    format = red,           stringFormat = %,d  }
+     * {@code {:red:%,d}         } -> {@code index = auto, format = red,           stringFormat = %,d  }
+     * {@code {::%,d}            } -> {@code index = auto, format = null,          stringFormat = %,d  }
+     * {@code {::}               } -> {@code index = auto, format = null,          stringFormat = null }
+     * {@code {red}              } -> {@code index = auto, format = red,           stringFormat = null }
+     * {@code {red bold}         } -> {@code index = auto, format = red & bold,    stringFormat = null }
+     * {@code {red:}             } -> error
+     * {@code {:red:}            } -> {@code index = auto, format = red,           stringFormat = null }
+     * {@code {:red:a}           } -> {@code index = auto, format = red,           stringFormat = a    }
+     * {@code {asdf}             } -> error
+     * {@code {:asdf}            } -> error
+     * {@code {:asdf:}           } -> error
+     * {@code {:asdf:}           } -> error
+     * </pre>
+     * @param value
+     * @param objs
+     * @param valueIndex
+     * @return
+     */
+    private static Component parseInner(String value, Object[] objs, AtomicInteger valueIndex) {
+        int index;
+        String format = null;
+        String stringFormat = null;
+
+        int colPos = value.indexOf(':');
+
+        // Format: [index][:format[:stringFormat]]
+        if (colPos != -1) {
+            var indexStr = value.substring(0, colPos);
+            if (indexStr.isBlank()) {
+                index = valueIndex.getAndIncrement();
+            } else {
+                index = Integer.parseInt(indexStr);
+                if (index == valueIndex.get()) {
+                    valueIndex.getAndIncrement();
+                }
+            }
+
+            format = value.substring(colPos + 1);
+            int formatColPos = format.indexOf(':');
+            if (formatColPos != -1) {
+                stringFormat = format.substring(formatColPos + 1);
+                format = format.substring(0, formatColPos);
+            }
+        } else {
+            try {
+                if (value.isBlank()) {
+                    index = valueIndex.getAndIncrement();
+                } else {
+                    index = Integer.parseInt(value);
+                    if (index == valueIndex.get()) {
+                        valueIndex.getAndIncrement();
+                    }
+                }
+            } catch (NumberFormatException ex) {
+                index = valueIndex.getAndIncrement();
+                format = value;
+            }
+
+        }
+
+        var obj = objs[index];
+
+        var style = Component.empty();
+        if (format != null && !format.isBlank()) {
+            String[] formats = format.split("[^\\w#]+");
+            for (var fmt : formats) {
+                if (fmt.startsWith("#")) {
+                    var col = TextColor.fromCSSHexString(fmt);
+                    if (col == null) {
+                        throw new IllegalArgumentException("Invalid Format: " + fmt);
+                    }
+                    style = style.color(col);
+                } else {
+                    var col = NamedTextColor.NAMES.value(fmt.toLowerCase());
+                    if (col == null) {
+                        boolean negate = fmt.startsWith("!");
+
+                        if (negate) {
+                            fmt = fmt.substring(1);
+                        }
+
+                        var td = Utils.valueOfFormattedName(fmt, TextDecoration.class);
+                        if (td == null) {
+                            throw new IllegalArgumentException("Invalid Format: " + fmt);
+                        }
+                        style = style.decoration(td, !negate);
+                    } else {
+                        style = style.color(col);
+                    }
+                }
+            }
+        }
+
+        Component o = toComponent(obj, stringFormat);
+        return o.mergeStyle(style);
+    }
+
+    /**
+     * Convert an object to Component in a custom way that looks pretty nice.
+     * <p>
+     * This function will accept any object and format it in a way that looks decent.
+     * This is done by checking if the object is of a few key types and creating components based on that.
+     * <p>
+     * <p>
+     * <p>
+     * The list of current checks and what they do (ordered by priority):
+     * <ul>
+     * <li>{@link ComponentLike} -> {@link ComponentLike#asComponent}</li>
+     * <li>{@link Enum} -> {@link Utils#formattedName}</li>
+     * <li>{@link ItemStack} -> {@link ComponentUtils#item(ItemStack)}</li>
+     * <li>{@link Advancement} -> [title]</li>
+     * <li>{@link Integer} and stringFormat == s -> "s" if int == 1 else ""</li>
+     * <li>{@link Collection} -> toComponent(col[0]), ... -> a, b, c, and d</li>
+     * <li>{@link Collection} if stringFormat == "[]" -> [toComponent(col[0]), ...] -> [a, b, c, d]</li>
+     * <li>{@code Object[]} -> toComponent(col[0]) ... -> a, b, c, and d</li>
+     * <li>{@code stringFormat != null} -> {@link String#format}</li>
+     * <li>{@code _} -> {@link String#valueOf}</li>
+     * </ul>
+     * @param obj
+     * @param stringFormat
+     * @return
+     */
+    private static Component toComponent(Object obj, String stringFormat) {
+        Component o;
+        boolean brackets = stringFormat != null && stringFormat.startsWith("[") && stringFormat.endsWith("]");
+        if (obj instanceof ComponentLike c) {
+            o = c.asComponent();
+        } else if (obj instanceof Enum<?> e) {
+            o = Component.text(Utils.formattedName(e));
+        } else if (obj instanceof ItemStack is) {
+            o = item(is);
+        } else if (obj instanceof Advancement adv) {
+            AdvancementDisplay advDisplay = adv.getDisplay();
+            o = ComponentUtils.hover(
+                ComponentColor.color(advDisplay.frame().color(), "[{}]", advDisplay.title()),
+                ComponentColor.color(advDisplay.frame().color(), "{}\n{}", advDisplay.title(), advDisplay.description())
+            );
+        } else if (obj instanceof Integer n && stringFormat != null && stringFormat.equalsIgnoreCase("s")) {
+            o = n == 1 ? Component.empty() : Component.text("s");
+        } else if (obj instanceof Collection<?> coll) {
+            var b = Component.text();
+            if (brackets) {
+                b.content("[");
+            }
+            var iter = coll.iterator();
+            var size = coll.size();
+
+            for (int i = 0; iter.hasNext(); ++i) {
+                var n = iter.next();
+                b.append(toComponent(n, brackets ? stringFormat.substring(1, stringFormat.length() - 1) : stringFormat));
+
+                if (size > 2) {
+                    if (i < size - 1) {
+                        b.append(Component.text(i == size - 2 && !brackets ? ", and " : ", "));
+                    }
+                } else if (size == 2 && i == 0 && !brackets) {
+                    b.append(Component.text(" and "));
+                }
+            }
+            if (brackets) {
+                b.append(Component.text("]"));
+            }
+            o = b.build();
+        } else if (obj instanceof Object[] arr) {
+            var b = Component.text();
+            if (brackets) {
+                b.content("[");
+            }
+            for (int i = 0; i < arr.length; ++i) {
+                var n = arr[i];
+                b.append(toComponent(n, brackets ? stringFormat.substring(1, stringFormat.length() - 1) : stringFormat));
+
+                if (arr.length > 2) {
+                    if (i < arr.length - 1) {
+                        b.append(Component.text(i == arr.length - 2 && !brackets ? ", and " : ", "));
+                    }
+                } else if (arr.length == 2 && i == 0 && !brackets) {
+                        b.append(Component.text(" and "));
+                }
+            }
+            if (brackets) {
+                b.append(Component.text("]"));
+            }
+            o = b.build();
+        } else {
+            String s;
+            if (stringFormat != null && !stringFormat.isBlank()) {
+                s = String.format(stringFormat, obj);
+            } else {
+                s = String.valueOf(obj);
+            }
+            o = Component.text(s);
+        }
+        return o;
+    }
+
+    /**
+     * Generate a component from an object using {@link String#valueOf}
+     */
+    public static Component format(Object obj) {
+        return format("{}", obj);
     }
 }

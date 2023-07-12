@@ -35,16 +35,18 @@ public class CommandGamemodeImmune extends Command {
         if (flp.rank.isStaff()) return error(sender, "Staff are already immune to gamemode updates.");
 
         FLPlayerSession session = flp.getSession();
-        if (session == null) return error(sender, "No active session found for %s.", flp.username);
+        if (session == null) return error(sender, "No active session found for {}.", flp);
 
         session.gamemodeImmune = !session.gamemodeImmune;
         session.update(false);
 
-        success(sender, "Gamemode Immunity toggled %s for %s's current session.", session.gamemodeImmune ? "on" : "off", flp.username);
+        success(sender, "Gamemode Immunity toggled {} for {}'s current session.", session.gamemodeImmune ? "on" : "off", flp);
         sender.sendMessage(
-            ComponentColor.red("Toggle it %s by running ", session.gamemodeImmune ? "off" : "on")
-                .append(ComponentUtils.command("/gamemodeimmune " + flp.username, NamedTextColor.DARK_RED))
-                .append(ComponentColor.red("."))
+            ComponentColor.red(
+                "Toggle it {} by running {}.",
+                session.gamemodeImmune ? "off" : "on",
+                ComponentUtils.command("/gamemodeimmune " + flp.username, NamedTextColor.DARK_RED)
+            )
         );
 
         return true;

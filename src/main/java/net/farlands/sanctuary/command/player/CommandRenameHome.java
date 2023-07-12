@@ -8,7 +8,6 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,35 +31,25 @@ public class CommandRenameHome extends PlayerCommand {
         String newName = args[1];
 
         if (!flp.hasHome(oldName)) {
-            sender.sendMessage(ComponentColor.red("You do not have a home named %s.", oldName));
-            return true;
+            return error(sender, "You do not have a home named {}.", oldName);
         }
 
         // Make sure the home name is valid
         if (args[1].isEmpty() || args[1].matches("\\s+") || MessageFilter.INSTANCE.isProfane(newName)) {
-            sender.sendMessage(ComponentColor.red("You cannot set a home with that name."));
-            return true;
+            return error(sender, "You cannot set a home with that name.");
         }
 
         if (newName.length() > 32) {
-            sender.sendMessage(ComponentColor.red("Home names are limited to 32 characters. Please choose a different name."));
-            return true;
+            return error(sender, "Home names are limited to 32 characters. Please choose a different name.");
         }
 
         // Make sure the player doesn't already have a home with the new name
         if (flp.hasHome(newName)) {
-            sender.sendMessage(ComponentColor.red("You have already set a home with this name."));
-            return true;
+            return error(sender, "You have already set a home with this name.");
         }
 
         flp.renameHome(oldName, newName);
-        sender.sendMessage(
-            ComponentColor.green("Successfully renamed home ")
-                .append(ComponentColor.aqua(oldName))
-                .append(ComponentColor.green(" to "))
-                .append(ComponentColor.aqua(newName))
-                .append(ComponentColor.green("."))
-        );
+        success(sender, "Successfully renamed home {:aqua} to {:aqua}.", oldName, newName);
         return true;
     }
 

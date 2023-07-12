@@ -2,10 +2,9 @@ package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
-import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Material;
@@ -24,7 +23,14 @@ public class CommandGuideBook extends PlayerCommand {
     private final ItemStack book;
 
     public CommandGuideBook() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "Get a guidebook for the server.", "/guidebook", "guidebook");
+        super(
+            CommandData.simple(
+                    "guidebook",
+                    "Get a guidebook for the server.",
+                    "/guidebook"
+                )
+                .category(Category.INFORMATIONAL)
+        );
         this.book = buildBook();
     }
 
@@ -35,10 +41,7 @@ public class CommandGuideBook extends PlayerCommand {
         // Check the cooldown
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            sender.sendMessage(ComponentColor.red(
-                "You can use this command again in " +
-                    TimeInterval.formatTime(cooldownTime * 50L, false))
-            );
+            error(sender, "You can use this command again in " + TimeInterval.formatTime(cooldownTime * 50L, false));
             return true;
         }
 

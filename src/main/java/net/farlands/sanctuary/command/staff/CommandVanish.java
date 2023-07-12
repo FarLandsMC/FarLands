@@ -55,11 +55,7 @@ public class CommandVanish extends Command {
                 session.updateVanish();
 
                 Logging.broadcastStaff(
-                    ComponentColor.yellow(
-                        "%s is %s vanished",
-                        sender.getName(),
-                        (flp.vanished ? "now" : "no longer")
-                    ),
+                    ComponentColor.yellow("{} is {} vanished", flp, flp.vanished ? "now" : "no longer"),
                     DiscordChannel.STAFF_COMMANDS
                 );
 
@@ -71,7 +67,7 @@ public class CommandVanish extends Command {
             }
 
             sender.sendMessage(
-                ComponentColor.gold("You are %s vanished.", flp.vanished ? "now" : "no longer")
+                ComponentColor.gold("You are {} vanished.", flp.vanished ? "now" : "no longer")
             );
         }
         return true;

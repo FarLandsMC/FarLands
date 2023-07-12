@@ -3,6 +3,7 @@ package net.farlands.sanctuary.gui;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.ItemReward;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.CustomHead;
 import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.Component;
@@ -101,7 +102,7 @@ public class VPRewardsGui extends Gui {
         for (int i = 0; i < list.size(); i++) {
             ItemStack stack = clone(list.get(i).getStack());
             ArrayList<Component> lore = stack.lore() == null ? new ArrayList<Component>() : new ArrayList<>(stack.lore());
-            lore.add(0, ComponentColor.gray("Rarity: %s", list.get(i).getRarity()).decorate(TextDecoration.ITALIC));
+            lore.add(0, ComponentColor.gray("Rarity: {}", list.get(i).getRarity()).decorate(TextDecoration.ITALIC));
             stack.lore(lore);
 
             this.inventory.setItem(i, stack);
@@ -128,7 +129,7 @@ public class VPRewardsGui extends Gui {
 
                 } else if (event.isRightClick()) {
 
-                    this.user.sendMessage(ComponentColor.red("Removed item %s.", this.rewards.get(index).getStack().getType()));
+                    this.user.sendMessage(ComponentColor.red("Removed item {}.", ComponentUtils.item(this.rewards.get(index).getStack())));
                     FarLands.getDataHandler().getConfig().voteConfig.votePartyRewards().remove(this.rewards.get(index));
                     this.loadRewards();
                     Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), this::refreshInventory, 1);
@@ -141,7 +142,7 @@ public class VPRewardsGui extends Gui {
                 FarLands.getDataHandler().getConfig().voteConfig.votePartyRewards().add(new ItemReward(0, clone(event.getCurrentItem())));
                 this.loadRewards();
                 this.refreshInventory();
-                this.user.sendMessage(ComponentColor.green("Added item %s.", event.getCurrentItem().getType()));
+                this.user.sendMessage(ComponentColor.green("Added item {}.", ComponentUtils.item(event.getCurrentItem())));
                 event.setCancelled(true);
                 return;
             }

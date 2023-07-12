@@ -51,8 +51,8 @@ public class CommandPackage extends PlayerCommand {
         if (timeRemaining > 0) {
             sender.sendMessage(
                 ComponentColor.red(
-                    "You can send this person another package in " +
-                        TimeInterval.formatTime(50L * timeRemaining, false)
+                    "You can send this person another package in {}",
+                    TimeInterval.formatTime(50L * timeRemaining, false)
                 )
             );
             return true;
@@ -97,7 +97,7 @@ public class CommandPackage extends PlayerCommand {
         }
         // The sender already has a package queued for this person so the transfer failed
         else
-            sender.sendMessage(ComponentColor.red("You cannot send %s a package right now.", recipientFlp.username));
+            sender.sendMessage(ComponentColor.red("You cannot send {} a package right now.", recipientFlp));
 
         return true;
     }

@@ -1,14 +1,13 @@
 package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
@@ -22,7 +21,14 @@ import java.util.List;
 
 public class CommandDelHome extends PlayerCommand {
     public CommandDelHome() {
-        super(Rank.INITIATE, Category.HOMES, "Delete a home you have already set.", "/delhome [homeName]", "delhome");
+        super(
+            CommandData.simple(
+                    "delhome",
+                    "Delete a home you have already set.",
+                    "/delhome [homeName]"
+                )
+                .category(Category.HOMES)
+        );
     }
 
     @Override

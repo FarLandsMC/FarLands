@@ -31,7 +31,7 @@ public class CommandDevReport extends DiscordCommand {
 
         long t = globalCooldown.timeRemaining();
         if (t > 0) {
-            return error(sender, "You can use this command again in %s.", TimeInterval.formatTime(50L * t, false));
+            return error(sender, "You can use this command again in {}.", TimeInterval.formatTime(50L * t, false));
         }
 
         String body = joinArgsBeyond(0, " ", args).replaceAll("`", "`\u200B");

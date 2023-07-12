@@ -2,15 +2,11 @@ package net.farlands.sanctuary.command.player;
 
 import com.kicas.rp.command.TabCompleterBase;
 import com.kicas.rp.util.Utils;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.command.PlayerCommand;
-
-import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentUtils;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.WeatherType;
 import org.bukkit.command.CommandSender;
@@ -19,7 +15,6 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CommandPWeather extends PlayerCommand {
     public CommandPWeather() {
@@ -35,15 +30,7 @@ public class CommandPWeather extends PlayerCommand {
         // Parse and check the weather type
         CustomWeatherType weatherType = Utils.valueOfFormattedName(args[0], CustomWeatherType.class);
         if (weatherType == null) {
-            sender.sendMessage(
-                ComponentColor.red(
-                    "Invalid weather type, please specify one of the following: %s",
-                    Arrays.stream(CustomWeatherType.VALUES)
-                        .map(Utils::formattedName)
-                        .collect(Collectors.joining(", "))
-                )
-            );
-            return true;
+            return error(sender, "Invalid weather type, please specify one of the following: {}", (Object) CustomWeatherType.VALUES);
         }
 
         // Change the player's weather
@@ -55,18 +42,14 @@ public class CommandPWeather extends PlayerCommand {
             case RESET -> {
                 FarLands.getDataHandler().getOfflineFLPlayer(sender.getUniqueId()).pweather = false;
                 sender.resetPlayerWeather();
-                sender.sendMessage(ComponentColor.green("Weather synchronized to world weather."));
-                return true;
+                return success(sender, "Weather synchronized to world weather.");
             }
         }
 
-        sender.sendMessage(
-            ComponentColor.green("Personal weather set. Use ")
-                .append(ComponentUtils.command("/pweather reset"))
-                .append(Component.text(" to synchronize your weather to the world weather."))
+        return success(sender,
+            "Persoanl weather set.  Use {} to synchronize your weather to the world weather.",
+            ComponentUtils.command("/pweather reset")
         );
-
-        return true;
     }
 
     @Override

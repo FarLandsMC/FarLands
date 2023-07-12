@@ -33,9 +33,9 @@ public class CommandAlts extends Command {
             List<String> banned = alts.stream().filter(OfflineFLPlayer::isBanned).map(flp0 -> flp0.username).collect(Collectors.toList()),
                     unbanned = alts.stream().filter(p -> !p.isBanned()).map(flp0 -> flp0.username).collect(Collectors.toList());
             if (!banned.isEmpty())
-                info(sender, "Banned Alts: %s", String.join(", ", banned));
+                info(sender, "Banned Alts: {}", banned);
             if (!unbanned.isEmpty())
-                info(sender, "Alts: %s", String.join(", ", unbanned));
+                info(sender, "Alts: {}", unbanned);
         }
 
         return true;

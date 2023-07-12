@@ -43,14 +43,14 @@ public class CommandMoveSchems extends Command {
         // Parse the "from" server and get the directory
         DataHandler.Server fromServer = Utils.valueOfFormattedName(args[1], DataHandler.Server.class);
         if (fromServer == null) {
-            return error(sender, "Invalid source server: %s", args[1]);
+            return error(sender, "Invalid source server: {}", args[1]);
         }
         String fromDirectory = FarLands.getFLConfig().serverRoots.get(fromServer);
 
         // Parse the "to" server and get the directory
         DataHandler.Server toServer = Utils.valueOfFormattedName(args[3], DataHandler.Server.class);
         if (toServer == null) {
-            return error(sender, "Invalid destination server: %s", args[3]);
+            return error(sender, "Invalid destination server: {}", args[3]);
         }
         String toDirectory = FarLands.getFLConfig().serverRoots.get(toServer);
 

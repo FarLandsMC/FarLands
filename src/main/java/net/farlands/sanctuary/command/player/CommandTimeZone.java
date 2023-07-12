@@ -11,8 +11,6 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.DiscordCompleter;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.ComponentColor;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -39,46 +37,38 @@ public class CommandTimeZone extends Command {
         }
 
         switch (args[0].toLowerCase()) {
-
-            case "register":
-            case "set": { // Register personal timezone for /stats
+            case "register", "set" -> { // Register personal timezone for /stats
                 OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
                 if (args.length == 3 && flp.rank.isStaff()) {
                     flp = FarLands.getDataHandler().getOfflineFLPlayer(args[2]);
                     if (flp == null) {
-                        sender.sendMessage(ChatColor.RED + "Player not found.");
-                        return true;
+                        return error(sender, "Player not found.");
                     }
                 }
 
                 TimeZone tz = getTimeZoneById(args[1]);
 
                 if (tz == null) {
-                    sender.sendMessage(ChatColor.RED + "Invalid Time Zone!");
-                    return true;
+                    return error(sender, "Invalid Time Zone!");
                 }
                 flp.setTimezone(tz.getID());
 
-                sender.sendMessage(ComponentColor.gold("Time Zone set to %s! Current time: %s", tz.getID(), flp.currentTime()));
-                break;
+                return success(sender, "Time Zone set to {:aqua}! Current time: {:aqua}", tz.getID(), flp.currentTime());
             }
-            case "get": { // Get the current time at a location
+            case "get" -> { // Get the current time at a location
                 TimeZone tz = getTimeZoneById(args[1]);
 
                 if (tz == null) {
-                    sender.sendMessage(ComponentColor.red("Invalid Time Zone: %s.", args[1]));
-                    return true;
+                    return error(sender, "Invalid Time Zone: {}.", args[1]);
                 }
 
-                sender.sendMessage(ComponentColor.gold("Current time in %s is %s", tz.getID(), getTime(tz, sender)));
-
-                break;
+                return info(sender, "Current time in {:aqua} is {:aqua}", tz.getID(), getTime(tz, sender));
             }
-            default:
+            default -> {
                 return false;
+            }
         }
-        return true;
     }
 
     @Override

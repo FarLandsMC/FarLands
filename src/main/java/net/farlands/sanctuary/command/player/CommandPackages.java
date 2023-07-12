@@ -17,9 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class CommandTogglePackages extends PlayerCommand {
+public class CommandPackages extends PlayerCommand {
 
-    public CommandTogglePackages() {
+    public CommandPackages() {
         super(Rank.INITIATE, Category.MISCELLANEOUS, "Choose package reception options.", "/packages [accept|ask|decline]", "packages");
     }
 

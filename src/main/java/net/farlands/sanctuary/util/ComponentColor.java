@@ -2,343 +2,511 @@ package net.farlands.sanctuary.util;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+
+import static net.farlands.sanctuary.util.ComponentUtils.format;
 
 public class ComponentColor {
 
+
     /**
-     * Generate a component with the color of BLACK
+     * Generate a component with the colour of BLACK.
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
      */
-    public static Component black(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.BLACK);
+    public static Component black(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.BLACK);
     }
 
     /**
-     * Generate a component with the color of BLACK using {@link String#valueOf}
+     * Generate a component with the colour of BLACK using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component black(Object obj) {
-        return format(obj).color(NamedTextColor.BLACK);
+        return black("{}", obj);
     }
 
     /**
-     * Generate a component with the color of DARK_BLUE
+     * Generate a component with the colour of BLACK
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component darkBlue(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.DARK_BLUE);
+    public static Component black(String str) {
+        return Component.text(str).color(NamedTextColor.BLACK);
+    }
+
+
+    /**
+     * Generate a component with the colour of DARK_BLUE.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component darkBlue(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.DARK_BLUE);
     }
 
     /**
-     * Generate a component with the color of DARK_BLUE using {@link String#valueOf}
+     * Generate a component with the colour of DARK_BLUE using {@link ComponentUtils#format} with the format of
+     * {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component darkBlue(Object obj) {
-        return format(obj).color(NamedTextColor.DARK_BLUE);
+        return darkBlue("{}", obj);
     }
 
     /**
-     * Generate a component with the color of DARK_GREEN
+     * Generate a component with the colour of DARK_BLUE
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component darkGreen(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.DARK_GREEN);
+    public static Component darkBlue(String str) {
+        return Component.text(str).color(NamedTextColor.DARK_BLUE);
+    }
+
+
+    /**
+     * Generate a component with the colour of DARK_GREEN.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component darkGreen(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.DARK_GREEN);
     }
 
     /**
-     * Generate a component with the color of DARK_GREEN using {@link String#valueOf}
+     * Generate a component with the colour of DARK_GREEN using {@link ComponentUtils#format} with the format of
+     * {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component darkGreen(Object obj) {
-        return format(obj).color(NamedTextColor.DARK_GREEN);
+        return darkGreen("{}", obj);
     }
 
     /**
-     * Generate a component with the color of DARK_AQUA
+     * Generate a component with the colour of DARK_GREEN
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component darkAqua(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.DARK_AQUA);
+    public static Component darkGreen(String str) {
+        return Component.text(str).color(NamedTextColor.DARK_GREEN);
+    }
+
+
+    /**
+     * Generate a component with the colour of DARK_AQUA.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component darkAqua(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.DARK_AQUA);
     }
 
     /**
-     * Generate a component with the color of DARK_AQUA using {@link String#valueOf}
+     * Generate a component with the colour of DARK_AQUA using {@link ComponentUtils#format} with the format of
+     * {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component darkAqua(Object obj) {
-        return format(obj).color(NamedTextColor.DARK_AQUA);
+        return darkAqua("{}", obj);
     }
 
     /**
-     * Generate a component with the color of DARK_RED
+     * Generate a component with the colour of DARK_AQUA
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component darkRed(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.DARK_RED);
+    public static Component darkAqua(String str) {
+        return Component.text(str).color(NamedTextColor.DARK_AQUA);
+    }
+
+
+    /**
+     * Generate a component with the colour of DARK_RED.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component darkRed(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.DARK_RED);
     }
 
     /**
-     * Generate a component with the color of DARK_RED using {@link String#valueOf}
+     * Generate a component with the colour of DARK_RED using {@link ComponentUtils#format} with the format of
+     * {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component darkRed(Object obj) {
-        return format(obj).color(NamedTextColor.DARK_RED);
+        return darkRed("{}", obj);
     }
 
     /**
-     * Generate a component with the color of DARK_PURPLE
+     * Generate a component with the colour of DARK_RED
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component darkPurple(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.DARK_PURPLE);
+    public static Component darkRed(String str) {
+        return Component.text(str).color(NamedTextColor.DARK_RED);
+    }
+
+
+    /**
+     * Generate a component with the colour of DARK_PURPLE.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component darkPurple(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.DARK_PURPLE);
     }
 
     /**
-     * Generate a component with the color of DARK_PURPLE using {@link String#valueOf}
+     * Generate a component with the colour of DARK_PURPLE using {@link ComponentUtils#format} with the format of
+     * {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component darkPurple(Object obj) {
-        return format(obj).color(NamedTextColor.DARK_PURPLE);
+        return darkPurple("{}", obj);
     }
 
     /**
-     * Generate a component with the color of GOLD
+     * Generate a component with the colour of DARK_PURPLE
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component gold(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.GOLD);
+    public static Component darkPurple(String str) {
+        return Component.text(str).color(NamedTextColor.DARK_PURPLE);
+    }
+
+
+    /**
+     * Generate a component with the colour of GOLD.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component gold(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.GOLD);
     }
 
     /**
-     * Generate a component with the color of GOLD using {@link String#valueOf}
+     * Generate a component with the colour of GOLD using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component gold(Object obj) {
-        return format(obj).color(NamedTextColor.GOLD);
+        return gold("{}", obj);
     }
 
     /**
-     * Generate a component with the color of GRAY
+     * Generate a component with the colour of GOLD
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component gray(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.GRAY);
+    public static Component gold(String str) {
+        return Component.text(str).color(NamedTextColor.GOLD);
+    }
+
+
+    /**
+     * Generate a component with the colour of GRAY.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component gray(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.GRAY);
     }
 
     /**
-     * Generate a component with the color of GRAY using {@link String#valueOf}
+     * Generate a component with the colour of GRAY using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component gray(Object obj) {
-        return format(obj).color(NamedTextColor.GRAY);
+        return gray("{}", obj);
     }
 
     /**
-     * Generate a component with the color of DARK_GRAY
+     * Generate a component with the colour of GRAY
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component darkGray(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.DARK_GRAY);
+    public static Component gray(String str) {
+        return Component.text(str).color(NamedTextColor.GRAY);
+    }
+
+
+    /**
+     * Generate a component with the colour of DARK_GRAY.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component darkGray(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.DARK_GRAY);
     }
 
     /**
-     * Generate a component with the color of DARK_GRAY using {@link String#valueOf}
+     * Generate a component with the colour of DARK_GRAY using {@link ComponentUtils#format} with the format of
+     * {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component darkGray(Object obj) {
-        return format(obj).color(NamedTextColor.DARK_GRAY);
+        return darkGray("{}", obj);
     }
 
     /**
-     * Generate a component with the color of BLUE
+     * Generate a component with the colour of DARK_GRAY
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component blue(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.BLUE);
+    public static Component darkGray(String str) {
+        return Component.text(str).color(NamedTextColor.DARK_GRAY);
+    }
+
+
+    /**
+     * Generate a component with the colour of BLUE.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component blue(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.BLUE);
     }
 
     /**
-     * Generate a component with the color of BLUE using {@link String#valueOf}
+     * Generate a component with the colour of BLUE using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component blue(Object obj) {
-        return format(obj).color(NamedTextColor.BLUE);
+        return blue("{}", obj);
     }
 
     /**
-     * Generate a component with the color of GREEN
+     * Generate a component with the colour of BLUE
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component green(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.GREEN);
+    public static Component blue(String str) {
+        return Component.text(str).color(NamedTextColor.BLUE);
+    }
+
+
+    /**
+     * Generate a component with the colour of GREEN.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component green(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.GREEN);
     }
 
     /**
-     * Generate a component with the color of GREEN using {@link String#valueOf}
+     * Generate a component with the colour of GREEN using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component green(Object obj) {
-        return format(obj).color(NamedTextColor.GREEN);
+        return green("{}", obj);
     }
 
     /**
-     * Generate a component with the color of AQUA
+     * Generate a component with the colour of GREEN
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component aqua(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.AQUA);
+    public static Component green(String str) {
+        return Component.text(str).color(NamedTextColor.GREEN);
+    }
+
+
+    /**
+     * Generate a component with the colour of AQUA.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component aqua(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.AQUA);
     }
 
     /**
-     * Generate a component with the color of AQUA using {@link String#valueOf}
+     * Generate a component with the colour of AQUA using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component aqua(Object obj) {
-        return format(obj).color(NamedTextColor.AQUA);
+        return aqua("{}", obj);
     }
 
     /**
-     * Generate a component with the color of RED
+     * Generate a component with the colour of AQUA
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component red(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.RED);
+    public static Component aqua(String str) {
+        return Component.text(str).color(NamedTextColor.AQUA);
+    }
+
+
+    /**
+     * Generate a component with the colour of RED.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component red(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.RED);
     }
 
     /**
-     * Generate a component with the color of RED using {@link String#valueOf}
+     * Generate a component with the colour of RED using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component red(Object obj) {
-        return format(obj).color(NamedTextColor.RED);
+        return red("{}", obj);
     }
 
     /**
-     * Generate a component with the color of LIGHT_PURPLE
+     * Generate a component with the colour of RED
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component lightPurple(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.LIGHT_PURPLE);
+    public static Component red(String str) {
+        return Component.text(str).color(NamedTextColor.RED);
+    }
+
+
+    /**
+     * Generate a component with the colour of LIGHT_PURPLE.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component lightPurple(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.LIGHT_PURPLE);
     }
 
     /**
-     * Generate a component with the color of LIGHT_PURPLE using {@link String#valueOf}
+     * Generate a component with the colour of LIGHT_PURPLE using {@link ComponentUtils#format} with the format of
+     * {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component lightPurple(Object obj) {
-        return format(obj).color(NamedTextColor.LIGHT_PURPLE);
+        return lightPurple("{}", obj);
     }
 
     /**
-     * Generate a component with the color of YELLOW
+     * Generate a component with the colour of LIGHT_PURPLE
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component yellow(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.YELLOW);
+    public static Component lightPurple(String str) {
+        return Component.text(str).color(NamedTextColor.LIGHT_PURPLE);
+    }
+
+
+    /**
+     * Generate a component with the colour of YELLOW.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component yellow(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.YELLOW);
     }
 
     /**
-     * Generate a component with the color of YELLOW using {@link String#valueOf}
+     * Generate a component with the colour of YELLOW using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component yellow(Object obj) {
-        return format(obj).color(NamedTextColor.YELLOW);
+        return yellow("{}", obj);
     }
 
     /**
-     * Generate a component with the color of WHITE
+     * Generate a component with the colour of YELLOW
      *
-     * @param text   The text to use for the replacement, uses {@link String#format(String, Object...)} to fill in
-     *               fields
-     * @param values The replacements, uses {@link String#format(String, Object...)} to fill in fields
+     * @param str The string to use
      */
-    public static Component white(String text, Object... values) {
-        return format(text, values).color(NamedTextColor.WHITE);
+    public static Component yellow(String str) {
+        return Component.text(str).color(NamedTextColor.YELLOW);
+    }
+
+
+    /**
+     * Generate a component with the colour of WHITE.
+     *
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component white(String format, Object... values) {
+        return format(format, values).color(NamedTextColor.WHITE);
     }
 
     /**
-     * Generate a component with the color of WHITE using {@link String#valueOf}
+     * Generate a component with the colour of WHITE using {@link ComponentUtils#format} with the format of {@code {}}
      *
-     * @param obj The object to convert into a string with {@link String#valueOf}
+     * @param obj The object to format
      */
     public static Component white(Object obj) {
-        return format(obj).color(NamedTextColor.WHITE);
+        return white("{}", obj);
     }
 
     /**
-     * Generate a component from text using replacements
-     * <p>
-     * Escapes <code>%</code> if there's no values
+     * Generate a component with the colour of WHITE
+     *
+     * @param str The string to use
      */
-    private static Component format(String text, Object... values) {
-        return Component.text(String.format(values.length > 0 ? text : text.replace("%", "%%"), values));
+    public static Component white(String str) {
+        return Component.text(str).color(NamedTextColor.WHITE);
     }
 
     /**
-     * Generate a component from an object using {@link String#valueOf}
+     * Generate a component with the specified
+     *
+     * @param col    The colour to use
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
      */
-    private static Component format(Object obj) {
-        return Component.text(String.valueOf(obj));
+    public static Component color(TextColor col, String format, Object... values) {
+        return format(format, values).color(col);
     }
 
+    /**
+     * Generate a component with the colour specified using {@link ComponentUtils#format} with the format of {@code {}}
+     *
+     * @param col The colour to use
+     * @param obj The object to format
+     */
+    public static Component color(TextColor col, Object obj) {
+        return color(col, "{}", obj);
+    }
+
+    /**
+     * Generate a component with the colour of WHITE
+     *
+     * @param col The colour to use
+     * @param str The string to use
+     */
+    public static Component color(TextColor col, String str) {
+        return Component.text(str).color(col);
+    }
 }

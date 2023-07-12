@@ -3,7 +3,6 @@ package net.farlands.sanctuary.chat;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
-import net.farlands.sanctuary.command.player.CommandStats;
 import net.farlands.sanctuary.command.staff.CommandStaffChat;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -15,11 +14,6 @@ import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -48,7 +42,7 @@ public class ChatHandler {
         if (flp.vanished) {
             Logging.broadcastStaff(
                 ComponentColor.yellow(
-                    "%s has %s silently.",
+                    "{} has {} silently.",
                     event.getPlayer().getName(),
                     join ? "joined" : "left"
                 ),
@@ -68,14 +62,12 @@ public class ChatHandler {
      */
     public static void playerTransition(Player player, OfflineFLPlayer flp, boolean join) {
         String joinOrLeave = join ? "joined" : "left";
-        Component message = Component.text() // > <player> has <joined/left>.
-            .color(NamedTextColor.YELLOW)
-            .append(
-                Component.text(" > ").style(Style.style(TextDecoration.BOLD))
-            )
-            .append(flp.rank.colorName(player == null ? flp.username : player.getName()))
-            .append(ComponentColor.yellow(" has %s.", joinOrLeave))
-            .build();
+        Component message = ComponentColor.yellow(
+            "{:yellow bold} {} has {}.",
+            '>',
+            flp,
+            joinOrLeave
+        );
         Bukkit.broadcast(message);
         FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, message);
 
@@ -195,27 +187,12 @@ public class ChatHandler {
     }
 
     public static Component getPrefix(OfflineFLPlayer sender) {
-        // Does the player have permission to have a nickname? - Based on `/nick` permission
-
-        // Ex: "Dev", "Knight" (with color and bold?)
-        Component nameDisplay = sender.getDisplayName() // Colored Username or Nickname
-            .hoverEvent(
-                HoverEvent.showText(
-                    CommandStats.getFormattedStats(sender, null, false)
-                )
-            ) // Hover Stats
-            .clickEvent(
-                ClickEvent.suggestCommand(
-                    "/msg " + sender.username + " "
-                )
-            ); // Click Command Suggestion
-
-        return Component.text() // Prefix to all messages
-            .append(sender.getDisplayRank()) // "<rank>"
-            .append(Component.text(' ')) // "<rank> "
-            .append(nameDisplay) // "<rank> <name>"
-            .append(Component.text(": ").color(sender.rank.color())) // "<rank> <name>: "
-            .build();
+        return ComponentUtils.format(
+            "{} {}{}",
+            sender.getDisplayRank(),
+            sender,
+            Component.text(":").color(sender.rank.color())
+        );
     }
 
     public static Component handleReplacements(String message, OfflineFLPlayer sender) {
@@ -237,16 +214,15 @@ public class ChatHandler {
                     )
                 );
             } else { // Send a false message
-                player.sendMessage(
-                    ComponentColor.white("")
-                        .append(getPrefix(sender))
-                        .append(ComponentColor.white(message))
-                );
+                player.sendMessage(ComponentColor.white("{} {}", getPrefix(sender), message));
             }
             Logging.broadcastStaff(
-                ComponentColor.red("[AUTO-CENSOR] %s: ", sender.username)
-                    .append(ComponentColor.gray(message + " - "))
-                    .append(ComponentColor.red(alertPlayer ? "Notified player." : "False message sent to player.")),
+                ComponentColor.red(
+                    "[AUTO-CENSOR] {}: {:gray} - {}",
+                    sender.username,
+                    message,
+                    alertPlayer ? "Notified player." : "False message sent to player."
+                ),
                 DiscordChannel.ALERTS
             );
             return true;
@@ -258,10 +234,7 @@ public class ChatHandler {
     private static boolean handleMute(Player player, OfflineFLPlayer flp, String message) {
         if (!flp.isMuted()) return false;
         flp.currentMute.sendMuteMessage(player);
-        Logging.broadcastStaff(
-            ComponentColor.red("[MUTED] %s: ", flp.username)
-                .append(ComponentColor.gray(message))
-        );
+        Logging.broadcastStaff(ComponentColor.red("[MUTED] {}: {:gray}", flp.username, message));
         return true;
     }
 
@@ -279,9 +252,12 @@ public class ChatHandler {
             );
         }
         Logging.broadcastStaff(
-            ComponentColor.red("[AUTO-CENSOR] %s: ", flp.username)
-                .append(message.color(NamedTextColor.GRAY))
-                .append(ComponentColor.red(" - %s player.", fakeMsg ? "False message sent to" : "Notified")),
+            ComponentColor.red(
+                "[AUTO-CENSOR] {}: {:gray} - {}",
+                flp.username,
+                message,
+                fakeMsg ? "Notified player." : "False message sent to player."
+            ),
             DiscordChannel.ALERTS
         );
     }
@@ -289,7 +265,7 @@ public class ChatHandler {
     public static void broadcastDiscord(Component prefix, Component messageC) {
         String prefixStr = MarkdownProcessor.escapeMarkdown(ComponentUtils.toText(prefix));
         String message = MarkdownProcessor.fromMinecraft(messageC);
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.IN_GAME, MarkdownProcessor.removeChatColor(prefixStr + message));
+        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.IN_GAME, MarkdownProcessor.removeChatColor(prefixStr + " " + message));
     }
 
     /**
@@ -317,20 +293,12 @@ public class ChatHandler {
             .map(FarLands.getDataHandler()::getOfflineFLPlayer)
             .filter(flp -> !flp.getIgnoreStatus(sender).includesChat())
             .forEach(flp -> flp.getOnlinePlayer().sendMessage(
-                Component.text("")
-                    .append(prefix)
-                    .append(flp.censoring ? censorMessage : message)
+                ComponentUtils.format("{} {}", prefix, flp.censoring ? censorMessage : message)
             ));
     }
 
     public static void sendToConsole(Component message, OfflineFLPlayer sender) {
-        Bukkit.getConsoleSender().sendMessage(
-            Component.empty()
-                .append(sender.rank)
-                .append(Component.text(" "))
-                .append(Component.text(sender.username + ": "))
-                .append(message)
-        );
+        Bukkit.getConsoleSender().sendMessage(ComponentUtils.format("{} {}: {}", sender.rank, sender.username, message));
     }
 
 

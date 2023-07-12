@@ -35,13 +35,13 @@ public class CommandSearchHomes extends PlayerCommand {
             int radius = parseNumber(args[0], Integer::parseInt, -1);
 
             if (radius <= 0 || radius > MAX_RADIUS) {
-                error(sender, "Invalid radius. Must be an integer between 1 and %d.", MAX_RADIUS);
+                error(sender, "Invalid radius. Must be an integer between 1 and {}.", MAX_RADIUS);
                 return true;
             }
             List<Component> homes;
             Pair<Location, Integer> currentSearch = new Pair<>(sender.getLocation(), radius);
             if (searchCache.containsKey(currentSearch)) {
-                info(sender, "This does not contain homes created in the last %d minutes.", CACHE_TIME);
+                info(sender, "This does not contain homes created in the last {} minutes.", CACHE_TIME);
                 homes = searchCache.get(currentSearch);
             } else {
                 homes = FarLands
@@ -66,7 +66,6 @@ public class CommandSearchHomes extends PlayerCommand {
                 Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> searchCache.remove(currentSearch), 20 * 60 * CACHE_TIME);
             }
 
-// <- Nice
             if (homes.isEmpty()) {
                 error(sender, "No homes found within the radius specified.");
             }
@@ -77,7 +76,7 @@ public class CommandSearchHomes extends PlayerCommand {
             if (args.length > 1) {
                 int pageNumber = parseNumber(args[1], Integer::parseInt, -1);
                 if (pageNumber <= 0 || pageNumber > pagination.numPages()) {
-                    error(sender, "Invalid page number. Must be an integer between 1 and %d.", pagination.numPages());
+                    error(sender, "Invalid page number. Must be an integer between 1 and {}.", pagination.numPages());
                 }
                 pagination.sendPage(pageNumber, sender);
             } else {

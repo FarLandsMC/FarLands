@@ -5,7 +5,6 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -13,9 +12,9 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
-public class CommandShrug extends PlayerCommand {
+public class CommandEmote extends PlayerCommand {
 
-    public CommandShrug() {
+    public CommandEmote() {
         super(
             CommandData.simple(
                     "shrug",
@@ -44,7 +43,7 @@ public class CommandShrug extends PlayerCommand {
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
                 !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            sender.sendMessage(ComponentColor.red("You cannot use this command while muted."));
+            error(sender, "You cannot use this command while muted.");
             return false;
         }
         return super.canUse(sender);

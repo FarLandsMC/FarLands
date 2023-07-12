@@ -43,12 +43,10 @@ public class CommandHome extends PlayerCommand {
             name = "home";
         else {
             if (!gotoUnownedHome && args[0].equals("home")) {
-                sender.sendMessage(
-                    ComponentColor.aqua("You can simplify ")
-                        .append(ComponentColor.darkAqua("/home home"))
-                        .append(ComponentColor.aqua(" by typing "))
-                        .append(ComponentColor.darkAqua("/home"))
-                        .append(ComponentColor.aqua("."))
+                sender.sendMessage(ComponentColor.aqua(
+                    "You can simplify {:dark_aqua} by typing {:dark_aqua}.",
+                    "/home home",
+                    "/home")
                 );
             }
             name = args[0];
@@ -77,8 +75,9 @@ public class CommandHome extends PlayerCommand {
             } else {
                 error(
                     sender,
-                    "%s not have a home named \"%s\"",
-                    gotoUnownedHome ? flp.username + " does" : "You do",
+                    "{} {} not have a home named \"{}\"",
+                    gotoUnownedHome ? flp : "You",
+                    gotoUnownedHome ? "does" : "do",
                     name
                 );
             }

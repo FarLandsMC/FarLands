@@ -2,6 +2,7 @@ package net.farlands.sanctuary.data;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -38,10 +39,10 @@ public enum Rank implements ComponentLike {
 
     VOTER    ("Voter",    TextColor.color(0xff6213),   -1,  16, 3, 30, 7 ), // Same as Scholar
     BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1,  16, 3, 30, 7 ),
-    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE,       -1,  24, 2, 40, 6 ),
-    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,        -1,  32, 0, 50, 3 ),
+    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1,  24, 2, 40, 6 ),
+    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1,  32, 0, 50, 3 ),
     SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1,  40, 0, 50, 1 ),
-    MEDIA    ("Media",    NamedTextColor.YELLOW,             -1,  40, 0, 50, 1 ), // Same as Sponsor
+    MEDIA    ("Media",    NamedTextColor.YELLOW,       -1,  40, 0, 50, 1 ), // Same as Sponsor
 
     // Staff Ranks:
     // permissionLevel symbol color
@@ -85,7 +86,7 @@ public enum Rank implements ComponentLike {
         this.wildCooldown = wildCooldown;
 
         Component c = Component.text(this.name).color(this.color);
-        this.label = isStaff() ? c.decorate(TextDecoration.BOLD) : c;
+        this.label = this.isStaff() ? ComponentUtils.hover(c.decorate(TextDecoration.BOLD), "Staff Rank") : c;
     }
 
     Rank(String name, TextColor color, int playTimeRequired, int homes, int tpDelay, int shops, int wildCooldown, String advancement) {

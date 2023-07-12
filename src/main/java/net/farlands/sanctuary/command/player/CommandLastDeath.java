@@ -5,7 +5,6 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.PlayerDeath;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -26,17 +25,18 @@ public class CommandLastDeath extends PlayerCommand {
         List<PlayerDeath> deaths = FarLands.getDataHandler().getDeaths(uuid);
 
         if (deaths.isEmpty()) {
-            sender.sendMessage(ComponentColor.red("You have no recent death on record."));
+            error(sender, "You have no recent death on record.");
             return true;
         }
 
-        Location deathLocation = deaths.get(deaths.size()-1).location();
-        String s = "You died at " +
-            deathLocation.getBlockX() + ", " +
-            deathLocation.getBlockY() + ", " +
-            deathLocation.getBlockZ() +
-            ". A compass will point to this location.";
-        sender.sendMessage(ComponentColor.gray(s));
+        Location deathLocation = deaths.get(deaths.size() - 1).location();
+        info(
+            sender,
+            "You died at {} {} {}.  A compass will point to this location.",
+            deathLocation.getBlockX(),
+            deathLocation.getBlockY(),
+            deathLocation.getBlockZ()
+        );
         return true;
     }
 }

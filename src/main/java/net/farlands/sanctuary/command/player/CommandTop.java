@@ -9,8 +9,8 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -33,8 +33,14 @@ import static com.kicasmads.cs.Utils.filterStartingWith;
 public class CommandTop extends Command {
 
     public CommandTop() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "View the people with the most votes or play time.",
-              "/top <votes|playtime|donors|deaths> [page|month|all]", "top");
+        super(
+            CommandData.simple(
+                "top",
+                "View the people with the most votes or play time.",
+                "/top <votes|playtime|donors|deaths> [page|month|all]"
+            )
+            .category(Category.INFORMATIONAL)
+        );
     }
 
     @Override
@@ -51,7 +57,7 @@ public class CommandTop extends Command {
             return false;
         }
 
-        // `args` are now [subcommand, page], [subcommand] or [page]
+        // `args` are now [subcommand, page], [subcommand], or [page]
         args = new ArrayList<>(args.subList(0, Math.min(2, args.size())));
 
         String subcommand = args.isEmpty() || args.get(0).matches("\\d+") ? null : args.remove(0);
@@ -62,7 +68,7 @@ public class CommandTop extends Command {
         Predicate<OfflineFLPlayer> filter = null;
         Comparator<OfflineFLPlayer> comparator = null;
         Component header = Component.empty();
-        OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender.getName());
+        OfflineFLPlayer senderFlp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         switch (category) {
             case VOTES -> {
@@ -71,12 +77,12 @@ public class CommandTop extends Command {
                 Comparator<OfflineFLPlayer> compareSeason = Comparator.comparingInt(f -> f.totalSeasonVotes);
                 comparator = compareMonth.thenComparing(compareTotal).thenComparing(compareSeason);
                 filter = f -> f.totalVotes > 0;
-                toValueComponent = f -> ComponentColor.gold("%d votes this month, %d votes total", f.monthVotes, f.totalVotes);
+                toValueComponent = f -> ComponentColor.gold("{} votes this month, {} votes total", f.monthVotes, f.totalVotes);
                 header = ComponentColor.gold("Top Voters (This Month)");
 
                 if (subcommand != null && subcommand.equalsIgnoreCase("all")) {
                     comparator = compareTotal.thenComparing(compareSeason);
-                    toValueComponent = f -> ComponentColor.gold("%d vote%s", f.totalVotes, f.totalVotes == 1 ? "" : "s");
+                    toValueComponent = f -> ComponentColor.gold("{} vote{}", f.totalVotes, f.totalVotes == 1 ? "" : "s");
                     header = ComponentColor.gold("Top Voters (All Time)");
                 }
             }
@@ -94,12 +100,12 @@ public class CommandTop extends Command {
             case DEATHS -> {
                 comparator = Comparator.comparingInt(f -> f.deaths);
                 filter = f -> f.deaths > 0;
-                toValueComponent = f -> ComponentColor.gold("%d death%s", f.deaths, f.deaths == 1 ? "" : "s");
+                toValueComponent = f -> ComponentColor.gold("{} death{}", f.deaths, f.deaths == 1 ? "" : "s");
                 header = ComponentColor.gold("Top Deaths");
 
             }
-            default -> error(sender, "Invalid category. Options: ", String.join(", ", TopCategory.NAMES));
         }
+
         Pagination pagination = new Pagination(header, "/top " + category + " " + (subcommand == null ? "" : subcommand));
         flps = flps
             .stream()
@@ -121,16 +127,15 @@ public class CommandTop extends Command {
                 bldr.append(ComponentColor.gold(i + 1 + ": "));
             }
 
-            bldr.append(ComponentColor.aqua(flp.username));
+            bldr.append(flp);
             if (toValueComponent != null) {
-                bldr.append(ComponentColor.gold(" - "))
-                    .append(toValueComponent.apply(flp));
+                bldr.append(ComponentColor.gold(" - {}", toValueComponent.apply(flp)));
             }
             lines.add(bldr.build());
         }
         pagination.addLines(lines);
         if (page > pagination.numPages() || page < 1) {
-            error(sender, "Invalid page number, must be an integer between 1 and %d.", pagination.numPages());
+            error(sender, "Invalid page number, must be an integer between 1 and {}.", pagination.numPages());
             return true;
         }
         if (sender instanceof DiscordSender discordSender) {
@@ -159,7 +164,7 @@ public class CommandTop extends Command {
             pagination.sendPage(page, sender);
             if (index != -1) {
                 TextComponent.Builder bldr = Component.text().color(NamedTextColor.GOLD).content("You are ")
-                    .append(ComponentColor.aqua("#%d", index));
+                    .append(ComponentColor.aqua("#{}", index));
                 if (toValueComponent != null) {
                     bldr.append(ComponentColor.gold(" - "))
                         .append(toValueComponent.apply(senderFlp));

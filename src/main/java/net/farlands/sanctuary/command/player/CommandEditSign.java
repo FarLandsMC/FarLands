@@ -91,7 +91,7 @@ public class CommandEditSign extends PlayerCommand {
                 SignSide side = sign.getSide(Utils.valueOfFormattedName(args[1], Side.class));
                 side.line(line, comp);
                 sign.update();
-                sender.sendMessage(ComponentColor.gold("Line %d on %s set to: ", line + 1, args[1]).append(comp));
+                sender.sendMessage(ComponentColor.gold("Line {} on {} set to: {}", line + 1, args[1], comp));
             } else if (args[0].equalsIgnoreCase("clear")) {
                 if (args.length == 1) {
                     for (int i = 0; i < 4; i++) {
@@ -112,7 +112,7 @@ public class CommandEditSign extends PlayerCommand {
                     int line = Integer.parseInt(args[2]) - 1;
                     side.line(line, Component.empty());
                     sign.update();
-                    sender.sendMessage(ComponentColor.gold("Line %d text cleared on %s.", line + 1, args[1]));
+                    sender.sendMessage(ComponentColor.gold("Line {} text cleared on {}.", line + 1, args[1]));
                 }
             } else {
                 return false;

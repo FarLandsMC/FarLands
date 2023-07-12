@@ -75,7 +75,7 @@ public class CommandCustomItem extends PlayerCommand {
             case GET -> {
                 ItemStack stack = dh.getItem(args[1]);
                 if (stack == null) {
-                    player.sendMessage(ComponentColor.red("No item found with the key: %s", args[1]));
+                    player.sendMessage(ComponentColor.red("No item found with the key: {}", args[1]));
                     return true;
                 }
                 FLUtils.giveItem(player, stack, true);
@@ -114,7 +114,7 @@ public class CommandCustomItem extends PlayerCommand {
                 PendingConfirm pend = pendingConfirms.get(player.getUniqueId());
                 Bukkit.getScheduler().cancelTask(pend.taskId);
                 pendingConfirms.remove(player.getUniqueId());
-                player.sendMessage(ComponentColor.green("Cancelled pending action: %s.", Utils.formattedName(pend.command)));
+                player.sendMessage(ComponentColor.green("Cancelled pending action: \"{}\".", Utils.formattedName(pend.command)));
                 return true;
             }
         }
@@ -141,14 +141,12 @@ public class CommandCustomItem extends PlayerCommand {
                 }
                 if (customItems.containsKey(key)) {
                     scheduleConfirm(player, action, key, hand);
-                    player.sendMessage(
-                        ComponentColor.red("The key '%s' already has a value. Run ", key)
-                            .append(ComponentColor.darkRed("/customitem confirm"))
-                            .append(ComponentColor.red(" to overwrite it, or "))
-                            .append(ComponentColor.darkRed("/customitem cancel"))
-                            .append(ComponentColor.red(" to cancel."))
+
+                    return error(player,
+                        "The key '{}' already has a value.  Run {:dark_red} to overwrite it, or {:dark_red} to cancel.",
+                        "/customitem confirm",
+                        "/customitem cancel"
                     );
-                    return true;
                 }
                 handle(player, action, key, hand);
                 return true;
@@ -156,14 +154,11 @@ public class CommandCustomItem extends PlayerCommand {
             case REMOVE -> {
                 if (customItems.containsKey(key)) {
                     scheduleConfirm(player, action, key, null);
-                    player.sendMessage(
-                        ComponentColor.red("Are you sure you want to remove the key '%s'? Run ", key)
-                            .append(ComponentColor.darkRed("/customitem confirm"))
-                            .append(ComponentColor.red(" to confirm, or "))
-                            .append(ComponentColor.darkRed("/customitem cancel"))
-                            .append(ComponentColor.red(" to cancel."))
+                    return error(player,
+                        "Are you sure you want to remove the key '{}'?  Run {:dark_red} to confirm it, or {:dark_red} to cancel.",
+                        "/customitem confirm",
+                        "/customitem cancel"
                     );
-                    return true;
                 }
                 handle(player, action, key, null);
                 return true;
@@ -189,11 +184,11 @@ public class CommandCustomItem extends PlayerCommand {
         switch (action) {
             case PUT -> {
                 dh.getItems().put(key, item.clone());
-                player.sendMessage(ComponentColor.green("Put %s in key %s.", FLUtils.material(item), key));
+                success(player, "Put {} in key {}.", item, key);
             }
             case REMOVE -> {
                 dh.getItems().remove(key);
-                player.sendMessage(ComponentColor.green("Removed key %s", key));
+                success(player, "Removed key {}", key);
             }
         }
     }

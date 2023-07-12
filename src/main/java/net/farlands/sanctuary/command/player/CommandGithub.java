@@ -7,7 +7,6 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
@@ -41,11 +40,7 @@ public class CommandGithub extends Command {
                     .build()
             );
         } else {
-            sender.sendMessage(
-                ComponentColor.gold("FarLands custom plugins can be found at ")
-                    .append(ComponentUtils.link(GH_URL))
-                    .append(ComponentColor.gold("."))
-            );
+            info(sender, "FarLands custom plugins can be found at {}.", ComponentUtils.link(GH_URL));
         }
         return true;
     }

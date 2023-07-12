@@ -31,8 +31,7 @@ public class CommandHomes extends Command {
     public boolean execute(CommandSender sender, String[] argsArr) {
 
         if ((sender instanceof ConsoleCommandSender || sender instanceof BlockCommandSender) && argsArr.length == 0) {
-            sender.sendMessage(ComponentColor.red("You must be in-game to use this command."));
-            return true;
+            return error(sender, "You must be in-game to use this command.");
         }
 
         List<String> args = new ArrayList<>(Arrays.asList(argsArr)); // Lists are easier to work with :P
@@ -55,12 +54,12 @@ public class CommandHomes extends Command {
         }
 
         if(flp.homes.isEmpty()) {
-            return error(sender, "%s no homes.", self ? "You have" : flp.username + " has");
+            return error(sender, "{} {} no homes.", self ? "You" : flp, self ? "have" : " has");
         }
 
         if (args.size() >= 1) {
             if (!args.get(0).matches("\\d+")) {
-                sender.sendMessage(ComponentColor.red("Invalid page number."));
+                error(sender, "Invalid page number.");
                 return true;
             }
             page = Integer.parseInt(args.remove(0));
@@ -81,7 +80,7 @@ public class CommandHomes extends Command {
             .toList();
 
         Component header = ComponentColor.gold(
-            "%s %d Home%s",
+            "{} {} Home{}",
             self ? "Your" : flp.username + "'s",
             homes.size(),
             homes.size() == 1 ? "" : "s"
@@ -106,22 +105,22 @@ public class CommandHomes extends Command {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
 
         if (args.size() == 1) {
-            sender.sendMessage(ComponentColor.gold("Currently sorting using: ").append(ComponentColor.aqua(Utils.formattedName(flp.homesSort))));
+            info(sender, "Currently sorting using: {:aqua}", flp.homesSort);
             return;
         }
 
         SortType type = Utils.valueOfFormattedName(args.get(1), SortType.class);
         if (type == null) {
-            sender.sendMessage(ComponentColor.red("Invalid sort type. Options: %s", String.join(", ", SortType.NAMES)));
+            error(sender, "Invalid sort type. Options: {}", (Object) SortType.values());
             return;
         }
         flp.homesSort = type;
-        sender.sendMessage(ComponentColor.gold("Now sorting homes using: ").append(ComponentColor.aqua(Utils.formattedName(flp.homesSort))));
+        success(sender, "Now sorting using: {:aqua}", flp.homesSort);
     }
 
     @Override
     protected void showUsage(CommandSender sender) {
-        sender.sendMessage("Usage: " + (Rank.getRank(sender).isStaff() ? "/homes [player] [page]" : getUsage()));
+        error(sender, "Usage: {}", Rank.getRank(sender).isStaff() ? "/homes [player] [page]" : getUsage());
     }
 
     @Override

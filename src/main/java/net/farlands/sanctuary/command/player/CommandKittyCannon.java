@@ -49,13 +49,7 @@ public class CommandKittyCannon extends PlayerCommand {
         FLPlayerSession session = FarLands.getDataHandler().getSession(sender);
         long timeRemaining = session.commandCooldownTimeRemaining(this);
         if (timeRemaining > 0) {
-            sender.sendMessage(
-                ComponentColor.red(
-                    "You can use this command again in " +
-                        TimeInterval.formatTime(50L * timeRemaining, false)
-                )
-            );
-            return true;
+            return error(sender, "You can use this command again in {}", TimeInterval.formatTime(50L * timeRemaining, false));
         }
 
         FLUtils.giveItem(sender, CANNON.clone(), true);

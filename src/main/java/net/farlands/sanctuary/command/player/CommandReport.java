@@ -40,7 +40,7 @@ public class CommandReport extends Command {
         // Get and check the report type
         ReportType reportType = Utils.valueOfFormattedName(args[0], ReportType.class);
         if (reportType == null) {
-            sender.sendMessage(ComponentColor.red("Invalid report type: %s", args[0]));
+            sender.sendMessage(ComponentColor.red("Invalid report type: {}", args[0]));
             return true;
         }
 

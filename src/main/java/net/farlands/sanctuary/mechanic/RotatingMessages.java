@@ -2,6 +2,8 @@ package net.farlands.sanctuary.mechanic;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -23,9 +25,17 @@ public class RotatingMessages extends Mechanic {
      * All messages that should be broadcast
      */
     private static final List<Message> DEFAULT_MESSAGES = new ArrayList<>(List.of(
-        /* Vote    */ new Message(flp -> flp.votesToday < FarLands.getFLConfig().voteConfig.voteLinks.size(),"<gold>Want to help support the server? Vote for us with <click:run_command:/vote><aqua>/vote</aqua></click>!"),
-        /* Donate  */ new Message("<gold>Want to help support the server? Donate to us with <click:run_command:/donate><aqua>/donate</aqua></click>!"),
-        /* Discord */ new Message(flp -> !flp.isDiscordVerified(), "<gold>Type <click:open_url:" + FarLands.getFLConfig().discordInvite + "><aqua>/discord</aqua></click> to join our Discord!")
+        new Message( // Vote
+            flp -> flp.votesToday < FarLands.getFLConfig().voteConfig.voteLinks.size(),
+            ComponentColor.gold("Want to help support the server?  Vote for us with {}!", ComponentUtils.command("/vote"))
+        ),
+        new Message( // Donate
+            ComponentColor.gold("Want to help support the server? Consider donating at {}!", ComponentUtils.command("/donate"))
+        ),
+        new Message( // Discord
+            flp -> !flp.isDiscordVerified(),
+            ComponentColor.gold("Type {} to join our Discord!", ComponentUtils.command("/discord"))
+        )
     ));
 
     private final Queue<Message> queue = new LinkedList<>(DEFAULT_MESSAGES); // Queue for cycling through messages
@@ -79,6 +89,10 @@ public class RotatingMessages extends Mechanic {
         private static final Predicate<OfflineFLPlayer> ALL = flp -> true;
 
         private Message(String message) {
+            this(ALL, message);
+        }
+
+        private Message(Component message) {
             this(ALL, message);
         }
 

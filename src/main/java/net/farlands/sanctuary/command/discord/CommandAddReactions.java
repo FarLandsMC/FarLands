@@ -104,7 +104,7 @@ public class CommandAddReactions extends DiscordCommand {
                 String messageID = args.remove(0);
                 message = channel.retrieveMessageById(messageID).complete();
                 if (message == null) {
-                    error(sender, "Unable to find message with id '%s'", messageID);
+                    error(sender, "Unable to find message with id '{}'", messageID);
                     return true;
                 }
             }

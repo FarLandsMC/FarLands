@@ -134,10 +134,11 @@ public class VanillaFixes extends Mechanic {
         // Notify about pets that failed to teleport due to region flags
         if (failedToTeleport.get() > 0) {
             player.sendMessage(
-                ComponentColor.gold("You teleported to a region %s of your pets cannot teleport to! " +
-                                    "They were left at ", failedToTeleport.get())
-                    .append(ComponentColor.aqua("%s %s %s", from.getBlockX(), from.getBlockY(), from.getBlockZ()))
-                    .append(ComponentColor.gold("."))
+                ComponentColor.gold(
+                    "You teleported to a region {} of your pets cannot teleport to! They were left at {:aqua}.",
+                    failedToTeleport.get(),
+                    FLUtils.toSimpleString(from)
+                )
             );
         }
 
@@ -155,9 +156,11 @@ public class VanillaFixes extends Mechanic {
             // Notify about pets left behind
             if (leftBehind.get() > 0) {
                 player.sendMessage(
-                    ComponentColor.gold("You left %s of your pets sitting at ", leftBehind.get())
-                        .append(ComponentColor.aqua("%s %s %s", from.getBlockX(), from.getBlockY(), from.getBlockZ()))
-                        .append(ComponentColor.gold("."))
+                    ComponentColor.gold(
+                        "You left {} of your pets sitting at {:aqua}.",
+                        leftBehind.get(),
+                        FLUtils.toSimpleString(from)
+                    )
                 );
             }
         }

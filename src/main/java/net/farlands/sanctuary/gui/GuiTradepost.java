@@ -3,6 +3,7 @@ package net.farlands.sanctuary.gui;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.PlayerTrade;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -57,7 +58,7 @@ public class GuiTradepost extends Gui {
      * Generate a component for the given page index
      */
     private static Component windowName(@Range(from = 0, to = Integer.MAX_VALUE - 1) int page) {
-        return Component.text(String.format("Tradepost (Page %d/%d)", page + 1, totalPages()));
+        return ComponentUtils.format("Tradepost (Page {}/{})", page + 1, totalPages());
     }
 
     private static int totalPages() {

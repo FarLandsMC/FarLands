@@ -34,16 +34,17 @@ public class CommandDeathMute extends Command {
         if (flp == null) return error(sender, "Player not found.");
 
         FLPlayerSession session = flp.getSession();
-        if (session == null) return error(sender, "No active session found for %s.", flp.username);
+        if (session == null) return error(sender, "No active session found for {}.", flp.username);
 
         session.deathMute = !session.deathMute;
 
-        success(sender, "%s deaths for %s's current session.", session.deathMute ? "Muted" : "Unmuted", flp.username);
+        success(sender, "{} deaths for {}'s current session.", session.deathMute ? "Muted" : "Unmuted", flp);
         if (session.deathMute) {
             sender.sendMessage(
-                ComponentColor.red("Toggle it off by running ")
-                    .append(ComponentUtils.command("/deathmute " + flp.username, NamedTextColor.DARK_RED))
-                    .append(ComponentColor.red("."))
+                ComponentColor.red(
+                    "Toggle it off by running {}.",
+                    ComponentUtils.command("/deathmute " + flp.username, NamedTextColor.DARK_RED)
+                )
             );
         }
 

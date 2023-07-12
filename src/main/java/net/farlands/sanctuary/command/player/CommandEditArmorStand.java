@@ -8,6 +8,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.FLUtils;
@@ -26,8 +27,15 @@ import java.util.*;
 public class CommandEditArmorStand extends PlayerCommand {
 
     public CommandEditArmorStand() {
-        super(Rank.SPONSOR, Category.UTILITY, "Open the vanilla tweaks armor stand editor book.",
-              "/editarmorstand [marker|set] <on|off|values>", "editarmorstand", "editarmourstand");
+        super(
+            CommandData.withRank(
+                    "editarmorstand",
+                    "Open the vanilla tweaks armor stand editor book.",
+                    "/editarmorstand [marker|set] <on|off|values>",
+                    Rank.SPONSOR
+                )
+                .category(Category.UTILITY)
+        );
     }
 
     @Override
@@ -92,7 +100,7 @@ public class CommandEditArmorStand extends PlayerCommand {
                     if (selected != null) {
                         ArmorStand stand = (ArmorStand) selected;
                         stand.setMarker(marker);
-                        info(sender, "Toggled marker tag %s.", marker ? "on" : "off");
+                        info(sender, "Toggled marker tag {}.", marker ? "on" : "off");
                         stand.setInvisible(!stand.isInvisible());
                         FarLands.getScheduler().scheduleSyncDelayedTask(
                             () -> stand.setInvisible(!stand.isInvisible()),
@@ -113,7 +121,7 @@ public class CommandEditArmorStand extends PlayerCommand {
                         try {
                             Integer.parseInt(args[i]);
                         } catch (Exception e) {
-                            error(sender, "Invalid value: \"%s\"", args[i]);
+                            error(sender, "Invalid value: \"{}\"", args[i]);
                             return true;
                         }
                     }

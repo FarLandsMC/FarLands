@@ -6,7 +6,6 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.mechanic.TabListMechanics;
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.Logging;
 import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Bukkit;
@@ -24,9 +23,9 @@ public class CommandAFK extends PlayerCommand {
 
         // Check the command cooldown
         if (!session.isCommandCooldownComplete(this)) {
-            sender.sendMessage(ComponentColor.red(
-                "You can use this command again in %s.",
-                TimeInterval.formatTime(session.commandCooldownTimeRemaining(this) * 50L, false))
+            error(sender,
+                "You can use this command again in {}.",
+                TimeInterval.formatTime(session.commandCooldownTimeRemaining(this) * 50L, false)
             );
             return true;
         }

@@ -30,11 +30,7 @@ public class CommandKick extends Command {
         }
         String reason = args.length > 1 ? joinArgsBeyond(0, " ", args) : "Kicked by an operator.";
         player.kick(Component.text(reason), PlayerKickEvent.Cause.KICK_COMMAND);
-        sender.sendMessage(
-            ComponentColor.gold("Kicked ")
-                               .append(ComponentColor.aqua(player.getName()))
-                .append(ComponentColor.gold(" for reason: \"%s\"", reason))
-        );
+        sender.sendMessage(ComponentColor.gold("Kicked {:aqua} for reason: \"{:aqua}\"", player.getName(), reason));
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, MarkdownProcessor.escapeMarkdown(sender.getName()) + " kicked " +
                 MarkdownProcessor.escapeMarkdown(player.getName()) + " for reason: `" + reason + "`");
         return true;

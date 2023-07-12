@@ -54,16 +54,16 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
         if (category == null || category == Category.STAFF) {
             net.farlands.sanctuary.command.Command command = FarLands.getCommandHandler().getCommand(args[0]);
             if (command == null) {
-                return error(sender, "Command or category not found: %s.", args[0]);
+                return error(sender, "Command or category not found: \"{}\".", args[0]);
             }
 
-            Component comp = ComponentColor.gold("Showing info for command ")
-                .append(ComponentColor.aqua(command.getName()))
-                .append(ComponentColor.gold(":"))
-                .append(ComponentColor.gold("\nUsage: ")).append(usage(command.getUsage()))
-                .append(ComponentColor.gold("\nDescription: %s", command.getDescription()))
-                .append(Component.newline().append(command.data().getRequirements()));
-
+            Component comp = ComponentColor.gold(
+                "Showing info for command {}:\nUsage: {}\nDescription: {}\n{}",
+                command.getName(),
+                usage(command.getUsage()),
+                command.getDescription(),
+                command.data().getRequirements()
+            );
             sender.sendMessage(comp);
             return true;
 
@@ -105,7 +105,7 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
             try {
                 pagination.sendPage(args.length > 1 ? parseNumber(args[1], Integer::parseInt, -1) : 1, sender);
             } catch (Pagination.InvalidPageException ex) {
-                return error(sender, "Invalid page number, must be an integer between 1 and %s", pagination.numPages());
+                return error(sender, "Invalid page number, must be an integer between 1 and {}", pagination.numPages());
             }
         }
 

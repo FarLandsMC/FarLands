@@ -1,6 +1,6 @@
 package net.farlands.newheights;
 
-import net.farlands.sanctuary.command.player.CommandShrug;
+import net.farlands.sanctuary.command.player.CommandEmote;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
@@ -29,7 +29,7 @@ public class ChatFormatTest {
     }
 
     public Component translateEmotes(Component message) {
-        for (CommandShrug.TextEmote emote : CommandShrug.TextEmote.values) {
+        for (CommandEmote.TextEmote emote : CommandEmote.TextEmote.values) {
             message = message.replaceText(TextReplacementConfig.builder().match(Pattern.compile("(?i)(?<!\\\\)(:"
                 + Pattern.quote(emote.name()) + ":)")).replacement(emote.getValue()).build());
         }

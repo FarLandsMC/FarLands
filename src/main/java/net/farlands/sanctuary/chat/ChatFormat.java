@@ -1,14 +1,12 @@
 package net.farlands.sanctuary.chat;
 
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.command.player.CommandShrug;
-import net.farlands.sanctuary.command.player.CommandStats;
+import net.farlands.sanctuary.command.player.CommandEmote;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextReplacementConfig;
-import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -38,7 +36,7 @@ public class ChatFormat {
     }
 
     public static Component translateEmotes(Component message) {
-        for (CommandShrug.TextEmote emote : CommandShrug.TextEmote.values) {
+        for (CommandEmote.TextEmote emote : CommandEmote.TextEmote.values) {
             message = message
                 .replaceText(
                     TextReplacementConfig
@@ -102,7 +100,7 @@ public class ChatFormat {
                         return Component.text(text);
                     }
 
-                    return ComponentColor.aqua("[i] ").append(ComponentUtils.item(item));
+                    return ComponentColor.aqua("[i] {}", item);
                 }))
                 .build()
         );
@@ -130,8 +128,6 @@ public class ChatFormat {
     }
 
     public static Component playerMention(OfflineFLPlayer flp) {
-        return Component.text("@" + flp.username)
-            .color(flp.rank.nameColor())
-            .hoverEvent(HoverEvent.showText(CommandStats.getFormattedStats(flp, null, false)));
+        return ComponentColor.color(flp.rank.nameColor(), "@{}", flp);
     }
 }

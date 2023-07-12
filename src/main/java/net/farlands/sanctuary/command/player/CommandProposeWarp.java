@@ -32,7 +32,7 @@ public class CommandProposeWarp extends PlayerCommand {
         }
 
         if (!WARP_TYPES.contains(args[0])) {
-            sender.sendMessage(ComponentColor.red("Invalid warp type: %s", args[0]));
+            sender.sendMessage(ComponentColor.red("Invalid warp type: \"{}\"", args[0]));
             return true;
         }
 

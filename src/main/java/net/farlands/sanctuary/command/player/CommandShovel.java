@@ -8,13 +8,13 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
+import java.util.List;
 
 public class CommandShovel extends PlayerCommand {
     private final ItemStack shovel;
@@ -31,12 +31,7 @@ public class CommandShovel extends PlayerCommand {
         // Check cooldown
         long cooldownTime = session.commandCooldownTimeRemaining(this);
         if (cooldownTime > 0L) {
-            sender.sendMessage(
-                ComponentColor.green(
-                    "You can use this command in %s.",
-                    TimeInterval.formatTime(cooldownTime * 50L, false)
-                )
-            );
+            error(sender, "You can use this command in {}.", TimeInterval.formatTime(cooldownTime * 50L, false));
             return true;
         }
 
@@ -50,8 +45,10 @@ public class CommandShovel extends PlayerCommand {
     private static ItemStack genShovel() {
         ItemStack shovel = new ItemStack(Material.GOLDEN_SHOVEL);
         ItemMeta meta = shovel.getItemMeta();
-        meta.setDisplayName(ChatColor.AQUA + "Claim Shovel");
-        meta.setLore(Collections.singletonList("Right-click to select the corners of your claim."));
+        meta.displayName(ComponentColor.aqua("Claim Shovel").decoration(TextDecoration.ITALIC, false));
+        meta.lore(List.of(
+            ComponentColor.gray("Right-Click to select the corners of your claim.").decoration(TextDecoration.ITALIC, false)
+        ));
         shovel.setItemMeta(meta);
         return shovel;
     }

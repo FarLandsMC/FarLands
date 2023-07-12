@@ -42,7 +42,7 @@ public class CommandParticles extends PlayerCommand {
             // Get and check the type
             Particle type = Utils.valueOfFormattedName(args[0], Particle.class);
             if (type == null) {
-                sender.sendMessage(ComponentColor.red("Invalid particle type: %s", args[0]));
+                sender.sendMessage(ComponentColor.red("Invalid particle type: \"{}\"", args[0]));
                 return true;
             } else if (ILLEGAL_PARTICLES.contains(type)) {
                 sender.sendMessage(ComponentColor.red("You cannot use that particle type."));
@@ -54,7 +54,7 @@ public class CommandParticles extends PlayerCommand {
                     ? Particles.ParticleLocation.ABOVE_HEAD
                     : Utils.valueOfFormattedName(args[1], Particles.ParticleLocation.class);
             if (location == null) {
-                sender.sendMessage(ComponentColor.red("Invalid particle location: %s", args[1]));
+                sender.sendMessage(ComponentColor.red("Invalid particle location: \"{}\"", args[1]));
                 return true;
             }
 

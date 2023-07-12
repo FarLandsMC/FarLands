@@ -96,12 +96,14 @@ public class Restrictions extends Mechanic {
 
             if (!notes.isEmpty()) { // If they have notes, announce them to online staff
                 Logging.broadcastStaff(
-                    ComponentColor.red(player.getName() + " has notes. Hover")
-                        .append(ComponentUtils.hover(
+                    ComponentColor.red(
+                        "{} has notes. Hover {} to view them.",
+                        flp,
+                        ComponentUtils.hover(
                             ComponentColor.aqua(" here"),
-                            ComponentColor.gray(String.join("\n", notes)))
+                            ComponentColor.gray(String.join("\n", notes))
                         )
-                        .append(Component.text(" to view them."))
+                    )
                 );
             }
 
@@ -159,7 +161,7 @@ public class Restrictions extends Mechanic {
             if (!alertablePunishments.isEmpty()) { // Alert of certain punishments
                 Logging.broadcastStaff(
                     ComponentColor.red(
-                        "%s has joined for the first time since receiving the following punishment%s:",
+                        "{} has joined for the first time since receiving the following punishment{}:",
                         flp.username,
                         alertablePunishments.size() == 1 ? "" : "s",
                         alertablePunishments.stream()
@@ -247,16 +249,19 @@ public class Restrictions extends Mechanic {
 
     @EventHandler(ignoreCancelled = true)
     public void onShopTransaction(ShopTransactionEvent event) {
-        Player player = event.getPlayer();
+        String player = event.getPlayer().getName();
         int buyAmount = event.getShop().getBuyAmount();
         ItemStack bought = event.getShop().getBuyItem();
         int sellAmount = event.getShop().getSellAmount();
         ItemStack sold = event.getShop().getSellItem();
 
         // Add simple logging for shop transactions
-        CoreProtect.getInstance().getAPI().logContainerTransaction("[SHOP] " + player.getName(), event.getShop().getChestLocation());
-        Logging.log(player.getName() + " bought " + sellAmount + " " + sold.getType().toString().toLowerCase()
-                    + " with " + buyAmount + " " + bought.getType().toString().toLowerCase());
+        CoreProtect.getInstance().getAPI().logContainerTransaction("[SHOP] " + player, event.getShop().getChestLocation());
+        Logging.log("%s bought %d %s with %d %s".formatted(
+            player,
+            sellAmount, sold.getType().toString().toLowerCase(),
+            buyAmount, bought.getType().toString().toLowerCase()
+        ));
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -299,7 +304,7 @@ public class Restrictions extends Mechanic {
             Location loc = event.getBlock().getLocation();
             Logging.broadcastStaff(
                 ComponentColor.gray(
-                    "%s %s a sign at %s %s %s",
+                    "{} {} a sign at {} {} {}",
                     event.getPlayer().getName(),
                     removedEditor
                     ? lines.isEmpty()
@@ -330,7 +335,7 @@ public class Restrictions extends Mechanic {
             event.setCancelled(true);
             event.getPlayer().sendMessage(
                 ComponentColor.red(
-                    "Collectables can not be placed%s.",
+                    "Collectables can not be placed{}.",
                     Rank.getRank(event.getPlayer()).isStaff() ? " in survival mode" : ""
                 )
             );
@@ -560,9 +565,10 @@ public class Restrictions extends Mechanic {
                 if (flp.elytrasObtained >= max) { // They cannot take the elytra
                     Command.error(
                         player,
-                        "You cannot collect more than %d elytras at this distance from main end island, you must go farther out." +
+                        "You cannot collect more than {} elytra{} at this distance from main end island, you must go farther out." +
                         "\nThis helps to make it fair to new players.",
-                        max
+                        max,
+                        max == 1 ? "" : "s"
                     );
                     NamespacedKey takeAttempts = FLUtils.nsKey("takeattempts");
                     event.setCancelled(true);

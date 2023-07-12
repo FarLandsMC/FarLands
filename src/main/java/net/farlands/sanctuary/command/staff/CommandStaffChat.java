@@ -53,7 +53,7 @@ public class CommandStaffChat extends Command {
                     session.autoSendStaffChat = toggledValue(sender, session.autoSendStaffChat, args, 2);
                     sender.sendMessage(
                         ComponentColor.green(
-                            "Staff chat auto-messaging toggled %s.",
+                            "Staff chat auto-messaging toggled {}.",
                             session.autoSendStaffChat ? "on" : "off"
                         )
                     );
@@ -64,7 +64,7 @@ public class CommandStaffChat extends Command {
                     session.showStaffChat = toggledValue(sender, session.showStaffChat, args, 2);
                     sender.sendMessage(
                         ComponentColor.green(
-                            "Staff chat toggled %s.",
+                            "Staff chat toggled {}.",
                             session.showStaffChat ? "on" : "off"
                         )
                     );
@@ -80,7 +80,7 @@ public class CommandStaffChat extends Command {
                     String name = args[2].replaceAll("-", "_").toLowerCase();
                     NamedTextColor color = NamedTextColor.NAMES.value(name);
                     if (color == null) {
-                        sender.sendMessage(ComponentColor.red("Invalid chat color \"%s\", must be a valid color.", args[2]));
+                        sender.sendMessage(ComponentColor.red("Invalid chat color \"{}\", must be a valid color.", args[2]));
                         return true;
                     }
 
@@ -152,7 +152,7 @@ public class CommandStaffChat extends Command {
             } else if ("off".equalsIgnoreCase(args[index])) {
                 newValue = false;
             } else {
-                sender.sendMessage(ComponentColor.red("Ignoring invalid toggle value \"%s\"", args[index]));
+                sender.sendMessage(ComponentColor.red("Ignoring invalid toggle value \"{}\"", args[index]));
             }
         }
 

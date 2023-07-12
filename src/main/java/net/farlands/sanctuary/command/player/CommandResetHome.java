@@ -94,7 +94,7 @@ public class CommandResetHome extends PlayerCommand {
         // If the home does not exist try to make a new one
         else {
             if (moveUnownedHome) {
-                error(sender, "%s does not have a home with this name.", args[1]);
+                error(sender, "{} does not have a home with this name.", args[1]);
                 return true;
             }
 

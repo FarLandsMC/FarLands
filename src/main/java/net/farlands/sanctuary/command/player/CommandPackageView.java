@@ -40,20 +40,24 @@ public class CommandPackageView extends Command {
             externalPlayer = true;
         }
 
-        if(searchPlayer == null){
-            sender.sendMessage(ComponentColor.red("Unknown Player %s.", args[1]));
+        if (searchPlayer == null){
+            error(sender, "Unknown player \"{}\".", args[1]);
             return true;
         }
 
         List<Package> packages = FarLands.getDataHandler().getPackages(searchPlayer.uuid);
 
-        if(packages.isEmpty()){
-            sender.sendMessage(ComponentColor.red("%s not have any pending packages.", externalPlayer ? searchPlayer.username + " does" : "You do"));
+        if (packages.isEmpty()){
+            error(sender,
+                "{} {} not have any pending packages.",
+                externalPlayer ? searchPlayer : "You",
+                externalPlayer ? "does" : "do"
+            );
             return true;
         }
 
         if(viewFlp == null && args.length >= 1 && !args[0].equalsIgnoreCase("all")){
-            sender.sendMessage(ComponentColor.red("Unknown Player \"%s\"", args[0]));
+            error(sender, "Unknown player \"{}\".", args[0]);
             return true;
         }
 

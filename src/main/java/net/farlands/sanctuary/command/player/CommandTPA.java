@@ -6,7 +6,6 @@ import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.TeleportRequest;
-import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,30 +32,27 @@ public class CommandTPA extends PlayerCommand {
             return false;
 
         if (FarLands.getDataHandler().getSession(sender).outgoingTeleportRequest != null) {
-            sender.sendMessage(ComponentColor.red("You already have an outgoing teleport request."));
+            error(sender, "You already have an outgoing teleport request.");
             return true;
         }
 
         Player recipient = getPlayer(args[1], sender);
         if (recipient == null) {
-            sender.sendMessage(ComponentColor.red("Player not found."));
-            return true;
+            return error(sender, "Player not found.");
         }
 
         if (sender.getUniqueId().equals(recipient.getUniqueId())) {
-            sender.sendMessage(ComponentColor.red("You cannot teleport to yourself."));
-            return true;
+            return error(sender, "You cannot teleport to yourself.");
         }
 
         FLPlayerSession recipientSession = FarLands.getDataHandler().getSession(recipient);
 
         if (recipientSession.handle.getIgnoreStatus(sender).includesTeleports()) {
-            sender.sendMessage("You cannot teleport to this player.");
-            return true;
+            return error(sender, "You cannot teleport to this player.");
         }
 
         if (recipientSession.afk)
-            sender.sendMessage(ComponentColor.red("This player is AFK, so they may not receive your request."));
+            error(sender, "This player is AFK, so they may not receive your request.");
 
         // Everything else is handled here
         TeleportRequest.open(

@@ -5,7 +5,6 @@ import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
-import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -24,25 +23,21 @@ public class CommandRenameItem extends PlayerCommand {
     public boolean execute(Player sender, String[] args) {
         ItemStack stack = sender.getInventory().getItemInMainHand();
         if (stack == null || stack.getType() == Material.AIR) {
-            sender.sendMessage(ComponentColor.red("Please hold the item you wish to rename."));
-            return true;
+            return error(sender, "Please hold the item you wish to rename.");
         }
 
         if(sender.getExpToLevel() < 1) {
-            sender.sendMessage(ComponentColor.red("You don't have enough experience to rename an item."));
-            return true;
+            return error(sender, "You don't have enough experience to rename an item.");
         }
 
         String rawName = String.join(" ", args);
         Component name = ComponentUtils.parse(rawName, FarLands.getDataHandler().getOfflineFLPlayer(sender));
         if (ComponentUtils.toText(name).length() > 35) {
-            sender.sendMessage(ComponentColor.red("Item names can be a maximum of 35 characters."));
-            return true;
+            return error(sender, "Item names can be a maximum of 35 characters.");
         }
 
         if(MessageFilter.INSTANCE.isProfane(ComponentUtils.toText(name))) {
-            sender.sendMessage(ComponentColor.red("You cannot rename an item to this name."));
-            return true;
+            return error(sender, "You cannot rename an item to this name.");
         }
 
         ItemMeta meta = stack.getItemMeta();
