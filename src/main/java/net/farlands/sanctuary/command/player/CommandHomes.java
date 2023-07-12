@@ -80,10 +80,9 @@ public class CommandHomes extends Command {
             .toList();
 
         Component header = ComponentColor.gold(
-            "{} {} Home{}",
+            "{} {} Home{1::s}",
             self ? "Your" : flp.username + "'s",
-            homes.size(),
-            homes.size() == 1 ? "" : "s"
+            homes.size()
         );
 
         String pageCommand = "/homes " + (self ? "" : flp.username);

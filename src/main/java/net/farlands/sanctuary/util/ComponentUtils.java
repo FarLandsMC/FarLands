@@ -328,6 +328,7 @@ public class ComponentUtils {
      * Examples:
      * _Note: these examples show it returning strings because we can't show components in a comment_
      *
+     * <pre>
      * The {} notation can be used to insert the next value provided
      * format("{}", "hello") -> "hello"
      * format("Hello {}!", "world") -> "Hello world!"
@@ -344,11 +345,16 @@ public class ComponentUtils {
      * Formatting can be negated from the parent component
      * format("Hello {:red !bold}!", "world") -> "Hello world!" ("world" is red and explicitly not bold)
      *
-     * The function accepts _any_ arguments, default to using {@link String#valueOf} if it's not in the select items listed in {@link ComponentColor#toComponent}.
+     * The function accepts _any_ arguments, default to using {@link String#valueOf} if it's not in the select items listed in {@link ComponentUtils#toComponent}.
      * format("{}", 5000) -> "5000"
      *
+     * Setting the stringFormat to 's' makes is use an s if the number != 1
+     * format("{} point{0::s}", 5) -> "5 points"
+     * format("{} point{0::s}", 1) -> "1 point"
+     *
      * Java {@link String#format} syntax can be used for values
-     * format("{::%,d}", 5) -> "5,000"
+     * format("{::%,d}", 5000) -> "5,000"
+     * </pre>
      *
      * ## Custom formatting
      *
@@ -363,17 +369,15 @@ public class ComponentUtils {
             return Component.text(format);
         }
 
-        String current = "";
+        StringBuilder current = new StringBuilder();
         int valueIndex = 0;
         boolean escaping = false;
         boolean inBlock = false;
         var builder = Component.text();
 
-        for (int i = 0; i < format.length(); i++) {
-            char c = format.charAt(i);
-
+        for (char c : format.toCharArray()) {
             if (escaping) {
-                current += c;
+                current.append(c);
                 escaping = false;
                 continue;
             }
@@ -381,34 +385,30 @@ public class ComponentUtils {
             switch (c) {
                 case '{' -> {
                     if (inBlock) {
-                        current += '{';
+                        current.append('{');
                         continue;
                     }
-                    builder.append(Component.text(current));
+                    builder.append(Component.text(current.toString()));
                     inBlock = true;
-                    current = "";
+                    current = new StringBuilder();
                 }
                 case '}' -> {
                     if (!inBlock) {
-                        current += '}';
+                        current.append('}');
                         continue;
                     }
 
                     var index = new AtomicInteger(valueIndex);
-                    builder.append(parseInner(current, values, index));
+                    builder.append(parseInner(current.toString(), values, index));
                     valueIndex = index.get();
                     inBlock = false;
-                    current = "";
+                    current = new StringBuilder();
                 }
-                case '\\' -> {
-                    escaping = true;
-                }
-                default -> {
-                    current += c;
-                }
+                case '\\' -> escaping = true;
+                default -> current.append(c);
             }
         }
-        builder.append(Component.text(current));
+        builder.append(Component.text(current.toString()));
         return builder.build();
     }
 
@@ -456,35 +456,35 @@ public class ComponentUtils {
 
         int colPos = value.indexOf(':');
 
-        // Format: [index][:format[:stringFormat]]
-        if (colPos != -1) {
+        // Format: [index][[:]format[:stringFormat]]
+        if (colPos != -1) { // We have {aaaa:bbbb} or {aaaa:bbbb:cccc} or {:bbbb:cccc}
             var indexStr = value.substring(0, colPos);
-            if (indexStr.isBlank()) {
-                index = valueIndex.getAndIncrement();
-            } else {
+            if (indexStr.isBlank()) { // We have {:bbbb} or {:cccc}
+                index = valueIndex.getAndIncrement(); // Get the next value
+            } else { // Get the value of the int
                 index = Integer.parseInt(indexStr);
-                if (index == valueIndex.get()) {
+                if (index == valueIndex.get()) { // If we have "{0} {1} {2}", increment valueIndex
                     valueIndex.getAndIncrement();
                 }
             }
 
-            format = value.substring(colPos + 1);
+            format = value.substring(colPos + 1); // Get the format: "bbbb:cccc"
             int formatColPos = format.indexOf(':');
-            if (formatColPos != -1) {
-                stringFormat = format.substring(formatColPos + 1);
-                format = format.substring(0, formatColPos);
+            if (formatColPos != -1) { // We have "bbbb:cccc"
+                stringFormat = format.substring(formatColPos + 1); // "cccc"
+                format = format.substring(0, formatColPos); // "bbbb"
             }
-        } else {
+        } else { // We have {aaaa} or {}
             try {
-                if (value.isBlank()) {
+                if (value.isBlank()) { // We have {}
                     index = valueIndex.getAndIncrement();
-                } else {
-                    index = Integer.parseInt(value);
-                    if (index == valueIndex.get()) {
+                } else { // We have {aaaa}
+                    index = Integer.parseInt(value); // Get the value
+                    if (index == valueIndex.get()) { // If we have "{0} {1} {2}", increment valueIndex
                         valueIndex.getAndIncrement();
                     }
                 }
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException ex) { // If it's not an int, they probably want the formatting, so let's treat it as {:bbbb}
                 index = valueIndex.getAndIncrement();
                 format = value;
             }
@@ -495,17 +495,17 @@ public class ComponentUtils {
 
         var style = Component.empty();
         if (format != null && !format.isBlank()) {
-            String[] formats = format.split("[^\\w#]+");
+            String[] formats = format.split("[^\\w#!]+"); // Don't just split on ' ' so that we're lenient about what we accept: "a,b,c" == "a b c"
             for (var fmt : formats) {
-                if (fmt.startsWith("#")) {
+                if (fmt.startsWith("#")) { // Hex colour value
                     var col = TextColor.fromCSSHexString(fmt);
                     if (col == null) {
                         throw new IllegalArgumentException("Invalid Format: " + fmt);
                     }
                     style = style.color(col);
-                } else {
+                } else { // Either a colour of a style
                     var col = NamedTextColor.NAMES.value(fmt.toLowerCase());
-                    if (col == null) {
+                    if (col == null) { // Not a colour
                         boolean negate = fmt.startsWith("!");
 
                         if (negate) {
@@ -513,17 +513,18 @@ public class ComponentUtils {
                         }
 
                         var td = Utils.valueOfFormattedName(fmt, TextDecoration.class);
-                        if (td == null) {
+                        if (td == null) { // Not a decoration and has no other options
                             throw new IllegalArgumentException("Invalid Format: " + fmt);
                         }
                         style = style.decoration(td, !negate);
-                    } else {
+                    } else { // It is a colour
                         style = style.color(col);
                     }
                 }
             }
         }
 
+        // Convert the object to a component and add style
         Component o = toComponent(obj, stringFormat);
         return o.mergeStyle(style);
     }
@@ -617,9 +618,9 @@ public class ComponentUtils {
             o = b.build();
         } else {
             String s;
-            if (stringFormat != null && !stringFormat.isBlank()) {
+            if (stringFormat != null && !stringFormat.isBlank()) { // stringFormat is set
                 s = String.format(stringFormat, obj);
-            } else {
+            } else { // it's unset
                 s = String.valueOf(obj);
             }
             o = Component.text(s);

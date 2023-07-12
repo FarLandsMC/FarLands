@@ -58,7 +58,7 @@ public class CommandHelp extends net.farlands.sanctuary.command.Command {
             }
 
             Component comp = ComponentColor.gold(
-                "Showing info for command {}:\nUsage: {}\nDescription: {}\n{}",
+                "Showing info for command {}:\nUsage: {:white}\nDescription: {:white}\n{}",
                 command.getName(),
                 usage(command.getUsage()),
                 command.getDescription(),
