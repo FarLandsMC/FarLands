@@ -28,9 +28,8 @@ public class CommandPvP extends PlayerCommand {
         if (args.length == 0) {
             sender.sendMessage(
                 ComponentColor.gold(
-                    "Your PvP is currently {}. To {} it, run {}.",
-                    flp.pvp ? "on" : "off",
-                    flp.pvp ? "disable" : "enable",
+                    "Your PvP is currently {0::?on:off}. To {0::?disable:enable} it, run {}.",
+                    flp.pvp,
                     ComponentUtils.command("/pvp " + (flp.pvp ? "off" : "on"))
                 )
             );
@@ -43,7 +42,7 @@ public class CommandPvP extends PlayerCommand {
 
         flp.pvp = args[0].equals("on");
 
-        sender.sendMessage(ComponentColor.green("PvP {}.", flp.pvp ? "enabled" : "disabled"));
+        sender.sendMessage(ComponentColor.green("PvP {::?enabled:disabled}.", flp.pvp));
         return true;
     }
 

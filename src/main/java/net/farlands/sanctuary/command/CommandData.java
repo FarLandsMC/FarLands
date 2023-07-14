@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command;
 
-import io.papermc.paper.advancement.AdvancementDisplay;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandEmote;
 import net.farlands.sanctuary.data.Rank;
@@ -21,10 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiFunction;
 
 /**
@@ -203,18 +199,11 @@ public class CommandData {
         }
 
         if (!this.advancementsRequired.isEmpty()) {
-            List<Component> advancements = this.advancementsRequired.stream().map(adv -> {
-                AdvancementDisplay display = adv.getDisplay();
-                if (display == null) {
-                    throw new IllegalArgumentException("Advancement is hidden and cannot be displayed.");
-                }
-                return ComponentUtils.hover(
-                    ComponentColor.green("[{}]", display.title()),
-                    display.description()
-                );
-            }).toList();
+            List<Advancement> advancements = this.advancementsRequired.stream()
+                .filter(Objects::nonNull)
+                .toList();
 
-            requirements.add(ComponentUtils.format("Complete the advancements: {}", advancements));
+            requirements.add(ComponentUtils.format("Complete the advancement{1::s}: {0}", advancements, advancements.size()));
         }
 
         if (!this.craftedItemsRequired.isEmpty()) {
@@ -225,9 +214,8 @@ public class CommandData {
 
         if (this.playedHoursRequired > 0) {
             requirements.add(ComponentUtils.format(
-                "Play more than {} hour{}",
-                this.playedHoursRequired,
-                this.playedHoursRequired != 1 ? "s" : ""
+                "Play more than {} hour{0::s}",
+                this.playedHoursRequired
             ));
         }
 
