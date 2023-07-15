@@ -3,6 +3,7 @@ package net.farlands.sanctuary.chat;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandMessage;
+import net.farlands.sanctuary.command.player.CommandStats;
 import net.farlands.sanctuary.command.staff.CommandStaffChat;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -187,10 +188,17 @@ public class ChatHandler {
     }
 
     public static Component getPrefix(OfflineFLPlayer sender) {
+        Component nameDisplay = ComponentUtils.suggestCommand(
+            "/msg " + sender.username + " ",
+            ComponentUtils.hover(
+                sender.getDisplayName(), // Colored Username or Nickname
+                CommandStats.getFormattedStats(sender, null, false)
+            )
+        );
         return ComponentUtils.format(
             "{} {}{}",
             sender.getDisplayRank(),
-            sender,
+            nameDisplay,
             Component.text(":").color(sender.rank.color())
         );
     }

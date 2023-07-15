@@ -208,7 +208,7 @@ public class CommandMessage extends PlayerCommand {
                 .append(Component.space())
                 .append(name)
                 .append(Component.text(": ").color(rank.nameColor()))
-                .append(message.color(NamedTextColor.WHITE));
+                .append(Component.text().append(message).color(NamedTextColor.WHITE).build());
         recipient.getOnlinePlayer().sendMessage(finalC);
         if(!toMessage) { // add to "While you were gone" message
             recipient.getSession().addAFKMessage(finalC);
