@@ -13,7 +13,6 @@ import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -21,7 +20,6 @@ import org.bukkit.entity.Player;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CommandSeen extends Command {
     public CommandSeen() {
@@ -41,10 +39,18 @@ public class CommandSeen extends Command {
 
         Rank rank = Rank.getRank(sender);
 
-        TextComponent.Builder cb = Component.text()
-            .color(NamedTextColor.GOLD)
-            .content("Last Seen: ")
-            .append(ComponentColor.aqua(TimeInterval.formatTime(System.currentTimeMillis() - flp.getLastLogin(), false)));
+        var now = System.currentTimeMillis();
+        var last = flp.getLastLogin();
+        TextComponent.Builder cb;
+        if (now == last) {
+            cb = ((TextComponent) ComponentColor.gold("{} is online now.", flp)).toBuilder();
+        } else {
+            cb = ((TextComponent) ComponentColor.gold(
+                "{} was last seen {:aqua} ago.",
+                flp,
+                TimeInterval.formatTime(now - last, false))
+            ).toBuilder();
+        }
 
         // Test to see if this command isn't in #in-game essentially; make sure punishment info is private
         if (
@@ -52,21 +58,23 @@ public class CommandSeen extends Command {
             || sender instanceof Player && rank.isStaff()
             || sender instanceof ConsoleCommandSender
         ) {
-            cb.append(Component.text("\nMuted: "))
-                .append(ComponentColor.aqua(flp.isMuted() + ""));
+            cb.append(ComponentUtils.format("\nMuted: {:aqua}", flp.isMuted()));
 
             if (!flp.punishments.isEmpty()) {
-                List<Punishment> validPunishments = flp.punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
+                List<Punishment> validPunishments = flp.punishments
+                    .stream()
+                    .filter(Punishment::isNotPardoned)
+                    .toList();
+
                 int hourIndex = 0;
                 cb.append(Component.text("Punishments: "));
                 for (Punishment p : flp.punishments) {
-                    cb.append(Component.text("\n - " + ComponentUtils.toText(p.asComponent(hourIndex))));
+                    cb.append(ComponentUtils.format("\n- {:aqua}", p.asComponent(hourIndex)));
                     if(validPunishments.contains(p))
                         ++hourIndex;
                 }
             }
-            cb.append(Component.text("\nLast IP: "))
-                .append(ComponentColor.aqua(flp.lastIP));
+            cb.append(ComponentUtils.format("\nLast IP: {:aqua}", flp.lastIP));
         }
 
         sender.sendMessage(cb.build());

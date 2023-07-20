@@ -27,7 +27,7 @@ public class RotatingMessages extends Mechanic {
     private static final List<Message> DEFAULT_MESSAGES = new ArrayList<>(List.of(
         new Message( // Vote
             flp -> flp.votesToday < FarLands.getFLConfig().voteConfig.voteLinks.size(),
-            ComponentColor.gold("Want to help support the server?  Vote for us with {}!", ComponentUtils.command("/vote"))
+            ComponentColor.gold("Want to help support the server? Vote for us with {}!", ComponentUtils.command("/vote"))
         ),
         new Message( // Donate
             ComponentColor.gold("Want to help support the server? Consider donating at {}!", ComponentUtils.command("/donate"))

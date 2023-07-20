@@ -88,16 +88,22 @@ public class CommandShutdown extends Command {
         FarLands.getScheduler().scheduleSyncDelayedTask(() -> {
             if ("backup".equals(mode)) {
                 backup();
-            } else if("restart".equals(mode)) { // Regular restart
+            } else if ("restart".equals(mode)) { // Regular restart
                 restart();
+            } else if ("shudown".equals(mode)) {
+                shutdown();
             }
         }, 20L * seconds);
+    }
+
+    public static void shutdown() {
+        FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
     }
 
     public static void restart() {
         Config cfg = FarLands.getFLConfig();
         FarLands.executeScript("restart.sh", cfg.screenSession, cfg.dedicatedMemory);
-        FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
+        shutdown();
     }
 
     public static void backup() {
@@ -110,6 +116,6 @@ public class CommandShutdown extends Command {
             System.getProperty("user.dir") + "-bu",
             cfg.dedicatedMemory
         );
-        FarLands.getInstance().getServer().getPluginManager().callEvent(new FLShutdownEvent());
+        shutdown();
     }
 }

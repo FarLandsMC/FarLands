@@ -190,10 +190,8 @@ public class ChatHandler {
     public static Component getPrefix(OfflineFLPlayer sender) {
         Component nameDisplay = ComponentUtils.suggestCommand(
             "/msg " + sender.username + " ",
-            ComponentUtils.hover(
-                sender.getDisplayName(), // Colored Username or Nickname
-                CommandStats.getFormattedStats(sender, null, false)
-            )
+            sender.getDisplayName(), // Colored Username or Nickname
+            CommandStats.getFormattedStats(sender, null, false)
         );
         return ComponentUtils.format(
             "{} {}{}",
@@ -244,30 +242,6 @@ public class ChatHandler {
         flp.currentMute.sendMuteMessage(player);
         Logging.broadcastStaff(ComponentColor.red("[MUTED] {}: {:gray}", flp.username, message));
         return true;
-    }
-
-    public static void autoCensorAlert(Player sender, Component message, OfflineFLPlayer flp) {
-        boolean fakeMsg = flp.secondsPlayed < 60 * 15; // Played for more than 15 minutes
-        if (fakeMsg) {
-            // Make it seem like the message went through for the sender
-            broadcast(message, sender);
-        } else {
-            // Let the sender know that their message wasn't sent
-            sender.sendMessage(
-                ComponentColor.red(
-                    "Your message was not sent as it may have contained words or phrases that some may find offensive."
-                )
-            );
-        }
-        Logging.broadcastStaff(
-            ComponentColor.red(
-                "[AUTO-CENSOR] {}: {:gray} - {}",
-                flp.username,
-                message,
-                fakeMsg ? "Notified player." : "False message sent to player."
-            ),
-            DiscordChannel.ALERTS
-        );
     }
 
     public static void broadcastDiscord(Component prefix, Component messageC) {

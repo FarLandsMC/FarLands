@@ -452,6 +452,14 @@ public class ComponentUtils {
     }
 
     /**
+     * Apply a custom style to the parent component after calling {@link ComponentUtils#format(String format, Object... values)}
+     * @param style The style to apply, see {@link ComponentUtils#applyStyle(Component, String)}
+     */
+    public static Component formatStyled(String style, String formatStr, Object... values) {
+        return applyStyle(format(formatStr, values), style);
+    }
+
+    /**
      * Parse the inside portion of the {@code {}} for {@link ComponentUtils#format}.
      * <p>
      * Syntax: {@code [index][[:][format][:stringFormat]]}
@@ -529,19 +537,33 @@ public class ComponentUtils {
         var obj = objs[index];
         Component o = toComponent(obj, fmt);
 
-        if (styleStr != null && !styleStr.isBlank()) {
-            String[] styles = styleStr.split("[^\\w#!]+"); // Don't just split on ' ' so that we're lenient about what we accept: "a,b,c" == "a b c"
+        o = applyStyle(o, styleStr);
+
+        // Convert the object to a component and add style
+        return o.mergeStyle(o);
+    }
+
+    /**
+     * Apply the given styles to the given component and return the new one
+     *
+     * @param comp  The component to style
+     * @param style The style string to use, see {@link ComponentUtils#parseInner}
+     */
+    public static Component applyStyle(Component comp, String style) {
+        var out = comp;
+        if (style != null && !style.isBlank()) {
+            String[] styles = style.split("[^\\w#!]+"); // Don't just split on ' ' so that we're lenient about what we accept: "a,b,c" == "a b c"
             for (var s : styles) {
                 if (s.startsWith("#")) { // Hex colour value
                     var col = TextColor.fromCSSHexString(s);
                     if (col == null) {
                         throw new IllegalArgumentException("Invalid Format: " + s);
                     }
-                    o = o.color(col);
+                    out = out.color(col);
                 } else { // Either a colour of a style
-                    var col = NamedTextColor.NAMES.value(s.toLowerCase().replace('_', '-'));
+                    var col = NamedTextColor.NAMES.value(s.toLowerCase().replace('-', '_'));
                     if (col != null) { // It is a colour
-                        o = o.color(col);
+                        out = out.color(col);
                     } else { // Not a colour
                         boolean negate = s.startsWith("!");
 
@@ -553,14 +575,12 @@ public class ComponentUtils {
                         if (td == null) { // Not a decoration and has no other options
                             throw new IllegalArgumentException("Invalid Format: " + s);
                         }
-                        o = o.decoration(td, !negate);
+                        out = out.decoration(td, !negate);
                     }
                 }
             }
         }
-
-        // Convert the object to a component and add style
-        return o.mergeStyle(o);
+        return out;
     }
 
     /**
