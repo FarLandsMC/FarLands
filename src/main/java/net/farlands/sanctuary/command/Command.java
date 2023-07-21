@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -242,6 +243,7 @@ public abstract class Command extends org.bukkit.command.Command {
      * @param replacements Replacements for {@link String#format(String, Object...)}
      * @return true - So that it can be used in a single line: <code>return {@link Command#error(CommandSender, String, Object...)};</code>
      */
+    @Contract("_, _, _ -> true")
     public static boolean error(CommandSender sender, String message, Object... replacements) {
         sender.sendMessage(ComponentColor.red(message, replacements));
         return true;
@@ -253,6 +255,7 @@ public abstract class Command extends org.bukkit.command.Command {
      * @param replacements Replacements for {@link String#format(String, Object...)}
      * @return true - So that it can be used in a single line: <code>return {@link Command#success(CommandSender, String, Object...)};</code>
      */
+    @Contract("_, _, _ -> true")
     public static boolean success(CommandSender sender, String message, Object... replacements) {
         sender.sendMessage(ComponentColor.green(message, replacements));
         return true;
@@ -264,6 +267,7 @@ public abstract class Command extends org.bukkit.command.Command {
      * @param replacements Replacements for {@link String#format(String, Object...)}
      * @return true - So that it can be used in a single line: <code>return {@link Command#info(CommandSender, String, Object...)};</code>
      */
+    @Contract("_, _, _ -> true")
     public static boolean info(CommandSender sender, String message, Object... replacements) {
         sender.sendMessage(ComponentColor.gold(message, replacements));
         return true;

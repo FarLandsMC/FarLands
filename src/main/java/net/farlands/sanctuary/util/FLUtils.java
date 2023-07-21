@@ -23,6 +23,7 @@ import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Restrictions;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.minecraft.nbt.CompoundTag;
@@ -68,11 +69,10 @@ import java.util.stream.Stream;
 public final class FLUtils {
 
     public static final  Random                 RNG                     = new Random();
-    public static final  Runnable               NO_ACTION               = () -> {
-    };
+    public static final  Runnable               NO_ACTION               = () -> {};
     public static final  List<ChatColor>        ILLEGAL_COLORS          = Arrays.asList(ChatColor.MAGIC, ChatColor.BLACK);
-    private static final ChatColor[]            COLORING                = { ChatColor.DARK_GREEN, ChatColor.GREEN, ChatColor.YELLOW,
-                                                                            ChatColor.RED, ChatColor.DARK_RED };
+    private static final TextColor[]            COLORING                = { NamedTextColor.DARK_GREEN, NamedTextColor.GREEN, NamedTextColor.YELLOW,
+                                                                            NamedTextColor.RED, NamedTextColor.DARK_RED };
     public static final  double                 DEGREES_TO_RADIANS      = Math.PI / 180;
     // Pattern matching "nicer" legacy hex chat color codes - &#rrggbb
     private static final Pattern                HEX_COLOR_PATTERN_SIX   = Pattern.compile("&#([0-9a-fA-F]{6})");
@@ -81,7 +81,7 @@ public final class FLUtils {
     public static        Map<Worlds, TextColor> WORLD_COLORS            = new ImmutableMap.Builder<Worlds, TextColor>()
         .put(Worlds.OVERWORLD, NamedTextColor.GREEN)
         .put(Worlds.NETHER, NamedTextColor.RED)
-        .put(Worlds.END, NamedTextColor.YELLOW) // not possible, but here for completion :P
+        .put(Worlds.END, NamedTextColor.YELLOW)
         .put(Worlds.FARLANDS, NamedTextColor.DARK_GREEN)
         .put(Worlds.POCKET, NamedTextColor.DARK_GREEN)
         .build();
@@ -293,13 +293,20 @@ public final class FLUtils {
     /**
      * Get the color of a specific value using COLORING array
      */
-    public static ChatColor color(double value, double[] coloring) {
+    public static TextColor color(double value, double[] coloring) {
         for (int i = 0; i < coloring.length; ++i) {
             if (value <= coloring[i]) {
                 return COLORING[i];
             }
         }
         return COLORING[COLORING.length - 1];
+    }
+
+    /**
+     * Color a specific value using COLORING array using {@link ComponentColor#color(TextColor, Object)}
+     */
+    public static <T> Component color(double value, double[] coloring, T v) {
+        return ComponentColor.color(color(value, coloring), v);
     }
 
     /**
