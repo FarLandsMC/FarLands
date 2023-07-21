@@ -334,11 +334,16 @@ public class GeneralMechanics extends Mechanic {
             return; // Ignore offhand packet
         }
 
+        FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
+        TrustMeta trust = flags == null ? null : flags.getFlagMeta(RegionFlag.TRUST);
+
         if ( // Change the shape of a rail by shift + right click
             event.getPlayer().isSneaking()
             && event.getItem() == null
             && event.getClickedBlock() != null
             && event.getClickedBlock().getBlockData() instanceof Rail block
+            && trust != null
+            && trust.hasTrust(event.getPlayer(), TrustLevel.BUILD, flags)
         ) {
             Rail.Shape shape = block.getShape();
             Rail.Shape nextShape = switch (shape) {
@@ -377,6 +382,8 @@ public class GeneralMechanics extends Mechanic {
             && event.getClickedBlock().getState() instanceof Sign sign
             && sign.isWaxed()
             && ChestShops.getDataHandler().getShop(sign.getLocation()) == null
+            && trust != null
+            && trust.hasTrust(event.getPlayer(), TrustLevel.BUILD, flags)
         ) {
             sign.setWaxed(false);
             sign.update(true);
@@ -402,11 +409,11 @@ public class GeneralMechanics extends Mechanic {
         // Pick up dragon egg
         Player player = event.getPlayer();
         if (Material.DRAGON_EGG == event.getClickedBlock().getType()) {
-            FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
             event.setCancelled(true);
             if (
-                flags == null || flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(event.getPlayer(), TrustLevel.BUILD, flags) ||
-                event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK).isBlocked(Material.DRAGON_EGG)
+                trust == null
+                || trust.hasTrust(event.getPlayer(), TrustLevel.BUILD, flags)
+                || event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK).isBlocked(Material.DRAGON_EGG)
             ) {
                 event.getClickedBlock().setType(Material.AIR);
                 FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);

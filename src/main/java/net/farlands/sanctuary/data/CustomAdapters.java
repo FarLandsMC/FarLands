@@ -2,6 +2,7 @@ package net.farlands.sanctuary.data;
 
 import com.squareup.moshi.*;
 import net.farlands.sanctuary.chat.MiniMessageWrapper;
+import net.farlands.sanctuary.data.struct.VoteRewards;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -24,6 +25,7 @@ public class CustomAdapters {
         builder.add(new UUIDAdapter());
         builder.add(new ComponentAdapter());
         builder.add(new LocationAdapter());
+        builder.add(new VoteRewardsAdapter());
     }
 
     /**
@@ -168,6 +170,34 @@ public class CustomAdapters {
             out.name("yaw").value(value.getYaw());
             out.endObject();
 
+        }
+    }
+
+    /**
+     * Serialize {@link VoteRewards}
+     * <p>
+     * This is necessary to convert from the old boolean that was used
+     */
+    public static class VoteRewardsAdapter extends JsonAdapter<VoteRewards> {
+
+        @FromJson
+        @Override
+        public @Nullable VoteRewards fromJson(JsonReader in) throws IOException {
+            return switch (in.peek()) {
+                case NULL -> in.nextNull();
+                case BOOLEAN -> VoteRewards.from(in.nextBoolean());
+                default -> VoteRewards.valueOf(in.nextString());
+            };
+        }
+
+        @ToJson
+        @Override
+        public void toJson(@NotNull JsonWriter out, @Nullable VoteRewards value) throws IOException {
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+            out.value(value.name());
         }
     }
 }

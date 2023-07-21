@@ -39,7 +39,7 @@ public class CommandWhyLag extends Command {
                     "View any reasons for server or personal lag"
                 )
                 .category(Category.INFORMATIONAL)
-                .aliases(true, "whylag", "lag", "tps", "ping")
+                .aliases(true, "whylag", "tps", "ping")
         );
     }
 

@@ -175,7 +175,7 @@ public class Voting extends Mechanic {
     public void doVoteParty() {
         Bukkit.getOnlinePlayers()
             .stream()
-            .filter(player -> FarLands.getDataHandler().getOfflineFLPlayer(player).acceptVoteRewards)
+            .filter(player -> FarLands.getDataHandler().getOfflineFLPlayer(player).voteRewardsToggle.voteParties())
             .forEach(player -> {
                 ItemStack stack = ItemReward.randomReward(this.voteConfig.votePartyRewards(), this.voteConfig.votePartyDistribWeight).getFirst();
                 player.sendMessage(ComponentColor.gold("Vote Party! Receiving {}.", stack));

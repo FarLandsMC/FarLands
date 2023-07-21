@@ -62,7 +62,6 @@ public class OfflineFLPlayer implements ComponentLike {
 
     public double amountDonated;
 
-    public boolean acceptVoteRewards;
     public boolean censoring;
     public boolean debugging;
     public boolean flightPreference;
@@ -83,6 +82,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public Rank                  rank;
     public CommandHomes.SortType homesSort;
     public TabMenuConfig         tabMenuConfig;
+    public VoteRewards           voteRewardsToggle;
 
     public Map<UUID, IgnoreStatus> ignoreStatusMap;
     public Map<String, ShareHome>  pendingSharehomes;
@@ -121,7 +121,6 @@ public class OfflineFLPlayer implements ComponentLike {
 
         this.amountDonated = 0;
 
-        this.acceptVoteRewards = true;
         this.censoring = false;
         this.debugging = false;
         this.flightPreference = false;
@@ -142,6 +141,7 @@ public class OfflineFLPlayer implements ComponentLike {
         this.rank = Rank.INITIATE;
         this.homesSort = CommandHomes.SortType.ALPHABET;
         this.tabMenuConfig = new TabMenuConfig();
+        this.voteRewardsToggle = VoteRewards.ALL;
 
         this.ignoreStatusMap = new HashMap<>();
         this.notes = new ArrayList<>();
@@ -258,7 +258,7 @@ public class OfflineFLPlayer implements ComponentLike {
 
         ++this.votesToday;
 
-        if (!acceptVoteRewards) {
+        if (!this.voteRewardsToggle.votes()) {
             voteRewards = 0;
             return;
         }
