@@ -90,7 +90,7 @@ public class CommandShutdown extends Command {
                 backup();
             } else if ("restart".equals(mode)) { // Regular restart
                 restart();
-            } else if ("shudown".equals(mode)) {
+            } else if ("shutdown".equals(mode)) {
                 shutdown();
             }
         }, 20L * seconds);

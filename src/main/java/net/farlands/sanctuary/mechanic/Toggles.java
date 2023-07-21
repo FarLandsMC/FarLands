@@ -6,8 +6,6 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedServerPing;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
@@ -82,26 +80,6 @@ public class Toggles extends Mechanic {
                         }
                     }
                 }
-            }
-        });
-
-        // Set the amount of online players to exclude vanished staff
-        ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Status.Server.SERVER_INFO) {
-            @Override
-            public void onPacketSending(PacketEvent event) {
-                WrappedServerPing ping = event.getPacket().getServerPings().read(0);
-                ping.setPlayersOnline((int) Bukkit.getOnlinePlayers().stream().map(FarLands.getDataHandler()::getOfflineFLPlayer)
-                    .filter(flp -> !flp.vanished).count());
-                ping.setPlayers(
-                    Bukkit
-                        .getOnlinePlayers()
-                        .stream()
-                        .map(FarLands.getDataHandler()::getOfflineFLPlayer)
-                        .filter(flp -> !flp.vanished)
-                        .map(OfflineFLPlayer::getOnlinePlayer)
-                        .map(WrappedGameProfile::fromPlayer)
-                        .toList()
-                );
             }
         });
     }
@@ -181,21 +159,23 @@ public class Toggles extends Mechanic {
     /**
      * Show or hide the player depending on if they are vanished
      */
-    @SuppressWarnings("deprecation")
     public static void hidePlayers(Player player) {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
             if (flp.vanished) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
-            } else if (player.hasPotionEffect(PotionEffectType.INVISIBILITY) && player.getPotionEffect(PotionEffectType.INVISIBILITY).getDuration() > 8 * 60 * 20) {
+            } else if (
+                player.hasPotionEffect(PotionEffectType.INVISIBILITY)
+                && player.getPotionEffect(PotionEffectType.INVISIBILITY).getDuration() > 8 * 60 * 20
+            ) {
                 player.removePotionEffect(PotionEffectType.INVISIBILITY);
             }
 
             Bukkit.getOnlinePlayers().stream().filter(pl -> pl != player).forEach(pl -> {
                 if (!flp.vanished || FarLands.getDataHandler().getOfflineFLPlayer(pl).rank.isStaff()) {
-                    pl.showPlayer(player);
+                    pl.showPlayer(FarLands.getInstance(), player);
                 } else {
-                    pl.hidePlayer(player);
+                    pl.hidePlayer(FarLands.getInstance(), player);
                 }
             });
         });

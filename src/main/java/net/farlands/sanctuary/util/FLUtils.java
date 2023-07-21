@@ -1027,4 +1027,23 @@ public final class FLUtils {
         return Worlds.END.matches(loc.getWorld())
                && loc.getWorld().locateNearestStructure(loc, Structure.END_CITY, 1, false) != null;
     }
+
+    /**
+     * Determine the colour for a number based in its comparison to a reference
+     * <p>
+     * <ul>
+     * <li> (-Inf,   0%] = Gray</li>
+     * <li> (  0%,  50%] = Dark Green</li>
+     * <li> ( 50%,  80%] = Yellow</li>
+     * <li> ( 80%, 100%] = Red</li>
+     * <li> (100%,  Inf) = Light Purple</li>
+     * </ul>
+     */
+    public static TextColor heatmapColor(double actual, double reference) {
+        if (actual <= 0) return NamedTextColor.GRAY;
+        if (actual <= .5 * reference) return NamedTextColor.DARK_GREEN;
+        if (actual <= .8 * reference) return NamedTextColor.YELLOW;
+        if (actual <= reference) return NamedTextColor.RED;
+        return NamedTextColor.LIGHT_PURPLE;
+    }
 }

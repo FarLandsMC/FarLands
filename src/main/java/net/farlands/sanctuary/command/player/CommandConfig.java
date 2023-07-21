@@ -27,7 +27,9 @@ public class CommandConfig extends Command {
                 "config",
                 "Control the player's configuration",
                 "/config <field> [...args]"
-            ).category(Category.PLAYER_SETTINGS_AND_INFO)
+            )
+                .category(Category.PLAYER_SETTINGS_AND_INFO)
+                .aliases("cfg")
         );
     }
 
@@ -59,14 +61,14 @@ public class CommandConfig extends Command {
         // If the arg is not present, then just read the value
         if (arg == null) {
             String current = cf.inner().get(sender);
-            return info(sender, "{} is currently set to {}", cf, current);
+            return info(sender, "{} is currently set to: {}", cf, current);
         }
 
         // Otherwise, try to set it
         try {
             cf.inner().set(arg, sender);
             String current = cf.inner().get(sender);
-            return info(sender, "Updated {} to be {}.", cf, current);
+            return info(sender, "Updated {} to: {}", cf, current);
         } catch (IllegalArgumentException ex) {
             return error(sender, "Invalid value: {}", ex.getMessage());
         }
@@ -133,6 +135,33 @@ public class CommandConfig extends Command {
                     FarLands.getDataHandler().getOfflineFLPlayer(cs).fireworkLaunch = v;
                 })
                 .getter((cs) -> FarLands.getDataHandler().getOfflineFLPlayer(cs).fireworkLaunch ? "on" : "off")
+                .build()
+        ),
+        TAB_MENU_LAG(
+            ConfigField
+                .builder(Rank.INITIATE, Boolean.class)
+                .setter((v, cs) -> {
+                    FarLands.getDataHandler().getOfflineFLPlayer(cs).tabMenuConfig.lag(v);
+                })
+                .getter((cs) -> FarLands.getDataHandler().getOfflineFLPlayer(cs).tabMenuConfig.lag() ? "on" : "off")
+                .build()
+        ),
+        TAB_MENU_WORLDS(
+            ConfigField
+                .builder(Rank.INITIATE, Boolean.class)
+                .setter((v, cs) -> {
+                    FarLands.getDataHandler().getOfflineFLPlayer(cs).tabMenuConfig.worlds(v);
+                })
+                .getter((cs) -> FarLands.getDataHandler().getOfflineFLPlayer(cs).tabMenuConfig.worlds() ? "on" : "off")
+                .build()
+        ),
+        TAB_MENU_MOBCAPS(
+            ConfigField
+                .builder(Rank.BUILDER, Boolean.class)
+                .setter((v, cs) -> {
+                    FarLands.getDataHandler().getOfflineFLPlayer(cs).tabMenuConfig.mobcaps(v);
+                })
+                .getter((cs) -> FarLands.getDataHandler().getOfflineFLPlayer(cs).tabMenuConfig.mobcaps() ? "on" : "off")
                 .build()
         ),
         ;

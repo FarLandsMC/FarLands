@@ -1,13 +1,12 @@
 package net.farlands.sanctuary.util;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
 import static net.farlands.sanctuary.util.ComponentUtils.format;
+import static net.kyori.adventure.text.format.NamedTextColor.*;
 
 public class ComponentColor {
-
 
     /**
      * Generate a component with the colour of BLACK.
@@ -16,7 +15,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component black(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.BLACK);
+        return format(format, values).color(BLACK);
     }
 
     /**
@@ -34,9 +33,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component black(String str) {
-        return Component.text(str).color(NamedTextColor.BLACK);
+        return Component.text(str).color(BLACK);
     }
 
+    /**
+     * Wrap a component with the colour of BLACK
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component black(Component comp) {
+        return Component.empty().append(comp).color(BLACK);
+    }
 
     /**
      * Generate a component with the colour of DARK_BLUE.
@@ -45,7 +52,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component darkBlue(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.DARK_BLUE);
+        return format(format, values).color(DARK_BLUE);
     }
 
     /**
@@ -64,9 +71,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component darkBlue(String str) {
-        return Component.text(str).color(NamedTextColor.DARK_BLUE);
+        return Component.text(str).color(DARK_BLUE);
     }
 
+    /**
+     * Wrap a component with the colour of DARK_BLUE
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component darkBlue(Component comp) {
+        return Component.empty().append(comp).color(DARK_BLUE);
+    }
 
     /**
      * Generate a component with the colour of DARK_GREEN.
@@ -75,7 +90,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component darkGreen(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.DARK_GREEN);
+        return format(format, values).color(DARK_GREEN);
     }
 
     /**
@@ -94,9 +109,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component darkGreen(String str) {
-        return Component.text(str).color(NamedTextColor.DARK_GREEN);
+        return Component.text(str).color(DARK_GREEN);
     }
 
+    /**
+     * Wrap a component with the colour of DARK_GREEN
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component darkGreen(Component comp) {
+        return Component.empty().append(comp).color(DARK_GREEN);
+    }
 
     /**
      * Generate a component with the colour of DARK_AQUA.
@@ -105,7 +128,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component darkAqua(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.DARK_AQUA);
+        return format(format, values).color(DARK_AQUA);
     }
 
     /**
@@ -124,9 +147,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component darkAqua(String str) {
-        return Component.text(str).color(NamedTextColor.DARK_AQUA);
+        return Component.text(str).color(DARK_AQUA);
     }
 
+    /**
+     * Wrap a component with the colour of DARK_AQUA
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component darkAqua(Component comp) {
+        return Component.empty().append(comp).color(DARK_AQUA);
+    }
 
     /**
      * Generate a component with the colour of DARK_RED.
@@ -135,7 +166,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component darkRed(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.DARK_RED);
+        return format(format, values).color(DARK_RED);
     }
 
     /**
@@ -154,9 +185,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component darkRed(String str) {
-        return Component.text(str).color(NamedTextColor.DARK_RED);
+        return Component.text(str).color(DARK_RED);
     }
 
+    /**
+     * Wrap a component with the colour of DARK_RED
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component darkRed(Component comp) {
+        return Component.empty().append(comp).color(DARK_RED);
+    }
 
     /**
      * Generate a component with the colour of DARK_PURPLE.
@@ -165,7 +204,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component darkPurple(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.DARK_PURPLE);
+        return format(format, values).color(DARK_PURPLE);
     }
 
     /**
@@ -184,9 +223,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component darkPurple(String str) {
-        return Component.text(str).color(NamedTextColor.DARK_PURPLE);
+        return Component.text(str).color(DARK_PURPLE);
     }
 
+    /**
+     * Wrap a component with the colour of DARK_PURPLE
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component darkPurple(Component comp) {
+        return Component.empty().append(comp).color(DARK_PURPLE);
+    }
 
     /**
      * Generate a component with the colour of GOLD.
@@ -195,7 +242,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component gold(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.GOLD);
+        return format(format, values).color(GOLD);
     }
 
     /**
@@ -213,9 +260,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component gold(String str) {
-        return Component.text(str).color(NamedTextColor.GOLD);
+        return Component.text(str).color(GOLD);
     }
 
+    /**
+     * Wrap a component with the colour of GOLD
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component gold(Component comp) {
+        return Component.empty().append(comp).color(GOLD);
+    }
 
     /**
      * Generate a component with the colour of GRAY.
@@ -224,7 +279,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component gray(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.GRAY);
+        return format(format, values).color(GRAY);
     }
 
     /**
@@ -242,9 +297,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component gray(String str) {
-        return Component.text(str).color(NamedTextColor.GRAY);
+        return Component.text(str).color(GRAY);
     }
 
+    /**
+     * Wrap a component with the colour of GRAY
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component gray(Component comp) {
+        return Component.empty().append(comp).color(GRAY);
+    }
 
     /**
      * Generate a component with the colour of DARK_GRAY.
@@ -253,7 +316,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component darkGray(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.DARK_GRAY);
+        return format(format, values).color(DARK_GRAY);
     }
 
     /**
@@ -272,9 +335,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component darkGray(String str) {
-        return Component.text(str).color(NamedTextColor.DARK_GRAY);
+        return Component.text(str).color(DARK_GRAY);
     }
 
+    /**
+     * Wrap a component with the colour of DARK_GRAY
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component darkGray(Component comp) {
+        return Component.empty().append(comp).color(DARK_GRAY);
+    }
 
     /**
      * Generate a component with the colour of BLUE.
@@ -283,7 +354,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component blue(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.BLUE);
+        return format(format, values).color(BLUE);
     }
 
     /**
@@ -301,9 +372,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component blue(String str) {
-        return Component.text(str).color(NamedTextColor.BLUE);
+        return Component.text(str).color(BLUE);
     }
 
+    /**
+     * Wrap a component with the colour of BLUE
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component blue(Component comp) {
+        return Component.empty().append(comp).color(BLUE);
+    }
 
     /**
      * Generate a component with the colour of GREEN.
@@ -312,7 +391,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component green(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.GREEN);
+        return format(format, values).color(GREEN);
     }
 
     /**
@@ -330,9 +409,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component green(String str) {
-        return Component.text(str).color(NamedTextColor.GREEN);
+        return Component.text(str).color(GREEN);
     }
 
+    /**
+     * Wrap a component with the colour of GREEN
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component green(Component comp) {
+        return Component.empty().append(comp).color(GREEN);
+    }
 
     /**
      * Generate a component with the colour of AQUA.
@@ -341,7 +428,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component aqua(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.AQUA);
+        return format(format, values).color(AQUA);
     }
 
     /**
@@ -359,9 +446,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component aqua(String str) {
-        return Component.text(str).color(NamedTextColor.AQUA);
+        return Component.text(str).color(AQUA);
     }
 
+    /**
+     * Wrap a component with the colour of AQUA
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component aqua(Component comp) {
+        return Component.empty().append(comp).color(AQUA);
+    }
 
     /**
      * Generate a component with the colour of RED.
@@ -370,7 +465,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component red(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.RED);
+        return format(format, values).color(RED);
     }
 
     /**
@@ -388,9 +483,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component red(String str) {
-        return Component.text(str).color(NamedTextColor.RED);
+        return Component.text(str).color(RED);
     }
 
+    /**
+     * Wrap a component with the colour of RED
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component red(Component comp) {
+        return Component.empty().append(comp).color(RED);
+    }
 
     /**
      * Generate a component with the colour of LIGHT_PURPLE.
@@ -399,7 +502,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component lightPurple(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.LIGHT_PURPLE);
+        return format(format, values).color(LIGHT_PURPLE);
     }
 
     /**
@@ -418,9 +521,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component lightPurple(String str) {
-        return Component.text(str).color(NamedTextColor.LIGHT_PURPLE);
+        return Component.text(str).color(LIGHT_PURPLE);
     }
 
+    /**
+     * Wrap a component with the colour of LIGHT_PURPLE
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component lightPurple(Component comp) {
+        return Component.empty().append(comp).color(LIGHT_PURPLE);
+    }
 
     /**
      * Generate a component with the colour of YELLOW.
@@ -429,7 +540,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component yellow(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.YELLOW);
+        return format(format, values).color(YELLOW);
     }
 
     /**
@@ -447,9 +558,17 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component yellow(String str) {
-        return Component.text(str).color(NamedTextColor.YELLOW);
+        return Component.text(str).color(YELLOW);
     }
 
+    /**
+     * Wrap a component with the colour of YELLOW
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component yellow(Component comp) {
+        return Component.empty().append(comp).color(YELLOW);
+    }
 
     /**
      * Generate a component with the colour of WHITE.
@@ -458,7 +577,7 @@ public class ComponentColor {
      * @param values The values to use for the format
      */
     public static Component white(String format, Object... values) {
-        return format(format, values).color(NamedTextColor.WHITE);
+        return format(format, values).color(WHITE);
     }
 
     /**
@@ -476,7 +595,16 @@ public class ComponentColor {
      * @param str The string to use
      */
     public static Component white(String str) {
-        return Component.text(str).color(NamedTextColor.WHITE);
+        return Component.text(str).color(WHITE);
+    }
+
+    /**
+     * Wrap a component with the colour of WHITE
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component white(Component comp) {
+        return Component.empty().append(comp).color(WHITE);
     }
 
     /**
@@ -501,12 +629,21 @@ public class ComponentColor {
     }
 
     /**
-     * Generate a component with the colour of WHITE
+     * Generate a component with the colour provided
      *
      * @param col The colour to use
      * @param str The string to use
      */
     public static Component color(TextColor col, String str) {
         return Component.text(str).color(col);
+    }
+
+    /**
+     * Wrap a component with the colour provided
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component color(TextColor col, Component comp) {
+        return Component.empty().append(comp).color(col);
     }
 }

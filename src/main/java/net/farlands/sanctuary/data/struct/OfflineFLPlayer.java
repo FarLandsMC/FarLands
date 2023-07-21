@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.data.struct;
 
+import com.squareup.moshi.Json;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
@@ -34,18 +35,19 @@ import java.util.stream.Collectors;
  * All data related to a FarLands player.
  */
 public class OfflineFLPlayer implements ComponentLike {
+
     public UUID uuid;
 
-    public String lastIP;
-    public Component nickname;
-    public String username;
-    public String timezone;
+    public String       lastIP;
+    public Component    nickname;
+    public String       username;
+    public String       timezone;
     public List<String> formerUsernames;
 
     public long discordID;
     public long lastLogin;
 
-    public long ptime;
+    public long    ptime;
     public boolean pweather;
 
     public int bonusClaimBlocksReceived;
@@ -71,24 +73,26 @@ public class OfflineFLPlayer implements ComponentLike {
     public boolean vanished;
     public boolean viewedPatchnotes;
 
-    public Birthday birthday;
-    public NamedTextColor  staffChatColor;
-    public LocationWrapper lastLocation;
-    public Mute            currentMute;
-    public PackageToggle packageToggle;
-    public Particles particles;
-    public Pronouns pronouns;
-    public Rank rank;
+    public Birthday              birthday;
+    public NamedTextColor        staffChatColor;
+    public LocationWrapper       lastLocation;
+    public Mute                  currentMute;
+    public PackageToggle         packageToggle;
+    public Particles             particles;
+    public Pronouns              pronouns;
+    public Rank                  rank;
     public CommandHomes.SortType homesSort;
+    public TabMenuConfig         tabMenuConfig;
 
     public Map<UUID, IgnoreStatus> ignoreStatusMap;
-    public Map<String, ShareHome> pendingSharehomes;
-    public List<Home> homes;
-    public List<MailMessage> mail;
-    public List<Punishment> punishments;
-    public List<String> notes;
+    public Map<String, ShareHome>  pendingSharehomes;
+    public List<Home>              homes;
+    public List<MailMessage>       mail;
+    public List<Punishment>        punishments;
+    public List<String>            notes;
 
-    transient public int shops;
+    @Json(ignore = true)
+    public int shops;
 
     public OfflineFLPlayer(UUID uuid, String username) {
         this.uuid = uuid;
@@ -137,6 +141,7 @@ public class OfflineFLPlayer implements ComponentLike {
         this.pronouns = null;
         this.rank = Rank.INITIATE;
         this.homesSort = CommandHomes.SortType.ALPHABET;
+        this.tabMenuConfig = new TabMenuConfig();
 
         this.ignoreStatusMap = new HashMap<>();
         this.notes = new ArrayList<>();
@@ -311,7 +316,7 @@ public class OfflineFLPlayer implements ComponentLike {
         boolean online = player != null;
         if (rank.specialCompareTo(this.rank) > 0) {
             Logging.broadcastIngame(
-                ComponentColor.gold(" ** {:green} has ranked up to {}! **", username, rank),
+                ComponentColor.gold(" ** {:green} has ranked up to {}! **", this, rank),
                 false
             );
             FarLands.getDiscordHandler().sendMessageEmbed(
