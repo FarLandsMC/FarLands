@@ -169,30 +169,32 @@ public class GeneralMechanics extends Mechanic {
         }, 125L);
 
         if (isNew) {
-            Logging.broadcast(p -> {
-                Player pl = p.handle.getOnlinePlayer();
-                if (!player.getUniqueId().equals(p.handle.uuid)) {
-                    if (pl != null) {
-                        pl.playSound(pl.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 5.0F, 1.0F);
+                OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+            if (flp.vanished) {
+                Logging.broadcast(p -> {
+                    Player pl = p.handle.getOnlinePlayer();
+                    if (!player.getUniqueId().equals(p.handle.uuid)) {
+                        if (pl != null) {
+                            pl.playSound(pl.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 5.0F, 1.0F);
+                        }
+                        return true;
+                    } else {
+                        return false;
                     }
-                    return true;
-                } else {
-                    return false;
-                }
-            }, "<gold><bold> > </bold> Welcome <green>%s</green> to FarLands!", player.getName());
-            player.chat("/chain {guidebook} {shovel}");
-            player.sendMessage(
-                ComponentColor.gold(
-                    "Welcome to FarLands! Please read {} before playing.  To get started, you can " +
-                    "use {} to teleport to a random location on the map.  Also feel free to join our " +
-                    "community on Discord by clicking {}!",
-                    ComponentUtils.command("/rules"),
-                    ComponentUtils.command("/wild"),
-                    ComponentUtils.link("here", FarLands.getFLConfig().discordInvite)
-                )
-            );
+                }, "<gold><bold> > </bold> Welcome <green>%s</green> to FarLands!", player.getName());
+                player.chat("/chain {guidebook} {shovel}");
+                player.sendMessage(
+                    ComponentColor.gold(
+                        "Welcome to FarLands! Please read {} before playing.  To get started, you can " +
+                        "use {} to teleport to a random location on the map.  Also feel free to join our " +
+                        "community on Discord by clicking {}!",
+                        ComponentUtils.command("/rules"),
+                        ComponentUtils.command("/wild"),
+                        ComponentUtils.link("here", FarLands.getFLConfig().discordInvite)
+                    )
+                );
+            }
 
-            OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
             flp.giveCollectables(Rank.INITIATE, flp.rank);
         }
 
