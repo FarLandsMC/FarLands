@@ -33,22 +33,46 @@ public class CommandMessage extends PlayerCommand {
               "/msg <player> <message>", true, "msg", "w", "m", REPLY_ALIAS, "tell", "whisper");
     }
 
+    public void replyToggle(Player sender, FLPlayerSession senderSession) {
+        CommandSender currentReplyToggle = senderSession.replyToggleRecipient;
+        CommandSender lastMessageSender = senderSession.lastMessageSender.getValue();
+
+        // The sender does not have the toggle currently active for anyone
+        if (currentReplyToggle == null) {
+            // They do not have a recent conversation, so we don't know who to set the reply toggle to
+            if (lastMessageSender == null) {
+                error(sender, "You do not have an active reply toggle currently.");
+            } else { // Set the recipient to the person they were last chatting with
+                senderSession.replyToggleRecipient = lastMessageSender;
+                info(sender,
+                     "You are now messaging {}. Type {} to toggle off, or start your message with {:aqua} to send it to public chat.",
+                     lastMessageSender.getName(),
+                     ComponentUtils.command("/m"),
+                     "!"
+                );
+            }
+        } else { // Disable auto-messaging since it's already active
+            senderSession.replyToggleRecipient = null;
+            info(sender, "You are no longer messaging " + currentReplyToggle.getName());
+        }
+    }
+
     @Override
     public boolean execute(Player sender, String[] args) {
         FLPlayerSession senderSession = FarLands.getDataHandler().getSession(sender);
 
         // Reply to the last message sent
         if (REPLY_ALIAS.equals(args[0])) {
-            // If they just type "/r" ignore it
+            // No arguments sent to the command, so we toggle auto-messaging
             if (args.length == 1) {
+                replyToggle(sender, senderSession);
                 return true;
             }
 
             // Check to make sure they have a recent conversation to reply to
             CommandSender recipient = senderSession.lastMessageSender.getValue();
             if (recipient == null) {
-                sender.sendMessage(ComponentColor.red("You have no recent messages to reply to."));
-                return true;
+                return error(sender, "You have no recent messages to reply to.");
             }
 
             OfflineFLPlayer recipientFlp = FarLands.getDataHandler().getOfflineFLPlayer(recipient);
@@ -57,47 +81,16 @@ public class CommandMessage extends PlayerCommand {
             // Keep the name stored
             sendMessages(recipientFlp, senderFlp, joinArgsBeyond(0, " ", args));
         } else { // Non-/r aliases
-            // No arguments sent to the command so we toggle auto-messaging
+            // No arguments sent to the command, so we toggle auto-messaging
             if (args.length == 1) {
-                CommandSender currentReplyToggle = senderSession.replyToggleRecipient;
-                CommandSender lastMessageSender = senderSession.lastMessageSender.getValue();
-
-                // The sender does not have the toggle currently active for anyone
-                if (currentReplyToggle == null) {
-                    // They do not have a recent conversation, so we don't know who to set the reply toggle to
-                    if (lastMessageSender == null) {
-                        sender.sendMessage(ComponentColor.red("You do not have an active reply toggle currently."));
-                    }
-                    // Set the recipient to the person they were last chatting with
-                    else {
-                        senderSession.replyToggleRecipient = lastMessageSender;
-                        Component c = Component.text()
-                            .content("You are now messaging ")
-                            .color(NamedTextColor.GOLD)
-                            .append(ComponentColor.aqua(lastMessageSender.getName()))
-                            .append(ComponentColor.gold(". Type "))
-                            .append(ComponentUtils.command("/m"))
-                            .append(ComponentColor.gold(" to toggle off, or start your message with "))
-                            .append(ComponentColor.aqua("!"))
-                            .append(ComponentColor.gold(" to send it to public chat."))
-                            .build();
-                        sender.sendMessage(c);
-                    }
-                }
-                // Disable auto-messaging since it's already active
-                else {
-                    senderSession.replyToggleRecipient = null;
-                    sender.sendMessage(ComponentColor.gold("You are no longer messaging " + currentReplyToggle.getName()));
-                }
-
+                replyToggle(sender, senderSession);
                 return true;
             }
 
             // Get the recipient and make sure they exist
             CommandSender recipient = getPlayer(args[1], sender);
             if (recipient == null) {
-                sender.sendMessage(ComponentColor.red("Player not found."));
-                return true;
+                return error(sender, "Player not found.");
             }
 
             // One argument was sent, so toggle auto-reply for the player they specified
@@ -144,8 +137,7 @@ public class CommandMessage extends PlayerCommand {
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
             !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            sender.sendMessage(ComponentColor.red("You cannot use this command while muted."));
-            return false;
+            return error(sender, "You cannot use this command while muted.");
         }
         return super.canUse(sender);
     }

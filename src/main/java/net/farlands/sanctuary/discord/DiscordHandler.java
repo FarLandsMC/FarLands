@@ -441,9 +441,10 @@ public class DiscordHandler extends ListenerAdapter {
             message = message.substring(0, 232).strip();
 
             message += MiniMessage.miniMessage().serialize(
-                ComponentColor.gray("... View more on ")
-                    .append(ComponentUtils.link("Discord", FarLands.getFLConfig().discordInvite))
-                    .append(Component.text("."))
+                ComponentColor.gray(
+                    "... View more on {}.",
+                    ComponentUtils.link("Discord", FarLands.getFLConfig().discordInvite)
+                )
             );
 
             // Notify sender their message was too long
@@ -512,12 +513,7 @@ public class DiscordHandler extends ListenerAdapter {
             .build();
 
         if (staffChat) {
-            Component scComponent =
-                ComponentColor.red("[SC] ")
-                    .append(ComponentColor.darkGray("DISCORD "))
-                    .append(Component.text(sender.getName()))
-                    .append(Component.text(": "))
-                    .append(finalMessage);
+            Component scComponent = ComponentColor.red("[SC] {:dark_gray} {}: {}", "DISCORD", flp.username, finalMessage);
             Bukkit.getConsoleSender().sendMessage(scComponent);
 
             FarLands.getDataHandler().getSessions().stream()
@@ -559,9 +555,7 @@ public class DiscordHandler extends ListenerAdapter {
 
                 if (flp.rank.isStaff()) discordPrefix.append(flp.rank).append(Component.space());
 
-                discordPrefix
-                    .append(flp.rank.colorName(flp.username))
-                    .append(Component.text(": "));
+                discordPrefix.append(flp.asComponent().append(Component.text(": ")));
 
                 Component dPrefix = discordPrefix.build();
 

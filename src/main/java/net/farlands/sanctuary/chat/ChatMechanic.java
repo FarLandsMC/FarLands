@@ -7,6 +7,9 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.mechanic.Mechanic;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.advancement.Advancement;
@@ -16,6 +19,9 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Mechanic for handling chat -- separate from mechanics package due to size
@@ -38,6 +44,7 @@ public class ChatMechanic extends Mechanic {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getEntity());
+        System.out.println(((TranslatableComponent) event.deathMessage()).args());
         if (flp != null && flp.getSession().deathMute) {
             event.deathMessage(null);
         } else {
@@ -58,14 +65,19 @@ public class ChatMechanic extends Mechanic {
             flp.vanished // Player is vanished
             || !event.getAdvancement().getKey().getNamespace().equalsIgnoreCase("minecraft") // or not a vanilla advancement
         ) {
-            event.message(null); // Make no message
             return;
         }
+
+        TranslatableComponent msg = (TranslatableComponent) event.message();
+        List<Component> args = new ArrayList<>(msg.args());
+        args.set(0, flp.asComponent()); // Replace the player with the flp render
+        msg = msg.args(args);
 
         Bukkit.getOnlinePlayers()
             .stream()
             .filter(p -> !FarLands.getDataHandler().getOfflineFLPlayer(p).getIgnoreStatus(flp).includesChat())
-            .forEach(p -> p.sendMessage(event.message()));
+            .collect(Audience.toAudience())
+            .sendMessage(msg);
 
         Advancement adv = event.getAdvancement();
 
@@ -73,7 +85,7 @@ public class ChatMechanic extends Mechanic {
         FarLands.getDiscordHandler().sendMessageEmbed(
             DiscordChannel.IN_GAME,
             new EmbedBuilder()
-                .setTitle(MarkdownProcessor.fromMinecraft(event.message()))
+                .setTitle(MarkdownProcessor.fromMinecraft(msg))
                 .setDescription(
                     adv.getDisplay() == null
                         ? ""
@@ -85,5 +97,6 @@ public class ChatMechanic extends Mechanic {
                         : adv.getDisplay().frame().color().value()
                 )
         );
+        event.message(null); // Cancel default message
     }
 }

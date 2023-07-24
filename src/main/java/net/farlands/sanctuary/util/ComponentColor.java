@@ -646,4 +646,44 @@ public class ComponentColor {
     public static Component color(TextColor col, Component comp) {
         return Component.empty().append(comp).color(col);
     }
+
+    /**
+     * Generate a component with the specified
+     *
+     * @param col    The colour to use (Parsed with {@link FLUtils#parseColor(String)})
+     * @param format The text to use for the format, uses {@link ComponentUtils#format}
+     * @param values The values to use for the format
+     */
+    public static Component color(String col, String format, Object... values) {
+        return format(format, values).color(FLUtils.parseColor(col));
+    }
+
+    /**
+     * Generate a component with the colour specified using {@link ComponentUtils#format} with the format of {@code {}}
+     *
+     * @param col The colour to use (Parsed with {@link FLUtils#parseColor(String)})
+     * @param obj The object to format
+     */
+    public static Component color(String col, Object obj) {
+        return color(col, "{}", obj);
+    }
+
+    /**
+     * Generate a component with the colour provided
+     *
+     * @param col The colour to use (Parsed with {@link FLUtils#parseColor(String)})
+     * @param str The string to use
+     */
+    public static Component color(String col, String str) {
+        return Component.text(str).color(FLUtils.parseColor(col));
+    }
+
+    /**
+     * Wrap a component with the colour provided
+     *
+     * @param comp The Component to wrap
+     */
+    public static Component color(String col, Component comp) {
+        return Component.empty().append(comp).color(FLUtils.parseColor(col));
+    }
 }

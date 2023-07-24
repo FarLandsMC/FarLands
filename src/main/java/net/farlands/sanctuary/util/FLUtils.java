@@ -1053,4 +1053,17 @@ public final class FLUtils {
         if (actual <= reference) return NamedTextColor.RED;
         return NamedTextColor.LIGHT_PURPLE;
     }
+
+    public static TextColor parseColor(String s) {
+        if (s.startsWith("#")) {
+            return TextColor.fromCSSHexString(s);
+        }
+        return NamedTextColor.NAMES.value(s.toLowerCase().replace('-', '_'));
+    }
+
+    public static String colorToString(TextColor col) {
+        NamedTextColor nc = NamedTextColor.namedColor(col.value());
+        return nc == null ? col.asHexString() : nc.toString();
+
+    }
 }

@@ -1,7 +1,5 @@
 package net.farlands.newheights;
 
-import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.Range;
 import org.junit.Assert;
 import org.junit.Test;
@@ -100,21 +98,6 @@ public class UtilsTest {
             for (String t : strs) {
                 Assert.assertEquals("For input: " + t, t, Range.from(t).toString());
             }
-        }
-
-        @Test
-        public void sjkhasdflkjh() {
-            var s = ComponentUtils.format("{} likes {}", ComponentColor.red("john"), "cheese");
-            System.out.println(s);
-            System.out.println(ComponentUtils.toText(s));
-
-            System.out.println();
-            System.out.println();
-            System.out.println();
-
-            s = ComponentUtils.format("{} likes {}", ComponentColor.red("john"), ComponentUtils.command("/sit"));
-            System.out.println(s);
-            System.out.println(ComponentUtils.toText(s));
         }
     }
 }

@@ -12,11 +12,9 @@ import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -25,7 +23,7 @@ public class CommandColors extends PlayerCommand {
     public CommandColors() {
         super(CommandData
             .withRank("colors", "Show available color codes for chat and signs.", "/colors", Rank.ADEPT)
-            .aliases(false, "colours")
+            .aliases(false, "colours", "minimessage")
             .category(Category.COSMETIC)
         );
     }
@@ -64,27 +62,15 @@ public class CommandColors extends PlayerCommand {
             (k, v) -> builder.append(Component.text("&" + k).style(v)).append(Component.space())
         );
 
-        builder.append(Component.newline())
-            .append(Component.text("Hexadecimal Colors: "))
-            .append(Component.join(
+        builder.append(ComponentUtils.format(
+            "\nHexadecimal Colors: {}, like {:#92b9bd} or {:#55ff77}\nFarLands also supports MiniMessage colors and gradients, see more {}.",
+            Component.join(
                 JoinConfiguration.separators(ComponentColor.gold(", "), ComponentColor.gold(", or ")),
                 Stream.of("&#rrggbb", "&#rgb", "<#rrggbb>").map(ComponentColor::aqua).toList()
-            ))
-            .append(Component.text(", like "))
-            .append(Component.join(
-                JoinConfiguration.separators(ComponentColor.gold(", "), ComponentColor.gold(", or ")),
-                List.of(
-                    Component.text("&#92b9bd", TextColor.color(0x92b9bd)),
-                    Component.text("&#5f7", TextColor.color(0x55ff77)),
-                    Component.text("<#1eae98>", TextColor.color(0x1eae98))
-                )
-            ))
-            .append(Component.newline())
-            .append(
-                Component.text("FarLands also supports MiniMessage colors and gradients, which can be found ")
-                    .append(ComponentUtils.link("here", "https://docs.adventure.kyori.net/minimessage"))
-                    .append(Component.text("."))
-            );
+            ),
+            "&#92b9bd", "&#5f7",
+            ComponentUtils.link("here", "https://farlandsmc.net/chat/minimessage.html")
+        ));
 
         COLOR_MESSAGE = builder.build();
     }

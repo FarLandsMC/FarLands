@@ -43,8 +43,7 @@ public class CommandEmote extends PlayerCommand {
     public boolean canUse(CommandSender sender) {
         if (!(sender instanceof BlockCommandSender || sender instanceof ConsoleCommandSender ||
                 !FarLands.getDataHandler().getOfflineFLPlayer(sender).isMuted())) {
-            error(sender, "You cannot use this command while muted.");
-            return false;
+            return error(sender, "You cannot use this command while muted.");
         }
         return super.canUse(sender);
     }

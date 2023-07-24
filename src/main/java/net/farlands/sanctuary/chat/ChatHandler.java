@@ -193,11 +193,11 @@ public class ChatHandler {
             sender.getDisplayName(), // Colored Username or Nickname
             CommandStats.getFormattedStats(sender, null, false)
         );
-        return ComponentUtils.format(
-            "{} {}{}",
+        return ComponentColor.color(
+            sender.getDisplayRank().color(),
+            "{} {}:",
             sender.getDisplayRank(),
-            nameDisplay,
-            Component.text(":").color(sender.rank.color())
+            nameDisplay
         );
     }
 

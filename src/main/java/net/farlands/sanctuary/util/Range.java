@@ -59,12 +59,10 @@ public class Range<T extends Comparable<T>> {
      * @return If the item was within the range
      */
     public boolean contains(T n) {
-        if (n == null) return false;
-        if (this.low != null && n.compareTo(this.low) < 0) return false;
-        if (this.high != null && n.compareTo(this.high) > 0) return false;
-        if (n.equals(this.high)) return this.inclHigh;
-        if (n.equals(this.low)) return this.inclLow;
-        return true;
+        int c;
+        return n != null
+        && (this.low  == null || (c = n.compareTo(this.low )) > 0 || (this.inclLow  && c == 0))
+        && (this.high == null || (c = n.compareTo(this.high)) < 0 || (this.inclHigh && c == 0));
     }
 
     /**

@@ -96,6 +96,13 @@ public class MarkdownProcessor {
                     .match(Pattern.compile("<#(\\d+)>"))
                     .replacement((mr, u) -> channelMention(mr.group(1)))
                     .build()
+            )
+            .replaceText(
+                TextReplacementConfig // Emoji mentions
+                    .builder()
+                    .match(Pattern.compile("<a?:(.+?):(\\d+)>"))
+                    .replacement((mr, u) -> Component.text(":" + mr.group(1) + ":"))
+                    .build()
             );
 
         return component;

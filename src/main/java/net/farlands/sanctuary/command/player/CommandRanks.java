@@ -9,9 +9,9 @@ import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
-
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -78,7 +78,7 @@ public class CommandRanks extends Command {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
             EmbedBuilder eb = new EmbedBuilder()
                     .setTitle("Ranks")
-                    .setColor(flp == null ? 0xAAAAAA : flp.rank.getColor().getColor().getRGB());
+                    .setColor(flp == null ? 0xAAAAAA : flp.rank.color().value());
             for (Rank rank : Rank.values()) {
                 if (!ranksInfo.containsKey(rank)) { continue; }
                 eb.addField(
@@ -90,17 +90,12 @@ public class CommandRanks extends Command {
             ds.sendMessageEmbeds(eb.build());
 
         } else {
-            StringBuilder sb = new StringBuilder(ChatColor.GREEN + "Ranks: \n");
+            var b = ((TextComponent) ComponentColor.green("Ranks: \n")).toBuilder();
             for (Rank rank : Rank.values()) {
                 if (!ranksInfo.containsKey(rank)) { continue; }
-                sb.append(rank.getColor())
-                    .append(rank.getName())
-                    .append(" - ")
-                    .append(ChatColor.BLUE)
-                    .append(String.join(" - ", ranksInfo.get(rank)))
-                    .append("\n");
+                b.append(ComponentColor.blue("{} - {}\n", rank, String.join(" - ", ranksInfo.get(rank))));
             }
-            sender.sendMessage(sb.toString());
+            sender.sendMessage(b);
         }
 
         return true;

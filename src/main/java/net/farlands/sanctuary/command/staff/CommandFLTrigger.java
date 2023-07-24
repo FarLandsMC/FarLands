@@ -7,7 +7,6 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Voting;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -27,7 +26,7 @@ public class CommandFLTrigger extends Command {
 
         Event event = Utils.valueOfFormattedName(args[0], Event.class);
         if (event == null) {
-            sender.sendMessage(ChatColor.RED + "Invalid event: " + args[0]);
+            error(sender, "Invalid event: " + args[0]);
             return true;
         }
 
@@ -37,13 +36,13 @@ public class CommandFLTrigger extends Command {
         }
 
         if (args.length == 1) {
-            sender.sendMessage(ChatColor.RED + "Usage: /trigger " + args[0] + " <player>");
+            error(sender, "Usage: /trigger " + args[0] + " <player>");
             return true;
         }
 
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(args[1]);
         if (flp == null) {
-            sender.sendMessage(ChatColor.RED + "Player not found.");
+            error(sender, "Player not found.");
             return true;
         }
 

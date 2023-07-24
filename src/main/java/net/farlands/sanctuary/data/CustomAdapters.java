@@ -1,14 +1,16 @@
 package net.farlands.sanctuary.data;
 
 import com.squareup.moshi.*;
-import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.data.struct.VoteRewards;
+import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +24,7 @@ public class CustomAdapters {
 
     public static void register(Moshi.Builder builder) { // Called in FarLands.java
         builder.add(new NamedTextColorAdapter());
+        builder.add(new TextColorAdapter());
         builder.add(new UUIDAdapter());
         builder.add(new ComponentAdapter());
         builder.add(new LocationAdapter());
@@ -29,32 +32,71 @@ public class CustomAdapters {
     }
 
     /**
-     * Serializes {@link NamedTextColor} -- NamedTextColor.GRAY to "gray"
+     * If the next value on `in` is null, it will accept it and return true
+     */
+    private static boolean handleNull(@NotNull JsonReader in) throws IOException {
+        if (in.peek() == JsonReader.Token.NULL) {
+            in.nextNull();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * If `o` is null, it will write a null value to `out` and return true
+     */
+    @Contract("_, !null -> false; _, null -> true")
+    private static boolean handleNull(@NotNull JsonWriter out, @Nullable Object o) throws IOException {
+        if (o == null) {
+            out.nullValue();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Serializes {@link TextColor} -- NamedTextColor.GRAY to "gray"
      */
     public static class NamedTextColorAdapter extends JsonAdapter<NamedTextColor> {
 
         @Nullable
         @FromJson
         @Override
-        public NamedTextColor fromJson(JsonReader in) throws IOException {
-            if (in.peek() == JsonReader.Token.NULL) {
-                in.nextNull();
-                return null;
-            }
-            return NamedTextColor.NAMES.value(
-                in.nextString()
-                    .toLowerCase() // Needed for backwards compatibility with ChatColor
-            );
+        public NamedTextColor fromJson(@NotNull JsonReader in) throws IOException {
+            if (handleNull(in)) return null;
+
+            return NamedTextColor.NAMES.value(in.nextString().toLowerCase().replace('-', '_'));
         }
 
         @ToJson
         @Override
-        public void toJson(@NotNull JsonWriter out, @Nullable NamedTextColor value) throws IOException {
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-            out.value(value.toString());
+        public void toJson(@NotNull JsonWriter out, @Nullable NamedTextColor col) throws IOException {
+            if (handleNull(out, col)) return;
+
+            out.value(col.toString());
+        }
+    }
+
+    /**
+     * Serializes {@link TextColor} -- the name of the colour if it's a NamedTextColor, otherwise a hex string.
+     */
+    public static class TextColorAdapter extends JsonAdapter<TextColor> {
+
+        @Nullable
+        @FromJson
+        @Override
+        public TextColor fromJson(@NotNull JsonReader in) throws IOException {
+            if (handleNull(in)) return null;
+
+            return FLUtils.parseColor(in.nextString());
+        }
+
+        @ToJson
+        @Override
+        public void toJson(@NotNull JsonWriter out, @Nullable TextColor col) throws IOException {
+            if (handleNull(out, col)) return;
+
+            out.value(FLUtils.colorToString(col));
         }
     }
 
@@ -67,20 +109,16 @@ public class CustomAdapters {
         @FromJson
         @Override
         public UUID fromJson(JsonReader in) throws IOException {
-            if (in.peek() == JsonReader.Token.NULL) {
-                in.nextNull();
-                return null;
-            }
+            if (handleNull(in)) return null;
+
             return UUID.fromString(in.nextString());
         }
 
         @ToJson
         @Override
         public void toJson(@NotNull JsonWriter out, @Nullable UUID value) throws IOException {
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
+            if (handleNull(out, value)) return;
+
             out.value(value.toString());
         }
     }
@@ -93,32 +131,21 @@ public class CustomAdapters {
         @FromJson
         @Override
         public @Nullable Component fromJson(JsonReader in) throws IOException {
-            if (in.peek() == JsonReader.Token.NULL) {
-                in.nextNull();
-                return null;
-            }
+            if (handleNull(in)) return null;
 
-            final String nickname = in.nextString();
+            String s = in.nextString();
             try {
-                return GsonComponentSerializer.gson().deserialize(nickname);
+                return GsonComponentSerializer.gson().deserialize(s);
             } catch (Exception ignored) {
-                return MiniMessageWrapper.legacy()
-                    .toBuilder()
-                    .preventLuminanceBelow(16)
-                    .removeColors(true, NamedTextColor.BLACK)
-                    .removeTextDecorations(TextDecoration.OBFUSCATED)
-                    .build()
-                    .mmParse(nickname.replace("§", "&"));
+                return ComponentUtils.parse(s.replace('§', '&'));
             }
         }
 
         @ToJson
         @Override
         public void toJson(@NotNull JsonWriter out, @Nullable Component value) throws IOException {
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
+            if (handleNull(out, value)) return;
+
             out.value(GsonComponentSerializer.gson().serialize(value));
         }
     }
@@ -131,10 +158,7 @@ public class CustomAdapters {
         @FromJson
         @Override
         public @Nullable Location fromJson(JsonReader in) throws IOException {
-            if (in.peek() == JsonReader.Token.NULL) {
-                in.nextNull();
-                return null;
-            }
+            if (handleNull(in)) return null;
 
             UUID worldUid = null;
             double x = 0, y = 0, z = 0;
@@ -151,16 +175,15 @@ public class CustomAdapters {
                     case "yaw" -> yaw = (float) in.nextDouble();
                 }
             }
+            in.endObject();
             return new Location(Bukkit.getWorld(worldUid), x, y, z, pitch, yaw);
         }
 
         @ToJson
         @Override
         public void toJson(@NotNull JsonWriter out, @Nullable Location value) throws IOException {
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
+            if (handleNull(out, value)) return;
+
             out.beginObject();
             out.name("world").value(value.getWorld().getUID().toString());
             out.name("x").value(value.getX());

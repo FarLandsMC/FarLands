@@ -107,7 +107,7 @@ public class CommandStats extends Command {
             statsMap.put(PlayerStat.PRONOUNS, flp.pronouns.toString(false));
         }
         statsMap.put(PlayerStat.RANK, flp.rank);
-        statsMap.put(PlayerStat.TIME_PLAYED, TimeInterval.formatTime(flp.secondsPlayed * 1000L, false));
+        statsMap.put(PlayerStat.TIME_PLAYED, flp.secondsPlayed < 1000L ? "Not played this season." : TimeInterval.formatTime(flp.secondsPlayed * 1000L, false));
         if (showDonated && flp.amountDonated > 0) {
             statsMap.put(PlayerStat.AMOUNT_DONATED, "$" + flp.amountDonated);
         }
@@ -116,14 +116,11 @@ public class CommandStats extends Command {
             statsMap.put(PlayerStat.BIRTHDAY, flp.birthday.toFormattedString());
         }
         if (showTimezone && flp.timezone != null && !flp.timezone.isEmpty()) {
-            statsMap.put(PlayerStat.TIMEZONE, ComponentColor.aqua(flp.timezone + "(")
-                .append(ComponentColor.green(flp.currentTime(requester)))
-                .append(ComponentColor.aqua(")"))
-            );
+            statsMap.put(PlayerStat.TIMEZONE, ComponentColor.aqua("{} ({:green})", flp.timezone, flp.currentTime(requester)));
         }
-        statsMap.put(PlayerStat.VOTES_THIS_MONTH, flp.monthVotes);
-        statsMap.put(PlayerStat.TOTAL_SEASON_VOTES, flp.totalSeasonVotes);
-        statsMap.put(PlayerStat.TOTAL_VOTES, flp.totalVotes);
+        statsMap.put(PlayerStat.VOTES_MONTH, flp.monthVotes);
+        statsMap.put(PlayerStat.VOTES_SEASON, flp.totalSeasonVotes);
+        statsMap.put(PlayerStat.VOTES_ALL, flp.totalVotes);
 
         return statsMap;
     }
@@ -131,18 +128,16 @@ public class CommandStats extends Command {
     public static Component formatStats(Map<PlayerStat, Object> statsMap, OfflineFLPlayer flp) {
         TextComponent.Builder builder = Component.text()
             .color(NamedTextColor.GOLD)
-            .append(
-                flp.rank.colorName(flp.username)
-                    .append(ComponentColor.gold("'s Stats: "))
-            );
+            .append(ComponentColor.gold("{}'s Stats: ", flp.rank.colorName(flp.username)));
 
         for (PlayerStat stat : PlayerStat.values()) {
             Object value = statsMap.getOrDefault(stat, "");
             if (value != null && !value.toString().isEmpty()) {
-                builder.append(Component.newline())
-                    .append(ComponentColor.gold(stat.humanName))
-                    .append(ComponentColor.gold(": "))
-                    .append((value instanceof ComponentLike c) ? c : ComponentColor.aqua(value.toString()));
+                builder.append(ComponentColor.gold(
+                    "\n{}: {}",
+                    stat.humanName,
+                    value instanceof ComponentLike c ? c : ComponentColor.aqua(value.toString())
+                ));
             }
         }
         return builder.build();
@@ -172,9 +167,9 @@ public class CommandStats extends Command {
         BIRTHDAY("Birthday"),
         TIMEZONE("Time Zone"),
         DEATHS("Deaths"),
-        VOTES_THIS_MONTH("Votes This Month"),
-        TOTAL_SEASON_VOTES("Total Votes This Season"),
-        TOTAL_VOTES("Total Votes All Time");
+        VOTES_MONTH("Votes This Month"),
+        VOTES_SEASON("Total Votes This Season"),
+        VOTES_ALL("Total Votes All Time");
 
         public static final PlayerStat[] values = values();
 

@@ -1,26 +1,22 @@
 package net.farlands.sanctuary.command.staff;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import com.kicas.rp.util.Utils;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
-import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.TimeInterval;
-
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandPunish extends Command {
@@ -36,14 +32,12 @@ public class CommandPunish extends Command {
             return false;
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
         if (flp == null) {
-            sendFormatted(sender, "&(red)Player not found.");
-            return true;
+            return error(sender, "Player not found");
         }
 
         if (!(sender instanceof ConsoleCommandSender) &&
                 flp.uuid.equals(FarLands.getDataHandler().getOfflineFLPlayer(sender).uuid)) {
-            sendFormatted(sender, "&(red)That was close!");
-            return true;
+            return error(sender, "That was close!");
         }
 
         Rank senderRank = Rank.getRank(sender);
@@ -53,62 +47,51 @@ public class CommandPunish extends Command {
                     ((senderRank.getPermissionLevel() == 2 || senderRank.getPermissionLevel() == 3) &&
                             (flp.rank.getPermissionLevel() == 2 || flp.rank.getPermissionLevel() == 3)) ||
                     (senderRank.getPermissionLevel() == 1 && flp.rank.getPermissionLevel() > 1))) {
-                sendFormatted(sender, "&(red)You do not have permission to punish this person.");
-                return true;
+                return error(sender, "You do not have permission to punish this person.");
             }
         }
 
         switch (args[0]) {
-            case "punish":
-            case "ban": {
+            case "punish", "ban" -> {
                 Punishment.PunishmentType pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
                 if (pt == null) {
-                    sender.sendMessage(ChatColor.RED + "Invalid punishment type: " + args[2]);
-                    return true;
+                    return error(sender, "Invalid punishment type: " + args[2]);
                 }
                 String punishMessage = args.length > 3 ? joinArgsBeyond(2, " ", args) : null;
                 if (punishMessage != null && punishMessage.length() > 256) {
-                    sendFormatted(sender, "&(red)Punishment messages are limited to 256 characters, it will be truncated.");
+                    error(sender, "Punishment messages are limited to 256 characters, it will be truncated.");
                     punishMessage = punishMessage.substring(0, 256);
                 }
                 punish(sender, flp, pt, punishMessage);
-                break;
             }
-
-            case "puniship": {
+            case "puniship" -> {
                 FarLands.getDataHandler().getOfflineFLPlayers().stream()
-                        .filter(flp0 -> flp.lastIP.equals(flp0.lastIP))
-                        .filter(flp0 -> !flp0.getCurrentPunishment().getType().isPermanent())
-                        .forEach(flp0 -> punish(sender, flp0, Punishment.PunishmentType.PERMANENT, null));
-                break;
+                    .filter(flp0 -> flp.lastIP.equals(flp0.lastIP))
+                    .filter(flp0 -> !flp0.getCurrentPunishment().getType().isPermanent())
+                    .forEach(flp0 -> punish(sender, flp0, Punishment.PunishmentType.PERMANENT, null));
             }
-
-            case "pardon": {
+            case "pardon" -> {
                 Player player = sender instanceof Player ? (Player) sender : null;
 
                 Punishment.PunishmentType pt;
                 if (args.length == 2) { // Pardon latest punishment
                     Punishment punishment = flp.isBanned() ? flp.getCurrentPunishment() : flp.getMostRecentPunishment();
                     if (punishment == null) {
-                        sendFormatted(sender, "&(red)This player has no punishments on record.");
-                        return true;
+                        return error(sender, "This player has no punishments on record.");
                     }
                     pt = punishment.getType();
                 } else { // Pardon specific punishment
                     pt = Utils.valueOfFormattedName(args[2], Punishment.PunishmentType.class);
                     if (pt == null) {
-                        sendFormatted(sender, "&(red)Invalid punishment type: " + args[2]);
-                        return true;
+                        return error(sender, "Invalid punishment type: " + args[2]);
                     }
                 }
                 if (flp.pardon(pt)) {
-                    sendFormatted(sender, "&(gold)Pardoned {&(aqua)%0} from %1",
-                            flp.username, Utils.formattedName(pt));
+                    success(sender, "Pardoned {} from {:aqua}.", flp, pt);
                 } else {
-                    sendFormatted(sender, "&(red)This player does not have that punishment on record.");
+                    error(sender, "This player does not have that punishment on record.");
                 }
 
-                break;
             }
         }
 
@@ -119,27 +102,34 @@ public class CommandPunish extends Command {
     public List<String> tabComplete(CommandSender sender, String alias, String[] args, Location location) throws IllegalArgumentException {
         if (!Rank.getRank(sender).isStaff())
             return Collections.emptyList();
-        switch (args.length) {
-            case 0:
-                return getOnlinePlayers("", sender);
-            case 1:
-                return getOnlinePlayers(args[0], sender);
-            case 2:
-                return Arrays.stream(Punishment.PunishmentType.VALUES).map(Utils::formattedName)
-                        .filter(a -> a.startsWith(args[1])).collect(Collectors.toList());
-            default:
-                return Collections.emptyList();
-        }
+        return switch (args.length) {
+            case 0 -> getOnlinePlayers("", sender);
+            case 1 -> getOnlinePlayers(args[0], sender);
+            case 2 -> Arrays.stream(Punishment.PunishmentType.VALUES).map(Utils::formattedName)
+                .filter(a -> a.startsWith(args[1])).collect(Collectors.toList());
+            default -> Collections.emptyList();
+        };
     }
 
     private void punish(CommandSender sender, OfflineFLPlayer flp, Punishment.PunishmentType pt, String punishMessage) {
         long time = flp.punish(pt, punishMessage);
-        // The beginning 'P' is added later
-        String message = "unished " + ChatColor.AQUA + flp.username + ChatColor.GOLD +
-                " for " + Utils.formattedName(pt) + (punishMessage == null ? "" : " with message `" + punishMessage + "`") +
-                ". Expires: " + (time < 0L ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE));
-        sendFormatted(sender, "&(gold)P%0", message.replaceAll("`", "\""));
-        FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, MarkdownProcessor.escapeMarkdown(sender.getName()) +
-                " has p" + FLUtils.removeColorCodes(message));
+        info(sender,
+             "Punished {} for {}{}. Expires: {:aqua}",
+             flp,
+             pt,
+             punishMessage == null ? "" : " with message \"" + punishMessage + "\"",
+             time < 0 ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE)
+        );
+
+        FarLands.getDiscordHandler().sendMessageRaw(
+            DiscordChannel.NOTEBOOK,
+            "%s has punished %s for %s%s. Expires: %s".formatted(
+                MarkdownProcessor.escapeMarkdown(sender.getName()),
+                MarkdownProcessor.escapeMarkdown(flp.username),
+                Utils.formattedName(pt),
+                punishMessage == null ? "" : " with message `" + punishMessage + "`",
+                time < 0L ? "Never" : TimeInterval.formatTime(time, false, TimeInterval.MINUTE)
+            )
+        );
     }
 }

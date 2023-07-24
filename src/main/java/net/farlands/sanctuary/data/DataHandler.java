@@ -494,7 +494,7 @@ public class DataHandler extends Mechanic {
     }
 
     /**
-     * Get all offlineFLPlayers
+     * Get all OfflineFLPlayers
      *
      * @return Immutable list
      */

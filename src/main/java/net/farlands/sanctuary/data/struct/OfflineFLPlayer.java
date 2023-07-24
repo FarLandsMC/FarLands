@@ -22,6 +22,7 @@ import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -73,7 +74,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public boolean viewedPatchnotes;
 
     public Birthday              birthday;
-    public NamedTextColor        staffChatColor;
+    public TextColor             staffChatColor;
     public LocationWrapper       lastLocation;
     public Mute                  currentMute;
     public PackageToggle         packageToggle;

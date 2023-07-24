@@ -9,8 +9,10 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -31,70 +33,45 @@ public class CommandStaffChat extends Command {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!Rank.getRank(sender).isStaff()) { // Try to make it look like an invalid command
-            sender.sendMessage("Unknown command. Type \"/help\" for help.");
-            return true;
+            return error(sender, "Unknown command. Type \"/help\" for help.");
         }
 
         if ("staffchat".equals(args[0])) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(ComponentColor.red("You must be online to manage staff chat settings."));
-                return true;
+                return error(sender, "You must be online to manage staff chat settings.");
             }
 
             FLPlayerSession session = FarLands.getDataHandler().getSession((Player) sender);
             if (args.length == 1) {
-                sender.sendMessage(ComponentColor.red("Usage: /staffchat <toggle-message|toggle-view|set-color>..."));
-                return true;
+                return error(sender, "Usage: /staffchat <toggle-message|toggle-view|set-color>...");
             }
 
             switch (args[1]) {
                 // Toggle on/off auto-messaging
-                case "toggle-message": {
+                case "toggle-message" -> {
                     session.autoSendStaffChat = toggledValue(sender, session.autoSendStaffChat, args, 2);
-                    sender.sendMessage(
-                        ComponentColor.green(
-                            "Staff chat auto-messaging toggled {}.",
-                            session.autoSendStaffChat ? "on" : "off"
-                        )
-                    );
-                    break;
+                    success(sender, "Staff chat auto-messaging toggled {::?on:off}", session.autoSendStaffChat);
                 }
-
-                case "toggle-view": {
+                case "toggle-view" -> {
                     session.showStaffChat = toggledValue(sender, session.showStaffChat, args, 2);
-                    sender.sendMessage(
-                        ComponentColor.green(
-                            "Staff chat toggled {}.",
-                            session.showStaffChat ? "on" : "off"
-                        )
-                    );
-                    break;
+                    success(sender, "Staff chat toggled {::?on:off}", session.showStaffChat);
                 }
-
-                case "set-color": {
+                case "set-color" -> {
                     if (args.length == 2) {
-                        sender.sendMessage(ComponentColor.red("Usage: /staffchat set-color <color>"));
-                        return true;
+                        return error(sender, "Usage: /staffchat set-color <color|#hex>");
                     }
 
-                    String name = args[2].replaceAll("-", "_").toLowerCase();
-                    NamedTextColor color = NamedTextColor.NAMES.value(name);
+                    TextColor color = FLUtils.parseColor(args[2]);
                     if (color == null) {
-                        sender.sendMessage(ComponentColor.red("Invalid chat color \"{}\", must be a valid color.", args[2]));
-                        return true;
+                        return error(sender, "Invalid chat color \"{}\", must be a valid color.", args[2]);
                     }
 
                     session.handle.staffChatColor = color;
-                    sender.sendMessage(
-                        ComponentColor.green("Update your staff chat color to ")
-                            .append(Component.text(color.toString().replaceAll("_", "-")).color(color))
-                    );
-                    break;
+                    success(sender, "Updated your staff chat color to {}.", ComponentColor.color(color, FLUtils.colorToString(color)));
                 }
-
-                default:
-                    sender.sendMessage(ComponentColor.red("Usage: /staffchat <toggle|set-color>..."));
-                    return true;
+                default -> {
+                    return error(sender, "Usage: /staffchat <toggle|set-color>...");
+                }
             }
         } else {
             OfflineFLPlayer handle = FarLands.getDataHandler().getOfflineFLPlayer(sender);
@@ -104,10 +81,7 @@ public class CommandStaffChat extends Command {
                 return true;
             }
 
-            Component component = ComponentColor.red("[SC] ")
-                .append(Component.text(username))
-                .append(Component.text(": "))
-                .append(Component.text(message));
+            Component component = ComponentColor.red("[SC] {}: {}", username, message);
 
             Bukkit.getConsoleSender().sendMessage(component);
             FarLands.getDataHandler()
@@ -139,8 +113,7 @@ public class CommandStaffChat extends Command {
             return TabCompleterBase.filterStartingWith(args[1], Stream.of("on", "off"));
         }
 
-        return TabCompleterBase.filterStartingWith(args[1], NamedTextColor.NAMES.values().stream()
-            .map(s -> s.toString().replaceAll("_", "-")));
+        return TabCompleterBase.filterStartingWith(args[1], NamedTextColor.NAMES.values().stream().map(s -> s.toString().replaceAll("_", "-")));
     }
 
     private static boolean toggledValue(CommandSender sender, boolean currentValue, String[] args, int index) {
@@ -152,7 +125,7 @@ public class CommandStaffChat extends Command {
             } else if ("off".equalsIgnoreCase(args[index])) {
                 newValue = false;
             } else {
-                sender.sendMessage(ComponentColor.red("Ignoring invalid toggle value \"{}\"", args[index]));
+                error(sender, "Invalid toggle value: {}", args[index]);
             }
         }
 

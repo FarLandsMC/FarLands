@@ -2,8 +2,8 @@ package net.farlands.sanctuary.data;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.discord.DiscordChannel;
+import net.farlands.sanctuary.util.ComponentColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +25,10 @@ public class Debugger {
     public void echo(String key, Supplier<String> data) {
         Bukkit.getOnlinePlayers().forEach(player -> {
             if (FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
-                player.sendMessage(ChatColor.AQUA + "[DEBUG] " + key + ": " + ChatColor.GREEN + data.get());
+                player.sendMessage(ComponentColor.aqua("[DEBUG] {}: {:green}", key, data.get()));
         });
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + key + ": " + data.get() + "```");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[DEBUG] " + key + ": " + ChatColor.GREEN + data.get());
+        Bukkit.getConsoleSender().sendMessage(ComponentColor.aqua("[DEBUG] {}: {:green}", key, data.get()));
     }
 
     public void echo(String key, Object data) {
@@ -38,10 +38,10 @@ public class Debugger {
     public void echo(String msg) {
         Bukkit.getOnlinePlayers().forEach(player -> {
             if (FarLands.getDataHandler().getOfflineFLPlayer(player).debugging)
-                player.sendMessage(ChatColor.AQUA + "[DEBUG] " + msg);
+                player.sendMessage(ComponentColor.aqua("[DEBUG] {}", msg));
         });
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.DEBUG, "```" + msg + "```");
-        Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "[DEBUG] " + msg);
+        Bukkit.getConsoleSender().sendMessage(ComponentColor.aqua("[DEBUG] {}", msg));
     }
 
     public void post(String key, Function<String[], String> data) {

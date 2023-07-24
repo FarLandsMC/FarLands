@@ -338,6 +338,16 @@ public class CommandConfig extends Command {
                 }
             }
 
+            public static Boolean parseBool(String str) {
+                if (TRUE_VALUES.contains(str)) {
+                    return true;
+                } else if (FALSE_VALUES.contains(str.toLowerCase())) {
+                    return false;
+                } else {
+                    return null;
+                }
+            }
+
             /**
              * Parses a string into {@link T}.
              * @param str The string to parse
@@ -347,21 +357,17 @@ public class CommandConfig extends Command {
             @SuppressWarnings("unchecked")
             public T parse(String str) throws IllegalArgumentException {
                 if (this.argumentType == Boolean.class) { // Bools
-                    boolean out;
-                    if (TRUE_VALUES.contains(str)) {
-                        out = true;
-                    } else if (FALSE_VALUES.contains(str.toLowerCase())) {
-                        out = false;
-                    } else {
+                    Boolean out = parseBool(str);
+                    if (out == null) {
                         throw new IllegalArgumentException("Expected boolean, found \"" + str + "\"");
                     }
 
-                    Optional<String> a = this.validate((T) (Boolean) out); // Idk why one would want a validator for a bool...
+                    Optional<String> a = this.validate((T) out); // Idk why one would want a validator for a bool...
                     a.ifPresent(s -> {
                         throw new IllegalArgumentException(s);
                     });
 
-                    return (T) (Boolean) out;
+                    return (T) out;
                 } else if (this.argumentType == String.class) { // Strings
                     Optional<String> a = this.validate((T) str);
                     a.ifPresent(s -> {
