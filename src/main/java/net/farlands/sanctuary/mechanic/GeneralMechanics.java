@@ -20,6 +20,7 @@ import net.farlands.sanctuary.data.Cooldown;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.Worlds;
+import net.farlands.sanctuary.data.pdc.JSONDataType;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.SkullCreator;
 import net.farlands.sanctuary.gui.GuiVillagerEditor;
@@ -46,6 +47,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -324,6 +326,17 @@ public class GeneralMechanics extends Mechanic {
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         String[] lines = event.lines().stream().map(ComponentUtils::toText).toArray(String[]::new);
+
+        // Save the raw style such that we can restore it when editing
+        Sign state = (Sign) event.getBlock().getState();
+        PersistentDataContainer pdc = state.getPersistentDataContainer();
+        pdc.set(
+            FLUtils.nsKey(event.getSide().toString().toLowerCase() + "_raw"),
+            new JSONDataType<>(String[].class),
+            lines
+        );
+        state.update();
+
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         for (int i = 0; i < lines.length; ++i) {
             event.line(i, ComponentUtils.parse(lines[i], flp));
@@ -336,7 +349,11 @@ public class GeneralMechanics extends Mechanic {
             return; // Ignore offhand packet
         }
 
-        FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());
+        FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(
+            event.getClickedBlock() == null
+                ? event.getPlayer().getLocation()
+                : event.getClickedBlock().getLocation()
+        );
         TrustMeta trust = flags == null ? null : flags.getFlagMeta(RegionFlag.TRUST);
 
         if ( // Change the shape of a rail by shift + right click

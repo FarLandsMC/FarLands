@@ -15,6 +15,7 @@ import com.kicasmads.cs.event.ShopRemoveEvent;
 import com.kicasmads.cs.event.ShopTransactionEvent;
 import com.squareup.moshi.Types;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
+import io.papermc.paper.event.player.PlayerOpenSignEvent;
 import net.coreprotect.CoreProtect;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
@@ -34,9 +35,9 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -68,8 +69,7 @@ public class Restrictions extends Mechanic {
 
     private final Set<UUID> endWarnings        = new HashSet<>(); // Warnings for flying machines in the end
     public final  Set<UUID> mediaFlyProtection = new HashSet<>(); // Players who have temporary flight from exiting a claim
-    // TODO: Make this a map that can be used to determine if the edited sign was changed from its previous text
-    public final  Set<UUID> currentSignEditors = new HashSet<>(); // Players who are currently editing a sign
+    public final  HashMap<UUID, List<String>> currentSignEditors = new HashMap<>(); // Players who are currently editing a sign
 
     @Override
     public void onStartup() {
@@ -282,11 +282,27 @@ public class Restrictions extends Mechanic {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.useInteractedBlock() == Event.Result.ALLOW) {
-            if (event.getClickedBlock() != null && event.getClickedBlock().getState() instanceof Sign) {
-                this.currentSignEditors.add(event.getPlayer().getUniqueId());
+    public void onPlayerOpenSign(PlayerOpenSignEvent event) {
+        if (event.getCause() == PlayerOpenSignEvent.Cause.INTERACT) {
+            Sign sign = event.getSign();
+            SignSide side = sign.getSide(event.getSide());
+            event.setCancelled(true);
+
+            // This would fit better in GeneralMechanics, but the logic is easier when it's here.
+            NamespacedKey key = FLUtils.nsKey(event.getSide().toString().toLowerCase() + "_raw");
+            String[] unstyled = sign.getPersistentDataContainer().get(key, new JSONDataType<>(String[].class));
+
+            if (unstyled != null) {
+                for (int i = 0; i < unstyled.length; i++) {
+                    String l = unstyled[i];
+                    side.line(i, Component.text(l));
+                }
             }
+
+            sign.update();
+            // For some reason, we need to wait two ticks after updating before we can actually open the GUI
+            Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> event.getPlayer().openSign(sign, event.getSide()), 2L);
+            this.currentSignEditors.put(event.getPlayer().getUniqueId(), side.lines().stream().map(ComponentUtils::toText).toList());
         }
     }
 
@@ -299,27 +315,30 @@ public class Restrictions extends Mechanic {
             .map(ComponentColor::gray)
             .toList();
 
-        boolean removedEditor = this.currentSignEditors.remove(event.getPlayer().getUniqueId());
-        if (!lines.isEmpty() || removedEditor) { // Log the sign content to staff
+        List<String> prevContent = this.currentSignEditors.remove(event.getPlayer().getUniqueId());
+        List<String> currContent = lines.stream().map(ComponentUtils::toText).toList();
+
+        if (!currContent.equals(prevContent)) { // Log the sign content to staff
             Location loc = event.getBlock().getLocation();
+            Component content = Component.join(JoinConfiguration.newlines(), lines);
             Logging.broadcastStaff(
                 ComponentColor.gray(
                     "{} {} a sign at {} {} {}",
                     event.getPlayer().getName(),
-                    removedEditor
-                    ? lines.isEmpty()
+                    prevContent == null
+                    ? "placed"
+                    : lines.isEmpty()
                         ? "cleared"
-                        : "edited"
-                    : "placed",
+                        : "edited",
                     loc.getBlockX(),
                     loc.getBlockY(),
                     loc.getBlockZ()
                 ).append(
                     lines.isEmpty()
-                    ? Component.empty()
-                    : Component.text(":")
-                        .append(Component.newline())
-                        .append(Component.join(JoinConfiguration.newlines(), lines))
+                    ? Component.text(".")
+                    : ComponentUtils.toText(lines.get(0)).equalsIgnoreCase("[shop]")
+                        ? ComponentUtils.format(": {}", ComponentUtils.hover(ComponentColor.aqua("[shop]"), content)) // Show abbreviated message if a shop
+                        : ComponentUtils.format(":\n{}", content)
                 )
             );
         }
