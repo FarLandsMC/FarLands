@@ -18,7 +18,6 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Pair;
 import net.farlands.sanctuary.FarLands;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Restrictions;
@@ -33,7 +32,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.structure.Structure;
@@ -59,7 +57,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -149,24 +146,6 @@ public final class FLUtils {
             e.printStackTrace();
             return null;
         }
-    }
-
-    /**
-     * Check if an entity will persist (not despawn)
-     * @deprecated Switch to {@link Entity#isPersistent()}
-     */
-    @Deprecated
-    public static boolean isPersistent(Entity entity) {
-        return entity.isPersistent();
-    }
-
-    /**
-     * Toggle an entity's persistence (ability to not despawn)
-     * @deprecated Switch to {@link Entity#setPersistent(boolean)}
-     */
-    @Deprecated
-    public static void setPersistent(Entity entity, boolean persistent) {
-        entity.setPersistent(persistent);
     }
 
     public static List<MerchantRecipe> copyRecipeList(List<MerchantRecipe> list) {
@@ -836,77 +815,6 @@ public final class FLUtils {
      */
     public static String removeColorCodes(String message) {
         return ComponentUtils.toText(ComponentUtils.parse(message));
-    }
-
-    /**
-     * Apply color codes within the provided string
-     *
-     * @param rank    The rank (used for permsission checks)
-     * @param message The message to check
-     * @return The updated message
-     * @deprecated <strong><em>Please switch to Components!</em></strong>
-     */
-    @Deprecated
-    public static String applyColorCodes(Rank rank, String message) {
-        if (rank == null || rank.specialCompareTo(Rank.ADEPT) < 0) {
-            return removeColorCodes(message);
-        }
-
-        message = colorize(message);
-
-        message = ChatColor.translateAlternateColorCodes('&', message);
-
-        if (!rank.isStaff()) {
-            for (ChatColor color : ILLEGAL_COLORS) {
-                message = message.replaceAll(ChatColor.COLOR_CHAR + Character.toString(color.getChar()), "");
-            }
-        }
-//        message = colorize(message);
-        return message;
-    }
-
-    /**
-     * Colorize a string using the color codes
-     *
-     * @deprecated <strong><em>Please switch to Components!</em></strong>
-     */
-    @Deprecated
-    public static String colorize(String string) {
-        // Do 6 char first since the 3 char pattern will also match 6 char occurrences
-        StringBuffer sb6 = new StringBuffer();
-        Matcher matcher6 = HEX_COLOR_PATTERN_SIX.matcher(string);
-        while (matcher6.find()) {
-            StringBuilder replacement = new StringBuilder(14).append("&x");
-            for (char character : matcher6.group(1).toCharArray()) {
-                replacement.append('&').append(character);
-            }
-            if (getLuma(replacement.toString()) > 16) {
-                matcher6.appendReplacement(sb6, replacement.toString());
-            } else {
-                matcher6.appendReplacement(sb6, "");
-            }
-        }
-        matcher6.appendTail(sb6);
-        string = sb6.toString();
-
-        // Now convert 3 char to the same format ex. &#363 -> &x&3&3&6&6&3&3
-        StringBuffer sb3 = new StringBuffer();
-        Matcher matcher3 = HEX_COLOR_PATTERN_THREE.matcher(string);
-        while (matcher3.find()) {
-            StringBuilder replacement = new StringBuilder(14).append("&x");
-            for (char character : matcher3.group(1).toCharArray()) {
-                replacement.append('&').append(character).append('&').append(character);
-            }
-            if (getLuma(replacement.toString()) > 16) {
-                matcher3.appendReplacement(sb3, replacement.toString());
-            } else {
-                matcher3.appendReplacement(sb3, "");
-            }
-        }
-        matcher3.appendTail(sb3);
-
-        // Translate '&' to '§'
-        return ChatColor.translateAlternateColorCodes('&', sb3.toString());
     }
 
     /**

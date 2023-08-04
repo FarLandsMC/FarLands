@@ -16,7 +16,6 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.apache.commons.lang.StringUtils;
 import org.intellij.lang.annotations.Language;
@@ -175,7 +174,6 @@ public class MarkdownProcessor {
         if (user != null) {
             return Component.text("@" + user.getName());
         }
-//        return Component.text(text); // If this run, something is funky
         return null;
 
     }
@@ -189,41 +187,4 @@ public class MarkdownProcessor {
         return Component.text("#" + channel.getName());
     }
 
-//    public static Component emoteMention(String text) {
-//        Message
-//        net.dv8tion.jda.internal.utils.Helpers.
-//    }
-
-
-    /**
-     * Perform the conversion from Minecraft's formatting to Discord's Markdown
-     *
-     * @param text  The formatted text to convert
-     * @param start The index to start parsing from
-     * @return The converted markdown
-     * @deprecated Switch to {@link MarkdownProcessor#fromMinecraft(Component)}
-     */
-    @Deprecated
-    public static String mcToMarkdown(String text, int start) {
-
-        if (start >= text.length()) {
-            start = 0;
-        }
-
-        Component c = LegacyComponentSerializer.legacySection().deserialize(text.substring(start));
-        return text.substring(0, start) + fromMinecraft(c);
-    }
-
-
-    /**
-     * Perform the conversion from Discord's Markdown to Minecraft's formatting.
-     *
-     * @param markdown input in Discord's markdown format
-     * @return Minecraft Formatted text block from the text
-     * @deprecated Switch to {@link MarkdownProcessor#toMinecraft(String)}
-     */
-    @Deprecated
-    public static String markdownToMC(String markdown) {
-        return LegacyComponentSerializer.legacySection().serialize(toMinecraft(markdown));
-    }
 }

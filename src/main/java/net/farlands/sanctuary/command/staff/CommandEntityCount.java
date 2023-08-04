@@ -38,8 +38,8 @@ public class CommandEntityCount extends Command {
         super(
             CommandData.withRank(
                 "entitycount",
-                "/entitycount [player] [type] [radius]",
                 "Count the number of entities in a radius and show clusters.",
+                "/entitycount [player] [type] [radius]",
                 Rank.JR_BUILDER
             ).aliases("ec")
         );

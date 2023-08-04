@@ -4,6 +4,7 @@ import net.farlands.sanctuary.data.struct.PlayerTrade;
 import net.farlands.sanctuary.data.struct.Proposal;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 
 import java.util.*;
@@ -95,7 +96,7 @@ public class PluginData {
         return proposals.stream().filter(proposal -> proposal.getMessageID() == messageID).findAny().orElse(null);
     }
 
-    public void setTrade(UUID player, String tradeMessage) {
+    public void setTrade(UUID player, Component tradeMessage) {
         playerTrades.put(player, new PlayerTrade(player, tradeMessage));
     }
 

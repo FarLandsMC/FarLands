@@ -584,14 +584,14 @@ public class GeneralMechanics extends Mechanic {
             .filter(e -> e.isLeashed() && event.getPlayer().equals(e.getLeashHolder()))
             .forEach(e -> {
                 e.setLeashHolder(null);
-                final boolean persistent = FLUtils.isPersistent(e);
-                FLUtils.setPersistent(e, true);
+                final boolean persistent = e.isPersistent();
+                e.setPersistent(true);
                 Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                     e.getLocation().getChunk().load();
                     Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
                         e.teleport(event.getTo());
                         e.setLeashHolder(event.getPlayer());
-                        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> FLUtils.setPersistent(e, persistent), 1);
+                        Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> e.setPersistent(persistent), 1);
                     }, 1);
                 }, 1);
             });

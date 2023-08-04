@@ -274,24 +274,23 @@ public class FLPlayerSession {
             List<Component> pendingHomes = new ArrayList<>();
 
             handle.pendingSharehomes.forEach((k, v) -> {
-                Component message = ComponentColor.gold("Message: ").append(ComponentColor.gold(v.message() + "\n"));
                 pendingHomes.add(
                     ComponentUtils.suggestCommand(
                         "/sharehome accept " + k,
                         ComponentColor.aqua(k),
-                        ComponentColor.gold("Sender: ").append(ComponentColor.aqua(k))
-                            .append(message).append(Component.newline())
-                            .append(ComponentColor.gold("Name: ")).append(ComponentColor.aqua(v.home().getName() + "\n"))
-                            .append(ComponentColor.gray("Click to accept"))
-                        )
+                        ComponentColor.gold(
+                            "Sender: {:aqua}\nName: {:aqua}{}\nClick to accept",
+                            k,
+                            v.home().getName(),
+                            v.message() == null ? "" : Component.newline().append(v.message())
+                        ))
                 );
             });
 
             player.sendMessage(
                 ComponentColor.gold(
-                    "You have pending homes from {} player{1}: {}.\nHover over the name{1} to view more info.",
+                    "You have pending homes from {} player{0::s}: {}.\nHover over the name{0::s} to view more info.",
                     pendingHomes.size(),
-                    pendingHomes.size() == 1 ? "" : "s",
                     pendingHomes
                 )
             );

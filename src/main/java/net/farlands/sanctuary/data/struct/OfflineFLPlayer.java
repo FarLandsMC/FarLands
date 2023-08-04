@@ -23,7 +23,6 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -236,9 +235,13 @@ public class OfflineFLPlayer implements ComponentLike {
         return isOnline() && !vanished ? System.currentTimeMillis() : lastLogin;
     }
 
+    /**
+     * @return A component using this nickname if set, otherwise the username
+     */
     public Component getDisplayName() {
-        return nickname == null || PlainTextComponentSerializer.plainText().serialize(nickname).isBlank()
-            ? Component.text(username).color(rank.nameColor()) : nickname;
+        return nickname == null || ComponentUtils.toText(nickname).isBlank()
+            ? Component.text(username).color(rank.nameColor())
+            : nickname;
     }
 
     /**
@@ -495,18 +498,16 @@ public class OfflineFLPlayer implements ComponentLike {
 
         Player player = getOnlinePlayer();
         if (player != null) { // If the player is online, notify
-            player.sendMessage(
-                ComponentColor.gold("")
-                    .append(ComponentColor.aqua(sender))
-                    .append(Component.text(" has sent you a home: "))
-                    .append(ComponentColor.aqua(shareHome.home().getName()))
-                    .append(shareHome.message() == null ? Component.empty() : Component.text("\nMessage: " + shareHome.message()))
-                    .append(Component.text("\nYou can accept it with "))
-                    .append(ComponentUtils.command("/sharehome accept " + sender))
-                    .append(Component.text(" or decline it with "))
-                    .append(ComponentUtils.command("/sharehome decline " + sender))
-                    .append(Component.text("."))
-            );
+            player.sendMessage(ComponentColor.gold(
+                "{:aqua} has sent you a home: {:aqua}{}\nYou can accept it with {} or decline it with {}.",
+                sender,
+                shareHome.home().getName(),
+                shareHome.message() == null
+                    ? Component.empty()
+                    : ComponentUtils.format("\nMessage: {}", shareHome.message()),
+                ComponentUtils.command("/sharehome accept " + sender),
+                ComponentUtils.command("/sharehome decline " + sender)
+            ));
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
         }
 

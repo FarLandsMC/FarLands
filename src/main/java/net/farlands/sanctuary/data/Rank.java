@@ -8,7 +8,6 @@ import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
@@ -27,22 +26,24 @@ import java.util.Arrays;
  */
 public enum Rank implements ComponentLike {
 
-    // Player Ranks:
-    // symbol color playTimeRequired homes tpDelay shops wildCooldown [advancement]
-    INITIATE ("Initiate", NamedTextColor.GRAY,         0,   1,  7, 0,  3                                            ),
-    BARD     ("Bard",     NamedTextColor.YELLOW,       3,   3,  6, 2,  18, "story/mine_diamond"         ),
-    ESQUIRE  ("Esquire",  NamedTextColor.DARK_GREEN,   12,  5,  6, 5,  15, "story/enchant_item"         ),
-    KNIGHT   ("Knight",   NamedTextColor.GOLD,         24,  8,  5, 10, 12, "nether/get_wither_skull"    ),
-    SAGE     ("Sage",     NamedTextColor.AQUA,         72,  10, 5, 15, 9,  "end/find_end_city"          ),
-    ADEPT    ("Adept",    NamedTextColor.GREEN,        144, 12, 4, 20, 8,  "adventure/totem_of_undying" ),
-    SCHOLAR  ("Scholar",  NamedTextColor.BLUE,         240, 16, 3, 30, 7,  "adventure/adventuring_time" ),
+    // @formatter:off
 
-    VOTER    ("Voter",    TextColor.color(0xff6213),   -1,  16, 3, 30, 7 ), // Same as Scholar
-    BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1,  16, 3, 30, 7 ),
-    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1,  24, 2, 40, 6 ),
-    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1,  32, 0, 50, 3 ),
-    SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1,  40, 0, 50, 1 ),
-    MEDIA    ("Media",    NamedTextColor.YELLOW,       -1,  40, 0, 50, 1 ), // Same as Sponsor
+    // Player Ranks:
+    //        symbol      color                        hrs  homes tpDelay shops wildCD [advancement]
+    INITIATE ("Initiate", NamedTextColor.GRAY,         0,   1,    7,      0,    3                                   ),
+    BARD     ("Bard",     NamedTextColor.YELLOW,       3,   3,    6,      2,    18,    "story/mine_diamond"         ),
+    ESQUIRE  ("Esquire",  NamedTextColor.DARK_GREEN,   12,  5,    6,      5,    15,    "story/enchant_item"         ),
+    KNIGHT   ("Knight",   NamedTextColor.GOLD,         24,  8,    5,      10,   12,    "nether/get_wither_skull"    ),
+    SAGE     ("Sage",     NamedTextColor.AQUA,         72,  10,   5,      15,   9,     "end/find_end_city"          ),
+    ADEPT    ("Adept",    NamedTextColor.GREEN,        144, 12,   4,      20,   8,     "adventure/totem_of_undying" ),
+    SCHOLAR  ("Scholar",  NamedTextColor.BLUE,         240, 16,   3,      30,   7,     "adventure/adventuring_time" ),
+
+    VOTER    ("Voter",    TextColor.color(0xff6213),   -1,  16,   3,      30,   7                                   ), // Same as Scholar
+    BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1,  16,   3,      30,   7                                   ),
+    DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1,  24,   2,      40,   6                                   ),
+    PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1,  32,   0,      50,   3                                   ),
+    SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1,  40,   0,      50,   1                                   ),
+    MEDIA    ("Media",    NamedTextColor.YELLOW,       -1,  40,   0,      50,   1                                   ), // Same as Sponsor
 
     // Staff Ranks:
     // permissionLevel symbol color
@@ -51,9 +52,11 @@ public enum Rank implements ComponentLike {
     JR_DEV     (1, "Jr. Dev",     TextColor.color(0x0bbd9e) ),
     BUILDER    (2, "Builder",     TextColor.color(0x9000ff) ),
     MOD        (2, "Mod",         TextColor.color(0xdb1100) ),
-    ADMIN      (3, "Admin",       NamedTextColor.DARK_GREEN       ),
+    ADMIN      (3, "Admin",       NamedTextColor.DARK_GREEN ),
     DEV        (3, "Dev",         TextColor.color(0x09816b) ),
-    OWNER      (4, "Owner",       NamedTextColor.GOLD             );
+    OWNER      (4, "Owner",       NamedTextColor.GOLD       );
+
+    // @formatter:on
 
     private final NamedTextColor teamColor; // Determined from color
     private final TextColor      color;
@@ -104,12 +107,15 @@ public enum Rank implements ComponentLike {
     /**
      * Compare to another rank
      * <br>
-     * For the players, order in the enum specifies the hierarchy; for staff, only the permission level specifies the hierarchy.
+     * For the players, order in the enum specifies the hierarchy; for staff, only the permission level specifies the
+     * hierarchy.
      */
     public int specialCompareTo(Rank other) {
         return permissionLevel == other.permissionLevel
-               ? (permissionLevel == 0 ? Integer.compare(ordinal(), other.ordinal()) : 0)
-               : Integer.compare(permissionLevel, other.permissionLevel);
+            ? permissionLevel == 0
+                ? Integer.compare(ordinal(), other.ordinal())
+                : 0
+            : Integer.compare(permissionLevel, other.permissionLevel);
     }
 
     public boolean isStaff() {
@@ -153,18 +159,8 @@ public enum Rank implements ComponentLike {
         return name;
     }
 
-    /**
-     * @Depricated Move to {@link Rank#color()}
-     */
-    @Deprecated
-    public ChatColor getColor() {
-        return ChatColor.of(color.asHexString());
-    }
-
-    public TextColor color() { return color; }
-
-    public ChatColor getNameColor() {
-        return specialCompareTo(Rank.VOTER) >= 0 ? getColor() : ChatColor.WHITE;
+    public TextColor color() {
+        return color;
     }
 
     public TextColor nameColor() {
@@ -176,7 +172,8 @@ public enum Rank implements ComponentLike {
     }
 
     /**
-     * Check if a player has the correct amount of playtime to rankup to this rank, subtracts 1 hour for each vote in current season
+     * Check if a player has the correct amount of playtime to rankup to this rank, subtracts 1 hour for each vote in
+     * current season
      */
     public boolean hasPlaytime(OfflineFLPlayer flp) {
         return playTimeRequired >= 0 && flp.secondsPlayed >= (playTimeRequired - flp.totalSeasonVotes) * 3600;
@@ -219,6 +216,7 @@ public enum Rank implements ComponentLike {
 
     /**
      * Get the next rank in the rankup path
+     *
      * @return The next rank, or <code>this</code> if it's the highest rank
      */
     public Rank getNextRank() {

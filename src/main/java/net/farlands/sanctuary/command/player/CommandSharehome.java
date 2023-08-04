@@ -10,7 +10,9 @@ import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.ShareHome;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,8 +22,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.kicas.rp.util.TextUtils.escapeExpression;
 
 public class CommandSharehome extends Command {
     public CommandSharehome() {
@@ -87,16 +87,21 @@ public class CommandSharehome extends Command {
         Home home = new Home(args[2], flp.getHome(args[2]));
 
         // If there is a message, apply colour codes
-        final String message = FLUtils.applyColorCodes(Rank.getRank(sender), joinArgsBeyond(2, " ", args)),
-            escapedMessage = escapeExpression(message);
+        Component message = ComponentUtils.parse(joinArgsBeyond(2, " ", args), flp);
 
         if (recipientFlp.getIgnoreStatus(sender).includesSharehomes() || !recipientFlp.canAddHome()) {
             error(sender, "You cannot share a home with this person.");
             return true;
         }
 
+        ShareHome sh = new ShareHome(
+            flp.username,
+            ComponentUtils.toText(message).isBlank() ? null : message,
+            home
+        );
+
         // Players can only queue one item at a time, so make sure this operation actually succeeds
-        if (recipientFlp.addSharehome(flp.username, new ShareHome(flp.username, message.isEmpty() ? null : escapedMessage, home))) {
+        if (recipientFlp.addSharehome(flp.username, sh)) {
             // Use the same cooldown as /package
             success(sender, "Home shared!");
         } else { // The sender already has a sharehome queued for this person so the transfer failed
