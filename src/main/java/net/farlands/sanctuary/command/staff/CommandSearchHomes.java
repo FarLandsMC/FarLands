@@ -41,6 +41,7 @@ public class CommandSearchHomes extends PlayerCommand {
             List<Component> homes;
             Pair<Location, Integer> currentSearch = new Pair<>(sender.getLocation(), radius);
             if (searchCache.containsKey(currentSearch)) {
+                // TODO: Invalidate cache if home created within the distance
                 info(sender, "This does not contain homes created in the last {} minutes.", CACHE_TIME);
                 homes = searchCache.get(currentSearch);
             } else {
@@ -51,6 +52,7 @@ public class CommandSearchHomes extends PlayerCommand {
                     .flatMap(flp -> flp
                         .homes
                         .stream()
+                        .filter(h -> h.getLocation().getWorld().equals(sender.getWorld()))
                         .filter(h -> h.getLocation().distanceSquared(sender.getLocation()) <= radius * radius)
                         .map(h -> ComponentColor.gold(flp.username + " - ")
                             .append(
@@ -67,7 +69,7 @@ public class CommandSearchHomes extends PlayerCommand {
             }
 
             if (homes.isEmpty()) {
-                error(sender, "No homes found within {} blocks.", radius);
+                return error(sender, "No homes found within {} blocks.", radius);
             }
 
             Pagination pagination = new Pagination(ComponentColor.gold("Search Homes"), "/searchomes " + radius);
