@@ -11,6 +11,7 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -199,6 +200,7 @@ public class VanillaFixes extends Mechanic {
             && event.hasItem()
             && action.isRightClick()
             && event.getItem().getType().name().endsWith("_HOE")
+            && event.getClickedBlock().getRelative(BlockFace.UP).isPassable()
             && Set.of(Material.MYCELIUM, Material.PODZOL).contains(event.getClickedBlock().getType())
         ) {
             FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(event.getClickedBlock().getLocation());

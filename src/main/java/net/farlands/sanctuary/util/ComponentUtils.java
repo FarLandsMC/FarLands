@@ -14,6 +14,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.Translatable;
+import org.bukkit.Location;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -334,6 +335,22 @@ public class ComponentUtils {
      */
     public static Component noEvent(ComponentLike componentLike) {
         return componentLike.asComponent().hoverEvent(null).clickEvent(null);
+    }
+
+    /**
+     * Get a component that does `/chain {gm3} {tl x y z}` for a location with `x y z` as the base
+     *
+     * @param loc The destination
+     */
+    public static Component staffTp(Location loc) {
+        int x = loc.getBlockX();
+        int y = loc.getBlockY();
+        int z = loc.getBlockZ();
+        return ComponentUtils.command(
+            "/chain {gm3} {tl %d %d %d}".formatted(x, y, z),
+            ComponentColor.aqua(x + " " + y + " " + z),
+            Component.text("Click to teleport to this location")
+        );
     }
 
     /**

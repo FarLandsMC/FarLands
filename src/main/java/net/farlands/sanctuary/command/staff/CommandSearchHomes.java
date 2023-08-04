@@ -51,7 +51,7 @@ public class CommandSearchHomes extends PlayerCommand {
                     .flatMap(flp -> flp
                         .homes
                         .stream()
-                        .filter(h -> h.getLocation().distance(sender.getLocation()) <= radius)
+                        .filter(h -> h.getLocation().distanceSquared(sender.getLocation()) <= radius * radius)
                         .map(h -> ComponentColor.gold(flp.username + " - ")
                             .append(
                                 ComponentUtils.command(
@@ -67,7 +67,7 @@ public class CommandSearchHomes extends PlayerCommand {
             }
 
             if (homes.isEmpty()) {
-                error(sender, "No homes found within the radius specified.");
+                error(sender, "No homes found within {} blocks.", radius);
             }
 
             Pagination pagination = new Pagination(ComponentColor.gold("Search Homes"), "/searchomes " + radius);

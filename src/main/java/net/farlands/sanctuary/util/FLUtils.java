@@ -305,7 +305,7 @@ public final class FLUtils {
     /**
      * Color a specific value using COLORING array using {@link ComponentColor#color(TextColor, Object)}
      */
-    public static <T> Component color(double value, double[] coloring, T v) {
+    public static Component color(double value, double[] coloring, Object v) {
         return ComponentColor.color(color(value, coloring), v);
     }
 
