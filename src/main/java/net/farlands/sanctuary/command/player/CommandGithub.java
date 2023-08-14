@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class CommandGithub extends Command {
 
-    private static final String GH_URL = "https://github.com/FarLandsMC";
-    private static final String GH_AVATAR_URL = "https://avatars.githubusercontent.com/u/93167637?s=280&v=4"; // Literally just a right click -> copy image link
+    private static final String GH_URL        = "https://github.com/FarLandsMC";
+    public static final  String GH_AVATAR_URL = "https://avatars.githubusercontent.com/u/93167637?s=280&v=4"; // Literally just a right click -> copy image link
 
     public CommandGithub() {
         super(

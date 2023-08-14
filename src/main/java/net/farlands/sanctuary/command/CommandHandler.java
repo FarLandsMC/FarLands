@@ -135,6 +135,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandReport());           // Initiate
         registerCommand(new CommandResetHome());        // Initiate
         registerCommand(new CommandRules());            // Initiate
+        registerCommand(new CommandSeason());           // Initiate
         registerCommand(new CommandSeen());             // Initiate
         registerCommand(new CommandSetHome());          // Initiate
         registerCommand(new CommandSharehome());        // Initiate

@@ -82,7 +82,7 @@ public class CommandStack extends PlayerCommand {
 
     @Override
     public boolean execute(Player player, String[] args) {
-        // warning lists so they can be displayed in a compact manor at the end
+        // warning lists so they can be displayed in a compact manner at the end
         List<Material> warningsUnstack = new ArrayList<>();
 
         if (args.length <= 0) {

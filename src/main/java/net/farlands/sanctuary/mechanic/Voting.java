@@ -106,10 +106,9 @@ public class Voting extends Mechanic {
 
         if (this.pluginData.votesUntilParty > 0) {
             builder.append(ComponentColor.gold(
-                " {:aqua} more {} until a vote party!",
-                this.pluginData.votesUntilParty,
-                this.pluginData.votesUntilParty == 1 ? "" : "s")
-            );
+                " {:aqua} more vote{0::s} until a vote party!",
+                this.pluginData.votesUntilParty
+            ));
         }
         Logging.broadcastIngame(builder.build(), false);
 

@@ -5,6 +5,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -60,7 +61,19 @@ public class Logging {
      * Broadcast a message to all players ingame, with the option to send to Discord (#in-game)
      */
     public static void broadcastIngame(Component message, boolean sendToDiscord) {
-        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(message));
+        broadcastIngame(x -> true, message, sendToDiscord);
+    }
+
+    /**
+     * Broadcast a message to all players ingame (filtered by filter), with the option to send to Discord (#in-game)
+     */
+    public static void broadcastIngame(Predicate<FLPlayerSession> filter, Component message, boolean sendToDiscord) {
+        Bukkit.getOnlinePlayers()
+            .stream()
+            .filter(p -> filter.test(FarLands.getDataHandler().getSession(p)))
+            .collect(Audience.toAudience())
+            .sendMessage(message);
+
         CONSOLE.sendMessage(message);
 
         if (sendToDiscord) {
@@ -100,6 +113,21 @@ public class Logging {
             broadcastDiscord(MarkdownProcessor.fromMinecraft(c), DiscordChannel.IN_GAME);
         }
         broadcastIngame(PREFIX.append(c), false);
+    }
+
+    /**
+     * Send a formatted message to Discord (#in-game) and in-game chat (filtered by predicate)
+     * <p>
+     * Parses MiniMessage
+     *
+     * @param message Message, formatted with {@link String#format(String, Object...)}
+     */
+    public static void broadcastFormatted(Predicate<FLPlayerSession> filter, String message, boolean sendToDiscord, Object... replacements) {
+        Component c = MM.deserialize(String.format(message, replacements));
+        if (sendToDiscord) {
+            broadcastDiscord(MarkdownProcessor.fromMinecraft(c), DiscordChannel.IN_GAME);
+        }
+        broadcastIngame(filter, PREFIX.append(c), false);
     }
 
     /**

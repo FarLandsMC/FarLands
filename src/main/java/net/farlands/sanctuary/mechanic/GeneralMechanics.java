@@ -365,18 +365,36 @@ public class GeneralMechanics extends Mechanic {
             && trust.hasTrust(event.getPlayer(), TrustLevel.BUILD, flags)
         ) {
             Rail.Shape shape = block.getShape();
-            Rail.Shape nextShape = switch (shape) {
-                case ASCENDING_NORTH, ASCENDING_SOUTH -> Rail.Shape.NORTH_SOUTH;
-                case ASCENDING_EAST, ASCENDING_WEST -> Rail.Shape.EAST_WEST;
-                default -> {
-                    List<Rail.Shape> valid =  block.getShapes() // ImmutableCollections should be deterministic in iteration, so we don't need to sort here.
-                        .stream()
-                        .filter(s -> !s.name().startsWith("ASCENDING_")) // We don't want them to toggle ascending because then it'd be an endless loop
-                        .toList();
+            Rail.Shape nextShape;
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                nextShape = switch (shape) {
+                    case ASCENDING_NORTH, ASCENDING_SOUTH -> Rail.Shape.NORTH_SOUTH;
+                    case ASCENDING_EAST, ASCENDING_WEST -> Rail.Shape.EAST_WEST;
+                    default -> {
+                        List<Rail.Shape> valid = block.getShapes() // ImmutableCollections should be deterministic in iteration, so we don't need to sort here.
+                            .stream()
+                            .filter(s -> !s.name().startsWith("ASCENDING_")) // We don't want them to toggle ascending because then it'd be an endless loop
+                            .toList();
 
-                    yield valid.get((valid.indexOf(shape) + 1) % valid.size());
+                        yield valid.get((valid.indexOf(shape) + 1) % valid.size());
+                    }
                 }
-            };
+                ;
+            } else {
+                nextShape = switch (shape) {
+                    case ASCENDING_NORTH, ASCENDING_SOUTH -> Rail.Shape.NORTH_SOUTH;
+                    case ASCENDING_EAST, ASCENDING_WEST -> Rail.Shape.EAST_WEST;
+                    default -> {
+                        List<Rail.Shape> valid = block.getShapes() // ImmutableCollections should be deterministic in iteration, so we don't need to sort here.
+                            .stream()
+                            .filter(s -> !s.name().startsWith("ASCENDING_")) // We don't want them to toggle ascending because then it'd be an endless loop
+                            .sorted(Collections.reverseOrder())
+                            .toList();
+
+                        yield valid.get((valid.indexOf(shape) + 1) % valid.size());
+                    }
+                };
+            }
             block.setShape(nextShape); // Change the shape
             event.getClickedBlock().setBlockData(block);
         }
@@ -773,15 +791,20 @@ public class GeneralMechanics extends Mechanic {
                 if (sendBroadcast && nightSkip.isComplete()) {
                     nightSkip.reset();
                     Logging.broadcastFormatted(
+                        s -> s.player != null && Worlds.OVERWORLD.matches(s.player.getWorld()),
                         "<!bold><gold>%d more %s to sleep to skip the night.",
                         false,
                         (required - sleeping),
                         (required - sleeping) == 1 ? "player needs" : "players need");
                 }
             } else if (nightSkipTask == null) {
-                Logging.broadcastFormatted("<!bold><gold>Skipping the night...", false);
+                Logging.broadcastFormatted(
+                    s -> s.player != null && Worlds.OVERWORLD.matches(s.player.getWorld()),
+                    "<!bold><gold>Skipping the night...",
+                    false
+                );
                 nightSkipTask = Bukkit.getScheduler().runTaskLater(FarLands.getInstance(), () -> {
-                    World world = Bukkit.getWorld("world");
+                    World world = Worlds.OVERWORLD.getWorld();
                     world.setTime(1000L);
                     world.setStorm(false);
                 }, 30L);

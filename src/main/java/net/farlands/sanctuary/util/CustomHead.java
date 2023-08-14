@@ -1,13 +1,13 @@
 package net.farlands.sanctuary.util;
 
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
-import java.lang.reflect.Field;
 import java.util.UUID;
 
 public enum CustomHead {
@@ -32,21 +32,10 @@ public enum CustomHead {
         if (base64 == null || base64.isEmpty()) {
             return head;
         }
-        ItemMeta headMeta = head.getItemMeta();
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        profile.getProperties().put("textures", new Property("textures", base64));
-        Field profileField;
-        try {
-            profileField = headMeta.getClass().getDeclaredField("profile");
-        } catch (NoSuchFieldException | SecurityException e) {
-            return new ItemStack(Material.PLAYER_HEAD);
-        }
-        profileField.setAccessible(true);
-        try {
-            profileField.set(headMeta, profile);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            return new ItemStack(Material.PLAYER_HEAD);
-        }
+        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
+        PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID());
+        profile.setProperty(new ProfileProperty("textures", base64));
+        headMeta.setPlayerProfile(profile);
         head.setItemMeta(headMeta);
         return head;
     }
