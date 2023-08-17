@@ -14,7 +14,6 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.world.level.GameType;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
@@ -147,7 +146,7 @@ public class Toggles extends Mechanic {
         OfflineFLPlayer damagerFLP = FarLands.getDataHandler().getOfflineFLPlayer(damager),
             attackedFLP = FarLands.getDataHandler().getOfflineFLPlayer(event.getEntity());
         if (!damagerFLP.pvp) {
-            damager.sendMessage(ChatColor.RED + "You have PvP toggled off, activate it with /pvp on.");
+            damager.sendMessage(ComponentColor.red("You have PvP toggled off, activate it with /pvp on."));
             event.setCancelled(true);
             event.getEntity().setFireTicks(-1); // Blocks fire damage
         } else if (!attackedFLP.pvp) {

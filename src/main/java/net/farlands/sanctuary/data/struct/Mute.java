@@ -1,7 +1,7 @@
 package net.farlands.sanctuary.data.struct;
 
+import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.Objects;
@@ -33,8 +33,11 @@ public record Mute(long dateEnds, String reason) {
 
     public void sendMuteMessage(CommandSender sender) {
         sender.sendMessage(
-            ChatColor.RED + "You may not type in chat. You were muted for: " + ChatColor.GOLD + reason +
-            ChatColor.RED + " Your mute expires in " + TimeInterval.formatTime(timeRemaining(), false) + "."
+            ComponentColor.red(
+                "You may not type in chat. You were muted for: {:gold} Your mute expires in {:gold}.",
+                this.reason,
+                TimeInterval.formatTime(timeRemaining(), false)
+            )
         );
     }
 

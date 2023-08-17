@@ -22,7 +22,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -840,7 +839,7 @@ public class DataHandler extends Mechanic {
         players.forEach(flp -> {
 
             // Reset the nickname if it contains any legacy codes since they break MiniMessage now
-            if (flp.nickname != null && ComponentUtils.toText(flp.nickname).contains(ChatColor.COLOR_CHAR + "")) {
+            if (flp.nickname != null && ComponentUtils.toText(flp.nickname).indexOf('\u00A7') != -1) {
                 flp.nickname = null;
             }
 

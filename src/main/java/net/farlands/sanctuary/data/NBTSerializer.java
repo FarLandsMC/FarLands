@@ -19,14 +19,14 @@ public class NBTSerializer {
      * Convert between {@link ItemStack} and {@link ByteArrayBinaryTag}
      */
     public static ByteArrayBinaryTag item(ItemStack stack) {
-        return ByteArrayBinaryTag.of(stack.serializeAsBytes());
+        return ByteArrayBinaryTag.byteArrayBinaryTag(stack.serializeAsBytes());
     }
 
     /**
      * Convert between {@link Collection}<{@link ItemStack}> and {@link ListBinaryTag}
      */
     public static ListBinaryTag itemsList(Collection<ItemStack> stacks) {
-        ListBinaryTag.Builder<ByteArrayBinaryTag> list = ListBinaryTag.builder(ByteArrayBinaryTag.of().type());
+        ListBinaryTag.Builder<ByteArrayBinaryTag> list = ListBinaryTag.builder(ByteArrayBinaryTag.byteArrayBinaryTag().type());
         stacks.stream().map(NBTSerializer::item).forEach(list::add);
         return list.build();
     }

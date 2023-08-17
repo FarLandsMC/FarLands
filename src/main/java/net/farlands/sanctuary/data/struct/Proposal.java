@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.discord.DiscordChannel;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 /**
  * Handles a proposal.
@@ -121,7 +121,7 @@ public class Proposal {
 
     private static MessageEmbed messageEmbed(String message, String issuer, int amountToPass) {
         return new EmbedBuilder()
-                .setColor(ChatColor.YELLOW.getColor())
+                .setColor(NamedTextColor.YELLOW.value())
                 .setTitle("New Proposal")
                 .setDescription("```" + message + "```")
                 .addField("Issued By", issuer, false)

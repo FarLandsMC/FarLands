@@ -17,6 +17,7 @@ import net.kyori.adventure.translation.Translatable;
 import org.bukkit.Location;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -29,6 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ComponentUtils {
 
+    // Note: All methods are annotated with `@Contract(pure = true)` so IDEs warn about unused results (same effect as @CheckReturnValue)
+
     /**
      * Create a component with the actions for a command
      *
@@ -37,6 +40,7 @@ public class ComponentUtils {
      * @param hover   The hover component
      * @return The complete component
      */
+    @Contract(pure = true)
     public static Component command(String command, Component base, Component hover) {
         return base.clickEvent(ClickEvent.runCommand(command))
             .hoverEvent(HoverEvent.showText(hover));
@@ -49,6 +53,7 @@ public class ComponentUtils {
      * @param color   The color for the text
      * @return Command Component
      */
+    @Contract(pure = true)
     public static Component command(String command, TextColor color) {
         Component c = Component.text(command).color(color);
         return command(command, c);
@@ -60,6 +65,7 @@ public class ComponentUtils {
      * @param command The command
      * @param base    The base component
      */
+    @Contract(pure = true)
     public static Component command(String command, Component base) {
         return command(command, base, ComponentColor.gray("Run Command"));
     }
@@ -70,6 +76,7 @@ public class ComponentUtils {
      * @param command The command
      * @return Command Component
      */
+    @Contract(pure = true)
     public static Component command(String command) {
         return command(command, NamedTextColor.AQUA);
     }
@@ -82,6 +89,7 @@ public class ComponentUtils {
      * @param hover       Hover Component
      * @return The full component
      */
+    @Contract(pure = true)
     public static Component suggestCommand(String fillCommand, Component base, Component hover) {
         return base.clickEvent(ClickEvent.suggestCommand(fillCommand))
             .hoverEvent(HoverEvent.showText(hover));
@@ -94,6 +102,7 @@ public class ComponentUtils {
      * @param base        Base Component
      * @return The full component
      */
+    @Contract(pure = true)
     public static Component suggestCommand(String fillCommand, Component base) {
         return suggestCommand(fillCommand, base, ComponentColor.gray("Fill Command"));
     }
@@ -106,6 +115,7 @@ public class ComponentUtils {
      * @param color       The color of the base text
      * @return The full component
      */
+    @Contract(pure = true)
     public static Component suggestCommand(String command, String fillCommand, TextColor color) {
         Component c = Component.text(command).color(color);
         return suggestCommand(fillCommand, c);
@@ -119,6 +129,7 @@ public class ComponentUtils {
      * @param fillCommand The command to fill with
      * @return The full component
      */
+    @Contract(pure = true)
     public static Component suggestCommand(String command, String fillCommand) {
         return suggestCommand(command, fillCommand, NamedTextColor.AQUA);
     }
@@ -130,6 +141,7 @@ public class ComponentUtils {
      * @param command The command to show/fill
      * @return The full component
      */
+    @Contract(pure = true)
     public static Component suggestCommand(String command) {
         return suggestCommand(command, command, NamedTextColor.AQUA);
     }
@@ -142,6 +154,7 @@ public class ComponentUtils {
      * @param color    The color for the link
      * @return Link Component
      */
+    @Contract(pure = true)
     public static Component link(String baseText, String url, TextColor color) {
         Component c = Component.text(baseText).style(Style.style(color, TextDecoration.UNDERLINED));
         return c.clickEvent(ClickEvent.openUrl(url))
@@ -155,6 +168,7 @@ public class ComponentUtils {
      * @param url      The link
      * @return Link Component
      */
+    @Contract(pure = true)
     public static Component link(String baseText, String url) {
         return link(baseText, url, NamedTextColor.AQUA);
     }
@@ -165,6 +179,7 @@ public class ComponentUtils {
      * @param url The link
      * @return Link Component
      */
+    @Contract(pure = true)
     public static Component link(String url) {
         return link(url, url);
     }
@@ -176,6 +191,7 @@ public class ComponentUtils {
      * @param item The item to display
      * @return Item Component
      */
+    @Contract(pure = true)
     public static Component item(Component base, ItemStack item) {
         return base.hoverEvent(item.asHoverEvent());
     }
@@ -188,6 +204,7 @@ public class ComponentUtils {
      * @param item     The item to display
      * @return Item Component
      */
+    @Contract(pure = true)
     public static Component item(String baseText, ItemStack item) {
         return item(Component.text(baseText), item);
     }
@@ -198,6 +215,7 @@ public class ComponentUtils {
      * @param item The item to show
      * @return Item Component
      */
+    @Contract(pure = true)
     public static Component item(ItemStack item) {
         return item(ComponentColor.aqua(item.getAmount() > 1 ? item.getAmount() + " * " : "").append(item.displayName()), item);
     }
@@ -209,6 +227,7 @@ public class ComponentUtils {
      * @param hover The hover component
      * @return The complete component
      */
+    @Contract(pure = true)
     public static Component hover(Component base, Component hover) {
         return base.hoverEvent(HoverEvent.showText(hover));
     }
@@ -220,6 +239,7 @@ public class ComponentUtils {
      * @param hoverText The hover text
      * @return The complete component
      */
+    @Contract(pure = true)
     public static Component hover(Component base, String hoverText) {
         return hover(base, Component.text(hoverText));
     }
@@ -230,6 +250,7 @@ public class ComponentUtils {
      * @param adv The advancement
      * @return The complete component
      */
+    @Contract(pure = true)
     public static Component advancement(Advancement adv) {
         var d = adv.getDisplay();
         return hover(
@@ -246,6 +267,7 @@ public class ComponentUtils {
      * @param finalSeparator The separator between the final two items of the list, commonly used for ", and "
      * @return The single joined component
      */
+    @Contract(pure = true)
     public static Component join(Collection<? extends ComponentLike> list, String separator, String finalSeparator) {
         return Component.join(
             JoinConfiguration.separators(
@@ -263,6 +285,7 @@ public class ComponentUtils {
      * @param separator The separator between each item of the list
      * @return The single joined component
      */
+    @Contract(pure = true)
     public static Component join(Collection<? extends ComponentLike> list, String separator) {
         return join(list, separator, separator);
     }
@@ -274,6 +297,7 @@ public class ComponentUtils {
      * @param list The list to use
      * @return The single joined component
      */
+    @Contract(pure = true)
     public static Component join(Collection<? extends ComponentLike> list) {
         return join(list, ", ", list.size() == 2 ? " and " : ", and ");
     }
@@ -284,6 +308,7 @@ public class ComponentUtils {
      * @param component Components to convert
      * @return text
      */
+    @Contract(pure = true)
     public static String toText(Component component) {
         return PlainTextComponentSerializer.plainText().serializeOr(component, "");
     }
@@ -294,6 +319,7 @@ public class ComponentUtils {
      * @param color The color to convert from
      * @return The converted color
      */
+    @Contract(pure = true)
     public static Color getColor(TextColor color) {
         return new Color(color.value());
     }
@@ -306,6 +332,7 @@ public class ComponentUtils {
      * @param message The message to parse
      * @param flp     The sender of the message
      */
+    @Contract(pure = true)
     public static Component parse(String message, OfflineFLPlayer flp) {
         return MiniMessageWrapper.farlands(flp).mmParse(message);
     }
@@ -315,6 +342,7 @@ public class ComponentUtils {
      *
      * @param message The message to parse
      */
+    @Contract(pure = true)
     public static Component parse(String message) {
         return MiniMessageWrapper.builder()
             .gradients(true)
@@ -333,6 +361,7 @@ public class ComponentUtils {
      * @param componentLike Source
      * @return Source without events
      */
+    @Contract(pure = true)
     public static Component noEvent(ComponentLike componentLike) {
         return componentLike.asComponent().hoverEvent(null).clickEvent(null);
     }
@@ -342,6 +371,7 @@ public class ComponentUtils {
      *
      * @param loc The destination
      */
+    @Contract(pure = true)
     public static Component staffTp(Location loc) {
         int x = loc.getBlockX();
         int y = loc.getBlockY();
@@ -416,6 +446,7 @@ public class ComponentUtils {
      * @param values The values to use as replacements
      * @return The formatted component
      */
+    @Contract(pure = true)
     public static Component format(String format, Object... values) {
         if (values.length == 0) {
             return Component.text(format);
@@ -469,9 +500,12 @@ public class ComponentUtils {
     }
 
     /**
-     * Apply a custom style to the parent component after calling {@link ComponentUtils#format(String format, Object... values)}
+     * Apply a custom style to the parent component after calling
+     * {@link ComponentUtils#format(String format, Object... values)}
+     *
      * @param style The style to apply, see {@link ComponentUtils#applyStyle(Component, String)}
      */
+    @Contract(pure = true)
     public static Component formatStyled(String style, String formatStr, Object... values) {
         return applyStyle(format(formatStr, values), style);
     }
@@ -515,6 +549,7 @@ public class ComponentUtils {
      * @param valueIndex The next index to use -- this can be mutated
      * @return
      */
+    @Contract(pure = true)
     private static Component parseInner(String value, Object[] objs, AtomicInteger valueIndex) {
         int index;
         String styleStr = null;
@@ -566,6 +601,7 @@ public class ComponentUtils {
      * @param comp  The component to style
      * @param style The style string to use, see {@link ComponentUtils#parseInner}
      */
+    @Contract(pure = true)
     public static Component applyStyle(Component comp, String style) {
         var out = comp;
         if (style != null && !style.isBlank()) {
@@ -630,6 +666,7 @@ public class ComponentUtils {
      * @param fmt The format to use, optional
      * @return The formatted component
      */
+    @Contract(pure = true)
     private static Component toComponent(@Nullable Object obj, @Nullable String fmt) {
         Component o;
         boolean brackets = fmt != null && fmt.startsWith("[") && fmt.endsWith("]");
@@ -730,6 +767,7 @@ public class ComponentUtils {
     /**
      * Generate a component from an object using {@link String#valueOf}
      */
+    @Contract(pure = true)
     public static Component format(Object obj) {
         return format("{}", obj);
     }

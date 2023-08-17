@@ -57,7 +57,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -67,14 +66,9 @@ public final class FLUtils {
 
     public static final  Random                 RNG                     = new Random();
     public static final  Runnable               NO_ACTION               = () -> {};
-    public static final  List<ChatColor>        ILLEGAL_COLORS          = Arrays.asList(ChatColor.MAGIC, ChatColor.BLACK);
     private static final TextColor[]            COLORING                = { NamedTextColor.DARK_GREEN, NamedTextColor.GREEN, NamedTextColor.YELLOW,
                                                                             NamedTextColor.RED, NamedTextColor.DARK_RED };
     public static final  double                 DEGREES_TO_RADIANS      = Math.PI / 180;
-    // Pattern matching "nicer" legacy hex chat color codes - &#rrggbb
-    private static final Pattern                HEX_COLOR_PATTERN_SIX   = Pattern.compile("&#([0-9a-fA-F]{6})");
-    // Pattern matching funny's need for 3 char hex
-    private static final Pattern                HEX_COLOR_PATTERN_THREE = Pattern.compile("&#([0-9a-fA-F]{3})");
     public static        Map<Worlds, TextColor> WORLD_COLORS            = new ImmutableMap.Builder<Worlds, TextColor>()
         .put(Worlds.OVERWORLD, NamedTextColor.GREEN)
         .put(Worlds.NETHER, NamedTextColor.RED)
@@ -517,14 +511,6 @@ public final class FLUtils {
     }
 
     /**
-     * Get the item name from an {@link ItemStack}
-     */
-    public static String itemName(ItemStack stack) {
-        String custom = stack.getItemMeta().getDisplayName();
-        return custom.isEmpty() ? stack.getAmount() + " * " + capitalize(stack.getType().toString().replaceAll("_", " ")) : custom;
-    }
-
-    /**
      * Get a {@link Location} from a {@link CompoundBinaryTag}
      */
     public static Location locationFromNBT(CompoundBinaryTag nbt) {
@@ -605,7 +591,7 @@ public final class FLUtils {
         } else {
             location.getWorld().dropItem(location, stack);
             if (sendMessage) {
-                recipient.sendMessage(ChatColor.RED + "Your inventory was full, so you dropped the item.");
+                recipient.sendMessage(ComponentColor.red("Your inventory was full, so you dropped the item."));
             }
         }
     }

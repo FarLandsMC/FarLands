@@ -135,7 +135,7 @@ public record GameRewardSet(
 
         nbt.put(
             "rewards",
-            ListBinaryTag.of(
+            ListBinaryTag.listBinaryTag(
                 CompoundBinaryTag.empty().type(),
                 rewards.stream().map(ItemReward::toNbt).toList())
         );

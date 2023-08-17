@@ -13,9 +13,10 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
+import net.kyori.adventure.util.Ticks;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,7 +34,7 @@ import java.util.UUID;
  */
 public class AFK extends Mechanic {
 
-    private final Map<UUID, Pair<String, Integer>> afkCheckMap; // Players that are currently being checked for afk
+    private final Map<UUID, Pair<Component, Integer>> afkCheckMap; // Players that are currently being checked for afk
 
     private static AFK instance; // Instance of the mechanic
 
@@ -49,9 +50,11 @@ public class AFK extends Mechanic {
             Bukkit.getOnlinePlayers().forEach(player -> {
                 if (this.afkCheckMap.containsKey(player.getUniqueId())) {
                     player.sendActionBar(
-                        ComponentColor.red("MM ", TextDecoration.OBFUSCATED, TextDecoration.BOLD)
-                            .append(ComponentColor.white(this.afkCheckMap.get(player.getUniqueId()).getFirst()))
-                            .append(ComponentColor.red("MM ", TextDecoration.OBFUSCATED, TextDecoration.BOLD))
+                        ComponentColor.red(
+                            "{:obfuscated bold} {} {0:obfuscated bold}",
+                            "MM",
+                            this.afkCheckMap.get(player.getUniqueId()).getFirst()
+                        )
                     );
                 }
             });
@@ -165,11 +168,18 @@ public class AFK extends Mechanic {
 
                 int a = FLUtils.RNG.nextInt(17), b = FLUtils.RNG.nextInt(17);
                 boolean op = FLUtils.RNG.nextBoolean(); // true: +, false: -
-                String check = ChatColor.RED.toString() + ChatColor.BOLD + "AFK Check: " + a + (op ? " + " : " - ") + b;
-                player.sendMessage(check);
-                player.sendTitle(check, "", 20, 120, 60);
+                Component c = ComponentUtils.formatStyled("red bold", "AFK Check: {} {::?+:-} + {}", op);
+                player.sendMessage(c);
+                // This API is awful...
+                player.showTitle(
+                    Title.title(
+                        c,
+                        Component.empty(),
+                        Title.Times.times(Ticks.duration(20), Ticks.duration(120), Ticks.duration(60))
+                    )
+                );
                 FarLands.getDebugger().echo("Sent AFK check to " + player.getName());
-                instance.afkCheckMap.put(player.getUniqueId(), new Pair<>(check, op ? a + b : a - b));
+                instance.afkCheckMap.put(player.getUniqueId(), new Pair<>(c, op ? a + b : a - b));
                 session.afkCheckCooldown.reset(() -> kickAFK(player, true));
             }
         });

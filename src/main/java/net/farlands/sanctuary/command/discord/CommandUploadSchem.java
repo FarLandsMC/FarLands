@@ -92,7 +92,7 @@ public class CommandUploadSchem extends SlashCommand {
                 dest.delete();
             }
 
-            attachment.downloadToFile(dest);
+            attachment.getProxy().downloadToFile(dest);
             interaction.reply("Schematic uploaded.").queue();
         }
     }
