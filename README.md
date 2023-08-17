@@ -1,6 +1,6 @@
 # FarLands
 
-PaperMC plugin for the FarLands Minecraft server (FarLandsMC.net)
+PaperMC plugin for the FarLands public Minecraft server (`farlandsmc.net`)
 
 ## Setup
 
@@ -15,14 +15,14 @@ If you run into an Auth error while trying to download ChestShops or RegionProte
 
 ```shell
 mvn package
-# or
-mvn package -Dmaven.javadoc.skip=true # Don't update docs
 ```
+
+and the built jar will be found at `target/FarLands.jar`
 
 ## Plugins
 
 The plugins that we use on the server.  
-Some are required for the plugin to work, these are marked with `*`
+Some are required for the plugin to run at all, these are marked with `*`
 
 - [ChestShops](https://github.com/FarLandsMC/ChestShops)*
 - [RegionProtection](https://github.com/FarLandsMC/RegionProtection)*
@@ -34,15 +34,13 @@ Some are required for the plugin to work, these are marked with `*`
 - [WorldEdit](https://dev.bukkit.org/projects/worldedit)
 - [BuycraftX](https://www.spigotmc.org/resources/buycraftx-bungeecord.25191/)
 
-## Layout
+## Package Layout
 
-- Commands - *All* commands that can be run
-  - Discord
-    - Commands that are intended for discord use/interaction
-  - Player
-    - Commands that are specific for players - Staff subcommands are here, too
-  - Staff
-    - Commands for staff members to use in moderation/building/etc
+- Chat - Everything related to the chat including formatting and more
+- Commands - All commands that can be run
+  - Discord - Commands that are intended for discord use/interaction
+  - Player - Commands that are specific for players
+  - Staff - Commands for staff members to use in moderation/building/etc
 - Data - Handling of the server data
 - Discord - Manage everything to do with Discord interaction 
 - Gui - GUI classes and handler
