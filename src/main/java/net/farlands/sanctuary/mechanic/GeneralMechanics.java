@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.mechanic;
 
+import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent;
 import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.Region;
@@ -62,6 +63,7 @@ import java.util.stream.Collectors;
 public class GeneralMechanics extends Mechanic {
 
     private final Map<UUID, Player> fireworkLaunches;
+    private final TimedSet<UUID>    recentCrossDimTp;
     private       Component         joinMessage;
 
     private static final List<EntityType> LEASHABLE_ENTITIES = List.of(
@@ -86,6 +88,7 @@ public class GeneralMechanics extends Mechanic {
 
     public GeneralMechanics() {
         this.fireworkLaunches = new HashMap<>();
+        this.recentCrossDimTp = new TimedSet<>(20L);
         this.joinMessage = Component.empty();
         this.nightSkip = new Cooldown(200L);
         this.leashedEntities = new ArrayList<>();
@@ -584,7 +587,7 @@ public class GeneralMechanics extends Mechanic {
             }
 
             pet.setOwner(petRecipient);
-            event.getPlayer().sendMessage(ComponentColor.gold("Successfully transferred pet to {}.", petRecipient.getName()));
+            event.getPlayer().sendMessage(ComponentColor.green("Successfully transferred pet to {}.", petRecipient.getName()));
             event.setCancelled(true);
         }
     }
@@ -593,6 +596,13 @@ public class GeneralMechanics extends Mechanic {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
             updateNightSkip(false);
+        }
+
+        if (
+            !event.getFrom().getWorld().equals(event.getTo().getWorld())
+            && !event.getCause().toString().endsWith("_PORTAL")
+        ) {
+            this.recentCrossDimTp.add(event.getPlayer().getUniqueId());
         }
 
         // Teleport Leashed entities
@@ -913,6 +923,19 @@ public class GeneralMechanics extends Mechanic {
             ) {
                 toBreak.breakNaturally(true);
                 blockAbove.setType(Material.AIR);
+            }
+        }
+    }
+
+    /**
+     * Prevent teleporting from activating the 7km achievement
+     */
+    @EventHandler
+    public void onAdvancementCriterionGrant(PlayerAdvancementCriterionGrantEvent event) {
+        if (event.getAdvancement().getKey().equals(NamespacedKey.minecraft("nether/fast_travel"))) {
+            if (this.recentCrossDimTp.contains(event.getPlayer().getUniqueId())) {
+                FarLands.getDebugger().echo("Cancelled 7km nether achievement for " + event.getPlayer() + " due to teleportation.");
+                event.setCancelled(true);
             }
         }
     }

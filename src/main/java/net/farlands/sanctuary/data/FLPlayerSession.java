@@ -195,9 +195,11 @@ public class FLPlayerSession {
         }
 
         // Update rank
-        for (int i = handle.rank.ordinal() + 1; i < Rank.VALUES.length - 1; ++i) {
-            if (Rank.VALUES[i].hasRequirements(player, handle) && !Rank.VALUES[i + 1].hasRequirements(player, handle)) {
-                handle.setRank(Rank.VALUES[i]);
+        if (handle.rank.isPlaytimeObtainable()) {
+            for (int i = handle.rank.ordinal() + 1; i < Rank.VALUES.length - 1; ++i) {
+                if (Rank.VALUES[i].hasRequirements(player, handle) && !Rank.VALUES[i + 1].hasRequirements(player, handle)) {
+                    handle.setRank(Rank.VALUES[i]);
+                }
             }
         }
 
