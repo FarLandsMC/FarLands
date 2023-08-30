@@ -62,14 +62,13 @@ public class Logging {
      */
     public static void broadcastIngame(Component message, boolean sendToDiscord) {
         // Can't call broadcastIngame(Predicate<FLPlayerSession>...) because it causes endless recursion with session.update
-        Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(message);     Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(message);
+        Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(message);
 
         CONSOLE.sendMessage(message);
 
         if (sendToDiscord) {
             FarLands.getDiscordHandler().sendMessage(DiscordChannel.IN_GAME, message);
         }
-        broadcastIngame(x -> true, message, sendToDiscord);
     }
 
     /**
