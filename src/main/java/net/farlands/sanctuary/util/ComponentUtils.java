@@ -1,11 +1,13 @@
 package net.farlands.sanctuary.util;
 
 import com.kicas.rp.util.Utils;
+import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,12 +17,14 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.Translatable;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -291,8 +295,9 @@ public class ComponentUtils {
     }
 
     /**
-     * Create a single component from a list of {@link ComponentLike}s<br> Separator: ", "<br> Final Separator: " and "
-     * if the list is only two long, or ", and " if it's longer.
+     * Create a single component from a list of {@link ComponentLike}s
+     * <p>
+     * Separator: ", "<br> Final Separator: " and " * if the list is only two long, or ", and " if it's longer.
      *
      * @param list The list to use
      * @return The single joined component
@@ -300,6 +305,45 @@ public class ComponentUtils {
     @Contract(pure = true)
     public static Component join(Collection<? extends ComponentLike> list) {
         return join(list, ", ", list.size() == 2 ? " and " : ", and ");
+    }
+
+    /**
+     * If {@code c} is a {@link TranslatableComponent}, Replace each arg that represents a player with the corresponding
+     * flp component, otherwise, return the provided component
+     * <p>
+     * Used for things like death messages and achievements
+     */
+    @Contract(pure = true, value = "_ -> param1")
+    public static @Nullable Component convertPlayers(@Nullable Component c) {
+        if (c instanceof TranslatableComponent tc) {
+            return convertPlayers(tc);
+        }
+        return c;
+    }
+
+    /**
+     * Replace each arg that represents a player in a {@link TranslatableComponent} with the corresponding flp component
+     * <p>
+     * Used for things like death messages and achievements
+     */
+    @Contract(pure = true, value = "_ -> param1")
+    public static @NotNull TranslatableComponent convertPlayers(@NotNull TranslatableComponent c) {
+        return c.args(
+            c.args()
+                .stream()
+                .map(a -> {
+                    HoverEvent<?> hover = a.hoverEvent();
+                    if (
+                        hover != null
+                        && hover.value() instanceof HoverEvent.ShowEntity se
+                        && se.type().equals(NamespacedKey.minecraft("player"))
+                    ) {
+                        return FarLands.getDataHandler().getOfflineFLPlayer(se.id());
+                    }
+                    return a;
+                })
+                .toList()
+        );
     }
 
     /**
