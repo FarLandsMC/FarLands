@@ -114,8 +114,8 @@ public class XRayStore {
             .append(this.last.getBlockY()).append(" ")
             .append(this.last.getBlockZ()).append(" @ First Node");
         alertMessage.append(this.playerName).append(" has found a vein of ")
-            .append(detecting.color).append(detecting.name().toLowerCase())
-            .append(ChatColor.RED).append(" @ ")
+            .append(detecting.name().toLowerCase())
+            .append(" @ ")
             .append(this.last.getBlockX()).append(" ")
             .append(this.last.getBlockY()).append(" ")
             .append(this.last.getBlockZ());
@@ -133,7 +133,7 @@ public class XRayStore {
         }
 
         this.nodes.add(0, new Pair<>(detecting, block.getLocation()));
-        final String oreType = detecting.color + detecting.toString();
+        final String oreType = detecting.toString();
         StringBuilder debugMessage = new StringBuilder(),
             alertMessage = new StringBuilder();
 
@@ -146,8 +146,10 @@ public class XRayStore {
             .append(dx).append(" ")
             .append(dy).append(" ")
             .append(dz);
-        alertMessage.append(this.playerName).append(" has found a vein of ")
-            .append(oreType).append(ChatColor.RED).append(" @ ")
+        alertMessage.append(this.playerName)
+            .append(" has found a vein of ")
+            .append(oreType)
+            .append(" @ ")
             .append(this.last.getBlockX()).append(" ")
             .append(this.last.getBlockY()).append(" ")
             .append(this.last.getBlockZ());
