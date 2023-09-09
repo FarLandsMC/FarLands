@@ -318,7 +318,10 @@ public class Restrictions extends Mechanic {
         List<String> prevContent = this.currentSignEditors.remove(event.getPlayer().getUniqueId());
         List<String> currContent = lines.stream().map(ComponentUtils::toText).toList();
 
-        if (!currContent.equals(prevContent)) { // Log the sign content to staff
+        if (
+            !currContent.equals(prevContent) // Sign content changed
+            && !(prevContent == null && lines.isEmpty()) // and didn't place empty sign
+        ) {
             Location loc = event.getBlock().getLocation();
             Component content = Component.join(JoinConfiguration.newlines(), lines);
             Logging.broadcastStaff(
