@@ -22,7 +22,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.entity.Player;
@@ -105,6 +107,13 @@ public class CommandStack extends PlayerCommand {
         switch (args[0].toLowerCase()) {
             case "container": {
                 Block block = player.getTargetBlockExact(5);
+
+                // If the player is targeting a wall sign, get the container behind it.
+                if (block != null && block.getBlockData() instanceof WallSign s) {
+                    BlockFace facing = s.getFacing();
+                    block = block.getRelative(facing.getOppositeFace());
+                }
+
                 BlockEntity tileEntity;
                 if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
                         .getBlockEntity(new LocationWrapper(block.getLocation()).asBlockPos(), true)) == null ||
