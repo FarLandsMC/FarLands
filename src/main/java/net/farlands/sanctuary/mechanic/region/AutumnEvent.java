@@ -3,6 +3,7 @@ package net.farlands.sanctuary.mechanic.region;
 import com.kicas.rp.data.Region;
 import com.kicas.rp.util.Entities;
 import com.kicas.rp.util.Pair;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.FLShutdownEvent;
 import net.farlands.sanctuary.data.Cooldown;
@@ -20,7 +21,6 @@ import net.minecraft.world.item.Items;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -3057,7 +3057,9 @@ public class AutumnEvent extends Mechanic {
         // TODO: 7/3/21 This player head item needs to be tested. It may not be the right item
         net.minecraft.world.item.ItemStack dropCB = new net.minecraft.world.item.ItemStack(Items.PLAYER_HEAD, 1);
         dropCB.setTag(tag); // ItemStack#setTag
-        return CraftItemStack.asBukkitCopy(dropCB);
+
+        // CraftItemStack.asBukkitCopy(dropCB);
+        return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", FLUtils.getCraftBukkitClass("inventory.CraftItemStack"), null, dropCB);
     }
 }
 

@@ -8,16 +8,19 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Materials;
 import com.kicas.rp.util.Pair;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.LocationWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,7 +29,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -115,7 +117,9 @@ public class CommandStack extends PlayerCommand {
                 }
 
                 BlockEntity tileEntity;
-                if (block == null || (tileEntity = ((CraftWorld) player.getWorld()).getHandle()
+                // tileEntity = ((CraftWorld) player.getWorld()).getHandle().getBlockEntity().getBlockEntity(...)
+                if (block == null || (tileEntity =
+                    ((ServerLevel) ReflectionHelper.invoke("getHandle", FLUtils.getCraftBukkitClass("CraftWorld"), player.getWorld()))
                         .getBlockEntity(new LocationWrapper(block.getLocation()).asBlockPos(), true)) == null ||
                     !ACCEPTED_CONTAINERS.contains(block.getType())) {
                     player.sendMessage(ComponentColor.red("Target block must be a chest or barrel"));

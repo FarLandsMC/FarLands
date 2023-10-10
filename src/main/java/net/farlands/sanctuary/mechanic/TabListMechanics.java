@@ -3,6 +3,7 @@ package net.farlands.sanctuary.mechanic;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import com.google.common.collect.ImmutableMap;
 import com.kicas.rp.util.Pair;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.DataHandler;
 import net.farlands.sanctuary.data.FLPlayerSession;
@@ -14,10 +15,10 @@ import net.farlands.sanctuary.util.FLUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.TextColor;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobCategory;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpawnCategory;
 import org.bukkit.event.EventHandler;
@@ -176,7 +177,8 @@ public class TabListMechanics extends Mechanic {
         .build();
 
     private static Component getMobCap(World world, SpawnCategory cat) {
-        var level = ((CraftWorld) world).getHandle();
+        Class<?> craftworldclass = FLUtils.getCraftBukkitClass("CraftWorld");
+        var level = (ServerLevel) ReflectionHelper.invoke("getHandle", craftworldclass, world);
         var lim = world.getSpawnLimit(cat);
         var s = level.getChunkSource().getLastSpawnState();
         var c = s.getMobCategoryCounts().getOrDefault(categoryConversions.get(cat), -1);

@@ -5,6 +5,7 @@ import com.kicas.rp.RegionProtection;
 import com.kicas.rp.data.FlagContainer;
 import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.StringFilter;
+import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
@@ -28,8 +29,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_20_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -252,7 +251,8 @@ public class CommandHandler extends Mechanic {
             FarLands.getDiscordHandler().registerAutocompleters(ac);
         }
         commands.add(command);
-        ((CraftServer) Bukkit.getServer()).getCommandMap().register("farlands", command);
+
+        Bukkit.getServer().getCommandMap().register("farlands", command);
     }
 
     private void registerCommand(SlashCommand command) {
@@ -334,13 +334,18 @@ public class CommandHandler extends Mechanic {
             org.bukkit.command.Command bukkitCommand = Bukkit.getServer().getCommandMap().getCommand(commandName);
 
             // See if it's a vanilla command
-            if (bukkitCommand instanceof VanillaCommandWrapper cmd) {
+            Class<?> vanillaCommandWrapperClass = FLUtils.getCraftBukkitClass("command.VanillaCommandWrapper");
+            // if (bukkitCommand instanceof VanillaCommandWrapper cmd) {
+            if (vanillaCommandWrapperClass.isInstance(bukkitCommand)) {
                 // Ensure the sender has permission
-                if (!cmd.testPermission(sender)) {
+
+                // if (!cmd.testPermission(sender)) {
+                if (!(Boolean) ReflectionHelper.invoke("testPermission", vanillaCommandWrapperClass, bukkitCommand, sender)) {
                     return false;
                 }
 
-                cmd.execute(sender, commandName, args);
+                // cmd.execute(sender, commandName, args);
+                ReflectionHelper.invoke("execute", vanillaCommandWrapperClass, bukkitCommand, sender, commandName, args);
 
                 return true;
             }

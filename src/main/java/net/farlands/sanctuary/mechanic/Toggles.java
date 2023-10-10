@@ -6,16 +6,18 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.FLUtils;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -183,7 +185,9 @@ public class Toggles extends Mechanic {
     private static void showSpectators(Player player) {
         ProtocolManager pm = ProtocolLibrary.getProtocolManager();
         ClientboundPlayerInfoUpdatePacket packet = new ClientboundPlayerInfoUpdatePacket(
-            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE, ((CraftPlayer) player).getHandle()
+            ClientboundPlayerInfoUpdatePacket.Action.UPDATE_GAME_MODE,
+            // ((CraftPlayer) player).getHandle()
+            (ServerPlayer) ReflectionHelper.invoke("getHandle", FLUtils.getCraftBukkitClass("entity.CraftPlayer"), player)
         );
 
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
