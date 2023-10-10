@@ -125,6 +125,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandPTime());            // Knight
         registerCommand(new CommandPvP());              // Initiate
         registerCommand(new CommandPWeather());         // Sage
+        registerCommand(new CommandRandom());           // Initiate
         registerCommand(new CommandRanks());            // Initiate
         registerCommand(new CommandRankup());           // Initiate
         registerCommand(new CommandRealName());         // Initiate
