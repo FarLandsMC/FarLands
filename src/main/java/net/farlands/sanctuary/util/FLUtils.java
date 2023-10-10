@@ -17,6 +17,7 @@ import com.kicas.rp.data.RegionFlag;
 import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Pair;
+import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.Worlds;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -30,7 +31,6 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
@@ -385,16 +385,22 @@ public final class FLUtils {
      * Get the {@link CompoundTag} of the given {@link ItemStack}
      */
     public static CompoundTag getTag(ItemStack stack) {
-        return stack == null ? null : CraftItemStack.asNMSCopy(stack).getTag();
+        Class<?> craftItemStackClass = getCraftBukkitClass("inventory.CraftItemStack");
+        return stack == null
+            ? null
+            : ((net.minecraft.world.item.ItemStack) ReflectionHelper.invoke("asNMSCopy", craftItemStackClass, null, stack))
+                .getTag();
     }
 
     /**
      * Create a duplicate itemstack with the given tags
      */
     public static ItemStack applyTag(CompoundTag nbt, ItemStack stack) {
-        net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(stack);
+        Class<?> craftItemStackClass = getCraftBukkitClass("inventory.CraftItemStack");
+        net.minecraft.world.item.ItemStack nmsStack =
+            (net.minecraft.world.item.ItemStack) ReflectionHelper.invoke("asNMSCopy", craftItemStackClass, null, stack);
         nmsStack.setTag(nbt);
-        return CraftItemStack.asBukkitCopy(nmsStack);
+        return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", craftItemStackClass, null, nmsStack);
     }
 
     /**
@@ -959,5 +965,17 @@ public final class FLUtils {
         NamedTextColor nc = NamedTextColor.namedColor(col.value());
         return nc == null ? col.asHexString() : nc.toString();
 
+    }
+
+    public static Class<?> getCraftBukkitClass(String clazz) {
+        String CRAFTBUKKIT_PACKAGE = Bukkit.getServer().getClass().getPackage().getName();
+
+        String name = CRAFTBUKKIT_PACKAGE + "." + clazz;
+
+        try {
+            return Class.forName(name);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

@@ -1,12 +1,11 @@
 package net.farlands.sanctuary.util;
 
+import com.kicas.rp.util.ReflectionHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftFirework;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.inventory.ItemStack;
@@ -114,18 +113,24 @@ public class FireworkBuilder {
 
     public void spawnEntity(Location loc) {
         Firework firework = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
-        FireworkRocketEntity entity = ((CraftFirework) firework).getHandle();
+
+        FireworkRocketEntity entity = (FireworkRocketEntity) ReflectionHelper.invoke("getHandle", FLUtils.getCraftBukkitClass("entity.CraftFirework"), firework);
         entity.addAdditionalSaveData(toNBT());
     }
 
     public ItemStack buildItemStack(int stackSize) {
-        net.minecraft.world.item.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.FIREWORK_ROCKET, stackSize));
+        Class<?> craftitemstackclass = FLUtils.getCraftBukkitClass("inventory.CraftItemStack");
+        // net.minecraft.world.item.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.FIREWORK_ROCKET, stackSize));
+        net.minecraft.world.item.ItemStack stack = (net.minecraft.world.item.ItemStack)
+            ReflectionHelper.invoke("asNMSCopy", craftitemstackclass, null, new ItemStack(Material.FIREWORK_ROCKET, stackSize));
         CompoundTag stackTag = toNBT().getCompound("FireworksItem").getCompound("tag"); // getCompound
         int flightRaw = (int) Math.ceil(((double) lifetime) / 20.0);
         int flight = flightRaw < 1 ? 1 : Math.min(flightRaw, 3);
         stackTag.getCompound("Fireworks").putByte("Flight", (byte) (flight & 0xFF)); // getCompound, setCompound
         stack.setTag(stackTag); // setTag
-        return CraftItemStack.asBukkitCopy(stack);
+
+        // return CraftItemStack.asBukkitCopy(stack);
+        return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", craftitemstackclass, null, stack);
     }
 
     private static class Explosion {

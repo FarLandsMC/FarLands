@@ -33,7 +33,6 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Rail;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftVillager;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -526,7 +525,7 @@ public class GeneralMechanics extends Mechanic {
             Material.BLAZE_ROD == hand.getType() && Rank.getRank(event.getPlayer()).isStaff()) {
             event.setCancelled(true);
             FarLands.getDataHandler().getPluginData().addSpawnTrader(ent.getUniqueId());
-            (new GuiVillagerEditor((CraftVillager) ent)).openGui(event.getPlayer());
+            new GuiVillagerEditor((Villager) ent).openGui(event.getPlayer());
         } else if (LEASHABLE_ENTITIES.contains(event.getRightClicked().getType()) && !FLUtils.isInSpawn(event.getRightClicked().getLocation()) &&
                    event.getRightClicked() instanceof LivingEntity) {
             final LivingEntity entity = (LivingEntity) ent;

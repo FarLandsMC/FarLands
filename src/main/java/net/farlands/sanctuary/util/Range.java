@@ -66,6 +66,34 @@ public class Range<T extends Comparable<T>> {
     }
 
     /**
+     * @return the lower bound of this range
+     */
+    public T low() {
+        return this.low;
+    }
+
+    /**
+     * @return the higher bound of this range
+     */
+    public T high() {
+        return this.high;
+    }
+
+    /**
+     * @return if this range includes the lower bound
+     */
+    public boolean includeLow() {
+        return this.inclLow;
+    }
+
+    /**
+     * @return if this range includes the higher bound
+     */
+    public boolean includeHigh() {
+        return this.inclHigh;
+    }
+
+    /**
      * Parse a "Rust-style" range string into a {@link Range<Integer>}, like the following:
      * <ul>
      *     <li>{@code a..b}</li>
