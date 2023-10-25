@@ -11,6 +11,7 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.FLUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,21 +39,27 @@ public class CommandEditArmorStand extends PlayerCommand {
         );
     }
 
+    private static final Set<String> TRIGGERS = Set.of("as_trigger", "as_help", "if_invisible");
+
     @Override
     public boolean execute(Player sender, String[] args) {
         // /editarmourstand enable <player> - Enables a player's `as_trigger`, `as_help`, and `if_invisible` scoreboard tags
         if (args.length > 0 && args[0].equalsIgnoreCase("enable") &&
             FarLands.getDataHandler().getOfflineFLPlayer(sender).rank.isStaff()) {
-            if (args.length > 1 && !args[1].isEmpty()) {
+            if (args.length == 2 && !args[1].isEmpty()) {
+                OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(args[1]);
+                if (flp == null) {
+                    return error(sender, "Player not found.");
+                }
+                String player = flp.username;
                 // enable the scoreboard triggers
-                String[] scoreboardTriggers = { "as_trigger", "as_help", "if_invisible" };
-                for (String trigger : scoreboardTriggers) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard players enable " + trigger + " as_trigger");
+                for (String trigger : TRIGGERS) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard players enable %s %s".formatted(player, trigger));
                 }
                 FarLands.getCommandHandler().logCommand(sender, "/editarmorstand enable " + args[1], null);
+                return success(sender, "Scoreboards enabled for {}.", flp);
             }
-            return true;
-
+            return false;
         }
         FlagContainer flags = RegionProtection.getDataManager().getFlagsAt(sender.getLocation());
         if (flags != null && !flags.<TrustMeta>getFlagMeta(RegionFlag.TRUST).hasTrust(sender, TrustLevel.BUILD, flags)) {
