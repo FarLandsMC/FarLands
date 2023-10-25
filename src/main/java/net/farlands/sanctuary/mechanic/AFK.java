@@ -168,7 +168,7 @@ public class AFK extends Mechanic {
 
                 int a = FLUtils.RNG.nextInt(17), b = FLUtils.RNG.nextInt(17);
                 boolean op = FLUtils.RNG.nextBoolean(); // true: +, false: -
-                Component c = ComponentUtils.formatStyled("red bold", "AFK Check: {} {::?+:-} + {}", op);
+                Component c = ComponentUtils.formatStyled("red bold", "AFK Check: {} {::?+:-} {}", a, op, b);
                 player.sendMessage(c);
                 // This API is awful...
                 player.showTitle(
