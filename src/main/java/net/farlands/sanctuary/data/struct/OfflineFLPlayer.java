@@ -394,7 +394,7 @@ public class OfflineFLPlayer implements ComponentLike {
         validPunishments = punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
         Player player = getOnlinePlayer();
         if (player != null)
-            player.kickPlayer(p.generateBanMessage(validPunishments.size() - 1, true));
+            player.kick(Component.text(p.generateBanMessage(validPunishments.size() - 1, true)));
         this.moveToSpawn();
         GeneralMechanics.recentlyPunished.add(this);
         return p.totalTime(validPunishments.size() - 1);

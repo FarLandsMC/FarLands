@@ -48,7 +48,7 @@ public class CommandSit extends PlayerCommand {
         seat.setInvulnerable(true);
         seat.setAI(false);
         seat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, true));
-        seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOW,         Integer.MAX_VALUE, 1, true));
+        seat.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,     Integer.MAX_VALUE, 1, true));
 
         seat.addPassenger(sender);
 

@@ -26,7 +26,7 @@ import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentMap;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -381,25 +381,19 @@ public final class FLUtils {
         }
     }
 
-    /**
-     * Get the {@link CompoundTag} of the given {@link ItemStack}
-     */
-    public static CompoundTag getTag(ItemStack stack) {
+    @Contract("null -> null; !null -> !null")
+    public static DataComponentMap getComponents(ItemStack stack) {
         Class<?> craftItemStackClass = getCraftBukkitClass("inventory.CraftItemStack");
         return stack == null
             ? null
             : ((net.minecraft.world.item.ItemStack) ReflectionHelper.invoke("asNMSCopy", craftItemStackClass, null, stack))
-                .getTag();
+                .getComponents();
     }
 
-    /**
-     * Create a duplicate itemstack with the given tags
-     */
-    public static ItemStack applyTag(CompoundTag nbt, ItemStack stack) {
+    public static ItemStack applyComponents(DataComponentMap map, ItemStack stack) {
         Class<?> craftItemStackClass = getCraftBukkitClass("inventory.CraftItemStack");
-        net.minecraft.world.item.ItemStack nmsStack =
-            (net.minecraft.world.item.ItemStack) ReflectionHelper.invoke("asNMSCopy", craftItemStackClass, null, stack);
-        nmsStack.setTag(nbt);
+        var nmsStack = ((net.minecraft.world.item.ItemStack) ReflectionHelper.invoke("asNMSCopy", craftItemStackClass, null, stack));
+        nmsStack.applyComponents(map);
         return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", craftItemStackClass, null, nmsStack);
     }
 
@@ -628,7 +622,7 @@ public final class FLUtils {
      * Teleport a player to a location (gives temporary resistance)
      */
     public static void tpPlayer(final Player player, final Location location) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 140, 7));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 140, 7));
         player.teleport(location);
         player.setFallDistance(0);
         player.setVelocity(new Vector(0, 0.3, 0));
@@ -888,7 +882,7 @@ public final class FLUtils {
         if (!(item.getItemMeta() instanceof Damageable dmg)) return;
 
         for (int i = 0; i < amount; ++i) {
-            double chance = 1 / (double) (item.getEnchantmentLevel(Enchantment.DURABILITY) + 1);
+            double chance = 1 / (double) (item.getEnchantmentLevel(Enchantment.UNBREAKING) + 1);
             if (RNG.nextDouble() <= chance) dmg.setDamage(dmg.getDamage() + 1);
         }
         item.setItemMeta(dmg);

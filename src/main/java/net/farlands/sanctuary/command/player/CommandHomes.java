@@ -5,6 +5,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.Pagination;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.Home;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -24,7 +25,12 @@ import java.util.function.Function;
 public class CommandHomes extends Command {
 
     public CommandHomes() {
-        super(Rank.INITIATE, Category.HOMES, "List your homes.", "/homes [page|sort] [sort-method]", "homes");
+        super(
+            CommandData.simple("homes",
+                               "List your homes.",
+                               "/homes [page|sort] [sort-method]"
+            ).category(Category.HOMES)
+        );
     }
 
     @Override
@@ -36,7 +42,7 @@ public class CommandHomes extends Command {
 
         List<String> args = new ArrayList<>(Arrays.asList(argsArr)); // Lists are easier to work with :P
 
-        if (!args.isEmpty() && args.get(0).equalsIgnoreCase("sort")) {
+        if (!args.isEmpty() && args.getFirst().equalsIgnoreCase("sort")) {
             updateSort(sender, args);
             return true;
         }
@@ -45,8 +51,8 @@ public class CommandHomes extends Command {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
         boolean self = true;
 
-        if (!args.isEmpty() && args.get(0).matches("(?i)^.+[a-z].+$") && flp.rank.isStaff()) {
-            flp = FarLands.getDataHandler().getOfflineFLPlayer(args.remove(0));
+        if (!args.isEmpty() && args.getFirst().matches("(?i)^.+[a-z].+$") && flp.rank.isStaff()) {
+            flp = FarLands.getDataHandler().getOfflineFLPlayer(args.removeFirst());
             self = false;
             if (flp == null) {
                 return error(sender, "Player not found.");
@@ -57,12 +63,12 @@ public class CommandHomes extends Command {
             return error(sender, "{} {} no homes.", self ? "You" : flp, self ? "have" : " has");
         }
 
-        if (args.size() >= 1) {
-            if (!args.get(0).matches("\\d+")) {
+        if (!args.isEmpty()) {
+            if (!args.getFirst().matches("\\d+")) {
                 error(sender, "Invalid page number.");
                 return true;
             }
-            page = Integer.parseInt(args.remove(0));
+            page = Integer.parseInt(args.removeFirst());
         }
 
         boolean finalSelf = self;
@@ -171,7 +177,7 @@ public class CommandHomes extends Command {
         }
 
         public Comparator<Home> getComparator(Player player) {
-            return comparatorGenerator.apply(player);
+            return this.comparatorGenerator.apply(player);
         }
 
 

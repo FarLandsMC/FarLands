@@ -124,7 +124,7 @@ public class GeneralMechanics extends Mechanic {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
             Bukkit.getWorld("world").getEntities()
                 .stream()
-                .filter(e -> EntityType.DROPPED_ITEM == e.getType())
+                .filter(e -> EntityType.ITEM == e.getType())
                 .map(e -> (Item) e)
                 .filter(e ->
                             Material.SLIME_BALL == e.getItemStack().getType()
@@ -497,7 +497,7 @@ public class GeneralMechanics extends Mechanic {
                     hand.setAmount(hand.getAmount() - 1);
                 }
             }
-            Firework firework = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+            Firework firework = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK_ROCKET);
             firework.addPassenger(player);
             fireworkLaunches.put(firework.getUniqueId(), player);
             return;

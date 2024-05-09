@@ -5,6 +5,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FireworkBuilder;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -35,8 +36,8 @@ public class Items extends Mechanic {
             CHEST, ENDER_CHEST, BEDROCK, BARRIER, AIR
     );
     private static final List<EntityType> PASSIVES = Arrays.asList(
-            PIG, COW, SHEEP, HORSE, LLAMA, OCELOT, SNOWMAN, EntityType.CHICKEN, EntityType.RABBIT,
-            SKELETON_HORSE, ZOMBIE_HORSE, MUSHROOM_COW
+            PIG, COW, SHEEP, HORSE, LLAMA, OCELOT, SNOW_GOLEM, EntityType.CHICKEN, EntityType.RABBIT,
+            SKELETON_HORSE, ZOMBIE_HORSE, MOOSHROOM
     );
     private static final List<EntityType> HOSTILES = Arrays.asList(
             ZOMBIE, BLAZE, SKELETON, CREEPER, SLIME, WITCH, VINDICATOR, SPIDER, CAVE_SPIDER, ENDERMAN, SILVERFISH,
@@ -74,12 +75,12 @@ public class Items extends Mechanic {
             }
         }
 
-        CompoundTag nbt = FLUtils.getTag(arrow);
-        if (nbt != null && nbt.contains("tntArrow")) { // hasKey
+        CompoundTag content, data = ItemUtils.getCustomData(arrow);
+        if (data != null && (content = data.getCompound("tntArrow")) != null) {
             // Infinity doesn't apply to these arrows
             if ((inv.getItemInMainHand().getType() == Material.BOW
-                    ? inv.getItemInMainHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0
-                    : inv.getItemInOffHand().getEnchantmentLevel(Enchantment.ARROW_INFINITE) > 0) &&
+                    ? inv.getItemInMainHand().getEnchantmentLevel(Enchantment.INFINITY) > 0
+                    : inv.getItemInOffHand().getEnchantmentLevel(Enchantment.INFINITY) > 0) &&
                     ((Player) event.getEntity()).getGameMode() == GameMode.SURVIVAL) {
                 if (arrow.getAmount() == 1)
                     inv.setItem(arrowIndex, null);
@@ -87,7 +88,7 @@ public class Items extends Mechanic {
                     arrow.setAmount(arrow.getAmount() - 1);
             }
 
-            tntArrows.put(event.getProjectile().getUniqueId(), new TNTArrow(nbt.getCompound("tntArrow"))); // getCompound
+            tntArrows.put(event.getProjectile().getUniqueId(), new TNTArrow(content));
         }
     }
 
@@ -108,7 +109,7 @@ public class Items extends Mechanic {
             CommandKittyCannon.LIVE_ROUNDS.get(event.getEntity().getUniqueId()).setHealth(0.0);
             Location loc = event.getEntity().getLocation();
             event.getEntity().getWorld().createExplosion(loc.clone(), 0.0f);
-            event.getEntity().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, loc, 15, 4.0, 4.0, 4.0);
+            event.getEntity().getWorld().spawnParticle(Particle.EXPLOSION, loc, 15, 4.0, 4.0, 4.0);
             event.getEntity().remove();
             Bukkit.getScheduler().runTaskLater(
                     FarLands.getInstance(),
@@ -152,7 +153,7 @@ public class Items extends Mechanic {
                     Location loc = event.getEntity().getLocation().add(0, 3, 0);
                     double speed = Math.min(2, Math.max(0.3, data.strength * 0.25));
                     for (int i = 0; i < data.strength * 5; ++i) {
-                        TNTPrimed tnt = (TNTPrimed) loc.getWorld().spawnEntity(loc, EntityType.PRIMED_TNT);
+                        TNTPrimed tnt = (TNTPrimed) loc.getWorld().spawnEntity(loc, EntityType.TNT);
                         tnt.setFuseTicks(100); // 5 seconds
                         tnt.setVelocity(new Vector(speed * FLUtils.randomDouble(-1, 1), speed * FLUtils.randomDouble(-1, 1),
                                 speed * FLUtils.randomDouble(-1, 1)));
@@ -166,7 +167,7 @@ public class Items extends Mechanic {
                     final int taskId = FarLands.getScheduler().scheduleSyncRepeatingTask(() -> {
                         double theta = FLUtils.randomDouble(0, 2 * Math.PI), radius = FLUtils.randomDouble(0, maxRadius);
                         TNTPrimed tnt = (TNTPrimed) loc.getWorld().spawnEntity(loc.clone().add(radius * (2 * Math.cos(theta) - 1), 0,
-                                radius * (2 * Math.sin(theta) - 1)), EntityType.PRIMED_TNT);
+                                radius * (2 * Math.sin(theta) - 1)), EntityType.TNT);
                         tnt.setFuseTicks(200); // 10 seconds
                     }, 0, 2);
                     FarLands.getScheduler().scheduleSyncDelayedTask(() -> FarLands.getScheduler().cancelTask(taskId), (long) (data.strength * 81));

@@ -194,7 +194,7 @@ public class Restrictions extends Mechanic {
         if (flp != null) {
             flp.lastIP = event.getAddress().getHostAddress();
             if (flp.isBanned()) { // Give the player a ban message
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Component.text(flp.getCurrentPunishmentMessage()));
             }
         }
     }

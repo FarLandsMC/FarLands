@@ -2,10 +2,12 @@ package net.farlands.sanctuary.command.staff;
 
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.util.ComponentColor;
+import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
+import net.kyori.adventure.text.Component;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -21,14 +23,14 @@ import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 public class CommandTNTArrow extends PlayerCommand {
     private static final List<String> TYPES = Arrays.asList("nerfed", "standard", "firework", "animals", "mob", "compact", "rain");
-    private static final List<String> NAMES = Arrays.asList(
-            "{\"text\":\"Nerfed TNT Arrow\",\"italic\":false,\"color\":\"yellow\"}",
-            "{\"text\":\"Real TNT Arrow\",\"italic\":false,\"color\":\"red\"}",
-            "{\"text\":\"Firework TNT Arrow\",\"italic\":false,\"color\":\"green\"}",
-            "{\"text\":\"Animal TNT Arrow\",\"italic\":false,\"color\":\"blue\"}",
-            "{\"text\":\"Mob TNT Arrow\",\"italic\":false,\"color\":\"dark_gray\"}",
-            "{\"text\":\"Compact TNT Arrow\",\"italic\":false,\"color\":\"dark_red\"}",
-            "{\"text\":\"Rain TNT Arrow\",\"italic\":false,\"color\":\"dark_red\"}"
+    private static final List<Component> NAMES = Arrays.asList(
+        ComponentColor.yellow("Nerfed TNT Arrow"),
+        ComponentColor.red("Real TNT Arrow"),
+        ComponentColor.green("Firework TNT Arrow"),
+        ComponentColor.blue("Animal TNT Arrow"),
+        ComponentColor.darkGray("Mob TNT Arrow"),
+        ComponentColor.darkRed("Compact TNT Arrow"),
+        ComponentColor.darkRed("Rain TNT Arrow")
     );
 
     public CommandTNTArrow() {
@@ -73,15 +75,16 @@ public class CommandTNTArrow extends PlayerCommand {
             sendFormatted(sender, "&(red)The amount must be between 1 and 64 inclusive.");
             return true;
         }
-        CompoundTag display = new CompoundTag();
-        display.putString("Name", NAMES.get(tntArrow.contains("type") ? tntArrow.getInt("type") : 0)); // CompoundTag#setString, CompoundTag#hasKey, CompoundTag#getInt
-        ListTag lore = new ListTag();
-        lore.add(StringTag.valueOf("\"Strength: " + (int) tntArrow.getFloat("strength") /* CompoundTag#getFloat */ + "\""));
-        display.put("Lore", lore); // CompoundTag#set
-        CompoundTag tag = new CompoundTag();
-        tag.put("tntArrow", tntArrow); // CompoundTag#set
-        tag.put("display", display); // CompoundTag#set
-        FLUtils.giveItem(sender, FLUtils.applyTag(tag, new ItemStack(Material.ARROW, amount)), false);
+
+        ItemStack is = new ItemStack(Material.ARROW, amount);
+        is.editMeta(im -> {
+            im.displayName(NAMES.get(tntArrow.contains("type") ? tntArrow.getInt("type") : 0));
+            im.lore(List.of(ComponentUtils.format("Strength: {}", tntArrow.getFloat("strength"))));
+        });
+
+        ItemUtils.updateCustomData(is, d -> d.put("tntArrow", tntArrow));
+
+        FLUtils.giveItem(sender, is, false);
         return true;
     }
 

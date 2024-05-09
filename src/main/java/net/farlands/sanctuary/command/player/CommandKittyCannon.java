@@ -33,7 +33,7 @@ public class CommandKittyCannon extends PlayerCommand {
         CANNON = new ItemStack(Material.DIAMOND_HORSE_ARMOR);
         ItemMeta meta = CANNON.getItemMeta();
         meta.displayName(ComponentColor.gold("Kitty Cannon").style(Style.empty()));
-        meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
+        meta.addEnchant(Enchantment.INFINITY, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         CANNON.setItemMeta(meta);
         LIVE_ROUNDS = new HashMap<>();
