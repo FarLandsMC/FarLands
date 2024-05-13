@@ -13,6 +13,7 @@ import net.farlands.sanctuary.scheduling.TaskBase;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import org.bukkit.*;
@@ -343,7 +344,7 @@ public class FLPlayerSession {
                     player.sendMessage(messageC);
                     addAFKMessage(messageC);
                 }
-                FLUtils.giveItem(player, packages.get(i).item(), true);
+                ItemUtils.giveItem(player, packages.get(i).item(), true);
                 packages.remove(i);
             }
         }
@@ -407,7 +408,7 @@ public class FLPlayerSession {
     public void giveVoteRewards(int amount) {
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
         for (int i = 0; i < amount; ++i) {
-            FarLands.getFLConfig().voteConfig.voteRewards().forEach(reward -> FLUtils.giveItem(player, reward, false));
+            FarLands.getFLConfig().voteConfig.voteRewards().forEach(reward -> ItemUtils.giveItem(player, reward, false));
         }
         player.giveExpLevels(FarLands.getFLConfig().voteConfig.voteXPBoost * amount);
     }

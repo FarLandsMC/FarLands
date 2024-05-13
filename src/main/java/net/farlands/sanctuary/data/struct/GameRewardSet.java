@@ -2,7 +2,7 @@ package net.farlands.sanctuary.data.struct;
 
 import com.kicas.rp.util.Pair;
 import com.kicas.rp.util.TextUtils;
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
@@ -48,7 +48,7 @@ public record GameRewardSet(
             nbt.getDouble("rewardBias"),
             nbt.getBoolean("trackCompletionInfo"),
             playerCompletionInfoFromNbt(nbt.get("playerCompletionInfo")),
-            FLUtils.itemStackFromNBT(nbt.getByteArray("finalReward")),
+            ItemUtils.itemStackFromNBT(nbt.getByteArray("finalReward")),
             nbt.getString("finalRewardMessage")
         );
 
@@ -64,11 +64,11 @@ public record GameRewardSet(
 
     public void giveReward(Player player) {
         Pair<ItemStack, Integer> reward = ItemReward.randomReward(rewards, rewardBias);
-        FLUtils.giveItem(player, reward.getFirst(), true);
+        ItemUtils.giveItem(player, reward.getFirst(), true);
         updateCompletionInfo(player, reward.getSecond());
 
         if (trackCompletionInfo && finalReward != null && hasReceivedAllRewards(player) && hasNotReceivedFinalReward(player)) {
-            FLUtils.giveItem(player, finalReward, true);
+            ItemUtils.giveItem(player, finalReward, true);
             // Change the sign bit to keep track of the final reward
             updateCompletionInfo(player, 63);
 
@@ -142,7 +142,7 @@ public record GameRewardSet(
         nbt.putDouble("rewardBias", rewardBias);
         nbt.putBoolean("trackCompletionInfo", trackCompletionInfo);
         nbt.put("playerCompletionInfo", playerCompletionInfoAsNbt());
-        nbt.putByteArray("finalReward", FLUtils.itemStackToNBT(finalReward));
+        nbt.putByteArray("finalReward", ItemUtils.itemStackToNBT(finalReward));
         nbt.putString("finalRewardMessage", finalRewardMessage);
 
         return nbt.build();

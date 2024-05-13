@@ -594,7 +594,7 @@ public class OfflineFLPlayer implements ComponentLike {
 
         Arrays.stream(collectables).toList().subList(fromRankI + 1, toRankI + 1).forEach(item -> {
             if (this.isOnline()) {
-                FLUtils.giveItem(this.getOnlinePlayer(), FarLands.getDataHandler().getItem(item), false);
+                ItemUtils.giveItem(this.getOnlinePlayer(), FarLands.getDataHandler().getItem(item), false);
             } else {
                 FarLands.getDataHandler().addPackage(
                     this.uuid,

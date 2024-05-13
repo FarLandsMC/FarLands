@@ -1,6 +1,6 @@
 package net.farlands.sanctuary.data.struct;
 
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.nbt.*;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,7 +23,7 @@ public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
             List<ItemStack> locker = new ArrayList<>();
             serLocker
                 .stream()
-                .map(base -> FLUtils.itemStackFromNBT(((ByteArrayBinaryTag) base).value()))
+                .map(base -> ItemUtils.itemStackFromNBT(((ByteArrayBinaryTag) base).value()))
                 .forEach(locker::add);
             lockers.put(key, locker);
         }
@@ -42,7 +42,7 @@ public record EvidenceLocker(Map<String, List<ItemStack>> lockers) {
     public CompoundBinaryTag serialize() {
         CompoundBinaryTag.Builder nbt = CompoundBinaryTag.builder();
         lockers.forEach((key, locker) -> {
-            ListBinaryTag serLocker = ListBinaryTag.from(locker.stream().filter(Objects::nonNull).map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
+            ListBinaryTag serLocker = ListBinaryTag.from(locker.stream().filter(Objects::nonNull).map(ItemUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
             nbt.put(key, serLocker);
         });
         return nbt.build();

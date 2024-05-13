@@ -11,10 +11,7 @@ import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.data.struct.*;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.mechanic.Mechanic;
-import net.farlands.sanctuary.util.ComponentUtils;
-import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.FileSystem;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.nbt.BinaryTagIO;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
@@ -617,7 +614,7 @@ public class DataHandler extends Mechanic {
                 Package pkg = new Package(
                     uuid,
                     uuid == null ? "" : FarLands.getDataHandler().getOfflineFLPlayer(uuid).username,
-                    FLUtils.itemStackFromNBT(packageNBT.getByteArray("item")),
+                    ItemUtils.itemStackFromNBT(packageNBT.getByteArray("item")),
                     FLUtils.tryOr(
                         () -> GsonComponentSerializer.gson().deserialize(packageNBT.getString("message")),
                         Component.text(packageNBT.getString("message"))
@@ -654,7 +651,7 @@ public class DataHandler extends Mechanic {
                 individualPackages.forEach(pkg -> {
                     CompoundBinaryTag packageNBT = CompoundBinaryTag.builder()
                         .putString("sender", pkg.senderUuid() == null ? "" : pkg.senderUuid().toString())
-                        .putByteArray("item", FLUtils.itemStackToNBT(pkg.item()))
+                        .putByteArray("item", ItemUtils.itemStackToNBT(pkg.item()))
                         .putString("message", GsonComponentSerializer.gson().serialize(pkg.message()))
                         .putLong("sentTime", pkg.sentTime())
                         .putBoolean("forceSend", pkg.forceSend())

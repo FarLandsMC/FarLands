@@ -12,6 +12,7 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.mechanic.RotatingMessages;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.nbt.CompoundTag;
@@ -2736,7 +2737,7 @@ public class AutumnEvent extends Mechanic {
             // damage contributed to death must be greater than 0.73 * max health of mob / # of players that damaged it
             if (monsterSoulbound.get(uid) > 0.73 * event.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() /
                     soulbound.get(event.getEntity().getUniqueId()).entrySet().size()) {
-                FLUtils.giveItem(player, reward.getFirst(), true);
+                ItemUtils.giveItem(player, reward.getFirst(), true);
                 player.sendMessage(ChatColor.LIGHT_PURPLE + "You received a drop!");
                 if (reward.getFirst().isSimilar(CATAKEY))
                     player.sendMessage(ChatColor.GREEN + "The crypt doors are rusty, try dropping this key in front of their doors at -376 61 798");

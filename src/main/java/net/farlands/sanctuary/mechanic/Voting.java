@@ -9,10 +9,7 @@ import net.farlands.sanctuary.data.struct.ItemReward;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
-import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.ComponentUtils;
-import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -179,7 +176,7 @@ public class Voting extends Mechanic {
                 ItemStack stack = ItemReward.randomReward(this.voteConfig.votePartyRewards(), this.voteConfig.votePartyDistribWeight).getFirst();
                 player.sendMessage(ComponentColor.gold("Vote Party! Receiving {}.", stack));
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 0.6929134F);
-                FLUtils.giveItem(player, stack, true);
+                ItemUtils.giveItem(player, stack, true);
             });
     }
 }

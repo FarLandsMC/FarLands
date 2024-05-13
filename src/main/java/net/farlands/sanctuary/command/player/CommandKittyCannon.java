@@ -7,6 +7,7 @@ import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 
 import net.kyori.adventure.text.format.Style;
@@ -52,7 +53,7 @@ public class CommandKittyCannon extends PlayerCommand {
             return error(sender, "You can use this command again in {}", TimeInterval.formatTime(50L * timeRemaining, false));
         }
 
-        FLUtils.giveItem(sender, CANNON.clone(), true);
+        ItemUtils.giveItem(sender, CANNON.clone(), true);
         session.setCommandCooldown(this, 10L * 60L * 20L);
         return true;
     }

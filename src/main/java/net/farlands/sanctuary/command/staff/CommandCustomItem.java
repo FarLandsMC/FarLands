@@ -8,6 +8,7 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.gui.VPRewardsGui;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -78,7 +79,7 @@ public class CommandCustomItem extends PlayerCommand {
                     player.sendMessage(ComponentColor.red("No item found with the key: {}", args[1]));
                     return true;
                 }
-                FLUtils.giveItem(player, stack, true);
+                ItemUtils.giveItem(player, stack, true);
                 return true;
             }
             case VP_REWARDS -> {

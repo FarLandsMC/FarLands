@@ -6,7 +6,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -36,7 +36,7 @@ public class CommandShovel extends PlayerCommand {
         }
 
         // Give the shovel and update the command cooldown
-        FLUtils.giveItem(sender, shovel.clone(), true);
+        ItemUtils.giveItem(sender, shovel.clone(), true);
         session.setCommandCooldown(this, 10L * 60L * 20L);
 
         return true;

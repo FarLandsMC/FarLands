@@ -9,6 +9,7 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -218,7 +219,7 @@ public class VanillaFixes extends Mechanic {
                 1,
                 1
             );
-            FLUtils.damageItem(event.getItem(), 1);
+            ItemUtils.damageItem(event.getItem(), 1);
         }
 
     }

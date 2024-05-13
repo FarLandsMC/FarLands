@@ -4,7 +4,6 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
-import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.text.Component;
 import net.minecraft.nbt.CompoundTag;
@@ -84,7 +83,7 @@ public class CommandTNTArrow extends PlayerCommand {
 
         ItemUtils.updateCustomData(is, d -> d.put("tntArrow", tntArrow));
 
-        FLUtils.giveItem(sender, is, false);
+        ItemUtils.giveItem(sender, is, false);
         return true;
     }
 

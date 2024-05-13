@@ -6,7 +6,7 @@ import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.SkullCreator;
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -47,7 +47,7 @@ public class CommandSkull extends PlayerCommand {
 
         ItemStack skull = SkullCreator.skullFromName(args[0]);
         skull.setAmount(args.length > 1 ? Math.min(8, amount) : 1);
-        FLUtils.giveItem(sender, skull, true);
+        ItemUtils.giveItem(sender, skull, true);
         return true;
     }
 

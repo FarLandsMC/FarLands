@@ -2,10 +2,7 @@ package net.farlands.sanctuary.gui;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.data.struct.ItemReward;
-import net.farlands.sanctuary.util.ComponentColor;
-import net.farlands.sanctuary.util.ComponentUtils;
-import net.farlands.sanctuary.util.CustomHead;
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.*;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -124,7 +121,7 @@ public class VPRewardsGui extends Gui {
             } else {
                 if (event.isLeftClick()) {
 
-                    FLUtils.giveItem(this.user, reward.getStack(), true);
+                    ItemUtils.giveItem(this.user, reward.getStack(), true);
                     event.setCancelled(true);
 
                 } else if (event.isRightClick()) {

@@ -607,7 +607,7 @@ public class Restrictions extends Mechanic {
                         ItemStack stack = FarLands.getDataHandler().getItem("elytraLimitRocket", true);
                         if (stack.getType() != Material.AIR) {
                             Command.success(player, "Have a rocket to help!");
-                            FLUtils.giveItem(player, stack, true);
+                            ItemUtils.giveItem(player, stack, true);
                         }
                     }
                 } else { // They can take the elytra
