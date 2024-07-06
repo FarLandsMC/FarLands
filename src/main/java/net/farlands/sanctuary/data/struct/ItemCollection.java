@@ -1,7 +1,7 @@
 package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.data.NBTSerializer;
-import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
@@ -66,7 +66,7 @@ public record ItemCollection(
         Map<String, ItemStack> namedItems = nbt.get("namedItems") != null ? new HashMap<>() : null;
         if (namedItems != null) {
             CompoundBinaryTag namedItemsNbt = (CompoundBinaryTag) nbt.get("namedItems");
-            namedItemsNbt.keySet().forEach(k -> namedItems.put(k, FLUtils.itemStackFromNBT(namedItemsNbt.getByteArray(k))));
+            namedItemsNbt.keySet().forEach(k -> namedItems.put(k, ItemUtils.itemStackFromNBT(namedItemsNbt.getByteArray(k))));
         }
 
         List<ItemReward> itemRewards = nbt.get("simpleRewards") != null ? new ArrayList<>() : null;

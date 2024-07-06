@@ -10,6 +10,7 @@ import net.farlands.sanctuary.data.struct.Package;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -88,7 +89,7 @@ public class CommandPackageAccept extends PlayerCommand {
                     .append(ComponentColor.aqua("").append(message))
             );
         }
-        FLUtils.giveItem(sender, lPackage.item(), true);
+        ItemUtils.giveItem(sender, lPackage.item(), true);
     }
     private void decline(Player sender, Package lPackage){
         sender.sendMessage(

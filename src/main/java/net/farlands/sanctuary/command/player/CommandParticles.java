@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandParticles extends PlayerCommand {
-    private static final List<Particle> ILLEGAL_PARTICLES = Arrays.asList(Particle.MOB_APPEARANCE, Particle.REDSTONE, Particle.BLOCK_CRACK);
+    private static final List<Particle> ILLEGAL_PARTICLES = Arrays.asList(Particle.DUST, Particle.BLOCK);
 
     public CommandParticles() {
         super(Rank.DONOR, Category.COSMETIC, "Choose a particle to spawn around you. Particles are visible to all players.",

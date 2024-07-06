@@ -12,6 +12,7 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.mechanic.RotatingMessages;
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.nbt.CompoundTag;
@@ -37,7 +38,6 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
-import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -1341,7 +1341,7 @@ public class AutumnEvent extends Mechanic {
         for (int i = 0; i < 4; ++i) {
             switch (RNG.nextInt(4)) {
                 case 0: {
-                    mob.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 1, true));
+                    mob.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 1, true));
                     break;
                 }
                 case 1: {
@@ -1381,7 +1381,7 @@ public class AutumnEvent extends Mechanic {
 
         ItemStack stack = new ItemStack(Material.BOW);
         ItemMeta im = stack.getItemMeta();
-        im.addEnchant(Enchantment.ARROW_DAMAGE, 3, true);
+        im.addEnchant(Enchantment.POWER, 3, true);
         stack.setItemMeta(im);
         mob.getEquipment().setItemInMainHand(stack);
 
@@ -1638,7 +1638,7 @@ public class AutumnEvent extends Mechanic {
         mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
         mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
 
-        mob.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,         Integer.MAX_VALUE, 1, true));
+        mob.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST,   Integer.MAX_VALUE, 1, true));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, true));
 
@@ -1663,7 +1663,7 @@ public class AutumnEvent extends Mechanic {
         mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
         mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
 
-        mob.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,         Integer.MAX_VALUE, 1, true));
+        mob.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST,   Integer.MAX_VALUE, 1, true));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, true));
 
@@ -1738,7 +1738,7 @@ public class AutumnEvent extends Mechanic {
 
         ItemStack stack = new ItemStack(Material.BOW);
         ItemMeta im = stack.getItemMeta();
-        im.addEnchant(Enchantment.ARROW_DAMAGE, 10, true);
+        im.addEnchant(Enchantment.POWER, 10, true);
         stack.setItemMeta(im);
         mob.getEquipment().setItemInMainHand(stack);
 
@@ -2013,11 +2013,11 @@ public class AutumnEvent extends Mechanic {
 
         ItemStack stack = new ItemStack(Material.CHAINMAIL_BOOTS);
         ItemMeta im = stack.getItemMeta();
-        im.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 4, false);
+        im.addEnchant(Enchantment.PROTECTION, 4, false);
         stack.setItemMeta(im);
         boss.getEquipment().setBoots(stack);
 
-        boss.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 10, true));
+        boss.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, Integer.MAX_VALUE, 10, true));
 
         Pack support = new Pack((location1) -> {
             Skeleton mob = (Skeleton)dramaticSpawn(location1, EntityType.SKELETON, 1.74F);
@@ -2084,7 +2084,7 @@ public class AutumnEvent extends Mechanic {
 
         stack = new ItemStack(Material.GOLDEN_HELMET);
         im = stack.getItemMeta();
-        im.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 5, false);
+        im.addEnchant(Enchantment.PROTECTION, 5, false);
         stack.setItemMeta(im);
         boss.getEquipment().setHelmet(stack);
 
@@ -2208,9 +2208,9 @@ public class AutumnEvent extends Mechanic {
 
         ItemStack stack = new ItemStack(Material.BOW);
         ItemMeta im = stack.getItemMeta();
-        im.addEnchant(Enchantment.ARROW_DAMAGE,    10, true);
-        im.addEnchant(Enchantment.ARROW_KNOCKBACK,  6, true);
-        im.addEnchant(Enchantment.ARROW_FIRE,       8, true);
+        im.addEnchant(Enchantment.POWER, 10, true);
+        im.addEnchant(Enchantment.PUNCH,  6, true);
+        im.addEnchant(Enchantment.FLAME,  8, true);
         stack.setItemMeta(im);
         boss.getEquipment().setItemInMainHand(stack);
 
@@ -2284,7 +2284,7 @@ public class AutumnEvent extends Mechanic {
 
         ItemStack stack = new ItemStack(Material.BOW);
         ItemMeta im = stack.getItemMeta();
-        im.addEnchant(Enchantment.ARROW_DAMAGE, 5, true);
+        im.addEnchant(Enchantment.POWER, 5, true);
         stack.setItemMeta(im);
         rider.getEquipment().setItemInMainHand(stack);
 
@@ -2366,7 +2366,7 @@ public class AutumnEvent extends Mechanic {
         boss.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
         boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1);
 
-        boss.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,         Integer.MAX_VALUE, 1, true));
+        boss.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST,         Integer.MAX_VALUE, 1, true));
         boss.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true));
         boss.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, true));
 
@@ -2737,7 +2737,7 @@ public class AutumnEvent extends Mechanic {
             // damage contributed to death must be greater than 0.73 * max health of mob / # of players that damaged it
             if (monsterSoulbound.get(uid) > 0.73 * event.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() /
                     soulbound.get(event.getEntity().getUniqueId()).entrySet().size()) {
-                FLUtils.giveItem(player, reward.getFirst(), true);
+                ItemUtils.giveItem(player, reward.getFirst(), true);
                 player.sendMessage(ChatColor.LIGHT_PURPLE + "You received a drop!");
                 if (reward.getFirst().isSimilar(CATAKEY))
                     player.sendMessage(ChatColor.GREEN + "The crypt doors are rusty, try dropping this key in front of their doors at -376 61 798");
@@ -3056,7 +3056,9 @@ public class AutumnEvent extends Mechanic {
         tag.put("SkullOwner", skullOwner); // NBTTagCompound#set
         // TODO: 7/3/21 This player head item needs to be tested. It may not be the right item
         net.minecraft.world.item.ItemStack dropCB = new net.minecraft.world.item.ItemStack(Items.PLAYER_HEAD, 1);
-        dropCB.setTag(tag); // ItemStack#setTag
+
+        // TODO: Transition this to components
+        // dropCB.setTag(tag); // ItemStack#setTag
 
         // CraftItemStack.asBukkitCopy(dropCB);
         return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", FLUtils.getCraftBukkitClass("inventory.CraftItemStack"), null, dropCB);

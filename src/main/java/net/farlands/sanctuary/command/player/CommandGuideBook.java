@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static net.farlands.sanctuary.util.FLUtils.giveItem;
+import static net.farlands.sanctuary.util.ItemUtils.giveItem;
 
 public class CommandGuideBook extends PlayerCommand {
     private final ItemStack book;

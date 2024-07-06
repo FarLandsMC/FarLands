@@ -52,7 +52,7 @@ public class SkullCreator {
         notNull(item, "item");
         notNull(name, "name");
         SkullMeta meta = (SkullMeta) item.getItemMeta();
-        meta.setOwner(name);
+        meta.setOwningPlayer(Bukkit.getOfflinePlayer(name));
         item.setItemMeta(meta);
         return item;
     }

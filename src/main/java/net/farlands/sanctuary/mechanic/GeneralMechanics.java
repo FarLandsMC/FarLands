@@ -124,7 +124,7 @@ public class GeneralMechanics extends Mechanic {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), () ->
             Bukkit.getWorld("world").getEntities()
                 .stream()
-                .filter(e -> EntityType.DROPPED_ITEM == e.getType())
+                .filter(e -> EntityType.ITEM == e.getType())
                 .map(e -> (Item) e)
                 .filter(e ->
                             Material.SLIME_BALL == e.getItemStack().getType()
@@ -427,7 +427,7 @@ public class GeneralMechanics extends Mechanic {
             sign.setWaxed(false);
             sign.update(true);
 
-            FLUtils.damageItem(event.getItem(), 1); // Apply some damage to the axe
+            ItemUtils.damageItem(event.getItem(), 1); // Apply some damage to the axe
             event.getPlayer().playSound( // Play a nice sound
                                          event.getClickedBlock().getLocation(),
                                          Sound.ITEM_AXE_STRIP,
@@ -455,7 +455,7 @@ public class GeneralMechanics extends Mechanic {
                 || event.getPlayer().isOp() && flags.<EnumFilter.MaterialFilter>getFlagMeta(RegionFlag.DENY_BREAK).isBlocked(Material.DRAGON_EGG)
             ) {
                 event.getClickedBlock().setType(Material.AIR);
-                FLUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
+                ItemUtils.giveItem(event.getPlayer(), new ItemStack(Material.DRAGON_EGG), false);
                 event.getPlayer().playSound(event.getClickedBlock().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 1.0F);
             }
             return;
@@ -497,7 +497,7 @@ public class GeneralMechanics extends Mechanic {
                     hand.setAmount(hand.getAmount() - 1);
                 }
             }
-            Firework firework = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+            Firework firework = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK_ROCKET);
             firework.addPassenger(player);
             fireworkLaunches.put(firework.getUniqueId(), player);
             return;

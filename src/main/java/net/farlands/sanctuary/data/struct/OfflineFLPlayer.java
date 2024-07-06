@@ -394,7 +394,7 @@ public class OfflineFLPlayer implements ComponentLike {
         validPunishments = punishments.stream().filter(Punishment::isNotPardoned).collect(Collectors.toList());
         Player player = getOnlinePlayer();
         if (player != null)
-            player.kickPlayer(p.generateBanMessage(validPunishments.size() - 1, true));
+            player.kick(Component.text(p.generateBanMessage(validPunishments.size() - 1, true)));
         this.moveToSpawn();
         GeneralMechanics.recentlyPunished.add(this);
         return p.totalTime(validPunishments.size() - 1);
@@ -594,7 +594,7 @@ public class OfflineFLPlayer implements ComponentLike {
 
         Arrays.stream(collectables).toList().subList(fromRankI + 1, toRankI + 1).forEach(item -> {
             if (this.isOnline()) {
-                FLUtils.giveItem(this.getOnlinePlayer(), FarLands.getDataHandler().getItem(item), false);
+                ItemUtils.giveItem(this.getOnlinePlayer(), FarLands.getDataHandler().getItem(item), false);
             } else {
                 FarLands.getDataHandler().addPackage(
                     this.uuid,

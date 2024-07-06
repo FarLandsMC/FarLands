@@ -112,7 +112,7 @@ public class FireworkBuilder {
     }
 
     public void spawnEntity(Location loc) {
-        Firework firework = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
+        Firework firework = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK_ROCKET);
 
         FireworkRocketEntity entity = (FireworkRocketEntity) ReflectionHelper.invoke("getHandle", FLUtils.getCraftBukkitClass("entity.CraftFirework"), firework);
         entity.addAdditionalSaveData(toNBT());
@@ -127,7 +127,9 @@ public class FireworkBuilder {
         int flightRaw = (int) Math.ceil(((double) lifetime) / 20.0);
         int flight = flightRaw < 1 ? 1 : Math.min(flightRaw, 3);
         stackTag.getCompound("Fireworks").putByte("Flight", (byte) (flight & 0xFF)); // getCompound, setCompound
-        stack.setTag(stackTag); // setTag
+        // TODO: Convert to item components
+        // stack.setTag(stackTag); // setTag
+        if (true) throw new RuntimeException("TODO: Convert firework construction to item components");
 
         // return CraftItemStack.asBukkitCopy(stack);
         return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", craftitemstackclass, null, stack);

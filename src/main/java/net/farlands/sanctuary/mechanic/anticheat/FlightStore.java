@@ -73,7 +73,7 @@ public class FlightStore {
 
         double vy = this.player.getVelocity().getY();
         if (FLUtils.deltaEquals(this.lastVy, Double.MAX_VALUE, 10.0)) { // We're jumping
-            PotionEffect jumpBoost = this.player.getPotionEffect(PotionEffectType.JUMP);
+            PotionEffect jumpBoost = this.player.getPotionEffect(PotionEffectType.JUMP_BOOST);
             // Calculates what the player's jump velocity should be, with some buffer to prevent false alarms (the +0.025)
             double vyMax = 0.41999998688697815 + 0.1 * (jumpBoost == null ? 0 : jumpBoost.getAmplifier() + 1) + JUMP_TOLERANCE;
             if (vy > vyMax && !FLUtils.checkNearby(this.player.getLocation(), SLIME_BLOCK, BUBBLE_COLUMN)) {

@@ -1,18 +1,16 @@
 package net.farlands.sanctuary.mechanic.region;
 
-import static com.kicas.rp.util.TextUtils.sendFormatted;
-
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.mechanic.Mechanic;
 import net.farlands.sanctuary.util.FLUtils;
-
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-
 import java.util.*;
+
+import static com.kicas.rp.util.TextUtils.sendFormatted;
 
 /**
  * Create a parkour course.
@@ -133,7 +131,7 @@ public class ParkourCourse extends Mechanic {
             else if (isWithin(toLocation, nodes.get(node), node == nodes.size() - 1 ? 2 : 1.415f))
                 advanceNode(player); // handles final node
 
-            player.spawnParticle(Particle.REDSTONE, nodes.get(node), 1,
+            player.spawnParticle(Particle.DUST, nodes.get(node), 1,
                     new Particle.DustOptions(Color.fromRGB(0x55FF55), 1));
         }
     }

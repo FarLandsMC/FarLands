@@ -194,7 +194,7 @@ public class Restrictions extends Mechanic {
         if (flp != null) {
             flp.lastIP = event.getAddress().getHostAddress();
             if (flp.isBanned()) { // Give the player a ban message
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, flp.getCurrentPunishmentMessage());
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, Component.text(flp.getCurrentPunishmentMessage()));
             }
         }
     }
@@ -607,7 +607,7 @@ public class Restrictions extends Mechanic {
                         ItemStack stack = FarLands.getDataHandler().getItem("elytraLimitRocket", true);
                         if (stack.getType() != Material.AIR) {
                             Command.success(player, "Have a rocket to help!");
-                            FLUtils.giveItem(player, stack, true);
+                            ItemUtils.giveItem(player, stack, true);
                         }
                     }
                 } else { // They can take the elytra

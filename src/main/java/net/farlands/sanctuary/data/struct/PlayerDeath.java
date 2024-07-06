@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.data.struct;
 
 import net.farlands.sanctuary.util.FLUtils;
+import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.nbt.ByteArrayBinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.ListBinaryTag;
@@ -42,7 +43,7 @@ public record PlayerDeath(
             nbt.getFloat("xpPoints"),
             new ArrayList<>()
         );
-        nbt.getList("inv").stream().map(base -> FLUtils.itemStackFromNBT(((ByteArrayBinaryTag) base).value())).forEach(this.inventory::add);
+        nbt.getList("inv").stream().map(base -> ItemUtils.itemStackFromNBT(((ByteArrayBinaryTag) base).value())).forEach(this.inventory::add);
     }
 
     public CompoundBinaryTag serialize() {
@@ -51,7 +52,7 @@ public record PlayerDeath(
         nbt.put("loc", FLUtils.locationToNBT(location));
         nbt.putInt("xpLevels", xpLevels);
         nbt.putFloat("xpPoints", xpPoints);
-        ListBinaryTag inv = ListBinaryTag.from(inventory.stream().filter(Objects::nonNull).map(FLUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
+        ListBinaryTag inv = ListBinaryTag.from(inventory.stream().filter(Objects::nonNull).map(ItemUtils::itemStackToNBT).map(ByteArrayBinaryTag::of).toList());
         nbt.put("inv", inv);
         return nbt.build();
     }
