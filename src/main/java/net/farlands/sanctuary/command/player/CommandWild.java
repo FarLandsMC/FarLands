@@ -171,8 +171,10 @@ public class CommandWild extends PlayerCommand {
                     safe.getBlockX() & 15, safe.getBlockZ() & 15
                 );
 
-            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
+            if (canStand(safe.getBlock()) && isSafe(safe.clone())) {
                 ret.set(safe.add(0, .5, 0));
+                return;
+            }
 
             do {
                 safe.setY((bottom + top + 1) >> 1);
@@ -183,8 +185,10 @@ public class CommandWild extends PlayerCommand {
             } while (top - bottom > 1);
             safe.setY((bottom + top - 1) >> 1);
 
-            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
+            if (canStand(safe.getBlock()) && isSafe(safe.clone())) {
                 ret.set(safe.add(0, 1.5, 0));
+                return;
+            }
 
             ret.set(null);
         });
