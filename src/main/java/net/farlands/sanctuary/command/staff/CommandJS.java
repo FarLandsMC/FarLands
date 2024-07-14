@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.command.staff;
 
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
@@ -14,7 +15,8 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.openjdk.nashorn.api.scripting.NashornScriptEngineFactory;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -36,8 +38,13 @@ public class CommandJS extends Command {
         ClassLoader previousClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(FarLands.getInstance().getClass().getClassLoader());
 
-        NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
-        this.engine = factory.getScriptEngine("--language=es6");
+        this.engine = GraalJSScriptEngine.create(
+            null,
+            Context.newBuilder("js")
+                .allowHostAccess(HostAccess.ALL)
+                .allowHostClassLookup(s -> true)
+                .allowAllAccess(true)
+        );
 
         try {
             this.engine.eval(new String(FarLands.getDataHandler().getResource("boot.js"), StandardCharsets.UTF_8)); // Load bootstrap script
