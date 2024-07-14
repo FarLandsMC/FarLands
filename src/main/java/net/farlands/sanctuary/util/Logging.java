@@ -33,7 +33,7 @@ public class Logging {
      * Send info level log to the logger
      */
     public static void log(Object... objects) {
-        Bukkit.getLogger().info(Arrays.stream(objects).map(Object::toString).collect(Collectors.joining(" ")));
+        FarLands.getInstance().getLogger().info(Arrays.stream(objects).map(Object::toString).collect(Collectors.joining(" ")));
     }
 
     /**
@@ -41,7 +41,7 @@ public class Logging {
      */
     public static void error(Object... objects) {
         String msg = Arrays.stream(objects).map(Object::toString).collect(Collectors.joining(" "));
-        Bukkit.getLogger().severe(msg);
+        FarLands.getInstance().getLogger().severe(msg);
         FarLands.getDebugger().echo("Error", msg);
         FarLands.getDiscordHandler().sendMessageRaw(DiscordChannel.NOTEBOOK, msg);
     }
