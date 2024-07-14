@@ -225,6 +225,8 @@ public class DataHandler extends Mechanic {
             }
         }, 100L);
 
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), this::saveData, 5 * 60 * 20L, 5 * 60 * 20L); // Save data every five minutes to reduce data loss
+
         int gcCycleTime = FarLands.getFLConfig().gcCycleTime;
         if (gcCycleTime > 0) {
             Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), System::gc, 5 * 60 * 20L, gcCycleTime * 60 * 20L); // Run GC every gcCycleTime minutes (after the first 5 minutes)
@@ -866,6 +868,8 @@ public class DataHandler extends Mechanic {
     }
 
     public void saveData() {
+        Logging.log("Saving data...");
+
         // Create plain moshi instance without indentation
         Moshi.Builder playerDataBuilder = new Moshi.Builder();
         CustomAdapters.register(playerDataBuilder);
@@ -880,6 +884,8 @@ public class DataHandler extends Mechanic {
         saveDeathDatabase();
         savePackages();
         saveItems();
+
+        Logging.log("Data saved...");
     }
 
     public Map<UUID, FLPlayerSession> getCachedSessions() {
