@@ -467,7 +467,11 @@ public class FLPlayerSession {
     public void removeVanishPlaytime() {
         int vanishDuration = (int) ((System.currentTimeMillis() - vanishStart) / 1000 * 20); // Ticks
         if (vanishDuration > 0) {
-            this.player.decrementStatistic(Statistic.PLAY_ONE_MINUTE, vanishDuration);
+            if (vanishDuration > this.player.getStatistic(Statistic.PLAY_ONE_MINUTE)) {
+                this.player.decrementStatistic(Statistic.PLAY_ONE_MINUTE, vanishDuration);
+            } else {
+                this.player.setStatistic(Statistic.PLAY_ONE_MINUTE, 0);
+            }
         }
     }
 

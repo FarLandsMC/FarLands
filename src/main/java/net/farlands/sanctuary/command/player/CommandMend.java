@@ -67,12 +67,14 @@ public class CommandMend extends PlayerCommand {
         }
 
         Damageable damageable = (Damageable) meta;
-        int repairXp = 1 + damageable.getDamage() >> 1, playerXp, usedXp;
+        int repairXp = (damageable.getDamage() + 1) / 2;
+        int playerXp = totalExp(player);
+
         if (repairXp <= 0)
             return false;
 
-        usedXp = Math.min(playerXp = totalExp(player), repairXp); // damage / 2 rounded up
-        damageable.setDamage(damageable.getDamage() - (usedXp << 1)); // exp * 2
+        int usedXp = Math.min(playerXp, repairXp);
+        damageable.setDamage(Math.max(damageable.getDamage() - usedXp * 2, 0));
         player.giveExp(-usedXp);
         stack.setItemMeta(damageable);
 
@@ -86,7 +88,7 @@ public class CommandMend extends PlayerCommand {
     private static int totalExp(Player player) {
         int level = player.getLevel();
 
-        int points = player.getTotalExperience() * player.getExpToLevel();
+        int points = (int)(player.getExp() * player.getExpToLevel());
 
         if (level <= 16)
             return level * level + 6 * level + points;

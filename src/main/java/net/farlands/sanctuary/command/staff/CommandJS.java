@@ -98,6 +98,10 @@ public class CommandJS extends Command {
                 FarLands.getDebugger().echo(str.substring(0, Math.min(str.length(), 2000)));
             }
             sender.sendMessage(component);
+        } catch (ScriptException e) {
+            String message = e.getMessage().replaceFirst("org\\.graalvm\\.polyglot\\.PolyglotException: ", "");
+            sender.sendMessage(ComponentColor.red(message));
+            e.printStackTrace();
         } catch (Exception e) {
             sender.sendMessage(ComponentColor.red(e.getMessage()));
             e.printStackTrace();
