@@ -36,6 +36,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handles all data for the plugin
@@ -225,7 +226,7 @@ public class DataHandler extends Mechanic {
             }
         }, 100L);
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(FarLands.getInstance(), this::saveData, 5 * 60 * 20L, 5 * 60 * 20L); // Save data every five minutes to reduce data loss
+        Bukkit.getAsyncScheduler().runAtFixedRate(FarLands.getInstance(), st -> this.saveData(), 5, 5, TimeUnit.MINUTES); // Save data every five minutes to reduce data loss
 
         int gcCycleTime = FarLands.getFLConfig().gcCycleTime;
         if (gcCycleTime > 0) {

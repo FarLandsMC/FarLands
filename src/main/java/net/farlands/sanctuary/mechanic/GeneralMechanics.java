@@ -446,6 +446,7 @@ public class GeneralMechanics extends Mechanic {
                 NamespacedKey reward_loot = NamespacedKey.minecraft("chests/trial_chambers/%s".formatted(ominousVault ? "reward_ominous" : "reward"));
                 Location loc = block.getLocation();
                 block.setType(Material.STONE);
+                // Note: the reason we are using setblock rather than doing it properly is that there is no API to change these vaules at the moment.
                 String cmd = "setblock %d %d %d minecraft:vault[facing=\"%s\",ominous=\"%s\"]{config:{key_item:{count:1,id:\"%s\"},loot_table:\"%s\"}} replace"
                     .formatted(
                         loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
