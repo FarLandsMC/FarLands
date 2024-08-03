@@ -33,6 +33,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Rail;
+import org.bukkit.block.data.type.Vault;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -48,6 +49,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -413,6 +415,70 @@ public class GeneralMechanics extends Mechanic {
         }
 
         if (event.getClickedBlock() == null || event.isCancelled()) return;
+
+        if (
+            !event.getPlayer().isSneaking()
+            && event.getClickedBlock().getState() instanceof org.bukkit.block.Vault vault
+            && event.getPlayer().getLocation().distanceSquared(event.getClickedBlock().getLocation().add(0.5, 0.5, 0.5)) <= 9
+        ) {
+            Block block = event.getClickedBlock();
+            Vault vaultData = (Vault) block.getBlockData();
+            boolean ominousVault = vaultData.isOminous();
+            if (vaultData.getTrialSpawnerState() == Vault.State.INACTIVE) {
+                PersistentDataContainer pdc = vault.getPersistentDataContainer();
+                Long l = pdc.get(FLUtils.nsKey("last_opened"), PersistentDataType.LONG);
+                var needed = (ominousVault ? 10 : 5) * 60 * 1000; // 10 minutes for ominous, 5 for normal
+                if (l != null) {
+                    var elapsed = new Date().getTime() - l;
+                    if (needed > elapsed) {
+                        event.getPlayer().sendMessage(
+                            ComponentColor.red(
+                                "You can use this vault in {}.",
+                                needed - elapsed < 1000
+                                    ? "a moment"
+                                    : TimeInterval.formatTimeComponent(needed - elapsed, false)
+                            )
+                        );
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+                NamespacedKey reward_loot = NamespacedKey.minecraft("chests/trial_chambers/%s".formatted(ominousVault ? "reward_ominous" : "reward"));
+                Location loc = block.getLocation();
+                block.setType(Material.STONE);
+                String cmd = "setblock %d %d %d minecraft:vault[facing=\"%s\",ominous=\"%s\"]{config:{key_item:{count:1,id:\"%s\"},loot_table:\"%s\"}} replace"
+                    .formatted(
+                        loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(),
+                        vaultData.getFacing().name().toLowerCase(),
+                        ominousVault,
+                        (ominousVault ? Material.OMINOUS_TRIAL_KEY : Material.TRIAL_KEY).getKey(),
+                        reward_loot
+                    );
+                Bukkit.dispatchCommand(Bukkit.createCommandSender(c -> {}), cmd);
+                event.getPlayer().sendMessage(ComponentColor.green("Vault reset."));
+                event.setCancelled(true);
+            }
+
+            boolean ominousKey = false;
+
+            if (
+                event.getItem() != null
+                && (event.getItem().getType() == Material.TRIAL_KEY || (ominousKey = event.getItem().getType() == Material.OMINOUS_TRIAL_KEY))
+                && ominousVault == ominousKey
+            ) {
+                Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
+                    if (block.getState() instanceof org.bukkit.block.Vault vault2) {
+                        PersistentDataContainer pdc2 = vault2.getPersistentDataContainer();
+                        pdc2.set(
+                            FLUtils.nsKey("last_opened"),
+                            PersistentDataType.LONG,
+                            new Date().getTime()
+                        );
+                        vault2.update();
+                    }
+                });
+            }
+        }
 
         if ( // Unwax a sign by shift + right click with an axe
             event.getPlayer().isSneaking()
