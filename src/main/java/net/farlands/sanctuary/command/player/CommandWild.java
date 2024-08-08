@@ -15,7 +15,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.kicas.rp.util.Utils.*;
 import static net.farlands.sanctuary.util.FLUtils.RNG;
@@ -75,16 +75,11 @@ public class CommandWild extends PlayerCommand {
 
         long time = System.currentTimeMillis() - FarLands.getDataHandler().getPluginData().seasonStartTime;
         FarLands.getInstance().getServer().getScheduler().runTaskAsynchronously(FarLands.getInstance(), () -> {
-            try {
-                rtpPlayer(
-                    sender,
-                    INNER_RAD,
-                    MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD, (int) (time / 180000L)) // 3 * 60 * 1000, 3 minutes per block of rtp
-                );
-            } catch (ExecutionException | InterruptedException e) {
-                rtpFail(sender);
-                e.printStackTrace();
-            }
+            rtpPlayer(
+                sender,
+                INNER_RAD,
+                MIN_OUTER_RAD + Math.min(MAX_OUTER_RAD - MIN_OUTER_RAD, (int) (time / 180000L)) // 3 * 60 * 1000, 3 minutes per block of rtp
+            );
         });
         return true;
     }
@@ -99,7 +94,7 @@ public class CommandWild extends PlayerCommand {
         FarLands.getDebugger().echo(player.getName() + " /rtp → fail");
     }
 
-    private static void rtpPlayer(Player player, int minRange, int maxRange) throws ExecutionException, InterruptedException {
+    private static void rtpPlayer(Player player, int minRange, int maxRange) {
         boolean overworld = player.getWorld().getName().equals("world");
         final int doubleMax = maxRange << 1,
                   minSQ = minRange * minRange,
@@ -160,18 +155,26 @@ public class CommandWild extends PlayerCommand {
         }
     }
 
-    private static Location rtpFindSafe(Location origin) throws ExecutionException, InterruptedException {
+    private static Location rtpFindSafe(Location origin) {
         Location safe = origin.clone();
         safe.setX(safe.getBlockX() + .5);
         safe.setZ(safe.getBlockZ() + .5);
-        return safe.getWorld().getChunkAtAsync(safe, true).thenApplyAsync((chunk) -> {
+        AtomicReference<Location> ret = new AtomicReference<>();
+        safe.getWorld().getChunkAtAsync(safe, true).whenCompleteAsync((chunk, throwable) -> {
+            if (throwable != null) {
+                ret.set(null);
+                return;
+            }
+
             int bottom = 62,
                 top = 1 + safe.getChunk().getChunkSnapshot().getHighestBlockYAt(
-                        safe.getBlockX() & 15, safe.getBlockZ() & 15
+                    safe.getBlockX() & 15, safe.getBlockZ() & 15
                 );
 
-            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-                return safe.add(0, .5, 0);
+            if (canStand(safe.getBlock()) && isSafe(safe.clone())) {
+                ret.set(safe.add(0, .5, 0));
+                return;
+            }
 
             do {
                 safe.setY((bottom + top + 1) >> 1);
@@ -182,9 +185,14 @@ public class CommandWild extends PlayerCommand {
             } while (top - bottom > 1);
             safe.setY((bottom + top - 1) >> 1);
 
-            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-                return safe.add(0, 1.5, 0);
-            return null;
-        }).get();
+            if (canStand(safe.getBlock()) && isSafe(safe.clone())) {
+                ret.set(safe.add(0, 1.5, 0));
+                return;
+            }
+
+            ret.set(null);
+        });
+
+        return ret.get();
     }
 }
