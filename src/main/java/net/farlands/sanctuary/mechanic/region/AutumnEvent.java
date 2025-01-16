@@ -420,11 +420,11 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setAdult();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(64);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(.25);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(64);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(.25);
 
         if (RNG.nextInt(5) == 0)
             mob.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
@@ -459,9 +459,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setPatrolLeader(false);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(64);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(64);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
 
         mob.getEquipment().setItemInMainHand(new ItemStack(Material.NETHERITE_AXE));
 
@@ -667,11 +667,11 @@ public class AutumnEvent extends Mechanic {
         mob.setAnger(Integer.MAX_VALUE);
         mob.setAdult();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(16);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16); // default 5
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(16);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16); // default 5
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3);
 
         mob.getEquipment().setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
         if (RNG.nextInt(5) == 0) {
@@ -698,9 +698,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.DARK_RED + "Fortress Defender");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(64);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(20);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(64);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(20);
 
         mob.getEquipment().setItemInMainHand(new ItemStack(Material.IRON_SWORD));
         if (RNG.nextInt(5) == 0) {
@@ -724,8 +724,8 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.DARK_RED + "Volcanic Creation");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         return mob;
     }
@@ -734,8 +734,8 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.DARK_RED + "Shrieking Specter");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         return mob;
     }
@@ -745,9 +745,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setSize(RNG.nextInt(2) + (RNG.nextInt(8) == 0 ? 4 : 3));
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20 * mob.getSize());
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(5 * mob.getSize());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20 * mob.getSize());
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(5 * mob.getSize());
 
         return mob;
     }
@@ -836,9 +836,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.AQUA + "Decomposing Bones");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(48);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(48);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
 
         mob.getEquipment().setItemInMainHand(RNG.nextInt(5) == 0 ? new ItemStack(Material.DIAMOND_SWORD) : new ItemStack(Material.IRON_SWORD));
         // https://minecraft-heads.com/custom-heads/monsters/36070-mossy-skeleton
@@ -856,11 +856,11 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setAdult();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(64);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(.2);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(64);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(.2);
 
         mob.getEquipment().setHelmet(new ItemStack(Material.CHAINMAIL_HELMET));
 
@@ -871,7 +871,7 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.AQUA + "Maggot");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
 
         return mob;
     }
@@ -881,10 +881,10 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setAdult();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(20);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(20);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
 
         mob.getEquipment().setItemInMainHand(
                 RNG.nextInt(5) == 0
@@ -907,12 +907,12 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setAdult();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(128);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(.3);
-        mob.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(.5);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(128);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(.3);
+        mob.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(.5);
 
         mob.getEquipment().setItemInMainHand(new ItemStack(Material.BLAZE_ROD));
         if (RNG.nextInt(5) == 0)
@@ -1067,11 +1067,11 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setAdult();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(24);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        mob.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(24);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(1);
 
         mob.getEquipment().setItemInMainHand(new ItemStack(Material.TRIDENT));
 
@@ -1099,8 +1099,8 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.YELLOW + "Forest Golem");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         return mob;
     }
@@ -1114,10 +1114,10 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setBaby();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(32);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(32);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
 
         // https://minecraft-heads.com/custom-heads/humanoid/26686-injured-husk
         mob.getEquipment().setHelmet(skullItem("c86e3d82-4bda-4dd8-831f-617b08108987", new SkullData(
@@ -1193,8 +1193,8 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.LIGHT_PURPLE + "Old Hag");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(128);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(128);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         return mob;
     }
@@ -1204,9 +1204,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setSize(RNG.nextInt(2) + (RNG.nextInt(8) == 0 ? 4 : 3));
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20 * mob.getSize());
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(5 * mob.getSize());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20 * mob.getSize());
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(5 * mob.getSize());
 
         return mob;
     }
@@ -1299,9 +1299,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.RED + "Goliath Spider");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
 
         return mob;
     }
@@ -1310,9 +1310,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.RED + "Recluse Spider");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(8);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(8);
 
         return mob;
     }
@@ -1321,9 +1321,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.RED + "Common House Spider");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(14);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(14);
 
         mob.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, true));
 
@@ -1334,9 +1334,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.RED + "Tarantula");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
 
         for (int i = 0; i < 4; ++i) {
             switch (RNG.nextInt(4)) {
@@ -1367,17 +1367,17 @@ public class AutumnEvent extends Mechanic {
         Spider vehicle = (Spider)dramaticSpawn(location, EntityType.SPIDER, 0.65F);
         vehicle.setCustomName(ChatColor.RED + "Nimble Spider");
 
-        vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        vehicle.setHealth(vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        vehicle.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
+        vehicle.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        vehicle.setHealth(vehicle.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        vehicle.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
 
 
         Skeleton mob = (Skeleton)FarLands.getWorld().spawnEntity(location, EntityType.SKELETON);
         mob.setCustomName(ChatColor.RED + "Nimble Archer");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(48);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(48);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         ItemStack stack = new ItemStack(Material.BOW);
         ItemMeta im = stack.getItemMeta();
@@ -1397,9 +1397,9 @@ public class AutumnEvent extends Mechanic {
         Spider vehicle = (Spider)dramaticSpawn(location, EntityType.SPIDER, 0.65F);
         vehicle.setCustomName(ChatColor.RED + "Creepy Spider");
 
-        vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(196);
-        vehicle.setHealth(vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        vehicle.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
+        vehicle.getAttribute(Attribute.MAX_HEALTH).setBaseValue(196);
+        vehicle.setHealth(vehicle.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        vehicle.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
 
         vehicle.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, true));
 
@@ -1409,8 +1409,8 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setPowered(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(8);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(8);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         vehicle.addPassenger(mob);
         return mob;
@@ -1521,9 +1521,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.GRAY + "Lost Traveller");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
 
         if (RNG.nextInt(5) == 0)
             if (RNG.nextInt(5) == 0)
@@ -1548,9 +1548,9 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.GRAY + "Withered Explorer");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(8);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(8);
 
         mob.getEquipment().setItemInMainHand(new ItemStack(Material.NETHERITE_SWORD));
         mob.getEquipment().setItemInOffHand(RNG.nextBoolean()
@@ -1633,10 +1633,10 @@ public class AutumnEvent extends Mechanic {
         if (RNG.nextBoolean())
             mob.setBaby();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
 
         mob.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST,   Integer.MAX_VALUE, 1, true));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true));
@@ -1658,10 +1658,10 @@ public class AutumnEvent extends Mechanic {
         if (RNG.nextBoolean())
             mob.setBaby();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(32);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(32);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
 
         mob.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST,   Integer.MAX_VALUE, 1, true));
         mob.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true));
@@ -1700,12 +1700,12 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomNameVisible(true);
         mob.setAdult();
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(256);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(24);
-        mob.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(.3);
-        mob.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(.5);
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(256);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(24);
+        mob.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        mob.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(.3);
+        mob.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(.5);
 
         mob.getEquipment().setItemInMainHand(AIR);
         mob.getEquipment().setHelmet(AIR);
@@ -1731,8 +1731,8 @@ public class AutumnEvent extends Mechanic {
         mob.setCustomName(ChatColor.YELLOW + ChatColor.BOLD.toString() + "Candy Wraith");
         mob.setCustomNameVisible(true);
 
-        mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(512);
-        mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(512);
+        mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         mob.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
 
@@ -1998,9 +1998,9 @@ public class AutumnEvent extends Mechanic {
         boss.setCustomName(ChatColor.GOLD + ChatColor.BOLD.toString() + "Jack Skellington");
         boss.setCustomNameVisible(true);
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2048);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1);
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(2048);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(1);
 
         boss.getEquipment().setItemInMainHand(new ItemStack(Material.JACK_O_LANTERN));
         boss.getEquipment().setItemInOffHand(new ItemStack(Material.SNOWBALL));
@@ -2024,10 +2024,10 @@ public class AutumnEvent extends Mechanic {
             mob.setCustomName(ChatColor.GOLD + ChatColor.BOLD.toString() + "Nightmare Skeleton");
             mob.setCustomNameVisible(true);
 
-            mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(32);
-            mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
-            mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3);
+            mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(32);
+            mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+            mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
+            mob.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3);
 
             // needs delay to render on client
             FarLands.getScheduler().scheduleSyncDelayedTask(() -> mob.getEquipment().setItemInMainHand(AIR), 1);
@@ -2058,9 +2058,9 @@ public class AutumnEvent extends Mechanic {
         vehicle.setCustomName(ChatColor.DARK_RED + "Wraith");
         vehicle.setAdult();
 
-        vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(512);
-        vehicle.setHealth(vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        vehicle.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(.2);
+        vehicle.getAttribute(Attribute.MAX_HEALTH).setBaseValue(512);
+        vehicle.setHealth(vehicle.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        vehicle.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(.2);
 
 
         PiglinBrute boss = (PiglinBrute)dramaticSpawn(location, EntityType.PIGLIN_BRUTE, 1.74F);
@@ -2068,9 +2068,9 @@ public class AutumnEvent extends Mechanic {
         boss.setCustomNameVisible(true);
         boss.setImmuneToZombification(true);
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2048);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(2048);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
 
         boss.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, true));
 
@@ -2096,9 +2096,9 @@ public class AutumnEvent extends Mechanic {
             mob.setCanPickupItems(false);
             mob.setAdult();
 
-            mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(96);
-            mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(12);
+            mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(96);
+            mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+            mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(12);
 
             mob.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 1, true));
 
@@ -2137,12 +2137,12 @@ public class AutumnEvent extends Mechanic {
         boss.setCustomNameVisible(true);
         boss.setAdult();
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1536);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
-        boss.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        boss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.3);
-        boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1);
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(1536);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
+        boss.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        boss.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3);
+        boss.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(1);
 
         boss.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true));
 
@@ -2194,17 +2194,17 @@ public class AutumnEvent extends Mechanic {
         vehicle.setCustomName(ChatColor.YELLOW + ChatColor.BOLD.toString() + "Dullahan");
 
         vehicle.setAdult();
-        vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(256);
-        vehicle.setHealth(vehicle.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        vehicle.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.4);
+        vehicle.getAttribute(Attribute.MAX_HEALTH).setBaseValue(256);
+        vehicle.setHealth(vehicle.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        vehicle.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.4);
 
 
         Stray boss = (Stray)FarLands.getWorld().spawnEntity(location, EntityType.STRAY);
         boss.setCustomName(ChatColor.YELLOW + ChatColor.BOLD.toString() + "Headless Horseman");
         boss.setCustomNameVisible(true);
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1536);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(1536);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         ItemStack stack = new ItemStack(Material.BOW);
         ItemMeta im = stack.getItemMeta();
@@ -2229,9 +2229,9 @@ public class AutumnEvent extends Mechanic {
         boss.setCustomNameVisible(true);
         boss.setPatrolLeader(false);
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1536);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        boss.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(.7);
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(1536);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(.7);
 
         Pack support = new Pack((location1) -> {
             Vex mob = (Vex)FarLands.getWorld().spawnEntity(location1, EntityType.VEX);
@@ -2245,7 +2245,7 @@ public class AutumnEvent extends Mechanic {
                 FarLands.getScheduler().scheduleSyncDelayedTask(() -> mob.getEquipment().setItemInMainHand(new ItemStack(Material.PRISMARINE_SHARD)), 1);
             }
             mob.setCustomNameVisible(true);
-            mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(8);
+            mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(8);
             return mob;
         }, Vex.class, location, 2, 3, new Cooldown(0), true) {
             @Override
@@ -2270,17 +2270,17 @@ public class AutumnEvent extends Mechanic {
         Spider boss = (Spider)dramaticSpawn(location, EntityType.SPIDER, 0.65F);
         boss.setCustomName(ChatColor.RED + ChatColor.BOLD.toString() + "Archane's Mount");
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1536);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(14);
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(1536);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(14);
 
 
         Skeleton rider = (Skeleton)FarLands.getWorld().spawnEntity(location, EntityType.SKELETON);
         rider.setCustomName(ChatColor.RED + ChatColor.BOLD.toString() + "Archane");
         rider.setCustomNameVisible(true);
 
-        rider.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(512);
-        rider.setHealth(rider.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
+        rider.getAttribute(Attribute.MAX_HEALTH).setBaseValue(512);
+        rider.setHealth(rider.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
 
         ItemStack stack = new ItemStack(Material.BOW);
         ItemMeta im = stack.getItemMeta();
@@ -2317,9 +2317,9 @@ public class AutumnEvent extends Mechanic {
             mob.setCustomName(ChatColor.RED + "Toxic Minion");
             mob.setCustomNameVisible(true);
 
-            mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(64);
-            mob.setHealth(mob.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-            mob.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(8);
+            mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(64);
+            mob.setHealth(mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+            mob.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(8);
 
             return mob;
         }, CaveSpider.class, location, 5, 2, new Cooldown(0), false) {
@@ -2348,9 +2348,9 @@ public class AutumnEvent extends Mechanic {
         boss.setCustomName(ChatColor.GRAY + ChatColor.BOLD.toString() + "Blight");
         boss.setCustomNameVisible(true);
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(1536);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1);
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(1536);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(1);
 
         return boss;
     }
@@ -2360,11 +2360,11 @@ public class AutumnEvent extends Mechanic {
         boss.setCustomNameVisible(true);
         boss.setAdult();
 
-        boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(2048);
-        boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue());
-        boss.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(16);
-        boss.getAttribute(Attribute.ZOMBIE_SPAWN_REINFORCEMENTS).setBaseValue(0);
-        boss.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE).setBaseValue(1);
+        boss.getAttribute(Attribute.MAX_HEALTH).setBaseValue(2048);
+        boss.setHealth(boss.getAttribute(Attribute.MAX_HEALTH).getBaseValue());
+        boss.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(16);
+        boss.getAttribute(Attribute.SPAWN_REINFORCEMENTS).setBaseValue(0);
+        boss.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(1);
 
         boss.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST,         Integer.MAX_VALUE, 1, true));
         boss.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true));
@@ -2452,9 +2452,9 @@ public class AutumnEvent extends Mechanic {
 
     private static int calcDroppedEXP(LivingEntity entity) {
         double exp = 1;
-        if (entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null)
-            exp = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getBaseValue();
-        exp *= entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
+        if (entity.getAttribute(Attribute.ATTACK_DAMAGE) != null)
+            exp = entity.getAttribute(Attribute.ATTACK_DAMAGE).getBaseValue();
+        exp *= entity.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
         return (int) (exp) >> 5;
     }
 
@@ -2735,7 +2735,7 @@ public class AutumnEvent extends Mechanic {
             if (player == null || RNG.nextInt(reward.getSecond()) > 0)
                 continue;
             // damage contributed to death must be greater than 0.73 * max health of mob / # of players that damaged it
-            if (monsterSoulbound.get(uid) > 0.73 * event.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue() /
+            if (monsterSoulbound.get(uid) > 0.73 * event.getEntity().getAttribute(Attribute.MAX_HEALTH).getBaseValue() /
                     soulbound.get(event.getEntity().getUniqueId()).entrySet().size()) {
                 ItemUtils.giveItem(player, reward.getFirst(), true);
                 player.sendMessage(ChatColor.LIGHT_PURPLE + "You received a drop!");

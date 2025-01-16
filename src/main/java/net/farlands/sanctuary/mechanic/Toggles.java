@@ -75,6 +75,7 @@ public class Toggles extends Mechanic {
                                 currentInfoData.latency(),
                                 GameType.SURVIVAL,
                                 currentInfoData.displayName(),
+                                currentInfoData.listOrder(),
                                 currentInfoData.chatSession()
                             );
                             infoList.set(i, newInfoData);

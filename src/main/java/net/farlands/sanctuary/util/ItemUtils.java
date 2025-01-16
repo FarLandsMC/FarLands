@@ -160,7 +160,7 @@ public class ItemUtils {
                 case "enchantment_glint_override" -> DataComponents.ENCHANTMENT_GLINT_OVERRIDE;
                 case "intangible_projectile" -> DataComponents.INTANGIBLE_PROJECTILE;
                 case "food" -> DataComponents.FOOD;
-                case "fire_resistant" -> DataComponents.FIRE_RESISTANT;
+                //case "fire_resistant" -> DataComponents.FIRE_RESISTANT;
                 case "tool" -> DataComponents.TOOL;
                 case "stored_enchantments" -> DataComponents.STORED_ENCHANTMENTS;
                 case "dyed_color" -> DataComponents.DYED_COLOR;
@@ -218,7 +218,7 @@ public class ItemUtils {
             "enchantment_glint_override",
             "intangible_projectile",
             "food",
-            "fire_resistant",
+            //"fire_resistant",
             "tool",
             "stored_enchantments",
             "dyed_color",
