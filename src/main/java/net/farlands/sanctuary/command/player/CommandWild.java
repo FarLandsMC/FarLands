@@ -12,6 +12,7 @@ import net.farlands.sanctuary.util.TimeInterval;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -89,8 +90,8 @@ public class CommandWild extends PlayerCommand {
         return true;
     }
 
-    private static boolean quickCheck(Block block) {
-        return !(block.isLiquid() || block.isPassable() || block.getType() == Material.SEA_PICKLE);
+    private static boolean biomeCheck(Biome biome) {
+        return biome.toString().endsWith("FROZEN_OCEAN") || !(biome.toString().endsWith("OCEAN") || biome == Biome.RIVER);
     }
 
     private static void rtpFail(Player player) {
@@ -99,7 +100,7 @@ public class CommandWild extends PlayerCommand {
         FarLands.getDebugger().echo(player.getName() + " /rtp → fail");
     }
 
-    private static void rtpPlayer(Player player, int minRange, int maxRange) throws ExecutionException, InterruptedException {
+    public static void rtpPlayer(Player player, int minRange, int maxRange) throws ExecutionException, InterruptedException {
         boolean overworld = player.getWorld().getName().equals("world");
         final int doubleMax = maxRange << 1,
                   minSQ = minRange * minRange,
@@ -121,14 +122,33 @@ public class CommandWild extends PlayerCommand {
 
         Location safe = null;
         int ttl = 64;
+        outer:
         while (--ttl >= 0) {
-            if (quickCheck(rtp.getBlock()) &&
-                    (safe = overworld
-                            ? rtpFindSafe(rtp)
-                            : findSafe(rtp, 0, 126)
-                    ) != null
-            )
-                break;
+            if (biomeCheck(rtp.getBlock().getBiome())) { // does not access the chunk
+                /* things that do access the chunk:
+                 * Block.getType() return CraftBlockType.minecraftToBukkit(this.world.getBlockState(this.position).getBlock());
+                 * Block.isSolid() (no implementation)
+                 * Block.isLiquid() return this.getNMS().liquid();
+                 */ // FarLands.getDebugger().echo(System.currentTimeMillis() + "\n" + rtp.getBlock().isLiquid() + "\n" + System.currentTimeMillis());
+                if ((safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 126)) != null)
+                    break;
+
+                // check chunk corners
+                int cx = rtp.getBlockX() & 15;
+                int cz = rtp.getBlockZ() & 15;
+                x -= cx;
+                z -= cz;
+                // psuedo-random walk over all chunk x,z positions:  0 5 10 15 4 9 14 3 8 13 2 7 12 1 6 11
+                for (int dz = 0; dz <= 75; dz += 5) {
+                    rtp.setZ(z + (cz + dz) % 16);
+                    for (int dx = 0; dx <= 75; dx += 5) {
+                        rtp.setX(x + (cx + dx) % 16);
+                        if ((safe = overworld ? rtpFindSafe(rtp) : findSafe(rtp, 0, 126)) != null)
+                            break outer;
+                    }
+                }
+            }
+
             do {
                 x = RNG.nextInt(doubleMax) - maxRange;
                 z = RNG.nextInt(doubleMax) - maxRange;
@@ -144,13 +164,15 @@ public class CommandWild extends PlayerCommand {
         }
         FarLands.getDebugger().echo(player.getName() + " /rtp → " +
                 safe.getWorld().getName() + " " +
-                safe.getBlockX() + " " +
-                safe.getBlockY() + " " +
-                safe.getBlockZ() + " : " + (64 - ttl)
+                safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ() +
+                " : " + (64 - ttl)
         );
         Location finalSafe = safe;
         FarLands.getInstance().getServer().getScheduler().runTask(FarLands.getInstance(), () -> tpPlayer(player, finalSafe));
-
+        player.sendMessage(ComponentColor.gray(
+                "Your random teleport was successful: " +
+                safe.getBlockX() + " " + safe.getBlockY() + " " + safe.getBlockZ()
+        ));
         if (FarLands.getDataHandler().getOfflineFLPlayer(player).homes.isEmpty()) {
             player.sendActionBar(
                 ComponentColor.aqua(
@@ -160,31 +182,59 @@ public class CommandWild extends PlayerCommand {
         }
     }
 
-    private static Location rtpFindSafe(Location origin) throws ExecutionException, InterruptedException {
+    // copy-paste from RP utils, modified to avoid rtp over deep water
+    private static boolean doesDamage(Block block) {
+        return block.getType().isSolid() || block.isLiquid() ||
+                block.getType() == Material.FIRE ||
+                block.getType() == Material.CACTUS ||
+                block.getType() == Material.SWEET_BERRY_BUSH ||
+                block.getType() == Material.WITHER_ROSE ||
+                block.getType() == Material.POWDER_SNOW;
+    }
+    private static boolean rtpIsSafe(Location location) {
+        Location loc = location.clone().add(0, 1, 0);
+        return !(
+                (loc.getBlock().getType() != Material.WATER && doesDamage(loc.getBlock())) ||
+                doesDamage(loc.add(0, 1, 0).getBlock())
+        );
+    }
+    private static boolean rtpCanStand(Location location) {
+        Block block = location.getBlock();
+        return !(
+                // avoid rtp on top of trees
+                (block.getType().toString().endsWith("_LEAVES") && !block.getBiome().toString().endsWith("JUNGLE")) ||
+                block.isPassable() ||
+                block.getType() == Material.MAGMA_BLOCK ||
+                block.getType() == Material.CACTUS ||
+                block.getType() == Material.POWDER_SNOW
+        ) || location.clone().add(0, 1, 0).getBlock().getType() == Material.LILY_PAD;
+    }
+
+    public static Location rtpFindSafe(Location origin) {
         Location safe = origin.clone();
         safe.setX(safe.getBlockX() + .5);
         safe.setZ(safe.getBlockZ() + .5);
-        return safe.getWorld().getChunkAtAsync(safe, true).thenApplyAsync((chunk) -> {
-            int bottom = 62,
-                top = 1 + safe.getChunk().getChunkSnapshot().getHighestBlockYAt(
-                        safe.getBlockX() & 15, safe.getBlockZ() & 15
-                );
+        int bottom = 61,
+            top = safe.getChunk().getChunkSnapshot().getHighestBlockYAt( // standing block
+                    safe.getBlockX() & 15, safe.getBlockZ() & 15
+            );
 
-            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-                return safe.add(0, .5, 0);
+        safe.setY(top);
+        if (rtpCanStand(safe) && rtpIsSafe(safe))
+            return safe.add(0, 1.5, 0);
 
-            do {
-                safe.setY((bottom + top + 1) >> 1);
-                if (safe.getBlock().getLightFromSky() <= 8)
-                    bottom = safe.getBlockY();
-                else
-                    top = safe.getBlockY();
-            } while (top - bottom > 1);
-            safe.setY((bottom + top - 1) >> 1);
+        ++top;
+        do {
+            safe.setY((bottom + top) >> 1);
+            if (safe.getBlock().getLightFromSky() <= 8)
+                bottom = safe.getBlockY();
+            else
+                top = safe.getBlockY() - 1;
+        } while (top - bottom > 1);
+        safe.setY((bottom + top) >> 1);
 
-            if (canStand(safe.getBlock()) && isSafe(safe.clone()))
-                return safe.add(0, 1.5, 0);
-            return null;
-        }).get();
+        if (rtpCanStand(safe) && rtpIsSafe(safe))
+            return safe.add(0, 1.5, 0);
+        return null;
     }
 }
