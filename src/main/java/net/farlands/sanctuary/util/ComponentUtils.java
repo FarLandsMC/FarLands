@@ -568,7 +568,7 @@ public class ComponentUtils {
      * <pre>{@code
      * {}                  -> index = auto, style = null,         fmt = null
      * {0}                 -> index = 0,    style = null,         fmt = null // If valueIndex == 0, it will be incremented
-     * {5}                 -> index = 0,    style = null,         fmt = null // If valueIndex == 5, it will be incremented
+     * {5}                 -> index = 5,    style = null,         fmt = null // If valueIndex == 5, it will be incremented
      * {0:red}             -> index = 0,    style = red,          fmt = null // If valueIndex == 0, it will be incremented
      * {0:red bold}        -> index = 0,    style = red & bold,   fmt = null // If valueIndex == 0, it will be incremented
      * {0:red green bold}  -> index = 0,    style = green & bold, fmt = null // If valueIndex == 0, it will be incremented

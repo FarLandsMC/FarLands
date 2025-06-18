@@ -1,12 +1,13 @@
 package net.farlands.sanctuary.mechanic;
 
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+
+import io.papermc.paper.persistence.PersistentDataContainerView;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.player.CommandKittyCannon;
+import net.farlands.sanctuary.data.pdc.JSONDataType;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.FireworkBuilder;
-import net.farlands.sanctuary.util.ItemUtils;
-import net.minecraft.nbt.CompoundTag;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -18,6 +19,7 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -30,6 +32,7 @@ import static org.bukkit.entity.EntityType.*;
  * Handles events related to custom items
  */
 public class Items extends Mechanic {
+
     private final Map<UUID, TNTArrow> tntArrows;
 
     private static final List<Material> UNBREAKABLE_BLOCKS = Arrays.asList(
@@ -52,43 +55,14 @@ public class Items extends Mechanic {
     public void onEntityShootBow(EntityShootBowEvent event) {
         if (event.getEntity().getType() != EntityType.PLAYER) return; // If not shot by a player, return
 
-        PlayerInventory inv = ((Player) event.getEntity()).getInventory();
-        ItemStack arrow = null;
-        int arrowIndex = -1;
+        var pdc = event.getProjectile().getPersistentDataContainer();
+        FarLands.getDebugger().echo("pdc: ", pdc);
+        if (pdc != null && pdc.has(FLUtils.nsKey("tntArrow"))) {
+            var tntArrow = pdc.get(FLUtils.nsKey("tntArrow"), new JSONDataType<>(TNTArrow.class));
+            FarLands.getDebugger().echo("tnt arrow: ", tntArrow);
+            event.setConsumeArrow(true);
 
-        if (inv.getItemInOffHand().getType() == Material.ARROW) { // If the item in offhand is an arrow, set the arrow and the index
-            arrow = inv.getItemInOffHand();
-            arrowIndex = 0;
-        } else { // Find the position of the first arrow in the inventory, checking the hotbar first
-            for (int i = 27; i < 36; ++i) {
-                if (inv.getItem(i) != null && inv.getItem(i).getType() == Material.ARROW) {
-                    arrow = inv.getItem(i);
-                    arrowIndex = i;
-                    break;
-                }
-            }
-            if (arrow == null) {
-                arrowIndex = inv.first(Material.ARROW);
-                if (arrowIndex < 0)
-                    return;
-                arrow = inv.getItem(arrowIndex);
-            }
-        }
-
-        CompoundTag content, data = ItemUtils.getCustomData(arrow);
-        if (data != null && (content = data.getCompound("tntArrow")) != null) {
-            // Infinity doesn't apply to these arrows
-            if ((inv.getItemInMainHand().getType() == Material.BOW
-                    ? inv.getItemInMainHand().getEnchantmentLevel(Enchantment.INFINITY) > 0
-                    : inv.getItemInOffHand().getEnchantmentLevel(Enchantment.INFINITY) > 0) &&
-                    ((Player) event.getEntity()).getGameMode() == GameMode.SURVIVAL) {
-                if (arrow.getAmount() == 1)
-                    inv.setItem(arrowIndex, null);
-                else
-                    arrow.setAmount(arrow.getAmount() - 1);
-            }
-
-            tntArrows.put(event.getProjectile().getUniqueId(), new TNTArrow(content));
+            tntArrows.put(event.getProjectile().getUniqueId(), tntArrow);
         }
     }
 
@@ -119,13 +93,16 @@ public class Items extends Mechanic {
             return;
         }
 
-        if (tntArrows.containsKey(event.getEntity().getUniqueId())) {
-            TNTArrow data = tntArrows.get(event.getEntity().getUniqueId());
+        // TODO: This doesn't work because the pdc of the arrow entity is not the same as the item.
+        PersistentDataContainer pdc = event.getEntity().getPersistentDataContainer();
+        if (pdc.has(FLUtils.nsKey("tntArrow"))) {
+            TNTArrow data = pdc.get(FLUtils.nsKey("tntArrow"), new JSONDataType<>(TNTArrow.class));
             switch (data.type) {
                 case 0:
                     fakeExplosion(event.getEntity().getLocation(), data.strength * 5.0, data.duration);
                     break;
                 case 1:
+                    FarLands.getDebugger().echo("normal arrow");
                     event.getEntity().getWorld().createExplosion(event.getEntity().getLocation(), data.strength * 4.0F, true);
                     break;
                 case 2: {
@@ -247,15 +224,9 @@ public class Items extends Mechanic {
         return exploded;
     }
 
-    private static final class TNTArrow {
-        float strength;
-        int duration;
-        int type;
-
-        TNTArrow(CompoundTag nbt) {
-            this.strength = nbt.getFloat("strength"); // getFloat
-            this.duration = nbt.contains("duration") ? nbt.getInt("duration") : 15; // hasKey, getInt
-            this.type = nbt.contains("type") ? nbt.getInt("type") : 0; // hasKey, getInt
-        }
+    public static final class TNTArrow {
+        public float strength;
+        public int duration;
+        public int type;
     }
 }

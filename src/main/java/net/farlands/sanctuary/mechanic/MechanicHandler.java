@@ -37,9 +37,9 @@ public class MechanicHandler implements Listener {
         registerMechanic(FarLands.getDataHandler());
         registerMechanic(FarLands.getGuiHandler());
 
-        if (AutumnEvent.isActive()) { // Initialise the autumn event if it's active
-            registerMechanic(new AutumnEvent());
-        }
+        // if (AutumnEvent.isActive()) { // Initialise the autumn event if it's active
+        //     registerMechanic(new AutumnEvent());
+        // }
 
         // Feature mechanics
         registerMechanic(new AFK());

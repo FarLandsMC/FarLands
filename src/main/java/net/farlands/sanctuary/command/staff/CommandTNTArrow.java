@@ -2,11 +2,13 @@ package net.farlands.sanctuary.command.staff;
 
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.data.pdc.JSONDataType;
+import net.farlands.sanctuary.mechanic.Items.TNTArrow;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
+import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.ItemUtils;
 import net.kyori.adventure.text.Component;
-import net.minecraft.nbt.CompoundTag;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -38,27 +40,27 @@ public class CommandTNTArrow extends PlayerCommand {
 
     @Override
     public boolean execute(Player sender, String[] args) {
-        CompoundTag tntArrow = new CompoundTag();
-        tntArrow.putFloat("strength", 1f); // CompoundTag#setFloat
+        TNTArrow tntArrow = new TNTArrow();
+        tntArrow.strength = 1f;
         int amount = 1;
         if(args.length == 1) {
             amount = parseNumber(args[0], Integer::parseInt, 0);
             if(amount == 0) {
                 if(!TYPES.contains(args[0]))
                     return false;
-                tntArrow.putInt("type", TYPES.indexOf(args[0])); // CompoundTag#setInt
+                tntArrow.type = TYPES.indexOf(args[0]);
                 amount = 1;
             }
         }else if(args.length > 1) {
             if(!TYPES.contains(args[0]))
                 return false;
-            tntArrow.putInt("type", TYPES.indexOf(args[0])); // CompoundTag#setInt
+            tntArrow.type = TYPES.indexOf(args[0]); // CompoundTag#setInt
             float power = parseNumber(args[1], Float::parseFloat, 0.0F);
             if(power == 0.0) {
                 sendFormatted(sender, "&(red)The arrow power must be 1 or larger.");
                 return true;
             }
-            tntArrow.putFloat("strength", power); // CompoundTag#setFloat
+            tntArrow.strength = power;
             if(args.length >= 3)
                 amount = parseNumber(args[2], Integer::parseInt, 0);
             if(args.length >= 4) {
@@ -67,7 +69,7 @@ public class CommandTNTArrow extends PlayerCommand {
                     sendFormatted(sender, "&(red)The duration must be between 5 and 300 inclusive.");
                     return true;
                 }
-                tntArrow.putInt("duration", duration); // CompoundTag#setInt
+                tntArrow.duration = duration; // CompoundTag#setInt
             }
         }
         if(amount < 1 || amount > 64) {
@@ -77,11 +79,13 @@ public class CommandTNTArrow extends PlayerCommand {
 
         ItemStack is = new ItemStack(Material.ARROW, amount);
         is.editMeta(im -> {
-            im.displayName(NAMES.get(tntArrow.contains("type") ? tntArrow.getInt("type") : 0));
-            im.lore(List.of(ComponentUtils.format("Strength: {}", tntArrow.getFloat("strength"))));
+            im.displayName(NAMES.get(tntArrow.type));
+            im.lore(List.of(ComponentUtils.format("Strength: {}", tntArrow.strength)));
         });
 
-        ItemUtils.updateCustomData(is, d -> d.put("tntArrow", tntArrow));
+        is.editPersistentDataContainer(pdc -> {
+            pdc.set(FLUtils.nsKey("tntArrow"), new JSONDataType<>(TNTArrow.class), tntArrow);
+        });
 
         ItemUtils.giveItem(sender, is, false);
         return true;

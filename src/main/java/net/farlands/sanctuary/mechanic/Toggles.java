@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.staff.CommandJS;
 import net.farlands.sanctuary.data.FLPlayerSession;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -75,8 +76,7 @@ public class Toggles extends Mechanic {
                                 currentInfoData.latency(),
                                 GameType.SURVIVAL,
                                 currentInfoData.displayName(),
-                                currentInfoData.listOrder(),
-                                currentInfoData.chatSession()
+                                false, 0, null
                             );
                             infoList.set(i, newInfoData);
                         }
