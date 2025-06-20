@@ -176,7 +176,7 @@ public class GeneralMechanics extends Mechanic {
 
         if (isNew) {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
-            if (flp.vanished) {
+            if (!flp.vanished) {
                 Logging.broadcast(p -> {
                     Player pl = p.handle.getOnlinePlayer();
                     if (!player.getUniqueId().equals(p.handle.uuid)) {
