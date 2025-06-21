@@ -122,13 +122,13 @@ public final class FLUtils {
             String version = Bukkit.getMinecraftVersion();
 
             // get the latest build
-            URL buildsUrl = new URL("https://papermc.io/api/v2/projects/paper/versions/" + version);
+            URL buildsUrl = new URL("https://api.papermc.io/v2/projects/paper/versions/" + version);
             reader = new InputStreamReader(buildsUrl.openStream());
             arr = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("builds").getAsJsonArray(); // get .builds as Array
             String build = arr.get(arr.size() - 1).getAsString(); // get the last index of the builds array
 
             // form the download url
-            return String.format("https://papermc.io/api/v2/projects/paper/versions/%1$s/builds/%2$s/downloads/paper-%1$s-%2$s.jar", version, build);
+            return String.format("https://api.papermc.io/v2/projects/paper/versions/%1$s/builds/%2$s/downloads/paper-%1$s-%2$s.jar", version, build);
 
         } catch (Exception e) {
             e.printStackTrace();
