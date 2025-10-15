@@ -187,7 +187,7 @@ public class GeneralMechanics extends Mechanic {
                     } else {
                         return false;
                     }
-                }, "<gold><bold> > </bold> Welcome <green>%s</green> to FarLands!", player.getName());
+                }, "<gold> <bold>></bold> Welcome <green>%s</green> to FarLands!", player.getName());
                 player.chat("/chain {guidebook} {shovel}");
                 player.sendMessage(
                     ComponentColor.gold(
