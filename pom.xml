@@ -172,9 +172,9 @@
         </dependency>
         <!-- ProtocolLib -->
         <dependency>
-            <groupId>com.comphenix.protocol</groupId>
+            <groupId>net.dmulloy2</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.2.0-SNAPSHOT</version>
+            <version>5.4.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- Region Protection -->

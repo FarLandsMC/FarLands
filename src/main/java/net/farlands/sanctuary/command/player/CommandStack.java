@@ -8,25 +8,21 @@ import com.kicas.rp.data.flagdata.TrustLevel;
 import com.kicas.rp.data.flagdata.TrustMeta;
 import com.kicas.rp.util.Materials;
 import com.kicas.rp.util.Pair;
-import com.kicas.rp.util.ReflectionHelper;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
-import net.farlands.sanctuary.util.FLUtils;
-import net.farlands.sanctuary.util.LocationWrapper;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.command.CommandSender;
@@ -123,12 +119,11 @@ public class CommandStack extends PlayerCommand {
                     block = block.getRelative(facing.getOppositeFace());
                 }
 
-                BlockEntity tileEntity;
-                // tileEntity = ((CraftWorld) player.getWorld()).getHandle().getBlockEntity().getBlockEntity(...)
-                if (block == null || (tileEntity =
-                    ((ServerLevel) ReflectionHelper.invoke("getHandle", FLUtils.getCraftBukkitClass("CraftWorld"), player.getWorld()))
-                        .getBlockEntity(new LocationWrapper(block.getLocation()).asBlockPos(), true)) == null ||
-                    !ACCEPTED_CONTAINERS.contains(block.getType())) {
+                if (
+                    block == null
+                    || !ACCEPTED_CONTAINERS.contains(block.getType())
+                    || !(block.getState() instanceof Container container)
+                ) {
                     return error(player, "Target block must be a chest or barrel");
                 }
 
@@ -139,8 +134,8 @@ public class CommandStack extends PlayerCommand {
                     }
                 }
 
-                tileEntity.getOwner().getInventory().setStorageContents(
-                        stack(player, tileEntity.getOwner().getInventory().getStorageContents(),
+                container.getInventory().setStorageContents(
+                        stack(player, container.getInventory().getStorageContents(),
                                 block.getLocation().add(0.5, 1.5, 0.5), warningsUnstack)
                 );
                 if (sendWarnings(player, warningsUnstack))

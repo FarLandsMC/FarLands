@@ -143,6 +143,7 @@ public class CommandHandler extends Mechanic {
         registerCommand(new CommandEmote());            // Initiate
         registerCommand(new CommandSit());              // Knight
         registerCommand(new CommandSkull());            // Sage
+        registerCommand(new CommandSort());             // Esquire
         registerCommand(new CommandSpawn());            // Initiate
         registerCommand(new CommandStack());            // Esquire
         registerCommand(new CommandStats());            // Initiate
