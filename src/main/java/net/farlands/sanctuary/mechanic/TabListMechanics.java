@@ -100,6 +100,17 @@ public class TabListMechanics extends Mechanic {
             lastUpdate = System.currentTimeMillis();
         }
 
+        // set up stable ordering so the list doesn't flicker
+        List<OfflineFLPlayer> flps = Bukkit.getOnlinePlayers().stream()
+            .map(p -> dh.getOfflineFLPlayer(p))
+            .sorted(Comparator.comparing((OfflineFLPlayer p) -> p.rank)
+                    .thenComparing(Comparator.comparing((OfflineFLPlayer p) -> p.username)))
+            .toList();
+
+        for (int i = 0; i < flps.size(); ++i) {
+            flps.get(i).getOnlinePlayer().setPlayerListOrder(i);
+        }
+
         Bukkit.getOnlinePlayers().forEach(p -> {
             OfflineFLPlayer flp = dh.getOfflineFLPlayer(p);
             FLPlayerSession session = dh.getSessionMap().get(flp.uuid);
