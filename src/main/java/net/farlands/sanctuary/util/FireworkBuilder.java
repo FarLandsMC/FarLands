@@ -112,27 +112,29 @@ public class FireworkBuilder {
     }
 
     public void spawnEntity(Location loc) {
-        Firework firework = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK_ROCKET);
+        // Firework firework = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK_ROCKET);
 
-        FireworkRocketEntity entity = (FireworkRocketEntity) ReflectionHelper.invoke("getHandle", FLUtils.getCraftBukkitClass("entity.CraftFirework"), firework);
-        entity.addAdditionalSaveData(toNBT());
+        // FireworkRocketEntity entity = (FireworkRocketEntity) ReflectionHelper.invoke("getHandle", FLUtils.getCraftBukkitClass("entity.CraftFirework"), firework);
+        // entity.addAdditionalSaveData(toNBT());
+        throw new RuntimeException("FireworkBuilder is disabled");
     }
 
     public ItemStack buildItemStack(int stackSize) {
-        Class<?> craftitemstackclass = FLUtils.getCraftBukkitClass("inventory.CraftItemStack");
-        // net.minecraft.world.item.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.FIREWORK_ROCKET, stackSize));
-        net.minecraft.world.item.ItemStack stack = (net.minecraft.world.item.ItemStack)
-            ReflectionHelper.invoke("asNMSCopy", craftitemstackclass, null, new ItemStack(Material.FIREWORK_ROCKET, stackSize));
-        CompoundTag stackTag = toNBT().getCompound("FireworksItem").getCompound("tag"); // getCompound
-        int flightRaw = (int) Math.ceil(((double) lifetime) / 20.0);
-        int flight = flightRaw < 1 ? 1 : Math.min(flightRaw, 3);
-        stackTag.getCompound("Fireworks").putByte("Flight", (byte) (flight & 0xFF)); // getCompound, setCompound
-        // TODO: Convert to item components
-        // stack.setTag(stackTag); // setTag
-        if (true) throw new RuntimeException("TODO: Convert firework construction to item components");
+        throw new RuntimeException("FireworkBuilder is disabled");
+        // Class<?> craftitemstackclass = FLUtils.getCraftBukkitClass("inventory.CraftItemStack");
+        // // net.minecraft.world.item.ItemStack stack = CraftItemStack.asNMSCopy(new ItemStack(Material.FIREWORK_ROCKET, stackSize));
+        // net.minecraft.world.item.ItemStack stack = (net.minecraft.world.item.ItemStack)
+        //     ReflectionHelper.invoke("asNMSCopy", craftitemstackclass, null, new ItemStack(Material.FIREWORK_ROCKET, stackSize));
+        // CompoundTag stackTag = toNBT().getCompound("FireworksItem").getCompound("tag"); // getCompound
+        // int flightRaw = (int) Math.ceil(((double) lifetime) / 20.0);
+        // int flight = flightRaw < 1 ? 1 : Math.min(flightRaw, 3);
+        // stackTag.getCompound("Fireworks").putByte("Flight", (byte) (flight & 0xFF)); // getCompound, setCompound
+        // // TODO: Convert to item components
+        // // stack.setTag(stackTag); // setTag
+        // if (true) throw new RuntimeException("TODO: Convert firework construction to item components");
 
-        // return CraftItemStack.asBukkitCopy(stack);
-        return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", craftitemstackclass, null, stack);
+        // // return CraftItemStack.asBukkitCopy(stack);
+        // return (ItemStack) ReflectionHelper.invoke("asBukkitCopy", craftitemstackclass, null, stack);
     }
 
     private static class Explosion {
