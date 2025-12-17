@@ -81,7 +81,7 @@ public class CommandArtifact extends DiscordCommand {
             try (InputStream in = new URL(paperDownload).openStream()) {
                 long b = Files.copy(in, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 // raw so that the link is not escaped
-                ((DiscordSender) sender).sendMessageRaw("Downloaded %,d bytes from [paper](%s)".formatted(b, paperDownload));
+                ((DiscordSender) sender).sendMessageRaw("Downloaded %,d bytes from [%s](%s)".formatted(b, paperDownload.substring(paperDownload.lastIndexOf('/') + 1), paperDownload));
             } catch (IOException e) {
                 dest.delete();
                 e.printStackTrace();

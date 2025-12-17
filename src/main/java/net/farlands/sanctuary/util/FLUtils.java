@@ -8,7 +8,6 @@ import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kicas.rp.RegionProtection;
@@ -44,6 +43,7 @@ import org.jetbrains.annotations.Range;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -116,19 +116,16 @@ public final class FLUtils {
      */
     public static String getLatestReleaseUrl() {
         try {
-
-            InputStreamReader reader;
-            JsonArray arr;
             String version = Bukkit.getMinecraftVersion();
 
-            // get the latest build
-            URL buildsUrl = new URL("https://api.papermc.io/v2/projects/paper/versions/" + version);
-            reader = new InputStreamReader(buildsUrl.openStream());
-            arr = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("builds").getAsJsonArray(); // get .builds as Array
-            String build = arr.get(arr.size() - 1).getAsString(); // get the last index of the builds array
+            URL buildUrl = new URI("https://fill.papermc.io/v3/projects/paper/versions/" + version + "/builds/latest").toURL();
+            InputStreamReader reader = new InputStreamReader(buildUrl.openStream());
+            String url = JsonParser.parseReader(reader).getAsJsonObject()
+                .getAsJsonObject("downloads")
+                .getAsJsonObject("server:default")
+                .get("url").getAsString();
 
-            // form the download url
-            return String.format("https://api.papermc.io/v2/projects/paper/versions/%1$s/builds/%2$s/downloads/paper-%1$s-%2$s.jar", version, build);
+            return url;
 
         } catch (Exception e) {
             e.printStackTrace();
