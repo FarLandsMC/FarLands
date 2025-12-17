@@ -314,19 +314,6 @@ public class GeneralMechanics extends Mechanic {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
-    public void onBlockDropItems(BlockDropItemEvent event) {
-        if (event.getBlockState() instanceof Beehive && !event.getItems().isEmpty()) {
-            int beeCount = ((Beehive) event.getBlockState()).getEntityCount();
-            Item itemEntity = event.getItems().get(0);
-            ItemStack hiveStack = itemEntity.getItemStack();
-            ItemMeta meta = hiveStack.getItemMeta();
-            meta.lore(List.of(ComponentColor.gold("Bee Count: {:aqua}", beeCount).decoration(TextDecoration.ITALIC, false)));
-            hiveStack.setItemMeta(meta);
-            itemEntity.setItemStack(hiveStack);
-        }
-    }
-
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         String[] lines = event.lines().stream().map(ComponentUtils::toText).toArray(String[]::new);

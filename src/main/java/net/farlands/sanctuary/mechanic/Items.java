@@ -56,7 +56,6 @@ public class Items extends Mechanic {
         if (event.getEntity().getType() != EntityType.PLAYER) return; // If not shot by a player, return
 
         var pdc = event.getProjectile().getPersistentDataContainer();
-        FarLands.getDebugger().echo("pdc: ", pdc);
         if (pdc != null && pdc.has(FLUtils.nsKey("tntArrow"))) {
             var tntArrow = pdc.get(FLUtils.nsKey("tntArrow"), new JSONDataType<>(TNTArrow.class));
             FarLands.getDebugger().echo("tnt arrow: ", tntArrow);
