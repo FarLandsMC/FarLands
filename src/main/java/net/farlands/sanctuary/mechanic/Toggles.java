@@ -165,10 +165,10 @@ public class Toggles extends Mechanic {
         Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> {
             OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
             if (flp.vanished) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 0, false, false));
             } else if (
                 player.hasPotionEffect(PotionEffectType.INVISIBILITY)
-                && player.getPotionEffect(PotionEffectType.INVISIBILITY).getDuration() > 8 * 60 * 20
+                && player.getPotionEffect(PotionEffectType.INVISIBILITY).isInfinite()
             ) {
                 player.removePotionEffect(PotionEffectType.INVISIBILITY);
             }
