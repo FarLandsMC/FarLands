@@ -465,13 +465,12 @@ public class FLPlayerSession {
     }
 
     public void removeVanishPlaytime() {
+        if (vanishStart < 0) return;
+
         int vanishDuration = (int) ((System.currentTimeMillis() - vanishStart) / 1000 * 20); // Ticks
         if (vanishDuration > 0) {
-            if (vanishDuration > this.player.getStatistic(Statistic.PLAY_ONE_MINUTE)) {
-                this.player.setStatistic(Statistic.PLAY_ONE_MINUTE, Math.max(this.player.getStatistic(Statistic.PLAY_ONE_MINUTE) - vanishDuration, 0));
-            } else {
-                this.player.setStatistic(Statistic.PLAY_ONE_MINUTE, 0);
-            }
+            int prev = this.player.getStatistic(Statistic.PLAY_ONE_MINUTE);
+            this.player.setStatistic(Statistic.PLAY_ONE_MINUTE, Math.max(prev - vanishDuration, 0));
         }
     }
 
