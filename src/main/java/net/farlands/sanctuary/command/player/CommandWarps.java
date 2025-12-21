@@ -2,8 +2,8 @@ package net.farlands.sanctuary.command.player;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
@@ -14,7 +14,15 @@ import java.util.List;
 public class CommandWarps extends PlayerCommand {
 
     public CommandWarps() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "View the list of server warps.", "/warps", "warps", "warplist", "warpslist");
+        super(
+            CommandData.simple(
+                "warps",
+                "View the list of server warps.",
+                "/warps"
+            )
+            .aliases("warplist", "warpslist")
+            .category(Category.INFORMATIONAL)
+         );
     }
 
     @Override

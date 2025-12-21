@@ -43,7 +43,7 @@ public class DiscordSender implements CommandSender {
         this.spigot = new DiscordSpigot();
         this.member = member;
         this.channel = channel;
-        this.flp = FarLands.getDataHandler().getOfflineFLPlayer(getUserID());
+        this.flp = FarLands.getDataHandler().getOfflineFLPlayer(member.getIdLong());
         this.ephemeral = false;
         this.interaction = null;
     }
@@ -105,7 +105,7 @@ public class DiscordSender implements CommandSender {
     }
 
     @Override
-    public void sendMessage(String[] strings) {
+    public void sendMessage(String... strings) {
         sendMessage(String.join("\n", strings));
     }
 
@@ -137,7 +137,7 @@ public class DiscordSender implements CommandSender {
     }
 
     @Override
-    public void sendMessage(@Nullable UUID uuid, @NotNull String[] strings) {
+    public void sendMessage(@Nullable UUID uuid, @NotNull String... strings) {
 
     }
 
@@ -235,8 +235,8 @@ public class DiscordSender implements CommandSender {
         return this.ephemeral;
     }
 
+    @SuppressWarnings("deprecated") // BaseComponents are depricated
     private class DiscordSpigot extends CommandSender.Spigot {
-
         @Override
         public void sendMessage(BaseComponent component) {
             DiscordSender.this.sendMessage(component.toPlainText());

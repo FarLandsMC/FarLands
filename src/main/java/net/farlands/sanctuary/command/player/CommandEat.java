@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import com.google.common.collect.ImmutableMap;
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -61,8 +62,15 @@ public class CommandEat extends PlayerCommand {
         .build();
 
     public CommandEat() {
-        super(Rank.SPONSOR, Category.UTILITY, "Eat up food in your inventory instantly to fill your hunger.",
-                "/eat [hand]", "eat", "feed");
+        super(
+            CommandData.withRank(
+                "eat",
+                "Eat up food in your inventory instantly to fill your hunger.",
+                "/eat [hand]",
+                Rank.SPONSOR
+            )
+            .aliases("feed")
+         );
     }
 
     @Override

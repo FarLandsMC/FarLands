@@ -4,8 +4,8 @@ import com.kicas.rp.command.TabCompleterBase;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
-import net.farlands.sanctuary.data.Rank;
 
 import net.farlands.sanctuary.discord.DiscordChannel;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -22,7 +22,15 @@ public class CommandProposeWarp extends PlayerCommand {
     private static final List<String> WARP_TYPES = Arrays.asList("shop", "showcase", "town", "public-farm", "other");
 
     public CommandProposeWarp() {
-        super(Rank.INITIATE, Category.REPORTS, "Propose a warp to be set by staff.", "/proposewarp <type> <name> <description>", "proposewarp", "warpform");
+        super(
+            CommandData.simple(
+                "proposewarp",
+                "Propose a warp to be set by staff.",
+                "/proposewarp <type> <name> <description>"
+            )
+            .aliases("warpform")
+            .category(Category.REPORTS)
+         );
     }
 
     @Override

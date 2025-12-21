@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.staff;
 
 import com.kicas.rp.command.TabCompleterBase;
 import net.farlands.sanctuary.FarLands;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -16,7 +17,14 @@ import java.util.stream.Stream;
 
 public class CommandFly extends PlayerCommand {
     public CommandFly() {
-        super(Rank.MEDIA, "Enable or disable flight.", "/fly <on|off>", "fly");
+        super(
+            CommandData.withRank(
+                "fly",
+                "Enable or disable flight.",
+                "/fly <on|off>",
+                Rank.MEDIA
+            )
+         );
     }
 
     @Override

@@ -58,7 +58,6 @@ public class Toggles extends Mechanic {
         // Update tab list to show all players in survival
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(FarLands.getInstance(), PacketType.Play.Server.PLAYER_INFO) {
             @Override
-            @SuppressWarnings("unchecked")
             public void onPacketSending(PacketEvent event) {
                 ClientboundPlayerInfoUpdatePacket packet = (ClientboundPlayerInfoUpdatePacket) event.getPacket().getHandle();
                 EnumSet<ClientboundPlayerInfoUpdatePacket.Action> action = packet.actions();

@@ -3,14 +3,22 @@ package net.farlands.sanctuary.command.player;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
-import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.mechanic.Voting;
 import org.bukkit.command.CommandSender;
 
 public class CommandVoteParty extends Command {
 
     public CommandVoteParty() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "Get the number of votes left till the next vote party.", "/voteparty", "voteparty", "vp");
+        super(
+            CommandData.simple(
+                "voteparty",
+                "Get the number of votes left till the next vote party.",
+                "/voteparty"
+            )
+            .aliases("vp")
+            .category(Category.INFORMATIONAL)
+         );
     }
 
     @Override

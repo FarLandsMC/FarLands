@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -32,7 +33,15 @@ import java.util.Map;
 public class CommandStats extends Command {
 
     public CommandStats() {
-        super(Rank.INITIATE, Category.PLAYER_SETTINGS_AND_INFO, "Show the stats of a player.", "/stats [playername]", "stats");
+        super(
+            CommandData.simple(
+                "stats",
+                "Show the stats of a player.",
+                "/stats [playername]"
+            )
+            .aliases("vp")
+            .category(Category.PLAYER_SETTINGS_AND_INFO)
+         );
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.chat.MiniMessageWrapper;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
@@ -22,8 +23,16 @@ import java.util.stream.Collectors;
 
 public class CommandNick extends PlayerCommand {
     public CommandNick() {
-        super(Rank.ADEPT, Category.COSMETIC, "Set your nickname or remove your current nickname.", "/nick|/nonick [name]",
-                true, "nick", "nonick");
+        super(
+            CommandData.withRank(
+                "nick",
+                "Set your nickname or remove your current nickname.",
+                "/nick|/nonick [name]",
+                Rank.ADEPT
+            )
+            .aliases(true, "nick", "nonick")
+            .category(Category.COSMETIC)
+        );
     }
 
     @Override

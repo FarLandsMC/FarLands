@@ -2,6 +2,7 @@ package net.farlands.sanctuary.command.staff;
 
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.Pagination;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -16,7 +17,14 @@ public class CommandSearchHomes extends PlayerCommand {
     private static final int MAX_RADIUS = 500;
 
     public CommandSearchHomes() {
-        super(Rank.JR_BUILDER, "Search for nearby homes.", "/searchhomes <radius>", "searchhomes");
+        super(
+            CommandData.withRank(
+                "searchhomes",
+                "Search for nearby homes.",
+                "/searchhomes <radius>",
+                Rank.JR_BUILDER
+            )
+         );
     }
 
     @Override

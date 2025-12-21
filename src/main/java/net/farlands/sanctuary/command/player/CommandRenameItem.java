@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.player;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.MessageFilter;
 import net.farlands.sanctuary.command.Category;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.PlayerCommand;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.util.ComponentUtils;
@@ -16,7 +17,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class CommandRenameItem extends PlayerCommand {
     public CommandRenameItem() {
-        super(Rank.SPONSOR, Category.COSMETIC, "Rename an item with color codes.", "/renameitem", "renameitem");
+        super(
+            CommandData.withRank(
+                "renameitem",
+                "Rename an item with color codes.",
+                "/renameitem",
+                Rank.SPONSOR
+            )
+            .category(Category.COSMETIC)
+        );
     }
 
     @Override

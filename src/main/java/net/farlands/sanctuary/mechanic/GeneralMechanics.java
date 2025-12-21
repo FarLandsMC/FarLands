@@ -411,7 +411,7 @@ public class GeneralMechanics extends Mechanic {
             Block block = event.getClickedBlock();
             Vault vaultData = (Vault) block.getBlockData();
             boolean ominousVault = vaultData.isOminous();
-            if (vaultData.getTrialSpawnerState() == Vault.State.INACTIVE) {
+            if (vaultData.getVaultState() == Vault.State.INACTIVE) {
                 PersistentDataContainer pdc = vault.getPersistentDataContainer();
                 Long l = pdc.get(FLUtils.nsKey("last_opened"), PersistentDataType.LONG);
                 var needed = (ominousVault ? 10 : 5) * 60 * 1000; // 10 minutes for ominous, 5 for normal
@@ -597,12 +597,7 @@ public class GeneralMechanics extends Mechanic {
                 FarLands.getScheduler().scheduleSyncDelayedTask(() -> leashedEntities.remove(entity.getUniqueId()), 5L);
 
 
-                if (hand.getAmount() > 1) {
-                    hand.setAmount(hand.getAmount() - 1);
-                } else {
-                    hand.setAmount(0);
-                    hand.setType(Material.AIR);
-                }
+                hand.setAmount(hand.getAmount() - 1);
                 Bukkit.getScheduler().runTask(FarLands.getInstance(), () -> entity.setLeashHolder(event.getPlayer()));
             } else if (entity.isLeashed()) {
                 event.setCancelled(true);
@@ -697,8 +692,8 @@ public class GeneralMechanics extends Mechanic {
                     player = player1;
                 }
             }
-            if (player != null && player.getBedSpawnLocation() != null) {
-                event.setTo(player.getBedSpawnLocation());
+            if (player != null && player.getRespawnLocation() != null) {
+                event.setTo(player.getRespawnLocation());
                 player.sendMessage(
                     ComponentColor.gold(
                         "{} has been sent to your bed location.",
@@ -727,7 +722,7 @@ public class GeneralMechanics extends Mechanic {
         updateNightSkip(true);
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(event.getPlayer());
         if (flp.homes.isEmpty()) {
-            flp.addHome("home", event.getPlayer().getBedSpawnLocation());
+            flp.addHome("home", event.getPlayer().getRespawnLocation());
             event.getPlayer().sendMessage(
                 ComponentColor.gold(
                     "Your home has been set at this location, you can return to it with {}.",
