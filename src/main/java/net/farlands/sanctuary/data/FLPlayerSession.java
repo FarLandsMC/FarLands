@@ -223,7 +223,6 @@ public class FLPlayerSession {
         player.setOp(handle.rank.hasOP());
         player.displayName(Objects.requireNonNullElseGet(handle.nickname, player::name));
         handle.getDisplayRank().getTeam().addEntry(player.getName());
-        player.playerListName(handle.getDisplayRank().colorName(handle.username));
         handle.lastIP = player.getAddress().getAddress().getHostAddress();
 
         flying = handle.flightPreference;
