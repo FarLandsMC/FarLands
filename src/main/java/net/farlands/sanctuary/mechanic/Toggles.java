@@ -195,7 +195,7 @@ public class Toggles extends Mechanic {
             if (GameMode.SPECTATOR == player.getGameMode()) {
                 Bukkit.getOnlinePlayers()
                     .stream()
-                    .filter(p -> Rank.getRank(p).isStaff())
+                    .filter(p -> Rank.getRank(p).isStaff() && !p.equals(player))
                     .forEach(p -> {
                         pm.sendServerPacket(p, PacketContainer.fromPacket(packet));
                     });
