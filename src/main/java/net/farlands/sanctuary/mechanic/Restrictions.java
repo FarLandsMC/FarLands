@@ -34,6 +34,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Sign;
 import org.bukkit.block.sign.SignSide;
 import org.bukkit.entity.*;
@@ -90,6 +91,11 @@ public class Restrictions extends Mechanic {
     @Override
     public void onPlayerJoin(Player player, boolean isNew) {
         OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayer(player);
+
+        // Hide on locator bar unless within 100 blocks
+        player.getAttribute(Attribute.WAYPOINT_TRANSMIT_RANGE)
+            .setBaseValue(100);
+
         if (!flp.rank.isStaff()) {
             player.setGameMode(GameMode.SURVIVAL);
             List<String> notes = flp.notes;
