@@ -8,7 +8,6 @@ import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.DiscordSender;
-import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.discord.MarkdownProcessor;
 import net.farlands.sanctuary.util.ComponentColor;
@@ -39,7 +38,6 @@ public class CommandStats extends Command {
                 "Show the stats of a player.",
                 "/stats [playername]"
             )
-            .aliases("vp")
             .category(Category.PLAYER_SETTINGS_AND_INFO)
          );
     }
