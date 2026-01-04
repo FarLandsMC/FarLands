@@ -8,6 +8,7 @@ import net.farlands.sanctuary.command.Command;
 import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
+import net.farlands.sanctuary.mechanic.Voting;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.kyori.adventure.text.Component;
@@ -25,10 +26,11 @@ public class CommandVote extends Command {
         super(
             CommandData.withRank(
                     "vote",
-                    "Get the links to vote for FarLands",
-                    "/vote",
+                    "Get the links to vote for FarLands and the number of votes needed for the next vote party",
+                    "/vote|vp|voteparty",
                     Rank.INITIATE
                 )
+                .aliases("vp", "voteparty")
                 .category(Category.MISCELLANEOUS)
         );
     }
@@ -37,6 +39,7 @@ public class CommandVote extends Command {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
+        int votesLeft = FarLands.getMechanicHandler().getMechanic(Voting.class).getVotesUntilParty();
         if (sender instanceof DiscordSender ds) {
             ds.sendMessageEmbeds(
                 new EmbedBuilder()
@@ -49,14 +52,16 @@ public class CommandVote extends Command {
                             .map(l -> "- <" + l + ">")
                             .collect(Collectors.joining("\n"))
                     )
+                    .setFooter(String.format("%d more %s until a vote party.", votesLeft, votesLeft == 1 ? "vote" : "votes"))
                     .setColor(NamedTextColor.GOLD.value())
                     .build()
             );
         } else {
             TextComponent.Builder builder = Component.text();
 
-            builder.append(ComponentColor.gold(HEADER));
+            builder.append(ComponentColor.gold("{:aqua} more vote{0::s} until a vote party.\n", votesLeft));
 
+            builder.append(ComponentColor.gold(HEADER));
             FarLands.getFLConfig().voteConfig.voteLinks.forEach((k, vl) -> {
                 if (!vl.isBlank()) {
                     builder.append(Component.newline())
@@ -64,6 +69,7 @@ public class CommandVote extends Command {
                         .append(ComponentUtils.link(vl));
                 }
             });
+
             sender.sendMessage(builder);
         }
         return true;
