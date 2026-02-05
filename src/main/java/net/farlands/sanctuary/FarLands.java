@@ -100,7 +100,17 @@ public class FarLands extends JavaPlugin {
             processBuilder.start();
         } catch (IOException ex) {
             Logging.error("Failed to execute script " + script);
+            
+            // write the error message to #debug
+            StringBuilder error = new StringBuilder();
+            error.append(ex.getClass().getName()).append(": ").append(ex.getMessage()).append('\n');
+            for (StackTraceElement ste : ex.getStackTrace()) error.append("    ").append(ste.toString()).append('\n');
+            String errorString = error.toString();
+            FarLands.getDebugger().echo(errorString.length() > 1994 ? errorString.substring(0, 1991) + "..." : errorString);
+
             ex.printStackTrace();
+
+            throw new RuntimeException(ex); // propgate the error to the caller
         }
     }
 
