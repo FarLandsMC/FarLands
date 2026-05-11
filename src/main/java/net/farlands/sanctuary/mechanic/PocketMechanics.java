@@ -38,6 +38,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.List;
@@ -49,6 +50,8 @@ public class PocketMechanics extends Mechanic {
 
     // If this is set to `true`, then `/pocket` does not work
     public static boolean locked = false;
+
+    private static final String METADATA_PATH = "data/paper/metadata.dat";
 
     public static void resetPocket(@NotNull CommandSender sender) {
         // Prevent it from unlocking if locked for some other reason
@@ -91,19 +94,19 @@ public class PocketMechanics extends Mechanic {
         );
         Command.success(sender, "Attempting to delete world files...");
         long start = System.currentTimeMillis();
-        byte[] uidDat; // uid.dat file -- saved to keep the UID of the world for like deaths and such
+        byte[] metadata; // data/paper/metadata.dat file -- saved to keep the UID of the world for like deaths and such
         File worldFolder = Worlds.POCKET.getWorld().getWorldFolder();
         try {
             Bukkit.unloadWorld(Worlds.POCKET.getWorld(), false);
 
             // Read uid.dat file
-            uidDat = Files.readAllBytes(Paths.get(worldFolder.getAbsolutePath(), "uid.dat"));
+            metadata = Files.readAllBytes(Paths.get(worldFolder.getAbsolutePath(), METADATA_PATH));
 
             FileUtils.deleteDirectory(worldFolder);
             Command.success(sender, "Deleted pocket world files in {}.", TimeInterval.formatTime(System.currentTimeMillis() - start, true));
         } catch (Exception e) {
-            Command.error(sender, "Unable to delete the pocket world folder");
-            Logging.error("Unable to delete the pocket world folder");
+            Command.error(sender, "Unable to delete the pocket world folder: " + e.getMessage());
+            Logging.error("Unable to delete the pocket world folder: " + e.getMessage());
             e.printStackTrace();
             return;
         }
@@ -113,8 +116,10 @@ public class PocketMechanics extends Mechanic {
         try {
             // Restore uid.dat file
             worldFolder.mkdirs();
-            FileOutputStream fos = new FileOutputStream(Paths.get(worldFolder.getAbsolutePath(), "uid.dat").toFile());
-            fos.write(uidDat);
+            Path metadata_path = Paths.get(worldFolder.getAbsolutePath(), METADATA_PATH);
+            metadata_path.getParent().toFile().mkdirs();
+            FileOutputStream fos = new FileOutputStream(metadata_path.toFile());
+            fos.write(metadata);
             fos.close();
 
             Worlds.POCKET.createWorld();
@@ -128,8 +133,8 @@ public class PocketMechanics extends Mechanic {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 
         } catch (Exception e) {
-            Command.error(sender, "Unable to load the new pocket world");
-            Logging.error("Unable to load the new pocket world");
+            Command.error(sender, "Unable to load the new pocket world: " + e.getMessage());
+            Logging.error("Unable to load the new pocket world: " + e.getMessage());
             e.printStackTrace();
             return;
         }
