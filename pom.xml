@@ -8,14 +8,6 @@
     <artifactId>farlands</artifactId>
     <version>4.0.0-SNAPSHOT</version>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/FarLandsMC/mavenpackages/</url>
-        </repository>
-    </distributionManagement>
-
     <pluginRepositories>
         <pluginRepository>
             <id>apache.snapshots</id>
@@ -118,10 +110,6 @@
             <url>https://repo.dmulloy2.net/repository/public/</url>
         </repository>
         <repository>
-            <id>github</id>
-            <url>https://maven.pkg.github.com/FarLandsMC/mavenpackages/</url>
-        </repository>
-        <repository>
             <id>jitpack</id>
             <url>https://jitpack.io</url>
         </repository>
@@ -184,16 +172,16 @@
         </dependency>
         <!-- Region Protection -->
         <dependency>
-            <groupId>com.kicas.rp</groupId>
-            <artifactId>regionprotection</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
+            <groupId>com.github.FarLandsMC</groupId>
+            <artifactId>RegionProtection</artifactId>
+            <version>main-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- ChestShops -->
         <dependency>
-            <groupId>com.kicasmads.cs</groupId>
-            <artifactId>chestshops</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <groupId>com.github.FarLandsMC</groupId>
+            <artifactId>ChestShops</artifactId>
+            <version>main-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <!-- NuVotifier -->
