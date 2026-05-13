@@ -23,4 +23,4 @@ jobs:
     - uses: denoland/setup-deno@v2
     - run: deno run -RW ./update-plugin-yml.ts
     - name: check diff
-      run: git diff --quiet README.md
+      run: git diff --quiet ./src/main/resources/plugin.yml
