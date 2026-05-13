@@ -8,10 +8,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: ["ubuntu-latest", "windows-latest"]
-    runs-on: "${{ matrix.os }}"
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
 
@@ -26,8 +23,8 @@ jobs:
       uses: actions/cache@v5
       with:
         path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        key: m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ubuntu-latest-m2
 
     - name: build with maven
       run: mvn -B package --file pom.xml
