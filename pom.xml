@@ -223,7 +223,7 @@
         <dependency>
             <groupId>com.squareup.moshi</groupId>
             <artifactId>moshi</artifactId>
-            <version>1.15.0</version>
+            <version>1.15.2</version>
             <scope>provided</scope>
         </dependency>
         <!-- NMS -->
