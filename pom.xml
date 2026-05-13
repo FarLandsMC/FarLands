@@ -195,14 +195,14 @@
         <dependency>
             <groupId>net.coreprotect</groupId>
             <artifactId>coreprotect</artifactId>
-            <version>21.3</version>
+            <version>23.2</version>
             <scope>provided</scope>
         </dependency>
         <!-- GraalVM -->
         <dependency>
             <groupId>org.graalvm.sdk</groupId>
             <artifactId>graal-sdk</artifactId>
-            <version>23.0.0</version>
+            <version>25.0.3</version>
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.graalvm.js/js -->
@@ -216,7 +216,7 @@
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
-            <version>23.0.0</version>
+            <version>25.0.3</version>
             <scope>provided</scope>
         </dependency>
         <!-- Moshi -->
