@@ -216,7 +216,7 @@
         <dependency>
             <groupId>org.graalvm.js</groupId>
             <artifactId>js-scriptengine</artifactId>
-            <version>23.0.0</version>
+            <version>25.0.3</version>
             <scope>provided</scope>
         </dependency>
         <!-- Moshi -->
