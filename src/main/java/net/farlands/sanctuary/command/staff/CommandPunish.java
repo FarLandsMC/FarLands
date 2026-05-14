@@ -3,6 +3,7 @@ package net.farlands.sanctuary.command.staff;
 import com.kicas.rp.util.Utils;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.data.struct.Punishment;
@@ -22,7 +23,15 @@ import java.util.stream.Collectors;
 public class CommandPunish extends Command {
 
     public CommandPunish() {
-        super(Rank.JR_BUILDER, "Punish a player.", "/punish <player> <punishtype> [message]", true, "punish", "ban", "pardon");
+        super(
+            CommandData.withRank(
+                "punish",
+                "Punish a player.",
+                "/punish <player> <punishment-type> [message]\npunishment-type: " + Arrays.stream(Punishment.PunishmentType.VALUES).map(Utils::formattedName).toList() ,
+                Rank.JR_BUILDER
+            )
+            .aliases(true, "ban", "pardon")
+        );
     }
 
     @Override
