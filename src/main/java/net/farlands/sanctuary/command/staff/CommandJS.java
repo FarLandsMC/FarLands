@@ -1,6 +1,5 @@
 package net.farlands.sanctuary.command.staff;
 
-import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.farlands.sanctuary.FarLands;
@@ -18,15 +17,12 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.HostAccess;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class CommandJS extends Command {
 
-    private       ScriptEngine      engine;
+    private       Context           engine;
     private final Map<UUID, Object> lastResult;
 
     private static final List<String> SELF_ALIAS  = Arrays.asList("self", "sender");
@@ -38,17 +34,15 @@ public class CommandJS extends Command {
         ClassLoader previousClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(FarLands.getInstance().getClass().getClassLoader());
 
-        this.engine = GraalJSScriptEngine.create(
-            null,
-            Context.newBuilder("js")
-                .allowHostAccess(HostAccess.ALL)
-                .allowHostClassLookup(s -> true)
-                .allowAllAccess(true)
-        );
+        this.engine = Context.newBuilder("js")
+            .allowHostAccess(HostAccess.ALL)
+            .allowHostClassLookup(s -> true)
+            .allowAllAccess(true)
+            .build();
 
         try {
-            this.engine.eval(new String(FarLands.getDataHandler().getResource("boot.js"), StandardCharsets.UTF_8)); // Load bootstrap script
-        } catch (ScriptException | IOException e) {
+            this.engine.eval("js", new String(FarLands.getDataHandler().getResource("boot.js"), StandardCharsets.UTF_8)); // Load bootstrap script
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             currentThread.setContextClassLoader(previousClassLoader);
@@ -68,12 +62,12 @@ public class CommandJS extends Command {
             return true;
         }
 
-        SELF_ALIAS.forEach(alias -> this.engine.put(alias, sender));
+        SELF_ALIAS.forEach(alias -> this.engine.getBindings("js").putMember(alias, sender));
 
         try {
             var flp = FarLands.getDataHandler().getOfflineFLPlayer(sender);
-            this.engine.put("_", this.lastResult.get(flp == null ? null : flp.uuid));
-            Object result = this.engine.eval(String.join(" ", args));
+            this.engine.getBindings("js").putMember("_", this.lastResult.get(flp == null ? null : flp.uuid));
+            Object result = this.engine.eval("js", String.join(" ", args));
             if (result instanceof Component comp) {
                 sender.sendMessage(comp);
                 return true;
@@ -98,10 +92,6 @@ public class CommandJS extends Command {
                 FarLands.getDebugger().echo(str.substring(0, Math.min(str.length(), 2000)));
             }
             sender.sendMessage(component);
-        } catch (ScriptException e) {
-            String message = e.getMessage().replaceFirst("org\\.graalvm\\.polyglot\\.PolyglotException: ", "");
-            sender.sendMessage(ComponentColor.red(message));
-            e.printStackTrace();
         } catch (Exception e) {
             sender.sendMessage(ComponentColor.red(e.getMessage()));
             e.printStackTrace();
