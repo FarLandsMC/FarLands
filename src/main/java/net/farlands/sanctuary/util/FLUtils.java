@@ -78,35 +78,17 @@ public final class FLUtils {
      * @return A URL String
      */
     public static String getHeadUrl(OfflineFLPlayer flp) {
-        String skinTexture = FLUtils.getSkinUrl(flp);
-        return skinTexture != null
-            ? "https://minecraft-heads.com/scripts/3d-head.php?hrh=00&aa=true&headOnly=true&ratio=6&imageUrl=" + skinTexture.substring(skinTexture.lastIndexOf('/') + 1)
-            : null;
+        return "https://mc-heads.net/head/" + flp.uuid;
     }
 
     /**
-     * Get a player's skin texture URL
+     * Get a player's 3D body texture URL
      *
      * @param flp The FLP in question
      * @return A URL String
      */
-    public static String getSkinUrl(OfflineFLPlayer flp) {
-        try {
-            URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + flp.uuid); // get the player's texture object as JSON
-            InputStreamReader reader = new InputStreamReader(url.openStream());
-            JsonObject textureProperty = JsonParser.parseReader(reader).getAsJsonObject().get("properties")
-                .getAsJsonArray().get(0).getAsJsonObject(); // get .properties[0] as Object
-            return JsonParser.parseString(
-                    new String(Base64.getDecoder()
-                                   .decode(textureProperty.get("value").getAsString()) // get .value as String
-                    )
-                ).getAsJsonObject()
-                .get("textures").getAsJsonObject()
-                .get("SKIN").getAsJsonObject()
-                .get("url").getAsString(); // get .texture.SKIN.url as String
-        } catch (Exception ignored) {
-            return null;
-        }
+    public static String getBodyUrl(OfflineFLPlayer flp) {
+        return "https://mc-heads.net/body/" + flp.uuid;
     }
 
     /**

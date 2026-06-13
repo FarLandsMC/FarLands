@@ -67,11 +67,7 @@ public class CommandStats extends Command {
                     }
                 }
 
-                String headUrl = FLUtils.getHeadUrl(flp);
-
-                if (headUrl != null) {
-                    embedBuilder.setThumbnail(headUrl);
-                }
+                embedBuilder.setThumbnail(FLUtils.getBodyUrl(flp));
 
 
                 ds.sendMessageEmbeds(embedBuilder.build());

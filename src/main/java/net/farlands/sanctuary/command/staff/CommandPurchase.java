@@ -10,6 +10,7 @@ import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
+import net.farlands.sanctuary.util.TimeInterval;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -48,28 +49,11 @@ public class CommandPurchase extends Command {
             flp = FarLands.getDataHandler().getOfflineFLPlayer(uuid, args[0]);
         }
 
-        if (commandCooldowns.containsKey(flp.uuid) && System.currentTimeMillis() - commandCooldowns.get(flp.uuid) < PURCHASE_COMMAND_COOLDOWN)
-            return true;
-        else
+        if (commandCooldowns.containsKey(flp.uuid) && System.currentTimeMillis() - commandCooldowns.get(flp.uuid) < PURCHASE_COMMAND_COOLDOWN) {
+            return error(sender, "You can use this command again in {}.", TimeInterval.formatTime(System.currentTimeMillis() - commandCooldowns.get(flp.uuid), false));
+        } else {
             commandCooldowns.put(flp.uuid, System.currentTimeMillis());
-
-        Logging.broadcastIngame(
-            ComponentColor.gold(
-                "{} just donated to the server! Consider donating {}.",
-                flp,
-                ComponentUtils.link("here", FarLands.getFLConfig().donationLink, NamedTextColor.AQUA)
-            ),
-            false
-        );
-
-        FarLands.getDiscordHandler().sendMessageEmbed(
-            DiscordChannel.IN_GAME,
-            new EmbedBuilder()
-                .setTitle(
-                    flp.username + " just donated to the sever! Consider donating here.",
-                    FarLands.getFLConfig().donationLink
-                )
-        );
+        }
 
         Rank rank = FLUtils.safeValueOf(Rank::valueOf, args[1].toUpperCase());
         double price = args.length >= 4 ? Double.parseDouble(args[3]) : 0;
@@ -81,6 +65,24 @@ public class CommandPurchase extends Command {
                 break;
             }
         }
+
+        Logging.broadcastIngame(
+            ComponentColor.gold(
+                "{} has just donated to the server! Consider donating {}.",
+                flp,
+                ComponentUtils.link("here", FarLands.getFLConfig().donationLink, NamedTextColor.AQUA)
+            ),
+            false
+        );
+
+        FarLands.getDiscordHandler().sendMessageEmbed(
+            DiscordChannel.IN_GAME,
+            new EmbedBuilder()
+                .setColor(flp.amountDonated > Rank.DONOR_RANK_COSTS[Rank.DONOR_RANK_COSTS.length - 1] ? NamedTextColor.GREEN.value() : rank.color().value())
+                .setThumbnail(FLUtils.getHeadUrl(flp))
+                .setTitle(flp.username + " has just donated to the server!")
+                .setDescription("Consider donating here:\n<" + FarLands.getFLConfig().donationLink + ">")
+        );
 
         if (rank != null && rank.specialCompareTo(flp.rank) > 0) {
             flp.giveCollectables(flp.rank, rank);
