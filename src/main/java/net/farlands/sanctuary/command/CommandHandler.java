@@ -8,6 +8,7 @@ import com.kicas.rp.data.flagdata.StringFilter;
 import com.kicas.rp.util.ReflectionHelper;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
@@ -213,7 +214,7 @@ public class CommandHandler extends Mechanic {
         // Register Slash Commands
         List<SlashCommandData> slashCommands = discordSlashCommands
             .stream()
-            .map(c -> c.setGuildOnly(true)) // Force it to guild only (disables global cache and commands in dm)
+            .map(c -> c.setContexts(InteractionContextType.GUILD)) // Force it to guild only (disables global cache and commands in dm)
             .limit(Commands.MAX_SLASH_COMMANDS)
             .toList();
         FarLands.getDiscordHandler().registerSlashCommands(slashCommands);
