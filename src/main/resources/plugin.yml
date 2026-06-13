@@ -17,7 +17,7 @@ depend:
   - Votifier
   - CoreProtect
 libraries:
-  - 'net.dv8tion:JDA:5.0.0-beta.12'
+  - 'net.dv8tion:JDA:6.4.2'
   - 'com.squareup.moshi:moshi:1.15.2'
   - 'org.jetbrains:annotations:26.1.0'
   - 'org.graalvm.sdk:graal-sdk:19.1.1'
