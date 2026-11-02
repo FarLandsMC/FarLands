@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.EmojiUnion;
@@ -248,6 +249,7 @@ public class DiscordHandler extends ListenerAdapter {
                STAFF_ROLE.equals(role.getName()) || VERIFIED_ROLE.equals(role.getName());
     }
 
+
     /**
      * Setup
      */
@@ -256,6 +258,12 @@ public class DiscordHandler extends ListenerAdapter {
         config.channels.forEach((channel, id) -> channelHandler.setChannel(channel, id == 0L ? null : jdaBot.getTextChannelById(id)));
         channelHandler.startTicking();
         active = true;
+
+        WelcomeChannel.update();
+        DiscordChannel.IN_GAME.getChannel()
+            .getManager()
+            .setTopic("Java %s | Server IP: farlandsmc.net".formatted(Bukkit.getMinecraftVersion()))
+            .queue();
     }
 
     /**

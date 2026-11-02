@@ -15,15 +15,16 @@ import java.util.*;
 public class PluginData {
 
     public int             currentMonth;
-    public int             lastPatch; // Number for the latest patchnotes
+    public int             lastPatch;         // Number for the latest patchnotes
     public byte[]          lastPatchnotesMD5; // Hash for last patchnotes
-    public int             votesUntilParty; // Votes until voteparty
-    public long            seasonStartTime; // Millis since season start
-    public LocationWrapper spawn; // Spawn location
-    public LocationWrapper pocketSpawn; // Pocket world spawn location
-    public LocationWrapper pvpIslandSpawn; // Location for pvp island
-    public Set<UUID>       spawnTraders; // Villagers at spawn
-    public List<Proposal>  proposals; // Currently pending staff proposals
+    public int             votesUntilParty;   // Votes until voteparty
+    public long            seasonStartTime;   // Millis since season start
+    public LocationWrapper spawn;             // Spawn location
+    public LocationWrapper pocketSpawn;       // Pocket world spawn location
+    public LocationWrapper pvpIslandSpawn;    // Location for pvp island
+    public Set<UUID>       spawnTraders;      // Villagers at spawn
+    public List<Proposal>  proposals;         // Currently pending staff proposals
+    public List<Long>      welcomeMessages;   // Messages created by Scribe for #welcome
 
     public Map<String, LocationWrapper> warps; // Warps
     public Map<UUID, PlayerTrade>       playerTrades; // Player trade offers

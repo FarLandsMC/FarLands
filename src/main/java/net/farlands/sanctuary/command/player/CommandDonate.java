@@ -1,6 +1,7 @@
 package net.farlands.sanctuary.command.player;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
@@ -79,6 +80,25 @@ public class CommandDonate extends Command {
         }
     }
 
+    public static MessageEmbed makeEmbed() {
+        updateRanksInfo();
+
+        EmbedBuilder eb = new EmbedBuilder()
+            .setTitle("Donate", FarLands.getFLConfig().donationLink)
+            .setDescription(FULL_DESCRIPTION + "\nDonate here: <" + FarLands.getFLConfig().donationLink + ">")
+            .setColor(NamedTextColor.BLUE.value());
+
+        for (Rank rank : Rank.DONOR_RANKS) {
+            eb.addField(
+                rank.getName(),
+                String.join("\n - ", RANKS_INFO.get(rank).stream().map(ComponentUtils::toText).toList()),
+                false
+            );
+        }
+
+        return eb.build();
+    }
+
     public CommandDonate() {
         super(CommandData.simple("donate", "List donation costs and perks.", "/donate").category(Category.INFORMATIONAL));
     }
@@ -107,21 +127,7 @@ public class CommandDonate extends Command {
             outlist.forEach(sender::sendMessage);
             info(sender, "Donate here: {}", ComponentUtils.link(FarLands.getFLConfig().donationLink));
         } else if (sender instanceof DiscordSender) {
-            EmbedBuilder eb = new EmbedBuilder()
-                .setTitle("Donate", FarLands.getFLConfig().donationLink)
-                .setDescription(FULL_DESCRIPTION + "\nDonate here: <" + FarLands.getFLConfig().donationLink + ">")
-                .setColor(NamedTextColor.BLUE.value());
-
-            for (Rank rank : Rank.DONOR_RANKS) {
-                eb.addField(
-                    rank.getName(),
-                    String.join("\n - ", RANKS_INFO.get(rank).stream().map(ComponentUtils::toText).toList()),
-                    false
-                );
-            }
-
-            ((DiscordSender) sender).sendMessageEmbeds(eb.build());
-
+            ((DiscordSender) sender).sendMessageEmbeds(makeEmbed());
         } else {
             sender.sendMessage(FULL_DESCRIPTION);
             outlist.forEach(sender::sendMessage);

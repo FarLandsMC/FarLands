@@ -3,7 +3,6 @@ package net.farlands.sanctuary.mechanic;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.chat.ChatMechanic;
 import net.farlands.sanctuary.mechanic.anticheat.AntiCheat;
-import net.farlands.sanctuary.mechanic.region.AutumnEvent;
 import net.farlands.sanctuary.mechanic.region.Spawn;
 import net.farlands.sanctuary.util.Logging;
 import org.bukkit.Bukkit;

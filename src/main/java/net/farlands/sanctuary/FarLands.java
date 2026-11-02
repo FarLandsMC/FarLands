@@ -44,9 +44,9 @@ public class FarLands extends JavaPlugin {
         this.scheduler = new Scheduler();
         this.debugger = new Debugger();
         this.dataHandler = new DataHandler(getDataFolder());
+        this.discordHandler = new DiscordHandler();
         this.mechanicHandler = new MechanicHandler();
         this.commandHandler = new CommandHandler();
-        this.discordHandler = new DiscordHandler();
         this.guiHandler = new GuiHandler();
     }
 
