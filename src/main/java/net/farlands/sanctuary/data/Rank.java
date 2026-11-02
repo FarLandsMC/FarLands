@@ -118,6 +118,16 @@ public enum Rank implements ComponentLike {
             : Integer.compare(permissionLevel, other.permissionLevel);
     }
 
+    /**
+     * @return whether a player is able to obtain this rank 
+     */
+    public boolean isPlayer() {
+        return !this.isStaff()
+            && this != Rank.MEDIA
+            && this != Rank.BIRTHDAY
+            && this != Rank.VOTER;
+    }
+
     public boolean isStaff() {
         return permissionLevel > 0;
     }

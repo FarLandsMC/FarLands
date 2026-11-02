@@ -19,7 +19,9 @@ public enum DiscordChannel {
     SUGGESTIONS,
     BUG_REPORTS,
     STAFF_COMMANDS,
-    COMMAND_LOG;
+    COMMAND_LOG,
+    WELCOME,
+    ;
 
     public static final DiscordChannel[] VALUES = values();
 
