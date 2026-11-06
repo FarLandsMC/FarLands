@@ -7,9 +7,11 @@ import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.ObjectComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
@@ -354,7 +356,15 @@ public class ComponentUtils {
      */
     @Contract(pure = true)
     public static String toText(Component component) {
-        return PlainTextComponentSerializer.plainText().serializeOr(component, "");
+        return PlainTextComponentSerializer.builder()
+            .flattener(
+                ComponentFlattener.basic()
+                    .toBuilder()
+                    .mapper(ObjectComponent.class, (o) -> "") // remove the ObjectComponents
+                    .build()
+            )
+            .build()
+            .serializeOr(component, "");
     }
 
     /**

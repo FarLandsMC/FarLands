@@ -57,7 +57,7 @@ public class CommandStats extends Command {
                 Map<PlayerStat, Object> playerInfoMap = playerInfoMap(flp, sender, false, true);
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setTitle("Stats for `" + flp.username + "`")
-                    .setColor(flp.getDisplayRank().color().value());
+                    .setColor(flp.rank.color().value());
                 for (PlayerStat stat : PlayerStat.values()) {
                     Object value = playerInfoMap.getOrDefault(stat, "");
                     String str = (value instanceof ComponentLike c) ? ComponentUtils.toText(c.asComponent()) : value.toString();
