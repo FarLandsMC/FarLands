@@ -38,8 +38,6 @@ public enum Rank implements ComponentLike {
     ADEPT    ("Adept",    NamedTextColor.GREEN,        144, 12,   4,      20,   8,     "adventure/totem_of_undying" ),
     SCHOLAR  ("Scholar",  NamedTextColor.BLUE,         240, 16,   3,      30,   7,     "adventure/adventuring_time" ),
 
-    VOTER    ("Voter",    TextColor.color(0xff6213),   -1,  16,   3,      30,   7                                   ), // Same as Scholar
-    BIRTHDAY ("B-Day",    TextColor.color(0xde3193),   -1,  16,   3,      30,   7                                   ),
     DONOR    ("Donor",    NamedTextColor.LIGHT_PURPLE, -1,  24,   2,      40,   6                                   ),
     PATRON   ("Patron",   NamedTextColor.DARK_PURPLE,  -1,  32,   0,      50,   3                                   ),
     SPONSOR  ("Sponsor",  TextColor.color(0x32a4ea),   -1,  40,   0,      50,   1                                   ),
@@ -164,7 +162,7 @@ public enum Rank implements ComponentLike {
     }
 
     public TextColor nameColor() {
-        return specialCompareTo(Rank.VOTER) >= 0 ? color() : NamedTextColor.WHITE;
+        return specialCompareTo(Rank.DONOR) >= 0 ? color() : NamedTextColor.WHITE;
     }
 
     public Advancement getAdvancement() {
@@ -239,7 +237,7 @@ public enum Rank implements ComponentLike {
      * Get the name of the scoreboard team that this rank is associated with
      */
     private String getTeamName() {
-        return specialCompareTo(VOTER) >= 0 ? (char) ('a' + ordinal()) + getName() : "aDefault"; // Prefixes to order teams alphabetically
+        return specialCompareTo(Rank.DONOR) >= 0 ? (char) ('a' + ordinal()) + getName() : "aDefault"; // Prefixes to order teams alphabetically
     }
 
     /**

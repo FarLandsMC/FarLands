@@ -1,5 +1,6 @@
 package net.farlands.sanctuary.mechanic;
 
+import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
@@ -67,7 +68,8 @@ public class Voting extends Mechanic {
 
     @EventHandler
     public void onVote(VotifierEvent event) {
-        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(event.getVote().getUsername());
+        Vote vote = event.getVote();
+        OfflineFLPlayer flp = FarLands.getDataHandler().getOfflineFLPlayerMatching(vote.getUsername());
         if (flp == null) { // Player has not logged in before (current season or any other)
             return;
         }

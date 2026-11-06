@@ -43,6 +43,7 @@ public class OfflineFLPlayer implements ComponentLike {
     public String       username;
     public String       timezone;
     public List<String> formerUsernames;
+    public Badges       savedBadges;     // badges that are persisted to disk
 
     public long discordID;
     public long lastLogin;
@@ -101,6 +102,7 @@ public class OfflineFLPlayer implements ComponentLike {
         this.nickname = null;
         this.username = username;
         this.formerUsernames = new ArrayList<>();
+        this.savedBadges = Badges.empty();
 
         this.timezone = "";
 
@@ -152,7 +154,6 @@ public class OfflineFLPlayer implements ComponentLike {
 
     }
 
-    @SuppressWarnings("unused")
     OfflineFLPlayer() { // No-Args constructor for Moshi
         this(null, null);
     }
@@ -249,10 +250,12 @@ public class OfflineFLPlayer implements ComponentLike {
      * @return The player's full display name, including display rank
      */
     public Component getFullDisplayName(boolean displayName) {
-        return Component.empty()
-            .append(this.getDisplayRank())
-            .append(Component.space())
-            .append(displayName ? this.getDisplayName() : this.rank.colorName(this.username));
+        return ComponentUtils.format(
+            "{}{} {}",
+            this.badges(),
+            this.rank,
+            displayName ? this.getDisplayName() : this.rank.colorName(this.username)
+        );
     }
 
     public void addVote() {
@@ -303,16 +306,21 @@ public class OfflineFLPlayer implements ComponentLike {
         }
     }
 
-    public Rank getDisplayRank() {
-        if (rank.isStaff())
-            return rank;
+    /**
+     * Determines the correct badges to be displayed at the given moment
+     */
+    public Badges badges() {
+        var badges = this.savedBadges;
 
-        if (birthday != null && birthday.isToday())
-            return Rank.BIRTHDAY;
-        else if (topVoter)
-            return Rank.VOTER;
-        else
-            return rank;
+        if (birthday != null && birthday.isToday()) {
+            badges = badges.with(Badges.Badge.BIRTHDAY);
+        }
+
+        if (topVoter) {
+            badges = badges.with(Badges.Badge.VOTER);
+        }
+
+        return badges;
     }
 
     public void setRank(Rank rank) {

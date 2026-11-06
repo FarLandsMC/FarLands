@@ -222,7 +222,7 @@ public class FLPlayerSession {
 
         player.setOp(handle.rank.hasOP());
         player.displayName(Objects.requireNonNullElseGet(handle.nickname, player::name));
-        handle.getDisplayRank().getTeam().addEntry(player.getName());
+        handle.rank.getTeam().addEntry(player.getName());
         handle.lastIP = player.getAddress().getAddress().getHostAddress();
 
         flying = handle.flightPreference;

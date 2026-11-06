@@ -11,6 +11,8 @@ import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ObjectComponent;
+import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -52,7 +54,15 @@ public class CommandNick extends PlayerCommand {
                 return error(sender, "Failed to parse nickname colors.  Use /colors to see the options.");
             }
             // Get rid of colors for length checking
-            String rawNick = PlainTextComponentSerializer.plainText().serialize(nickname);
+            String rawNick = PlainTextComponentSerializer.plainText().toBuilder()
+                .flattener(
+                    ComponentFlattener.basic()
+                        .toBuilder()
+                        .mapper(ObjectComponent.class, (o) -> "#") // treat an object as a single character
+                        .build()
+                )
+                .build()
+                .serialize(nickname);
             // Prevent whitespace and profanity
             if (args[1].isEmpty() || args[1].matches("\\s+") || MessageFilter.INSTANCE.isProfane(rawNick)) {
                 return error(sender, "You cannot set your nickname to this.");

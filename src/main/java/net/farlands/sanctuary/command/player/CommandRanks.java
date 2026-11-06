@@ -5,13 +5,13 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.farlands.sanctuary.FarLands;
 import net.farlands.sanctuary.command.Category;
 import net.farlands.sanctuary.command.Command;
+import net.farlands.sanctuary.command.CommandData;
 import net.farlands.sanctuary.command.CommandHandler;
 import net.farlands.sanctuary.command.DiscordSender;
 import net.farlands.sanctuary.data.Rank;
 import net.farlands.sanctuary.data.struct.OfflineFLPlayer;
 import net.farlands.sanctuary.util.ComponentColor;
 import net.farlands.sanctuary.util.TimeInterval;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -22,7 +22,16 @@ import java.util.stream.Collectors;
 
 public class CommandRanks extends Command {
     public CommandRanks() {
-        super(Rank.INITIATE, Category.INFORMATIONAL, "Show all available player ranks.", "/ranks", "ranks");
+        super(
+            CommandData
+                .withRank(
+                    "ranks",
+                    "Show all available player ranks.",
+                    "/ranks",
+                    Rank.INITIATE
+                )
+                .category(Category.INFORMATIONAL)
+        );
     }
 
     @Override
@@ -31,10 +40,6 @@ public class CommandRanks extends Command {
         Map<Rank, List<String>> ranksInfo = new HashMap<>();
 
         for (Rank rank : Rank.VALUES) {
-            // Skip the voter and birthday ranks as it's only used internally
-            if (Rank.VOTER == rank || Rank.BIRTHDAY == rank)
-                continue;
-
             // Don't show staff ranks
             if (rank.specialCompareTo(Rank.SPONSOR) > 0)
                 break;
@@ -90,7 +95,7 @@ public class CommandRanks extends Command {
             ds.sendMessageEmbeds(eb.build());
 
         } else {
-            var b = ((TextComponent) ComponentColor.green("Ranks: \n")).toBuilder();
+            var b = ComponentColor.green("Ranks: \n").toBuilder();
             for (Rank rank : Rank.values()) {
                 if (!ranksInfo.containsKey(rank)) { continue; }
                 b.append(ComponentColor.blue("{} - {}\n", rank, String.join(" - ", ranksInfo.get(rank))));

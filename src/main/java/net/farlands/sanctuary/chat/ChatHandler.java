@@ -15,6 +15,8 @@ import net.farlands.sanctuary.util.ComponentUtils;
 import net.farlands.sanctuary.util.FLUtils;
 import net.farlands.sanctuary.util.Logging;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.ShadowColor;
+import net.kyori.adventure.text.object.ObjectContents;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -194,9 +196,10 @@ public class ChatHandler {
             CommandStats.getFormattedStats(sender, null, false)
         );
         return ComponentColor.color(
-            sender.getDisplayRank().color(),
-            "{} {}:",
-            sender.getDisplayRank(),
+            sender.rank.color(),
+            "{}{} {}:",
+            sender.badges(),
+            sender.rank,
             nameDisplay
         );
     }
